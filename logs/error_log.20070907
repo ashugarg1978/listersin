@@ -1,0 +1,14 @@
+[Fri Sep 07 11:34:22 2007] [error] [client 122.208.151.186] user nagios not found: /
+[Fri Sep 07 11:34:24 2007] [error] [client 122.208.151.186] user nagios not found: /
+[Fri Sep 07 11:34:25 2007] [error] [client 122.208.151.186] user nagios not found: /
+[Fri Sep 07 11:34:26 2007] [error] [client 122.208.151.186] user nagios not found: /favicon.ico, referer: http://dev.xboo.st/
+[Fri Sep 07 11:34:34 2007] [error] [client 122.208.151.186] user xboodev not found: /
+[Fri Sep 07 11:35:15 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:23 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:24 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:31 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:34 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:37 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:38 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:39 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch
+[Fri Sep 07 11:35:42 2007] [error] [client 122.208.151.186] user devuser: authentication failure for "/": Password Mismatch

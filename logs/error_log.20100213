@@ -1,0 +1,27 @@
+[Sat Feb 13 13:21:55 2010] [error] [client 110.172.4.14] user dev not found: /
+[Sat Feb 13 13:21:58 2010] [error] [client 110.172.4.14] user nabe not found: /
+[Sat Feb 13 13:22:04 2010] [error] [client 110.172.4.14] user devxboo not found: /
+[Sat Feb 13 13:22:08 2010] [error] [client 110.172.4.14] user xboo not found: /
+[Sat Feb 13 13:22:12 2010] [error] [client 110.172.4.14] user devxboost not found: /
+[Sat Feb 13 13:22:59 2010] [error] [client 110.172.4.14] user devuser: authentication failure for "/": Password Mismatch
+[Sat Feb 13 13:23:04 2010] [error] [client 110.172.4.14] user devuser: authentication failure for "/": Password Mismatch
+[Sat Feb 13 13:23:08 2010] [error] [client 110.172.4.14] user devuser: authentication failure for "/": Password Mismatch
+[Sat Feb 13 13:23:11 2010] [error] [client 110.172.4.14] user devuser: authentication failure for "/": Password Mismatch
+[Sat Feb 13 13:23:14 2010] [error] [client 110.172.4.14] Directory index forbidden by rule: /var/www/dev.xboo.st/webroot/
+[Sat Feb 13 13:23:18 2010] [error] [client 110.172.4.14] File does not exist: /usr/local/nagios
+[Fri Feb 12 23:24:34 2010] [error] [client 110.172.4.14] File does not exist: /usr/local/nagios
+[Fri Feb 12 23:24:36 2010] [error] [client 110.172.4.14] File does not exist: /usr/local/nagios
+[Sat Feb 13 13:25:04 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/webroot/edit.css, referer: http://dev.xboo.st/task.html
+[Sat Feb 13 20:43:41 2010] [error] [client 110.172.4.14] Directory index forbidden by rule: /var/www/dev.xboo.st/webroot/
+[Sat Feb 13 20:43:41 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/webroot/favicon.ico, referer: http://dev.xboo.st/
+[Sat Feb 13 06:44:39 2010] [error] [client 110.172.4.14] Directory index forbidden by rule: /var/www/dev.xboo.st/webroot/
+[Sat Feb 13 06:44:39 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/webroot/favicon.ico, referer: http://dev.xboo.st/
+[Sat Feb 13 06:44:43 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/webroot/asdf
+[Sat Feb 13 06:45:53 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/asdf
+[Sat Feb 13 06:45:54 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/asdf
+[Sat Feb 13 06:47:12 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/ebay
+[Sat Feb 13 06:58:38 2010] [error] [client 110.172.4.14] Directory index forbidden by rule: /var/www/dev.xboo.st/app/webroot/
+[Sat Feb 13 06:58:44 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/ebay
+[Sat Feb 13 06:58:47 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/ebay
+[Sat Feb 13 07:09:41 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/ebay
+[Sat Feb 13 07:09:42 2010] [error] [client 110.172.4.14] File does not exist: /var/www/dev.xboo.st/app/webroot/ebay

@@ -1,0 +1,13 @@
+[Sat Jan 05 04:35:59 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/be-click.xml
+[Sat Jan 05 04:36:00 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/favicon.ico, referer: http://dev.xboo.st/be-click.xml
+[Sat Jan 05 21:10:16 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/VERSION, referer: http://dev.xboo.st/docbook/a.xml
+[Sat Jan 05 21:11:05 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/favicon.ico
+[Sat Jan 05 21:11:27 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/VERSION
+[Sat Jan 05 21:14:56 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/VERSION, referer: http://dev.xboo.st/docbook/a.xml
+[Sat Jan 05 21:15:16 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/xsl/docbook.xsl, referer: http://dev.xboo.st/docbook/a.xml
+[Sat Jan 05 21:16:01 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/VERSION
+[Sat Jan 05 21:16:19 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/VERSION
+[Sat Jan 05 21:17:54 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/xsl
+[Sat Jan 05 21:20:34 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/favicon.ico
+[Sat Jan 05 21:21:25 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/xsl
+[Sat Jan 05 21:30:30 2008] [error] [client 202.148.253.245] File does not exist: /var/www/dev.xboo.st/webroot/docbook/xsl

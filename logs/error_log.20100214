@@ -1,0 +1,3 @@
+[Sun Feb 14 03:21:24 2010] [warn] RSA server certificate CommonName (CN) `localhost.localdomain' does NOT match server name!?
+[Sun Feb 14 03:21:26 2010] [warn] RSA server certificate CommonName (CN) `localhost.localdomain' does NOT match server name!?
+[Sun Feb 14 03:21:36 2010] [error] [client 110.172.4.14] user devuser: authentication failure for "/": Password Mismatch, referer: https://dev.xboo.st/

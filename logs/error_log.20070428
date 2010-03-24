@@ -1,0 +1,5 @@
+[Sat Apr 28 22:22:04 2007] [error] [client 202.148.253.15] (2)No such file or directory: Could not open password file: /usr/local/nagios/etc/htpasswd.users
+[Sat Apr 28 22:23:59 2007] [error] [client 202.148.253.15] user devuser not found: /nagios/
+[Sat Apr 28 22:24:01 2007] [error] [client 202.148.253.15] user devuser not found: /nagios/
+[Sat Apr 28 22:24:02 2007] [error] [client 202.148.253.15] user devuser not found: /nagios/
+[Sat Apr 28 22:30:57 2007] [error] [client 202.148.253.15] user nabe not found: /nagios

@@ -1,0 +1,115 @@
+body {
+	margin: 0px 0px 0px 0px;
+	font-family: "Arial","Helvetica",sans-serif;
+	font-size: 10pt;
+}
+
+div#header {
+	background-color: #eeeeee;
+	font-size: 10pt;
+	color: #666666;
+	padding: 9px;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+}
+
+div#header a {
+	padding: 4px;
+	color: #666666;
+	text-decoration: none;
+}
+
+div#header a:hover {
+	background-color: #cccccc;
+}
+
+div#content {
+	margin-top: 40px;
+	padding: 10px;
+}
+
+div.debug {
+	padding: 5px;
+	border: 1px solid #999900;
+}
+
+
+table.items {
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+table.items tr {
+	border-bottom: 1px solid #eeeeee;
+}
+
+tr.rowover {
+	background-color: #fafafa;
+	border-right: 1px solid #eeeeee;
+	border-left: 1px solid #eeeeee;
+}
+
+table.items th {
+	color: #20201e;
+	font-size: 9pt;
+	padding: 3px 10px 3px 10px;
+	text-align: center;
+}
+
+table.items th a {
+	color: #20201e;
+	font-weight: bold;
+}
+
+table.items td {
+	font-size: 10pt;
+	padding: 3px 10px 3px 10px;
+}
+
+table.items td.ei {
+	color: blue;
+}
+
+table.items td.eimo {
+	color: white;
+	background-color: blue;
+}
+
+table.items input {
+	/* border: 1px solid #999999; */
+	font-family: "Arial","Helvetica",sans-serif;
+	font-size: 10pt;
+}
+
+table.items a {
+	text-decoration: none;
+	color: #0000ff;
+}
+
+table.items a:hover {
+	text-decoration: none;
+	color: #ffffff;
+	background-color: #0000ff;
+}
+
+div.success {
+	border: 2px solid #009900;
+	background-color: #eeffee;
+	padding: 5px;
+	margin: 2px;
+}
+
+div.notice {
+	border: 2px solid #ff0000;
+	background-color: #ffeeee;
+	padding: 5px;
+	margin: 2px;
+}
+
+.loading {
+	background-image: url(/img/indicator.gif);
+	background-repeat: no-repeat;
+	background-position: center center;
+}

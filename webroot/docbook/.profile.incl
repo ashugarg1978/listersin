@@ -1,0 +1,43 @@
+# /var/www/dev.xboo.st/webroot/docbook/tools/bin is not in PATH, so add it
+if [ "${PATH#*/var/www/dev.xboo.st/webroot/docbook/tools/bin*}" = "$PATH" ]; then
+  PATH="/var/www/dev.xboo.st/webroot/docbook/tools/bin:$PATH"
+  export PATH
+fi
+if [ -z "$XML_CATALOG_FILES" ]; then
+  XML_CATALOG_FILES="/var/www/dev.xboo.st/webroot/docbook/catalog.xml"
+else
+  # /var/www/dev.xboo.st/webroot/docbook/catalog.xml is not in XML_CATALOG_FILES, so add it
+  if [ "${XML_CATALOG_FILES#*/var/www/dev.xboo.st/webroot/docbook/catalog.xml*}" = "$XML_CATALOG_FILES" ]; then
+    XML_CATALOG_FILES="/var/www/dev.xboo.st/webroot/docbook/catalog.xml $XML_CATALOG_FILES"
+  fi
+fi
+# /etc/xml/catalog exists but is not in XML_CATALOG_FILES, so add it
+if [ -f /etc/xml/catalog ] &&   [ "${XML_CATALOG_FILES#*/etc/xml/catalog*}" = "$XML_CATALOG_FILES" ]; then
+  XML_CATALOG_FILES="$XML_CATALOG_FILES /etc/xml/catalog"
+fi
+export XML_CATALOG_FILES
+
+if [ -z "$SGML_CATALOG_FILES" ]; then
+  SGML_CATALOG_FILES="/var/www/dev.xboo.st/webroot/docbook/catalog"
+else
+  # /var/www/dev.xboo.st/webroot/docbook/catalog is not in SGML_CATALOG_FILES, so add it
+  if [ "${SGML_CATALOG_FILES#*/var/www/dev.xboo.st/webroot/docbook/catalog}" = "$SGML_CATALOG_FILES" ]; then
+    SGML_CATALOG_FILES="/var/www/dev.xboo.st/webroot/docbook/catalog:$SGML_CATALOG_FILES"
+  fi
+fi
+# /etc/sgml/catalog exists but is not in SGML_CATALOG_FILES, so add it
+if [ -f /etc/sgml/catalog ] &&   [ "${SGML_CATALOG_FILES#*/etc/sgml/catalog*}" = "$SGML_CATALOG_FILES" ]; then
+  SGML_CATALOG_FILES="$SGML_CATALOG_FILES:/etc/sgml/catalog"
+fi
+export SGML_CATALOG_FILES
+
+
+if [ -z "$CLASSPATH" ]; then
+  CLASSPATH="/home/nabe/.resolver"
+else
+  # /home/nabe/.resolver is not in CLASSPATH, so add it
+  if [ "${CLASSPATH#*/home/nabe/.resolver*}" = "$CLASSPATH" ]; then
+    CLASSPATH="/home/nabe/.resolver:$CLASSPATH"
+  fi
+fi
+export CLASSPATH

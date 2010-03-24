@@ -1,0 +1,131 @@
+----
+
+----
+
+stdClass Object
+(
+    [headers] => Array
+        (
+            [from n@xboo.st  tue dec 26 18] => 33:43 2006
+            [return-path] => <n@xboo.st>
+            [x-original-to] => task@xboo.st
+            [delivered-to] => task@xboo.st
+            [received] => from localhost (xboo.st [127.0.0.1])
+            [] => Array
+                (
+                    [0] => y mail.xboo.st (Postfix) with ESMTP id 3FD6B6F809C
+                    [1] => 20061226.165013.35036221.n@xboo.st>
+                    [2] => 20061226.165148.15242800.n@xboo.st>
+                )
+
+            [for <task@xboo.st>; tue, 26 dec 2006 18] => 33:43 +0900 (JST)
+            [date] => Tue, 26 Dec 2006 18:33:43 +0900 (JST)
+            [message-id] => <20061226.183343.63118576.n@xboo.st>
+            [to] => task@xboo.st
+            [subject] => Re: $B$$$$$$$$$&$($*(B
+            [from] => Yoshihiro Watanabe <n@xboo.st>
+            [in-reply-to] => <20061226.165148.15242800.n@xboo.st>
+            [references] => <20061226.164656.38685696.n@xboo.st>
+            [x-mailer] => Mew version 5.1 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+            [mime-version] => 1.0
+            [content-type] => Text/Plain; charset=iso-2022-jp
+            [content-transfer-encoding] => 7bit
+        )
+
+    [ctype_primary] => Text
+    [ctype_secondary] => Plain
+    [ctype_parameters] => Array
+        (
+            [charset] => iso-2022-jp
+        )
+
+    [body] => From: Yoshihiro Watanabe <n@xboo.st>
+Subject: $B$$$$$$$$$&$($*(B
+Date: Tue, 26 Dec 2006 16:51:48 +0900 (JST)
+
+> $B$*$$$&$($*$$$"$&(B
+> $B$"$*$$$&$($*$$$"$&(B
+> $B$*$$$&$($*$$$"$&(B
+> $B$"$*$$$&$($*$$$"$&(B
+
+
+)
+
+----
+Re: ¤¤¤¤¤¤¤¤¤¦¤¨¤ª
+----
+
+stdClass Object
+(
+    [headers] => Array
+        (
+            [from n@xboo.st  tue dec 26 18] => 36:30 2006
+            [return-path] => <n@xboo.st>
+            [x-original-to] => task@xboo.st
+            [delivered-to] => task@xboo.st
+            [received] => from localhost (xboo.st [127.0.0.1])
+            [] => Array
+                (
+                    [0] => y mail.xboo.st (Postfix) with ESMTP id 6A93E6F809C
+                    [1] => 20061226.165013.35036221.n@xboo.st>
+                    [2] => 20061226.165148.15242800.n@xboo.st>
+                )
+
+            [for <task@xboo.st>; tue, 26 dec 2006 18] => 36:30 +0900 (JST)
+            [date] => Tue, 26 Dec 2006 18:36:30 +0900 (JST)
+            [message-id] => <20061226.183630.30177341.n@xboo.st>
+            [to] => task@xboo.st
+            [subject] => Re: $B$$$$$$$$$&$($*(B
+            [from] => Yoshihiro Watanabe <n@xboo.st>
+            [in-reply-to] => <20061226.165148.15242800.n@xboo.st>
+            [references] => <20061226.164656.38685696.n@xboo.st>
+            [x-mailer] => Mew version 5.1 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+            [mime-version] => 1.0
+            [content-type] => Text/Plain; charset=iso-2022-jp
+            [content-transfer-encoding] => 7bit
+        )
+
+    [ctype_primary] => Text
+    [ctype_secondary] => Plain
+    [ctype_parameters] => Array
+        (
+            [charset] => iso-2022-jp
+        )
+
+    [body] => From: Yoshihiro Watanabe <n@xboo.st>
+Subject: $B$$$$$$$$$&$($*(B
+Date: Tue, 26 Dec 2006 16:51:48 +0900 (JST)
+
+> $B$*$$$&$($*$$$"$&(B
+> $B$"$*$$$&$($*$$$"$&(B
+> $B$*$$$&$($*$$$"$&(B
+> $B$"$*$$$&$($*$$$"$&(B
+
+
+)
+
+INSERT failed
+INSERT failed
+INSERT INTO taskmaster (title) VALUES ('Re: ¥á¡¼¥ëÅÐÏ¿¥Æ¥¹¥È');
+INSERT
+INSERT
+INSERT
+INSERT OK
+INSERT INTO taskmaster (title) VALUES ('·ÈÂÓ¤«¤éÅÐÏ¿');
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 35;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 36;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 37;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 38;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 28;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 29;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 30;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 31;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 32;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 27;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 22;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 23;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 24;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 25;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 26;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 17;
+UPDATE taskmaster SET title = '(Í½È÷)' WHERE taskid = 18;

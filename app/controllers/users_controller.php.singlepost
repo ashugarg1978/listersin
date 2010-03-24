@@ -1,0 +1,386 @@
+<?
+class UsersController extends AppController {
+	
+    var $name = 'Users';    
+    var $components = array('Auth', 'Email');
+	
+	var $r;
+	var $user;
+	
+	function beforeFilter() {
+		
+        $this->Auth->allow('index', 'register');
+		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
+		$this->Auth->fields = array('username' => 'email', 
+									'password' => 'password');
+		
+		$this->user = $this->Auth->user();
+		
+		$this->set('user', $this->Auth->user());
+		
+		error_log($this->action.':'.print_r($_POST,1));
+    }	
+	
+	function index()
+	{
+		
+	}
+	
+	function home()
+	{
+		$userid = $this->user['User']['userid'];
+		
+		$sql = "SELECT *"
+			. " FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE userid = ".$userid
+			. " ORDER BY itemid DESC"
+			. " LIMIT 100"; 
+		$res = $this->User->query($sql);
+		
+		$this->set('items', $res);
+		
+	}
+	
+    function login() {
+		
+    }
+	
+    function logout() {
+        $this->Auth->logout();
+        $this->redirect('/');
+    }
+	
+	function register() {
+		
+		if (!empty($this->data)) {
+			
+			$this->User->create();
+			if ($this->User->save($this->data)) {
+				
+				// send signup email containing password to the user
+				$this->Email->from = "a@a.a";
+				$this->Email->to   = "fd3s.boost@gmail.com";
+				$this->Email->subject = 'testmail';
+				$this->Email->send('test message 1234');
+				
+				$this->Auth->login($this->data);
+				
+				$this->redirect("home");
+			}		
+			
+		}
+	}
+
+	function accept()
+	{
+		if ($user = $this->Auth->user()) {
+			$sql_insert = "INSERT INTO accounts"
+				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
+				. " VALUES ("
+				. " ".$user['User']['userid'].","
+				. " '".mysql_real_escape_string($_GET["username"])."',"
+				. " '".mysql_real_escape_string($_GET["ebaytkn"])."',"
+				. " '".mysql_real_escape_string($_GET["tknexp"])."',"
+				. " NOW())";
+			$res = $this->User->query($sql_insert);
+		}
+	}
+	
+	function reject()
+	{
+		
+	}
+	
+	function copy()
+	{
+		if (empty($_POST['item'])) return;
+		
+		$sql_copy = "INSERT INTO items (accountid, title, description)"
+			. " SELECT accountid, CONCAT('copy(', itemid, ')', title), description"
+			. " FROM items"
+			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
+			. " ORDER BY itemid";
+		$res = $this->User->query($sql_copy);
+		
+		$sql = "SELECT itemid, ebayuserid, title"
+			 . " FROM items"
+			 . " JOIN accounts USING (accountid)"
+			 . " ORDER BY itemid DESC"
+			 . " LIMIT ".count($_POST['item']);
+		$res = $this->User->query($sql);
+		
+		print json_encode($res);
+		
+		exit;
+	}
+	
+	function update()
+	{
+		if (empty($_POST['item'])) return;
+						
+		//	 . " DATE_FORMAT(starttime, '%m-%d %H:%i') AS starttime,"
+		//	 . " DATE_FORMAT(endtime,   '%m-%d %H:%i') AS endtime,"
+		$sql = "SELECT itemid, ebayuserid, ebayitemid,"
+			. " starttime, endtime, title"
+			. " FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
+			. " ORDER BY itemid DESC"
+			. " LIMIT ".count($_POST['item']);
+		$res = $this->User->query($sql);
+		
+		error_log(print_r($res,1));
+		print json_encode($res);
+		
+		exit;
+	}
+	
+	function submit()
+	{
+		if (empty($_POST['item'])) return;
+		
+		$cmd = 'PATH=/usr/local/php-5.2.10/bin'
+			. ' /var/www/dev.xboo.st/cake/console/cake'
+			. ' -app /var/www/dev.xboo.st/app daemon'
+			. ' '.implode(',', $_POST['item'])
+			. ' > /dev/null &';
+		system($cmd);
+		error_log($cmd);
+		
+		exit;
+	}
+	
+	function xsubmit($itemids)
+	{
+		error_log('xsubmit:'.implode(',', $itemids));
+		if (empty($itemids)) return;
+		
+		// read data from db
+		$sql = "SELECT * FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE itemid IN (".implode(",", $itemids).")";
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $arr) {
+			
+			$arr['items']['title'] = "(".$arr['items']['itemid'].")".$arr['items']['title'];
+			
+			// todo: cut string in another way
+			$arr['items']['title'] = substr($arr['items']['title'], 0, 55);
+			
+			$accountid = $arr['items']['accountid'];
+			$itemdata[$accountid]['accounts'] = $arr['accounts'];
+			$itemdata[$accountid]['items'][]  = $arr['items'];
+		}
+		
+		
+		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
+		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
+		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
+		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
+		$headers['X-EBAY-API-CALL-NAME'] = 'AddItems';
+		$headers['X-EBAY-API-SITEID']    = 0;
+		
+		$url = EBAY_SERVERURL;
+		
+		$this->r = new HttpRequest();
+		$this->r->setHeaders($headers);
+		
+		foreach ($itemdata as $accountid => $hash) {
+			
+			$chunked = array_chunk($hash['items'], 5);
+			foreach ($chunked as $chunkedidx => $items) {
+				
+				// build xml
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] = $hash['accounts']['ebaytoken'];
+				$h['Version']       = EBAY_COMPATLEVEL;
+				$h['ErrorLanguage'] = 'en_US';
+				$h['WarningLevel']  = 'High';
+				
+				foreach ($items as $i => $arr) {
+					$xml_item = $this->xml_item($arr);
+					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
+					$h['AddItemRequestContainer'][$i]['Item'] = $xml_item;
+				}
+				
+				$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+					. '<AddItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+					. $this->xml($h, 1)
+					. '</AddItemsRequest>'."\n";
+				
+				file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
+								  .$hash['accounts']['ebayuserid']
+								  .".".date("YmdHis").".".$chunkedidx.".xml", $xml);
+				
+				// post
+				$xml_response = $this->post($url, $xml);
+				
+				file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
+								  .$hash['accounts']['ebayuserid']
+								  .".".date("YmdHis").".".$chunkedidx
+								  .".response.xml", $xml_response);
+				
+				// update database
+				$xmlobj = simplexml_load_string($xml_response);
+				foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
+					
+					$idx = ($chunkedidx * 5) + ($obj->CorrelationID - 1);
+					
+					if (isset($obj->ItemID)) {
+						
+						$sql = "UPDATE items SET"
+							. " ebayitemid = '".mysql_real_escape_string($obj->ItemID)."',"
+							. " starttime  = '".mysql_real_escape_string($obj->StartTime)."',"
+							. " endtime    = '".mysql_real_escape_string($obj->EndTime)."'"
+							. " WHERE itemid = ".$hash['items'][$idx]['itemid'];
+						$this->User->query($sql);
+						
+						$result = null;
+						$result['ebayitemid'] = $obj->ItemID;
+						$result['starttime']  = $obj->StartTime;
+						$result['endtime']    = $obj->EndTime;
+						
+						$itemdata[$accountid]['items'][$idx]['result'] = $result;
+						
+					} else if (isset($obj->Errors)) {
+						
+						$itemdata[$accountid]['items'][$idx]['errors'] = $obj->Errors->LongMessage;
+						
+					} else {
+						
+						$itemdata[$accountid]['items'][$idx]['exception']  = '*** ?????? ***';
+						
+					}
+					
+				}
+				
+				$itemdata[$accountid]['response'] = $xmlobj;
+				
+			}
+			
+		}
+		
+		return $itemdata;
+	}
+	
+	function xml($arr, $depth=0)
+	{
+		$xml = "";
+		foreach ($arr as $k => $v) {
+			if (is_array($v)) {
+				if (array_key_exists(0, $v)) {
+					foreach ($v as $j => $tmp) {
+						$xml .= str_repeat("\t", $depth)."<".$k.">\n";
+						$xml .= $this->xml($tmp, ($depth+1));
+						$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+					}
+				} else {
+					$xml .= str_repeat("\t", $depth)."<".$k.">\n";
+					$xml .= $this->xml($v, ($depth+1));
+					$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+				}
+			} else {
+				$xml .= str_repeat("\t", $depth)."<".$k.">".$v."</".$k.">"."\n";
+			}
+		}
+		
+		return $xml;
+	}
+	
+	function xml_item($d)
+	{
+		$i['Title'] = $d['title'];
+		$i['Description'] = $d['description'];
+		$i['PrimaryCategory']['CategoryID'] = '279';
+		$i['CategoryMappingAllowed'] = 'true';
+		$i['Site'] = 'US';
+		$i['Quantity'] = '1';
+		$i['StartPrice'] = '1.0';
+		$i['ListingDuration'] = 'Days_7';
+		$i['ListingType'] = 'Chinese';
+		$i['DispatchTimeMax'] = '3';
+		$i['ShippingDetails']['ShippingType'] = 'Flat';
+		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServicePriority'] = '1';
+		$i['ShippingDetails']['ShippingServiceOptions']['ShippingService'] = 'USPSMedia';
+		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost'] = '2.50';
+		$i['ReturnPolicy']['ReturnsAcceptedOption'] = 'ReturnsAccepted';
+		$i['ReturnPolicy']['RefundOption'] = 'MoneyBack';
+		$i['ReturnPolicy']['ReturnsWithinOption'] = 'Days_30';
+		$i['ReturnPolicy']['Description'] = 'foobar';
+		$i['ReturnPolicy']['ShippingCostPaidByOption'] = 'Buyer';
+		$i['Country'] = 'US';
+		$i['Currency'] = 'USD';
+		$i['PostalCode'] = '95125';
+		$i['PaymentMethods'] = 'PayPal';
+		$i['PayPalEmailAddress'] = 'magicalbookseller@yahoo.com';
+		$i['PictureDetails']['PictureURL'] = 'http://thumbs.ebaystatic.com/pict/41007087008080_0.jpg';
+		
+		return $i;
+	}
+
+	function import($ebayuserid)
+	{
+		$sql = "SELECT * FROM accounts"
+			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
+		$res = $this->User->query($sql);
+		$row = $res[0]['accounts'];
+		
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $row['ebaytoken'];
+		$h['GranularityLevel'] = 'Coarse';
+		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
+		$h['StartTimeTo']   = date('Y-m-d H:i:s');
+		$h['Pagination']['EntriesPerPage'] = 10;
+		
+		$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+			. '<GetSellerListRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+			. $this->xml($h, 1)
+			. '</GetSellerListRequest>'."\n";
+		
+		file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
+						  .$ebayuserid.".".date("YmdHis").".import.xml", $xml);
+		
+		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
+		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
+		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
+		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
+		$headers['X-EBAY-API-CALL-NAME'] = 'GetSellerList';
+		$headers['X-EBAY-API-SITEID']    = 0;
+		
+		$url = EBAY_SERVERURL;
+		
+		$this->r = new HttpRequest();
+		$this->r->setHeaders($headers);
+		
+		$xml_response = $this->post($url, $xml);
+		
+		header("Content-Type: application/xml");
+		print($xml_response);
+		exit;
+	}
+	
+	function get($url)
+	{
+		$this->r->setMethod(HttpRequest::METH_GET);
+		$this->r->setUrl($url);
+		$this->r->send();
+		
+		$html = $this->r->getResponseBody();
+		
+		return $html;
+	}
+	
+	function post($url, $form)
+	{
+		$this->r->setMethod(HttpRequest::METH_POST);
+		$this->r->setUrl($url);
+		$this->r->setRawPostData($form);
+		$this->r->send();
+		
+		$html = $this->r->getResponseBody();
+		
+		return $html;
+	}
+}
+?>
