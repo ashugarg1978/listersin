@@ -51,7 +51,7 @@ foreach ($items as $i => $arr) {
 	echo '<td id="r'.$iid.'et">'.substr($row['endtime']  , 5, 11).'</td>'."\n";
 	echo '<td id="r'.$iid.'tt"><a href="/users/item/'.$row['itemid'].'/">'.$row['title'].'</a></td>'."\n";
 	echo '<td id="r'.$iid.'sp">'.$row['startprice'].'</td>'."\n";
-	echo '<td id="r'.$iid.'sp"><img src="'.$row['galleryurl'].'" height="30"></td>'."\n";
+	echo '<td id="r'.$iid.'sp"></td>'."\n";
 	echo '</tr>';
 	echo "\n\n";
 }
@@ -61,8 +61,8 @@ foreach ($items as $i => $arr) {
 <div style="float:left; width=300px;" id="debug">
 </div>
 
-<div id="template">
-<table>
+<div id="template" style="display:none;">
+<table class="detail">
 <tr>
 	<td>**ei**</td>
 	<td>[ebayitemid]</td>
