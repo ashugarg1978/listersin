@@ -61,6 +61,7 @@ foreach ($items as $i => $arr) {
 <div style="float:left; width=300px;" id="debug">
 </div>
 
+<div id="templatewrap" style="display:none;">
 <div id="template" style="display:none;">
 <table class="detail">
 <tr>
@@ -84,4 +85,5 @@ foreach ($items as $i => $arr) {
 	<td>[description]</td>
 </tr>
 </table>
+</div>
 </div>

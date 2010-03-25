@@ -5,22 +5,26 @@ function bindevents ()
 				
 				itemid = $(this).attr('id').replace(/^r/, '').replace(/st$/, '');
 				
-				$(this).parent().after('<tr><td colspan="9">'
-									   + '<div style="display:none;" id="d'+itemid+'">'
-									   + '</div>'
-									   + '</td></tr>');
-				
+				if ($('#d'+itemid).css('display')) {
+					$('#d'+itemid).slideToggle('fast');
+					return;
+				}
 				
 				$.getJSON('/users/item/'+itemid, function(data){
-					tmpl = $('#template').html();
-					
-					$.each(data, function(idx, val){
-						tmpl = tmpl.replace('['+idx+']', val);
+						tmpl = $('#templatewrap').html();
+						
+						tmpl = tmpl.replace('template', 'd'+itemid+'');
+						
+						$.each(data, function(idx, val){
+								tmpl = tmpl.replace('['+idx+']', val);
+							});
+						
+						$('#r'+itemid).after('<tr><td colspan="9">'
+											 + tmpl
+											 + '</td></tr>');
+						
+						$('#d'+itemid).slideDown('fast');
 					});
-					
-					$('#d'+itemid).html(tmpl);
-					$('#d'+itemid).slideToggle('fast');
-				});
 				
 			}
 		});
