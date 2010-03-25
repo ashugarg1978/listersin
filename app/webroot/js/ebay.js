@@ -10,6 +10,8 @@ function bindevents ()
 					return;
 				}
 				
+				$.scrollTo('100px;');
+				
 				$.getJSON('/users/item/'+itemid, function(data){
 						tmpl = $('#templatewrap').html();
 						

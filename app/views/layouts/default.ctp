@@ -9,6 +9,7 @@
 <link href="/css/ebay.css" rel="stylesheet" type="text/css">
 <script type="text/javascript" src="/js/jquery-1.4.1.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
+<script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
 </head>
 <body onload="bindevents();">
