@@ -10,8 +10,6 @@ function bindevents ()
 					return;
 				}
 				
-				//$.scrollTo('100px;');
-				
 				$.getJSON('/users/item/'+itemid, function(data){
 						tmpl = $('#templatewrap').html();
 						
@@ -28,6 +26,7 @@ function bindevents ()
 						$('#d'+itemid).slideDown('fast');
 					});
 				
+				$.scrollTo('#r'+itemid, '+=100px');
 			}
 		});
 	
