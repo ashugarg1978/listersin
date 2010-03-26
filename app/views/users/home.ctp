@@ -49,7 +49,7 @@ foreach ($items as $i => $arr) {
 	echo '<td id="r'.$iid.'ei" class="ei">'.$row['ebayitemid'].'</td>'."\n";
 	echo '<td id="r'.$iid.'st" class="st">'.substr($row['starttime'], 5, 11).'</td>'."\n";
 	echo '<td id="r'.$iid.'et">'.substr($row['endtime']  , 5, 11).'</td>'."\n";
-	echo '<td id="r'.$iid.'tt"><div id="a'.$row['itemid'].'"></div><a href="/users/item/'.$row['itemid'].'/">'.$row['title'].'</a></td>'."\n";
+	echo '<td id="r'.$iid.'tt" class="tt">'.$row['title'].'</td>'."\n";
 	echo '<td id="r'.$iid.'sp">'.$row['startprice'].'</td>'."\n";
 	echo '<td id="r'.$iid.'sp"></td>'."\n";
 	echo '</tr>';

@@ -1,10 +1,16 @@
 function bindevents ()
 {
-	$("td.st").bind({
+	$("td.tt").bind({
 			click: function(event){
 				
-				itemid = $(this).attr('id').replace(/^r/, '').replace(/st$/, '');
+				itemid = $(this).attr('id').replace(/^r/, '').replace(/tt$/, '');
 				
+				if ($('#d'+itemid).css('display') == 'block') {
+					$('#d'+itemid).slideToggle('fast', function(){
+							$('#rd'+itemid).remove();
+						});
+					return;
+				}
 				if ($('#d'+itemid).css('display')) {
 					$('#d'+itemid).slideToggle('fast');
 					return;
@@ -19,14 +25,14 @@ function bindevents ()
 								tmpl = tmpl.replace('['+idx+']', val);
 							});
 						
-						$('#r'+itemid).after('<tr><td colspan="9">'
+						$('#r'+itemid).after('<tr id="rd'+itemid+'"><td colspan="9">'
 											 + tmpl
 											 + '</td></tr>');
 						
 						$('#d'+itemid).slideDown('fast');
+						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
 					});
 				
-				$.scrollTo('#r'+itemid, '+=100px');
 			}
 		});
 	
