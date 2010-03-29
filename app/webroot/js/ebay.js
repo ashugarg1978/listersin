@@ -60,7 +60,7 @@ function bindform()
 	$("td.dtt").bind({
 			click: function(event){
 		
-				alert(event.srcElement.tagName);
+				alert($(this).attr('id'));
 				src = event.srcElement;
 				if (src.tagName == "TD") {
 					if (src.firstChild.tagName == "INPUT") {
