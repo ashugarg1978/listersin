@@ -39,7 +39,7 @@ div.debug {
 table.detail {
     border-spacing: 0px;
     border-collapse: collapse;
-	border: 1px solid green;
+	background-color: #cccccc;
 	width: 900px;
 }
 
@@ -47,7 +47,6 @@ table.items {
     border-spacing: 0px;
     border-collapse: collapse;
 	width: 980px;
-	border: 1px solid red;
 }
 
 table.items tr {

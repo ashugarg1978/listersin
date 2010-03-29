@@ -78,7 +78,11 @@ foreach ($items as $i => $arr) {
 </tr>
 <tr>
 	<td>**title**</td>
-	<td>[title]</td>
+	<td class="dtt">[title]</td>
+</tr>
+<tr>
+	<td>**title**</td>
+	<td><input type="text" size="30" value="[title]"></td>
 </tr>
 <tr>
 	<td>**description**</td>

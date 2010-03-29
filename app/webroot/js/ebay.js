@@ -31,6 +31,7 @@ function bindevents ()
 						
 						$('#d'+itemid).slideDown('fast');
 						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
+						bindform();
 					});
 				
 			}
@@ -52,33 +53,37 @@ function bindevents ()
 			}
 		}
 	});
+}	
+	
+function bindform()
+{
+	$("td.dtt").bind({
+			click: function(event){
+		
+				alert(event.srcElement.tagName);
+				src = event.srcElement;
+				if (src.tagName == "TD") {
+					if (src.firstChild.tagName == "INPUT") {
+						
+					} else {
+						
+						orgval = src.innerHTML;
+						src.innerHTML =
+							'<input type="" name="" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
+				
+						src.firstChild.focus();
+						//src.firstChild.select();
+						
+						$("input").bind("blur", function(event){
+								event.srcElement.outerHTML = event.srcElement.value;
+							});
+						
+					}
+				}
+			}
+		});
 	
 	return;
-	
-	$("td").bind("click", function(event){
-		
-		src = event.srcElement;
-		if (src.tagName == "TD") {
-			if (src.firstChild.tagName == "INPUT") {
-				
-			} else {
-				
-				orgval = src.innerHTML;
-				src.innerHTML =
-					'<input type="" name="" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
-				
-				src.firstChild.focus();
-				//src.firstChild.select();
-				
-				$("input").bind("blur", function(event){
-					event.srcElement.outerHTML = event.srcElement.value;
-				});
-				
-			}
-		}
-		
-		
-	});
 	
 	$("input").bind("blur", function(event){
 		event.srcElement.outerHTML = event.srcElement.value;
