@@ -57,41 +57,33 @@ function bindevents ()
 	
 function bindform()
 {
-	$("table.detail > tr > td").bind({
-			mouseover: function(event){
-				alert('hoge');
-			}
-		});
-	
-	return;
-	
-	$("table.detail > tr").bind({
-			mouseover: function(event){
-				alert('f');
-				//$(this).css('border', '1px solid red');
-			},
+	$("td.edit").bind({
 			click: function(event){
 		
+				//alert(this.firstChild.tagName);
 				if (this.firstChild.tagName == "INPUT") return;
 				
+				colname = $(this).attr('class').replace('edit ', '');
 				orgval = $(this).html();
-				formtag = $('#f');
-				this.innerHTML =
-					'<input type="" name="" size="50" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
 				
-				this.firstChild.focus();
-			},
-			blur: function(event){
-				$(this).html();
-				event.srcElement.outerHTML = event.srcElement.value;
+				formtag = $('td.form'+colname);
+				formtag.attr('value', 'hoge');
+				
+				alert(formtag.html());
+				
+				$(this).html($('td.form'+colname).attr('value', 'hoge'));
+				alert($(this).html());
+				//$(this).val();
+				//this.firstChild.focus();
+				
+				$("input").bind("blur", function(event){
+						$(this).parent().html($(this).val);
+					});
 			}
 		});
 	
 	return;
 	
-	$("input").bind("blur", function(event){
-		event.srcElement.outerHTML = event.srcElement.value;
-	});
 	
 	$("tr").bind("mouseover", function(event){
 		$(this).addClass('rowover');
