@@ -60,25 +60,21 @@ function bindform()
 	$("td.dtt").bind({
 			click: function(event){
 		
-				alert($(this).attr('id'));
-				src = event.srcElement;
-				if (src.tagName == "TD") {
-					if (src.firstChild.tagName == "INPUT") {
-						
-					} else {
-						
-						orgval = src.innerHTML;
-						src.innerHTML =
-							'<input type="" name="" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
-				
-						src.firstChild.focus();
-						//src.firstChild.select();
-						
-						$("input").bind("blur", function(event){
-								event.srcElement.outerHTML = event.srcElement.value;
-							});
-						
-					}
+				if (this.firstChild.tagName == "INPUT") {
+					
+				} else {
+					
+					orgval = this.innerHTML;
+					this.innerHTML =
+						'<input type="" name="" size="50" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
+					
+					this.firstChild.focus();
+					//src.firstChild.select();
+					
+					$("input").bind("blur", function(event){
+							event.srcElement.outerHTML = event.srcElement.value;
+						});
+					
 				}
 			}
 		});
