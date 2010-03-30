@@ -57,25 +57,33 @@ function bindevents ()
 	
 function bindform()
 {
-	$("td.dtt").bind({
+	$("table.detail > tr > td").bind({
+			mouseover: function(event){
+				alert('hoge');
+			}
+		});
+	
+	return;
+	
+	$("table.detail > tr").bind({
+			mouseover: function(event){
+				alert('f');
+				//$(this).css('border', '1px solid red');
+			},
 			click: function(event){
 		
-				if (this.firstChild.tagName == "INPUT") {
-					
-				} else {
-					
-					orgval = this.innerHTML;
-					this.innerHTML =
-						'<input type="" name="" size="50" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
-					
-					this.firstChild.focus();
-					//src.firstChild.select();
-					
-					$("input").bind("blur", function(event){
-							event.srcElement.outerHTML = event.srcElement.value;
-						});
-					
-				}
+				if (this.firstChild.tagName == "INPUT") return;
+				
+				orgval = $(this).html();
+				formtag = $('#f');
+				this.innerHTML =
+					'<input type="" name="" size="50" value="'+orgval+'" style="padding:0px; border:1px solid #999999; background-color:#ffffcc;">';
+				
+				this.firstChild.focus();
+			},
+			blur: function(event){
+				$(this).html();
+				event.srcElement.outerHTML = event.srcElement.value;
 			}
 		});
 	

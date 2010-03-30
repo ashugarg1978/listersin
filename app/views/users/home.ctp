@@ -66,7 +66,9 @@ foreach ($items as $i => $arr) {
 <table class="detail">
 <tr>
 	<td>**ei**</td>
-	<td>[ebayitemid]</td>
+	<td>
+		[ebayitemid]
+	</td>
 </tr>
 <tr>
 	<td>**st**</td>
@@ -78,11 +80,7 @@ foreach ($items as $i => $arr) {
 </tr>
 <tr>
 	<td>**title**</td>
-	<td class="dtt">[title]</td>
-</tr>
-<tr>
-	<td>**title**</td>
-	<td><input type="text" size="30" value="[title]"></td>
+	<td class="title">[title]</td>
 </tr>
 <tr>
 	<td>**description**</td>
@@ -90,4 +88,38 @@ foreach ($items as $i => $arr) {
 </tr>
 </table>
 </div>
+</div>
+
+<div id="form" style="display:none;">
+<form name="itemform">
+<table class="detail">
+<tr>
+	<td>**ei**</td>
+	<td>
+		[ebayitemid]
+	</td>
+</tr>
+<tr>
+	<td>**st**</td>
+	<td>[starttime]</td>
+</tr>
+<tr>
+	<td>**st**</td>
+	<td>[endtime]</td>
+</tr>
+<tr>
+	<td>**title**</td>
+	<td>
+	<input name="title" type="text" size="30" value="[title]">
+	</td>
+</tr>
+<tr>
+	<td>**title**</td>
+</tr>
+<tr>
+	<td>**description**</td>
+	<td>[description]</td>
+</tr>
+</table>
+</form>
 </div>
