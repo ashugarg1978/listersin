@@ -60,6 +60,7 @@ function bindform()
 			click: function(event){
 				
 				if (this.firstChild.tagName == "INPUT") return;
+				if (this.firstChild.tagName == "TEXTAREA") return;
 				
 				colname = $(this).attr('class').replace('edit ', '');
 				
@@ -72,7 +73,7 @@ function bindform()
 				
 				$(this).children().first().focus();
 				
-				$("input.form").bind({
+				$(this).children().first().bind({
 						blur: function(event){
 							val = $(this).val();
 							$(this).parent().html(val);

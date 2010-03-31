@@ -103,7 +103,9 @@ foreach ($items as $i => $arr) {
 </tr>
 <tr>
 	<td>**description**</td>
-	<td><textarea class="form" name="description"></textarea></td>
+	<td class="formdescription">
+	<textarea class="form" name="description" cols="50" rows="5"></textarea>
+	</td>
 </tr>
 </table>
 </form>
