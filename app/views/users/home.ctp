@@ -61,38 +61,23 @@ foreach ($items as $i => $arr) {
 <div style="float:left; width=300px;" id="debug">
 </div>
 
-<div id="templatewrap" style="display:none;">
-<div id="template" style="display:none;">
-<table class="detail">
-<tr>
-	<td>**ei**</td>
-	<td>
-		[ebayitemid]
-	</td>
-</tr>
-<tr>
-	<td>**st**</td>
-	<td>[starttime]</td>
-</tr>
-<tr>
-	<td>**st**</td>
-	<td>[endtime]</td>
-</tr>
-<tr>
-	<td>**title**</td>
-	<td class="edit title">[title]</td>
-</tr>
-<tr>
-	<td>**description**</td>
-	<td>[description]</td>
-</tr>
+
+<div id="templatewrap" style="display:;">
+<div id="template" style="display:;">
+<table class="detail" style="border:1px solid blue;">
+<tr><td>ei</td><td>[ebayitemid]</td></tr>
+<tr><td>st</td><td>[starttime]</td></tr>
+<tr><td>st</td><td>[endtime]</td></tr>
+<tr><td>tt</td><td class="edit title">[title]</td></tr>
+<tr><td>ds</td><td class="edit description">[description]</td></tr>
 </table>
 </div>
 </div>
 
-<div id="form" style="display:none;">
+
+<div id="form" style="display:;">
 <form name="itemform">
-<table class="detail">
+<table class="detail" style="border:1px solid red;">
 <tr>
 	<td>**ei**</td>
 	<td>
@@ -110,7 +95,7 @@ foreach ($items as $i => $arr) {
 <tr>
 	<td>**title**</td>
 	<td class="formtitle">
-	<input name="title" type="text" size="50">
+	<input class="form" name="title" type="text" size="50">
 	</td>
 </tr>
 <tr>
@@ -118,7 +103,7 @@ foreach ($items as $i => $arr) {
 </tr>
 <tr>
 	<td>**description**</td>
-	<td>[description]</td>
+	<td><textarea class="form" name="description"></textarea></td>
 </tr>
 </table>
 </form>

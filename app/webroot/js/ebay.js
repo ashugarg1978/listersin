@@ -18,7 +18,6 @@ function bindevents ()
 				
 				$.getJSON('/users/item/'+itemid, function(data){
 						tmpl = $('#templatewrap').html();
-						
 						tmpl = tmpl.replace('template', 'd'+itemid+'');
 						
 						$.each(data, function(idx, val){
@@ -59,28 +58,30 @@ function bindform()
 {
 	$("td.edit").bind({
 			click: function(event){
-		
-				//alert(this.firstChild.tagName);
+				
 				if (this.firstChild.tagName == "INPUT") return;
 				
 				colname = $(this).attr('class').replace('edit ', '');
+				
 				orgval = $(this).html();
 				
-				formtag = $('td.form'+colname);
-				formtag.attr('value', 'hoge');
+				fobj = $('td.form'+colname).children().first().clone();
+				fobj.val(orgval);
 				
-				alert(formtag.html());
+				$(this).html(fobj);
 				
-				$(this).html($('td.form'+colname).attr('value', 'hoge'));
-				alert($(this).html());
-				//$(this).val();
-				//this.firstChild.focus();
+				$(this).children().first().focus();
 				
-				$("input").bind("blur", function(event){
-						$(this).parent().html($(this).val);
+				$("input.form").bind({
+						blur: function(event){
+							val = $(this).val();
+							$(this).parent().html(val);
+						}
 					});
+				
 			}
 		});
+	
 	
 	return;
 	
