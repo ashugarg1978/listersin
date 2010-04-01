@@ -64,6 +64,39 @@ class UsersController extends AppController {
 		
 	}
 	
+	function items()
+	{
+		$userid = $this->user['User']['userid'];
+		
+		/**
+		 * check post parameters
+		 */
+		$sql_filter = null;
+		
+		$limit = empty($_POST["limit"]) ? 50 : $_POST["limit"];
+		$offset = empty($_POST["offset"]) ? 0 : $_POST["offset"];
+		
+		
+		/**
+		 * create sql statement
+		 */
+		$sql = "SELECT SQL_CALC_FOUND_ROWS *"
+		  . " FROM items"
+		  . " JOIN accounts USING (accountid)";
+		$sql .= " WHERE userid = ".$userid;
+		if (is_array($sql_filter)) $sql .= " AND ".implode(" AND ", $sql_filter);
+
+		$sql .= " ORDER BY itemid DESC";
+		  
+		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
+		
+		$res = $this->User->query($sql);
+		
+		print json_encode($res);
+		
+		exit;
+	}
+	
 	function item($itemid)
 	{
 		$sql = "SELECT * FROM items WHERE itemid = ".$itemid;
