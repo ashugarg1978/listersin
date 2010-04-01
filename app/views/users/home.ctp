@@ -64,7 +64,7 @@ foreach ($items as $i => $arr) {
 
 <div id="templatewrap" style="display:;">
 <div id="template" style="display:;">
-<table class="detail" style="border:1px solid blue;">
+<table class="detail">
 <tr><td>ei</td><td>[ebayitemid]</td></tr>
 <tr><td>st</td><td>[starttime]</td></tr>
 <tr><td>st</td><td>[endtime]</td></tr>
@@ -77,7 +77,7 @@ foreach ($items as $i => $arr) {
 
 <div id="form" style="display:;">
 <form name="itemform">
-<table class="detail" style="border:1px solid red;">
+<table class="detail">
 <tr>
 	<td>**ei**</td>
 	<td>
@@ -104,7 +104,7 @@ foreach ($items as $i => $arr) {
 <tr>
 	<td>**description**</td>
 	<td class="formdescription">
-	<textarea class="form" name="description" cols="50" rows="5"></textarea>
+	<textarea class="form" name="description" cols="90" rows="5"></textarea>
 	</td>
 </tr>
 </table>
