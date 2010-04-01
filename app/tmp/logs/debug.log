@@ -99,3 +99,4 @@
 2010-03-06 23:30:46 Notice: Notice (8): Undefined variable: userid in [/mnt/www/dev.xboo.st/app/controllers/users_controller.php, line 39]
 2010-03-07 22:55:35 Notice: Notice (8): Undefined index:  galleryurl in [/mnt/www/dev.xboo.st/app/views/users/home.ctp, line 54]
 2010-03-23 16:06:53 Notice: Notice (8): Undefined index:  items in [/mnt/www/dev.xboo.st/app/controllers/users_controller.php, line 72]
+2010-04-02 06:27:13 Notice: Notice (8): Undefined index:  viewitemurl in [/var/www/dev.xboo.st/app/views/users/home.ctp, line 50]

@@ -71,7 +71,7 @@ function bindform(itemid)
 							$.post('/users/edit/'+itemid,
 								   $(this).serialize(),
 								   function(data){
-									   alert(data);
+									   a = '';
 								   });
 						}
 					});

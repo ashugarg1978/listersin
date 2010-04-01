@@ -57,7 +57,7 @@ foreach ($items as $i => $arr) {
 	}
 	echo '</td>'."\n";
 	echo '<td id="r'.$iid.'tt"><a href="" class="title">'.$row['title'].'</a></td>'."\n";
-	echo '<td id="r'.$iid.'sp">'.$row['startprice'].'</td>'."\n";
+	echo '<td id="r'.$iid.'sp" align="right">'.$row['startprice'].'</td>'."\n";
 	echo '<td id="r'.$iid.'sp"></td>'."\n";
 	echo '</tr>';
 	echo "\n\n";
@@ -65,7 +65,7 @@ foreach ($items as $i => $arr) {
 ?>
 </table>
 </div>
-<div style="float:left; width=300px;" id="debug">
+<div style="width=300px;" id="debug">
 </div>
 
 
@@ -77,12 +77,13 @@ foreach ($items as $i => $arr) {
 <tr><td>st</td><td>[endtime]</td></tr>
 <tr><td>tt</td><td class="edit title">[title]</td></tr>
 <tr><td>ds</td><td class="edit description">[description]</td></tr>
+<tr><td>img</td><td class=""><img src="[galleryurl]"><br>[galleryurl]</td></tr>
 </table>
 </div>
 </div>
 
 
-<div id="form" style="display:;">
+<div id="form" style="display:none;">
 <form name="itemform">
 <table class="detail">
 <tr>
