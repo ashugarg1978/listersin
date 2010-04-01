@@ -16,6 +16,7 @@ foreach ($accounts as $accountid => $row) {
 <a href="" onclick="submititems();return false;">submit</a>
 <a href="" onclick="copyitems();return false;">copy</a>
 <a href="" onclick="update();return false;">update</a>
+<div id="delete">delete</div>
 
 </div>
 

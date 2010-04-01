@@ -52,6 +52,12 @@ function bindevents ()
 			}
 		}
 	});
+	
+	$('#delete').bind({
+			click: function(){
+				$.post();
+			}
+		});
 }	
 	
 function bindform(itemid)
@@ -191,6 +197,7 @@ function submititems()
 	
 	return;
 }
+
 
 function chkall()
 {
