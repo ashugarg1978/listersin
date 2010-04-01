@@ -30,7 +30,7 @@ function bindevents ()
 						
 						$('#d'+itemid).slideDown('fast');
 						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
-						bindform();
+						bindform(itemid);
 					});
 				
 			}
@@ -54,7 +54,7 @@ function bindevents ()
 	});
 }	
 	
-function bindform()
+function bindform(itemid)
 {
 	$("td.edit").bind({
 			click: function(event){
@@ -77,6 +77,12 @@ function bindform()
 						blur: function(event){
 							val = $(this).val();
 							$(this).parent().html(val);
+							
+							$.post('/users/edit/'+itemid,
+								   $(this).serialize(),
+								   function(data){
+									   alert(data);
+								   });
 						}
 					});
 				

@@ -170,6 +170,24 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function edit($itemid)
+	{
+	  if (!preg_match('/^[\d]+$/', $itemid)) return null;
+	  
+	  $arr = null;
+	  foreach ($_POST as $k => $v) {
+		$arr[] = $k." = '".mysql_real_escape_string($v)."'";
+	  }
+	  if (is_array($arr)) {
+		$sql_update = "UPDATE items"
+		  . " SET ".implode(', ', $arr)
+		  . " WHERE itemid = ".$itemid;
+		$res = $this->User->query($sql_update);
+		
+	  }
+	  exit;
+	}
+	
 	function delete()
 	{
 		if (empty($_POST['item'])) return;
