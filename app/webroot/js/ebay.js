@@ -1,19 +1,19 @@
 function bindevents ()
 {
-	$("td.tt").bind({
+	$('a.title').bind({
 			click: function(event){
 				
-				itemid = $(this).attr('id').replace(/^r/, '').replace(/tt$/, '');
+				itemid = $(this).parent().attr('id').replace(/^r/, '').replace(/tt$/, '');
 				
 				if ($('#d'+itemid).css('display') == 'block') {
 					$('#d'+itemid).slideToggle('fast', function(){
 							$('#rd'+itemid).remove();
 						});
-					return;
+					return false;
 				}
 				if ($('#d'+itemid).css('display')) {
 					$('#d'+itemid).slideToggle('fast');
-					return;
+					return false;
 				}
 				
 				$.getJSON('/users/item/'+itemid, function(data){
@@ -28,30 +28,14 @@ function bindevents ()
 											 + tmpl
 											 + '</td></tr>');
 						
-						$('#d'+itemid).slideDown('fast');
-						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
+						$('#d'+itemid).slideDown('first');
+						//$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
 						bindform(itemid);
 					});
 				
+				return false;
 			}
 		});
-	
-	$("td.ei").bind({
-		click: function(event){
-			window.open('http://cgi.sandbox.ebay.com/ws/eBayISAPI.dll'
-						+ '?ViewItem&item='+$(this).html(), '');
-		},
-		mouseover: function(){
-			if ($(this).html() != '') {
-				$(this).addClass('eimo');
-			}
-		},
-		mouseout: function(t){
-			if ($(this).html() != '') {
-				$(this).removeClass('eimo');
-			}
-		}
-	});
 	
 	$('#delete').bind({
 			click: function(){

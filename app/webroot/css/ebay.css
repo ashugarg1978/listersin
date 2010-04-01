@@ -26,7 +26,10 @@ div#header a:hover {
 }
 
 div#content {
-	margin-top: 40px;
+	width: 980px;
+	margin: 40px auto 0px auto;
+	border-left:  1px solid #eeeeee;
+	border-right: 1px solid #eeeeee;
 	padding: 10px;
 }
 

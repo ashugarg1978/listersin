@@ -455,6 +455,7 @@ class UsersController extends AppController {
 			$i['ebayitemid']  = $o->ItemID.'';
 			$i['starttime']   = $o->ListingDetails->StartTime.'';
 			$i['endtime']     = $o->ListingDetails->EndTime.'';
+			$i['viewitemurl'] = $o->ListingDetails->ViewItemURL.'';
 			$i['title']       = $o->Title.'';
 			$i['description'] = $o->Description.'';
 			$i['startprice']  = $o->StartPrice.'';
