@@ -72,9 +72,10 @@ class UsersController extends AppController {
 		 * check post parameters
 		 */
 		$sql_filter = null;
+		$sql_filter[] = "userid = ".$userid;
 		
-		$limit = empty($_POST["limit"]) ? 50 : $_POST["limit"];
-		$offset = empty($_POST["offset"]) ? 0 : $_POST["offset"];
+		$limit  = empty($_POST["limit"])  ? 50 : $_POST["limit"];
+		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
 		
 		/**
@@ -83,9 +84,8 @@ class UsersController extends AppController {
 		$sql = "SELECT SQL_CALC_FOUND_ROWS *"
 		  . " FROM items"
 		  . " JOIN accounts USING (accountid)";
-		$sql .= " WHERE userid = ".$userid;
-		if (is_array($sql_filter)) $sql .= " AND ".implode(" AND ", $sql_filter);
-
+		if (is_array($sql_filter)) $sql .= " WHERE ".implode(" AND ", $sql_filter);
+		
 		$sql .= " ORDER BY itemid DESC";
 		  
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
