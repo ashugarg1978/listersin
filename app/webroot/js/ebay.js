@@ -195,6 +195,17 @@ function submititems()
 	return;
 }
 
+function updatelist()
+{
+	$.getJSON('/users/items/', function(data){
+			html = '';
+			$.each(data, function(idx, val){
+					html += itemrow(val);
+				});
+			$('#tbdy').html(html);
+		});
+}
+
 
 function chkall()
 {

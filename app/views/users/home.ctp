@@ -18,7 +18,7 @@ foreach ($accounts as $accountid => $row) {
 <input type="button" value="更新"   onclick="update();">
 <input type="button" value="削除"   onclick="delete();">
 
-<input type="button" value="test" onclick="$('#tbdy').slideToggle('slow');">
+<input type="button" value="test" onclick="updatelist();">
 
 </div>
 
