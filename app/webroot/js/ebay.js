@@ -31,7 +31,7 @@ function bindevents ()
 											 + '</tr>');
 						
 						$('#d'+itemid).slideDown('first');
-						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
+						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-42});
 						bindform(itemid);
 					});
 				
@@ -106,23 +106,34 @@ function copyitems()
 				   
 				   iid = data[idx].items.itemid;
 				   
-				   html += '<tr style="display:;" id="r'+iid+'">'
-					   + '<td id="r'+iid+'cb">'
-					   + '<input type="checkbox" name="item[]" value="'+iid+'">'
-					   + '</td>'
-					   + '<td>'+iid+'</td>'
-					   + '<td>'+data[idx].accounts.ebayuserid+'</td>'
-					   + '<td id="r'+iid+'ei"></td>'
-					   + '<td id="r'+iid+'st"></td>'
-					   + '<td id="r'+iid+'et"></td>'
-					   + '<td>'+data[idx].items.title+'</td>'
-					   + '</tr>';
+				   html += itemrow(data[idx]);
+				   
 			   });
 			   $('#r0').after(html);
 		   },
 		   'json');
 	
 	return;
+}
+
+function itemrow(data)
+{
+	itemid = data.items.itemid;
+	
+	html = '<tr id="r'+itemid+'">'
+		+ '<td id="r'+itemid+'cb">'
+		+ '<input type="checkbox" name="item[]" value="'+itemid+'"></td>'
+		+ '<td id="r'+itemid+'ii">'+itemid+'</td>'
+		+ '<td id="r'+itemid+'im" align="center">'
+		+ '<img src="'+data.items.galleryurl+'" height="20"></td>'
+		+ '<td id="r'+itemid+'tt">'+data.items.title+'</td>'
+		+ '<td id="r'+itemid+'eu">'+data.accounts.ebayuserid+'</td>'
+		+ '<td id="r'+itemid+'ei"></td>'
+		+ '<td id="r'+itemid+'et"></td>'
+		+ '<td id="r'+itemid+'sp"></td>'
+		+ '</tr>';
+	
+	return html;
 }
 
 function openebay(ebayitemid)

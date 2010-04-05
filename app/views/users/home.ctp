@@ -1,7 +1,7 @@
-<?
+imp:<?
 foreach ($accounts as $accountid => $row) {
-	print $row['ebayuserid'].':'
-		. '<a href="/users/import/'.$row['ebayuserid'].'/" target="_blank">import</a><br>';
+	print '<a href="/users/import/'.$row['ebayuserid'].'/" target="_blank">'
+		. $row['ebayuserid']. '</a> ';
 }
 ?>
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">regacc</a>
@@ -18,6 +18,8 @@ foreach ($accounts as $accountid => $row) {
 <input type="button" value="更新"   onclick="update();">
 <input type="button" value="削除"   onclick="delete();">
 
+<input type="button" value="test" onclick="$('#tbdy').slideToggle('slow');">
+
 </div>
 
 <table class="items">
@@ -31,6 +33,7 @@ foreach ($accounts as $accountid => $row) {
 <th>終了日</th>
 <th>開始価格</th>
 </tr>
+<tbody id="tbdy">
 <?
 foreach ($items as $i => $arr) {
 	
@@ -62,6 +65,7 @@ foreach ($items as $i => $arr) {
 	echo "\n\n";
 }
 ?>
+</tbody>
 </table>
 <div style="width=300px;" id="debug">
 </div>
