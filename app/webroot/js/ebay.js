@@ -31,7 +31,7 @@ function bindevents ()
 											 + '</tr>');
 						
 						$('#d'+itemid).slideDown('first');
-						//$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
+						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});
 						bindform(itemid);
 					});
 				

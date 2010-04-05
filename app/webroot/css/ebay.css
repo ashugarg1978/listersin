@@ -5,7 +5,7 @@ body {
 }
 
 div#header {
-	background-color: #ffdd00;
+	background-color: #aaaaaa;
 	border-bottom: 1px solid #adadad;
 	font-size: 10pt;
 	color: #666666;
@@ -38,6 +38,7 @@ div#content {
 	margin: 50px auto 10px auto;
 	padding-left : 10px;
 	padding-right: 10px;
+	min-height: 300px;
 }
 
 div#footer {
