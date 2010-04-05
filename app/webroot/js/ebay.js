@@ -24,9 +24,11 @@ function bindevents ()
 								tmpl = tmpl.replace('['+idx+']', val);
 							});
 						
-						$('#r'+itemid).after('<tr id="rd'+itemid+'"><td colspan="9">'
+						$('#r'+itemid).after('<tr id="rd'+itemid+'" class="detail">'
+											 + '<td colspan="8">'
 											 + tmpl
-											 + '</td></tr>');
+											 + '</td>'
+											 + '</tr>');
 						
 						$('#d'+itemid).slideDown('first');
 						//$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-37});

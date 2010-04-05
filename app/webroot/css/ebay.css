@@ -5,7 +5,8 @@ body {
 }
 
 div#header {
-	background-color: #eeeeee;
+	background-color: #ffdd00;
+	border-bottom: 1px solid #adadad;
 	font-size: 10pt;
 	color: #666666;
 	padding: 9px;
@@ -13,6 +14,13 @@ div#header {
 	top: 0px;
 	left: 0px;
 	width: 100%;
+}
+
+div#header_inside {
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding-left : 10px;
+	padding-right: 10px;
 }
 
 div#header a {
@@ -26,11 +34,22 @@ div#header a:hover {
 }
 
 div#content {
-	width: 980px;
-	margin: 40px auto 0px auto;
-	border-left:  1px solid #eeeeee;
-	border-right: 1px solid #eeeeee;
-	padding: 10px;
+	width: 940px;
+	margin: 50px auto 10px auto;
+	padding-left : 10px;
+	padding-right: 10px;
+}
+
+div#footer {
+	background-color: #adadad;
+	border-top: 1px solid #000000;
+}
+
+div#footer_inside {
+	width: 960px;
+	margin: 0px auto 0px auto;
+	padding: 10px 10px 10px 10px;
+	text-align: center;
 }
 
 div.debug {
@@ -43,13 +62,13 @@ table.detail {
     border-spacing: 0px;
     border-collapse: collapse;
 	background-color: #eeeeee;
-	width: 900px;
+	width: 920px;
 }
 
 table.items {
     border-spacing: 0px;
     border-collapse: collapse;
-	width: 980px;
+	width: 940px;
 }
 
 table.items tr {
@@ -67,6 +86,7 @@ table.items th {
 	font-size: 9pt;
 	padding: 3px 10px 3px 10px;
 	text-align: center;
+	background-color: #adadad;
 }
 
 table.items th a {

@@ -8,29 +8,28 @@ foreach ($accounts as $accountid => $row) {
 
 <br><br>
 
-<div style="">
+<div>
 →
-<a href="" onclick="chkall();return false;">全て</a>
-<a href="" onclick="unchkall();return false;">リセット</a>
+<input type="button" value="全て" onclick="chkall();">
+<input type="button" value="リセット" onclick="unchkall();">
 →
-<a href="" onclick="submititems();return false;">submit</a>
-<a href="" onclick="copyitems();return false;">copy</a>
-<a href="" onclick="update();return false;">update</a>
-<div id="delete">delete</div>
+<input type="button" value="出品"   onclick="submititems();">
+<input type="button" value="コピー" onclick="copyitems();">
+<input type="button" value="更新"   onclick="update();">
+<input type="button" value="削除"   onclick="delete();">
 
 </div>
 
-<div style="float:left;">
 <table class="items">
 <tr id="r0">
 <th>&nbsp;</th>
-<th>管理ID</th>
+<th>ID</th>
+<th>画像</th>
+<th>タイトル</th>
 <th>eBayアカウント</th>
 <th>eBay商品ID</th>
 <th>終了日</th>
-<th>タイトル</th>
 <th>開始価格</th>
-<th>画像</th>
 </tr>
 <?
 foreach ($items as $i => $arr) {
@@ -45,6 +44,8 @@ foreach ($items as $i => $arr) {
 	echo '</td>'."\n";
 	
 	echo '<td id="r'.$iid.'ii">'.$iid.'</td>'."\n";
+	echo '<td id="r'.$iid.'im" align="center"><img src="'.$row['galleryurl'].'" height="20"></td>'."\n";
+	echo '<td id="r'.$iid.'tt"><a href="" class="title">'.$row['title'].'</a></td>'."\n";
 	echo '<td id="r'.$iid.'eu">'.$arr['accounts']['ebayuserid'].'</td>'."\n";
 	echo '<td id="r'.$iid.'ei">'
 		. '<a href="'.$row['viewitemurl'].'" target="_blank">'.$row['ebayitemid'].'</a>'
@@ -56,15 +57,12 @@ foreach ($items as $i => $arr) {
 		echo substr($row['endtime'], 5, 2).'/'.substr($row['endtime'], 5, 2);
 	}
 	echo '</td>'."\n";
-	echo '<td id="r'.$iid.'tt"><a href="" class="title">'.$row['title'].'</a></td>'."\n";
 	echo '<td id="r'.$iid.'sp" align="right">'.$row['startprice'].'</td>'."\n";
-	echo '<td id="r'.$iid.'sp"></td>'."\n";
 	echo '</tr>';
 	echo "\n\n";
 }
 ?>
 </table>
-</div>
 <div style="width=300px;" id="debug">
 </div>
 
