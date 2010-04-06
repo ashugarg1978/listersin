@@ -26,9 +26,8 @@ foreach ($accounts as $accountid => $row) {
 </div>
 
 <form id="filter">
-<input type="text" name="offset" value="">
-<input type="text" name="limit" value="100">
-
+<input type="hidden" name="offset" value="0">
+<input type="hidden" name="limit" value="100">
 <table class="items">
 <tr id="r0">
 <th>&nbsp;</th>
@@ -36,18 +35,18 @@ foreach ($accounts as $accountid => $row) {
 <th>画像</th>
 <th>タイトル</th>
 <th>eBayアカウント</th>
-<th>eBay商品ID</th>
-<th>終了日</th>
-<th>開始価格</th>
+<th nowrap>eBay商品ID</th>
+<th nowrap>終了日</th>
+<th nowrap>開始価格</th>
 </tr>
 
 <tr>
 <td></td>
+<td><input type="text" name="itemid" size="4"></td>
 <td></td>
-<td></td>
-<td></td>
+<td><input type="text" name="itemid" size="30"></td>
 <td>
-<select name="ebayuserid">
+<select name="accountid" onchange="filter();">
 <option value=""></option>
 <?
 foreach ($accounts as $accountid => $row) {
@@ -56,7 +55,7 @@ foreach ($accounts as $accountid => $row) {
 ?>
 </select>
 </td>
-<td></td>
+<td><input type="text" name="itemid" size="6"></td>
 <td></td>
 <td></td>
 </tr>

@@ -1,3 +1,9 @@
+$(document).bind({
+		ready: function(event) {
+			bindevents();
+		}
+	});
+
 function bindevents ()
 {
 	$('a.title').bind({
@@ -109,7 +115,8 @@ function copyitems()
 				   html += itemrow(data[idx]);
 				   
 			   });
-			   $('#r0').after(html);
+			   $('#tbdy').html(html+$('#tbdy').html());
+			   //$('#r0').after(html);
 		   },
 		   'json');
 	
@@ -192,6 +199,13 @@ function submititems()
 	
 	setTimeout(function(){update();}, 2000);
 	
+	return;
+}
+
+function filter()
+{
+	$('input[name=offset]').val(0);
+	updatelist();
 	return;
 }
 

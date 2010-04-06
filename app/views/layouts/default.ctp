@@ -14,7 +14,7 @@
 <script type="text/javascript" src="/js/ajaxupload.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
 </head>
-<body onload="bindevents();">
+<body>
 
 <div id="header">
 <div id="header_inside">
