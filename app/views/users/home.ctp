@@ -22,6 +22,13 @@ foreach ($accounts as $accountid => $row) {
 
 </div>
 
+<div id="paging">
+</div>
+
+<form id="filter">
+<input type="hidden" name="offset" value="">
+<input type="hidden" name="limit" value="">
+
 <table class="items">
 <tr id="r0">
 <th>&nbsp;</th>
@@ -32,6 +39,26 @@ foreach ($accounts as $accountid => $row) {
 <th>eBay商品ID</th>
 <th>終了日</th>
 <th>開始価格</th>
+</tr>
+
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>
+<select name="ebayuserid">
+<option value=""></option>
+<?
+foreach ($accounts as $accountid => $row) {
+	echo '<option value="'.$accountid.'">'.$row['ebayuserid'].'</option>';
+}	
+?>
+</select>
+</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tbody id="tbdy">
 <?
@@ -67,6 +94,7 @@ foreach ($items as $i => $arr) {
 ?>
 </tbody>
 </table>
+</form>
 <div style="width=300px;" id="debug">
 </div>
 

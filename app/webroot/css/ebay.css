@@ -145,3 +145,10 @@ div.notice {
 	background-repeat: no-repeat;
 	background-position: center center;
 }
+
+div#paging a {
+	text-decoration: none;
+	border: 1px solid #999999;
+	margin: 2px;
+	padding: 0.1em 0.4em;
+}

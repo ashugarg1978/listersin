@@ -91,7 +91,9 @@ class UsersController extends AppController {
 		  
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
-		$res = $this->User->query($sql);
+		$res['res'] = $this->User->query($sql);
+		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
+		$res['cnt'] = $res_cnt[0][0]['cnt'];
 		
 		print json_encode($res);
 		

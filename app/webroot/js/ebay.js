@@ -197,15 +197,35 @@ function submititems()
 
 function updatelist()
 {
-	$.getJSON('/users/items/', function(data){
-			html = '';
-			$.each(data, function(idx, val){
-					html += itemrow(val);
-				});
-			$('#tbdy').html(html);
-		});
+	$.post('/users/items/',
+		   $('#filter').serialize(),
+		   function(data){
+			   html = '';
+			   $.each(data.res, function(idx, val){
+					   html += itemrow(val);
+				   });
+			   $('#tbdy').html(html);
+			   
+			   paging(data.cnt);
+		   },
+		   'json');
 }
 
+function paging(cnt)
+{
+	limit = 10;
+	offset = 0;
+	
+	html = (offset+1)+' 〜 '+(offset+limit)+' / '+cnt;
+
+	for (i=0; i<cnt; i+=limit) {
+		html += '<a href="">'+i+'</a>';
+	}
+	
+	$('#paging').html(html);
+	
+	return;
+}
 
 function chkall()
 {
