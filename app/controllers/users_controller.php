@@ -86,9 +86,8 @@ class UsersController extends AppController {
 		  . " JOIN accounts USING (accountid)";
 		if (is_array($sql_filter)) $sql .= " WHERE ".implode(" AND ", $sql_filter);
 		
-		//$sql .= " ORDER BY itemid DESC";
-		$sql .= " ORDER BY RAND()";
-		  
+		$sql .= " ORDER BY itemid DESC";
+		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res['res'] = $this->User->query($sql);

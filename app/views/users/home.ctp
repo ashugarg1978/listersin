@@ -26,8 +26,8 @@ foreach ($accounts as $accountid => $row) {
 </div>
 
 <form id="filter">
-<input type="hidden" name="offset" value="">
-<input type="hidden" name="limit" value="">
+<input type="text" name="offset" value="">
+<input type="text" name="limit" value="100">
 
 <table class="items">
 <tr id="r0">

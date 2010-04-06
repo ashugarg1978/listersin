@@ -126,7 +126,7 @@ function itemrow(data)
 		+ '<td id="r'+itemid+'ii">'+itemid+'</td>'
 		+ '<td id="r'+itemid+'im" align="center">'
 		+ '<img src="'+data.items.galleryurl+'" height="20"></td>'
-		+ '<td id="r'+itemid+'tt">'+data.items.title+'</td>'
+		+ '<td id="r'+itemid+'tt"><a href="" class="title">'+data.items.title+'</a></td>'
 		+ '<td id="r'+itemid+'eu">'+data.accounts.ebayuserid+'</td>'
 		+ '<td id="r'+itemid+'ei"></td>'
 		+ '<td id="r'+itemid+'et"></td>'
@@ -207,22 +207,44 @@ function updatelist()
 			   $('#tbdy').html(html);
 			   
 			   paging(data.cnt);
+			   
+			   bindevents();
+	
 		   },
 		   'json');
 }
 
 function paging(cnt)
 {
-	limit = 10;
-	offset = 0;
+	limit  = $('input[name=limit]').val() - 0;
+	offset = $('input[name=offset]').val() - 0;
 	
-	html = (offset+1)+' 〜 '+(offset+limit)+' / '+cnt;
-
-	for (i=0; i<cnt; i+=limit) {
-		html += '<a href="">'+i+'</a>';
+	html = (offset+1)+' 〜 ';
+	if (offset+limit >= cnt) {
+		html += cnt;
+	} else {
+		html += (offset+limit);
+	}
+	html += ' / '+cnt+'<br>';
+	
+	for (i=0; i<(cnt/limit); i++) {
+		if (offset == i*limit) {
+			html += '<a href="" style="background-color:#ccffcc;">'+(i+1)+'</a>';
+		} else {
+			html += '<a href="">'+(i+1)+'</a>';
+		}
 	}
 	
 	$('#paging').html(html);
+	
+	$('#paging > a').bind({
+			click: function(event){
+				offset = ($(this).html() - 1) * limit;
+				$('input[name=offset]').val(offset);
+				updatelist();
+				return false;
+			}
+		});
 	
 	return;
 }
