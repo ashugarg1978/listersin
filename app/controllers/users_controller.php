@@ -77,6 +77,9 @@ class UsersController extends AppController {
 		if (!empty($_POST["accountid"]))
 			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
 		
+		if (!empty($_POST["title"]))
+			$sql_filter[] = "title LIKE '%".mysql_real_escape_string($_POST["title"])."%'";
+		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		

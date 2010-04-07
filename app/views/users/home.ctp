@@ -44,7 +44,7 @@ foreach ($accounts as $accountid => $row) {
 <td></td>
 <td><input type="text" name="itemid" size="4"></td>
 <td></td>
-<td><input type="text" name="itemid" size="30"></td>
+<td><input type="text" name="title" size="30"></td>
 <td>
 <select name="accountid" onchange="filter();">
 <option value=""></option>
