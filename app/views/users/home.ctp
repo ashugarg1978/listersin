@@ -61,6 +61,7 @@ foreach ($accounts as $accountid => $row) {
 </tr>
 <tbody id="tbdy">
 <?
+/*
 foreach ($items as $i => $arr) {
 	
 	$row = $arr['items'];
@@ -90,6 +91,7 @@ foreach ($items as $i => $arr) {
 	echo '</tr>';
 	echo "\n\n";
 }
+*/
 ?>
 </tbody>
 </table>

@@ -1,5 +1,6 @@
 $(document).bind({
 		ready: function(event) {
+			updatelist();
 			bindevents();
 		}
 	});
@@ -37,7 +38,7 @@ function bindevents ()
 											 + '</tr>');
 						
 						$('#d'+itemid).slideDown('first');
-						$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-42});
+						//$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-42});
 						bindform(itemid);
 					});
 				
@@ -109,14 +110,10 @@ function copyitems()
 			   
 			   html = '';
 			   $.each(data, function(idx){
-				   
-				   iid = data[idx].items.itemid;
-				   
 				   html += itemrow(data[idx]);
-				   
 			   });
 			   $('#tbdy').html(html+$('#tbdy').html());
-			   //$('#r0').after(html);
+			   bindevents();
 		   },
 		   'json');
 	
@@ -136,8 +133,8 @@ function itemrow(data)
 		+ '<td id="r'+itemid+'tt"><a href="" class="title">'+data.items.title+'</a></td>'
 		+ '<td id="r'+itemid+'eu">'+data.accounts.ebayuserid+'</td>'
 		+ '<td id="r'+itemid+'ei"></td>'
-		+ '<td id="r'+itemid+'et"></td>'
-		+ '<td id="r'+itemid+'sp"></td>'
+		+ '<td id="r'+itemid+'et">'+data.items.endtime+'</td>'
+		+ '<td id="r'+itemid+'sp">'+data.items.startprice+'</td>'
 		+ '</tr>';
 	
 	return html;
