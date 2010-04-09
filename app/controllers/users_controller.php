@@ -87,7 +87,8 @@ class UsersController extends AppController {
 		/**
 		 * create sql statement
 		 */
-		$sql = "SELECT SQL_CALC_FOUND_ROWS *"
+		$sql = "SELECT SQL_CALC_FOUND_ROWS"
+			. " accounts.accountid, accounts.ebayuserid, items.*"
 		  . " FROM items"
 		  . " JOIN accounts USING (accountid)"
 		  . " WHERE ".implode(" AND ", $sql_filter);
