@@ -173,8 +173,12 @@ class UsersController extends AppController {
 	{
 		if (empty($_POST['item'])) return;
 		
-		$sql_copy = "INSERT INTO items (accountid, title, description)"
-			. " SELECT accountid, CONCAT('copy(', itemid, ')', title), description"
+		$sql_copy = "INSERT INTO items ("
+			. " accountid, title, description,"
+			. " startprice"
+			. " ) SELECT"
+			. " accountid, title, description,"
+			. " startprice"
 			. " FROM items"
 			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
 			. " ORDER BY itemid";

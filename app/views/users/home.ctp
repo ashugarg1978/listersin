@@ -9,21 +9,17 @@ foreach ($accounts as $accountid => $row) {
 <br><br>
 
 <div>
-→
 <input type="button" value="全て" onclick="chkall();">
 <input type="button" value="リセット" onclick="unchkall();">
-→
+
 <input type="button" value="出品"   onclick="submititems();">
 <input type="button" value="コピー" onclick="copyitems();">
 <input type="button" value="更新"   onclick="update();">
 <input type="button" value="削除"   onclick="delete();">
 
-<input type="button" value="test" onclick="updatelist();">
-
 </div>
 
-<div id="paging">
-</div>
+<div id="paging"></div>
 
 <form id="filter">
 <input type="hidden" name="offset" value="0">
@@ -59,56 +55,23 @@ foreach ($accounts as $accountid => $row) {
 <td></td>
 <td></td>
 </tr>
-<tbody id="tbdy">
-<?
-/*
-foreach ($items as $i => $arr) {
-	
-	$row = $arr['items'];
-	$iid = $row['itemid'];
-	
-	echo '<tr id="r'.$iid.'">'."\n";
-	
-	echo '<td id="r'.$iid.'cb">';
-	echo '<input type="checkbox" name="item[]" value="'.$iid.'">';
-	echo '</td>'."\n";
-	
-	echo '<td id="r'.$iid.'ii">'.$iid.'</td>'."\n";
-	echo '<td id="r'.$iid.'im" align="center"><img src="'.$row['galleryurl'].'" height="20"></td>'."\n";
-	echo '<td id="r'.$iid.'tt"><a href="" class="title">'.$row['title'].'</a></td>'."\n";
-	echo '<td id="r'.$iid.'eu">'.$arr['accounts']['ebayuserid'].'</td>'."\n";
-	echo '<td id="r'.$iid.'ei">'
-		. '<a href="'.$row['viewitemurl'].'" target="_blank">'.$row['ebayitemid'].'</a>'
-		. '</td>'."\n";
-	echo '<td id="r'.$iid.'et">';
-	if (substr($row['endtime'], 0, 10) == date('Y-m-d')) {
-		echo substr($row['endtime'], 11, 5);
-	} else {
-		echo substr($row['endtime'], 5, 2).'/'.substr($row['endtime'], 5, 2);
-	}
-	echo '</td>'."\n";
-	echo '<td id="r'.$iid.'sp" align="right">'.$row['startprice'].'</td>'."\n";
-	echo '</tr>';
-	echo "\n\n";
-}
-*/
-?>
-</tbody>
+<tbody id="tbdy"></tbody>
 </table>
 </form>
-<div style="width=300px;" id="debug">
-</div>
+
+<div style="width=300px;" id="debug"></div>
 
 
 <div id="templatewrap" style="display:none;">
 <div id="template" style="display:none;">
 <table class="detail">
 <tr><td>ei</td><td>[ebayitemid]</td></tr>
-<tr><td>st</td><td>[starttime]</td></tr>
-<tr><td>st</td><td>[endtime]</td></tr>
-<tr><td>tt</td><td class="edit title">[title]</td></tr>
-<tr><td>ds</td><td class="edit description">[description]</td></tr>
-<tr><td>img</td><td class=""><img src="[galleryurl]"><br>[galleryurl]</td></tr>
+<tr><td>開始日時</td><td>[starttime]</td></tr>
+<tr><td>終了日時</td><td>[endtime]</td></tr>
+<tr><td>開始価格</td><td class="edit startprice">[startprice]</td></tr>
+<tr><td>タイトル</td><td class="edit title">[title]</td></tr>
+<tr><td>説明</td><td class="edit description">[description]</td></tr>
+<tr><td>画像</td><td class=""><img src="[galleryurl]"><br>[galleryurl]</td></tr>
 </table>
 </div>
 </div>

@@ -124,6 +124,8 @@ function itemrow(data)
 {
 	itemid = data.items.itemid;
 	
+	data.items.galleryurl = '/img/img.png';
+	
 	html = '<tr id="r'+itemid+'">'
 		+ '<td id="r'+itemid+'cb">'
 		+ '<input type="checkbox" name="item[]" value="'+itemid+'"></td>'
@@ -132,7 +134,9 @@ function itemrow(data)
 		+ '<img src="'+data.items.galleryurl+'" height="20"></td>'
 		+ '<td id="r'+itemid+'tt"><a href="" class="title">'+data.items.title+'</a></td>'
 		+ '<td id="r'+itemid+'eu">'+data.accounts.ebayuserid+'</td>'
-		+ '<td id="r'+itemid+'ei"></td>'
+		+ '<td id="r'+itemid+'ei">'
+		+ '<a href="'+data.items.viewitemurl+'" target="_blank">'+data.items.ebayitemid+'</a>'
+		+ '</td>'
 		+ '<td id="r'+itemid+'et">'+data.items.endtime+'</td>'
 		+ '<td id="r'+itemid+'sp">'+data.items.startprice+'</td>'
 		+ '</tr>';
@@ -155,7 +159,7 @@ function update()
 			   
 			   $.each(data, function(idx){
 				   itemid = data[idx].items.itemid;
-
+				   
 				   if (data[idx].items.ebayitemid) {
 					   $('#r'+itemid+'ei').html('<a href="">'+data[idx].items.ebayitemid+'</a>');
 					   $('#r'+itemid+'st').html(data[idx].items.starttime.replace(/^.....(.+)...$/, '$1'));
@@ -236,7 +240,7 @@ function paging(cnt)
 	} else {
 		html += (offset+limit);
 	}
-	html += ' / '+cnt+'<br>';
+	html += ' / '+cnt+'&nbsp;&nbsp;&nbsp;';
 	
 	for (i=0; i<(cnt/limit); i++) {
 		if (offset == i*limit) {
