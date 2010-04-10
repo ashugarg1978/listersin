@@ -95,6 +95,12 @@ foreach ($accounts as $accountid => $row) {
 	<td>[endtime]</td>
 </tr>
 <tr>
+	<td>**startprice**</td>
+	<td class="formstartprice">
+	<input class="form" name="startprice" type="text" size="10">
+	</td>
+</tr>
+<tr>
 	<td>**title**</td>
 	<td class="formtitle">
 	<input class="form" name="title" type="text" size="50">

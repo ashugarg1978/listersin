@@ -68,9 +68,7 @@ class UsersController extends AppController {
 	{
 		$userid = $this->user['User']['userid'];
 		
-		/**
-		 * check post parameters
-		 */
+		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
 		
@@ -83,12 +81,9 @@ class UsersController extends AppController {
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
-		
-		/**
-		 * create sql statement
-		 */
+		/* create sql statement */
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
-			. " accounts.accountid, accounts.ebayuserid, items.*"
+			. " accounts.ebayuserid, items.*"
 		  . " FROM items"
 		  . " JOIN accounts USING (accountid)"
 		  . " WHERE ".implode(" AND ", $sql_filter);
@@ -98,11 +93,43 @@ class UsersController extends AppController {
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		error_log($sql);
-		$res['res'] = $this->User->query($sql);
-		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
-		$res['cnt'] = $res_cnt[0][0]['cnt'];
+		$res = $this->User->query($sql);
 		
-		print json_encode($res);
+		/* count total records */
+		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
+		$cnt = $res_cnt[0][0]['cnt'];
+		
+		/* modify result records */
+		foreach ($res as $idx => $row) {
+			$a = $row['accounts'];
+			$i = $row['items'];
+			
+			$item = null;
+			$item['ebayuserid'] = $a['ebayuserid'];
+			$item['itemid']      = $i['itemid'];
+			$item['title']       = $i['title'];
+			$item['viewitemurl'] = $i['viewitemurl'];
+			
+			if (isset($i['endtime'])) {
+				if (date('Y-m-d', strtotime($i['endtime'])) == date('Y-m-d')) {
+					$item['endtime'] = date('H:i', strtotime($i['endtime']));
+				} else {
+					$item['endtime'] = date('n/j', strtotime($i['endtime']));
+				}
+			} else {
+				$item['endtime'] = '-';
+			}
+			
+			$item['ebayitemid'] = isset($i['ebayitemid']) ? $i['ebayitemid'] : '-';
+			$item['startprice']  = $i['startprice'];
+
+			$items[] = $item;
+		}
+
+		$data['cnt'] = $cnt;
+		$data['res'] = $items;
+		
+		print json_encode($data);
 		
 		exit;
 	}
