@@ -116,3 +116,7 @@
 2010-04-06 20:12:07 Notice: Notice (8): Undefined property: UsersController::$Db in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 95]
 2010-04-06 20:12:09 Notice: Notice (8): Undefined property: UsersController::$Db in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 95]
 2010-04-06 20:12:10 Notice: Notice (8): Undefined property: UsersController::$Db in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 95]
+2010-04-10 10:14:48 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
+2010-04-10 10:16:02 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
+2010-04-10 10:31:46 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
+2010-04-10 10:31:50 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]

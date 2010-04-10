@@ -14,7 +14,7 @@ class DaemonShell extends Shell {
 		
 		$users = new UsersController();
 		$users->constructClasses();
-		$users->xsubmit($ids);
+		$users->additems($ids);
 		
 		return;
 	}

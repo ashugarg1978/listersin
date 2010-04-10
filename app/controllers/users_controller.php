@@ -211,6 +211,7 @@ class UsersController extends AppController {
 			. " ORDER BY itemid";
 		$res = $this->User->query($sql_copy);
 		
+		// todo: separate by userid
 		$sql = "SELECT itemid, ebayuserid, title"
 			 . " FROM items"
 			 . " JOIN accounts USING (accountid)"
@@ -288,13 +289,26 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function xsubmit($itemids)
+	function getitem($ebayitemid)
 	{
-		error_log('xsubmit:'.implode(',', $itemids));
+		$sql = "SELECT *"
+			. " FROM accounts"
+			. " JOIN items USING (accountid)"
+			. " WHERE ebayitemid = '".mysql_real_escape_string($ebayitemid)."'";
+		$res = $this->User->query($sql);
+		$account = $res[0]['accounts'];
+		
+		
+	}
+	
+	function additems($itemids)
+	{
+		error_log('additems:'.implode(',', $itemids));
 		if (empty($itemids)) return;
 		
 		// read data from db
-		$sql = "SELECT * FROM items"
+		$sql = "SELECT *"
+			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE itemid IN (".implode(",", $itemids).")";
 		$res = $this->User->query($sql);
@@ -347,7 +361,7 @@ class UsersController extends AppController {
 					. '</AddItemsRequest>'."\n";
 				
 				file_put_contents("/var/www/dev.xboo.st/app/tmp/"
-								  ."_".date("YmdHis").".".$hash['accounts']['ebayuserid']
+								  ."_".date("His").".submit.".$hash['accounts']['ebayuserid']
 								  .".".$chunkedidx.".xml", $xml);
 				
 				$r = null;
@@ -373,7 +387,7 @@ class UsersController extends AppController {
 			$xml_response = $r->getResponseBody();
 			
 			file_put_contents("/var/www/dev.xboo.st/app/tmp/"
-							  ."_".date("YmdHis").".".$ridx.".response.xml",
+							  ."_".date("His").".".$ridx.".response.xml",
 							  $xml_response);
 			
 			$xmlobj = simplexml_load_string($xml_response);
