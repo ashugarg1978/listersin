@@ -120,3 +120,4 @@
 2010-04-10 10:16:02 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
 2010-04-10 10:31:46 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
 2010-04-10 10:31:50 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 130]
+2010-04-11 13:42:42 Notice: Notice (8): Undefined variable: ebayuserid in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 320]

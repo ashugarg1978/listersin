@@ -123,3 +123,4 @@
 2010-04-10 10:14:47 Warning: Warning (2): Invalid argument supplied for foreach() in [/var/www/dev.xboo.st/app/views/users/home.ctp, line 48]
 2010-04-10 10:16:01 Warning: Warning (2): Invalid argument supplied for foreach() in [/var/www/dev.xboo.st/app/views/users/home.ctp, line 2]
 2010-04-10 10:16:01 Warning: Warning (2): Invalid argument supplied for foreach() in [/var/www/dev.xboo.st/app/views/users/home.ctp, line 48]
+2010-04-11 13:59:57 Warning: Warning (512): <span style = "color:Red;text-align:left"><b>SQL Error:</b> 1054: Unknown column 'undefined' in 'where clause'</span> in [/var/www/dev.xboo.st/cake/libs/model/datasources/dbo_source.php, line 635]

@@ -289,17 +289,40 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function getitem($ebayitemid)
+	
+	function getitem($accountid, $ebayitemid)
 	{
-		$sql = "SELECT *"
-			. " FROM accounts"
-			. " JOIN items USING (accountid)"
-			. " WHERE ebayitemid = '".mysql_real_escape_string($ebayitemid)."'";
-		$res = $this->User->query($sql);
-		$account = $res[0]['accounts'];
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[$accountid]['ebaytoken'];
+		$h['ItemID'] = $ebayitemid;
 		
+		$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+			. '<GetItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+			. $this->xml($h, 1)
+			. '</GetItemRequest>'."\n";
 		
+		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
+		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
+		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
+		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
+		$headers['X-EBAY-API-CALL-NAME'] = 'GetItem';
+		$headers['X-EBAY-API-SITEID']    = 0;
 		
+		$url = EBAY_SERVERURL;
+		
+		$this->r = new HttpRequest();
+		$this->r->setHeaders($headers);
+		
+		$xml_response = $this->post($url, $xml);
+		
+		$xmlobj = simplexml_load_string($xml_response);
+		file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
+						  .$ebayuserid.".".date("YmdHis").".getitem.response.xml",
+						  print_r($xmlobj,1));
+		
+		print_r($xmlobj);
+		
+		exit;
 	}
 	
 	function additems($itemids)
@@ -385,6 +408,8 @@ class UsersController extends AppController {
 		$ridx = 0;
 		foreach ($pool as $r) {
 			
+			$accountid = $seqmap[$ridx]['accountid'];
+			
 			$xml_response = $r->getResponseBody();
 			
 			file_put_contents("/var/www/dev.xboo.st/app/tmp/"
@@ -393,17 +418,24 @@ class UsersController extends AppController {
 			
 			$xmlobj = simplexml_load_string($xml_response);
 			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
-				
+			  
 				$idx = ($seqmap[$ridx]['chunkeidx'] * 5) + ($obj->CorrelationID - 1);
 				
 				if (isset($obj->ItemID)) {
+					
+					$h = null;
+					$h['RequesterCredentials']['eBayAuthToken'] =
+						$this->accounts[$accountid]['ebaytoken'];
+					$h['ItemID'] = $obj->ItemID;
+					$gio = $this->callapi('GetItem', $h);
+					error_log('GetItem:'.print_r($gio,1));
 					
 					$sql = "UPDATE items SET"
 						. " ebayitemid = '".mysql_real_escape_string($obj->ItemID)."',"
 						. " starttime  = '".mysql_real_escape_string($obj->StartTime)."',"
 						. " endtime    = '".mysql_real_escape_string($obj->EndTime)."'"
 						. " WHERE itemid = "
-						. $itemdata[$seqmap[$ridx]['accountid']]['items'][$idx]['itemid'];
+						. $itemdata[$accountid]['items'][$idx]['itemid'];
 					error_log($sql);
 					$this->User->query($sql);
 					
@@ -484,7 +516,8 @@ class UsersController extends AppController {
 		$i['PostalCode'] = '95125';
 		$i['PaymentMethods'] = 'PayPal';
 		$i['PayPalEmailAddress'] = 'magicalbookseller@yahoo.com';
-		$i['PictureDetails']['PictureURL'] = 'http://thumbs.ebaystatic.com/pict/41007087008080_0.jpg';
+		$i['PictureDetails']['PictureURL'] =
+		  'http://thumbs.ebaystatic.com/pict/41007087008080_0.jpg';
 		
 		return $i;
 	}
@@ -569,8 +602,7 @@ class UsersController extends AppController {
 			. " WHERE ebayuserid = 'testuser_tokyo'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
-	
-	
+		
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
 		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
@@ -582,7 +614,7 @@ class UsersController extends AppController {
 		
 		$this->r = new HttpRequest();
 		$this->r->setHeaders($headers);
-
+		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		$h['CategorySiteID'] = 0;
@@ -604,7 +636,7 @@ class UsersController extends AppController {
 					. $o->CategoryParentID
 					. ")";
 		}
-
+		
 		$sql = "INSERT INTO categories"
 			 . " (id, level, name, parentid) VALUES"
 			 . implode(',', $line);
@@ -616,7 +648,40 @@ class UsersController extends AppController {
 		print '</pre>';
 		exit;
 	}
-
+	
+	function callapi($call, $xmldata)
+	{
+		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
+		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
+		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
+		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
+		$headers['X-EBAY-API-CALL-NAME'] = $call;
+		$headers['X-EBAY-API-SITEID']    = 0;
+		
+		$url = EBAY_SERVERURL;
+		
+		$this->r = new HttpRequest();
+		$this->r->setHeaders($headers);
+		
+		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+			. $this->xml($xmldata, 1)
+			. '</'.$call.'Request>'."\n";
+		
+		$xml_response = $this->post($url, $xml_request);
+		$xmlobj = simplexml_load_string($xml_response);
+		
+		file_put_contents('/var/www/dev.xboo.st/app/tmp/'
+						  . 'api.'.date("YmdHis").'.'.$call.'.request.xml',
+						  $xml_request);
+		
+		file_put_contents('/var/www/dev.xboo.st/app/tmp/'
+						  . 'api.'.date("YmdHis").'.'.$call.'.response.xml',
+						  $xml_response);
+		
+		return $xmlobj;
+	}
+	
 	function get($url)
 	{
 		$this->r->setMethod(HttpRequest::METH_GET);
@@ -628,11 +693,11 @@ class UsersController extends AppController {
 		return $html;
 	}
 	
-	function post($url, $form)
+	function post($url, $postdata)
 	{
 		$this->r->setMethod(HttpRequest::METH_POST);
 		$this->r->setUrl($url);
-		$this->r->setRawPostData($form);
+		$this->r->setRawPostData($postdata);
 		$this->r->send();
 		
 		$html = $this->r->getResponseBody();
