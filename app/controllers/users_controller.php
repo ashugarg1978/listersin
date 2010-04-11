@@ -105,7 +105,7 @@ class UsersController extends AppController {
 			$i = $row['items'];
 			
 			$item = null;
-			$item['ebayuserid'] = $a['ebayuserid'];
+			$item['ebayuserid']  = $a['ebayuserid'];
 			$item['itemid']      = $i['itemid'];
 			$item['title']       = $i['title'];
 			$item['viewitemurl'] = $i['viewitemurl'];
@@ -114,7 +114,7 @@ class UsersController extends AppController {
 				if (date('Y-m-d', strtotime($i['endtime'])) == date('Y-m-d')) {
 					$item['endtime'] = date('H:i', strtotime($i['endtime']));
 				} else {
-					$item['endtime'] = date('n/j', strtotime($i['endtime']));
+					$item['endtime'] = date('n·îjÆü', strtotime($i['endtime']));
 				}
 			} else {
 				$item['endtime'] = '-';
@@ -289,6 +289,40 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function getsellerlist($accountid)
+	{
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[$accountid]['ebaytoken'];
+		$h['DetailLevel'] = 'ItemReturnDescription';
+		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
+		$h['StartTimeTo']   = date('Y-m-d H:i:s');
+		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Sort'] = 1;
+		
+		$oxml = $this->callapi('GetSellerList', $h);
+		foreach ($oxml->ItemArray->Item as $idx => $o) {
+			
+			$i = null;
+			$i['listingstatus'] = $o->SellingStatus->ListingStatus;
+			$i['starttime']     = $o->ListingDetails->StartTime;
+			$i['endtime']       = $o->ListingDetails->EndTime;
+			
+			$arr = null;
+			foreach ($i as $k => $v) {
+				$arr[] = $k." = '".mysql_real_escape_string($v)."'";
+			}
+			if (is_array($arr)) {
+				$sql_update = "UPDATE items"
+				  . " SET ".implode(', ', $arr)
+				  . " WHERE ebayitemid = ".$o->ItemID;
+				$res = $this->User->query($sql_update);
+			}
+			
+		}
+		
+		print_r($o);
+		exit;
+	}
 	
 	function getitem($accountid, $ebayitemid)
 	{
