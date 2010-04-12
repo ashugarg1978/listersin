@@ -136,6 +136,7 @@ function itemrow(data)
 		+ '<td id="r'+itemid+'eu">'+data.ebayuserid+'</td>'
 		+ '<td id="r'+itemid+'ei">'
 		+ '<a href="'+data.viewitemurl+'" target="_blank">'+data.ebayitemid+'</a>'
+		+ '<a href="/users/getitem/'+data.accountid+'/'+data.ebayitemid+'" target="_blank">UPD</a>'
 		+ '</td>'
 		+ '<td id="r'+itemid+'et">'+data.endtime+'</td>'
 		+ '<td id="r'+itemid+'sp">'+data.startprice+'</td>'

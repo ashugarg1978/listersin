@@ -84,9 +84,9 @@ class UsersController extends AppController {
 		/* create sql statement */
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " accounts.ebayuserid, items.*"
-		  . " FROM items"
-		  . " JOIN accounts USING (accountid)"
-		  . " WHERE ".implode(" AND ", $sql_filter);
+			. " FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE ".implode(" AND ", $sql_filter);
 		
 		$sql .= " ORDER BY itemid DESC";
 		
@@ -105,8 +105,9 @@ class UsersController extends AppController {
 			$i = $row['items'];
 			
 			$item = null;
-			$item['ebayuserid'] = $a['ebayuserid'];
+			$item['ebayuserid']  = $a['ebayuserid'];
 			$item['itemid']      = $i['itemid'];
+			$item['accountid']   = $i['accountid'];
 			$item['title']       = $i['title'];
 			$item['viewitemurl'] = $i['viewitemurl'];
 			
@@ -125,7 +126,7 @@ class UsersController extends AppController {
 
 			$items[] = $item;
 		}
-
+		
 		$data['cnt'] = $cnt;
 		$data['res'] = $items;
 		
@@ -296,38 +297,15 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[$accountid]['ebaytoken'];
 		$h['ItemID'] = $ebayitemid;
 		
-		$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-			. '<GetItemRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-			. $this->xml($h, 1)
-			. '</GetItemRequest>'."\n";
+		$gio = $this->callapi('GetItem', $h);
 		
-		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
-		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
-		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
-		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
-		$headers['X-EBAY-API-CALL-NAME'] = 'GetItem';
-		$headers['X-EBAY-API-SITEID']    = 0;
-		
-		$url = EBAY_SERVERURL;
-		
-		$this->r = new HttpRequest();
-		$this->r->setHeaders($headers);
-		
-		$xml_response = $this->post($url, $xml);
-		
-		$xmlobj = simplexml_load_string($xml_response);
-		file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
-						  .$ebayuserid.".".date("YmdHis").".getitem.response.xml",
-						  print_r($xmlobj,1));
-		
-		print_r($xmlobj);
+		print_r($gio);
 		
 		exit;
 	}
 	
 	function additems($itemids)
 	{
-		error_log('additems:'.implode(',', $itemids));
 		if (empty($itemids)) return;
 		
 		// read data from db
@@ -348,7 +326,6 @@ class UsersController extends AppController {
 			$itemdata[$accountid]['accounts'] = $arr['accounts'];
 			$itemdata[$accountid]['items'][]  = $arr['items'];
 		}
-		
 		
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
 		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
@@ -379,21 +356,22 @@ class UsersController extends AppController {
 					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 				}
 				
-				$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+				$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
 					. '<AddItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
 					. $this->xml($h, 1)
 					. '</AddItemsRequest>'."\n";
 				
-				file_put_contents("/var/www/dev.xboo.st/app/tmp/"
-								  ."_".date("His").".submit.".$hash['accounts']['ebayuserid']
-								  .".".$chunkedidx.".xml", $xml);
+				file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
+								  . date("mdHis").'.AddItems.request.'
+								  . $hash['accounts']['ebayuserid'].'.'.$chunkedidx.'.xml',
+								  $xml_request);
 				
 				$r = null;
 				$r = new HttpRequest();
 				$r->setHeaders($headers);
 				$r->setMethod(HttpRequest::METH_POST);
 				$r->setUrl($url);
-				$r->setRawPostData($xml);
+				$r->setRawPostData($xml_request);
 				$pool->attach($r);
 				
 				$seqmap[$seqidx]['accountid'] = $accountid;
@@ -401,8 +379,8 @@ class UsersController extends AppController {
 				$seqidx++;
 			}
 		}
-		error_log("seqmap:".print_r($seqmap,1));
 		
+		/* execute api call */
 		$pool->send();
 		
 		$ridx = 0;
@@ -412,8 +390,8 @@ class UsersController extends AppController {
 			
 			$xml_response = $r->getResponseBody();
 			
-			file_put_contents("/var/www/dev.xboo.st/app/tmp/"
-							  ."_".date("His").".".$ridx.".response.xml",
+			file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
+							  . date("mdHis").'.AddItems.response.'.$ridx.'.xml',
 							  $xml_response);
 			
 			$xmlobj = simplexml_load_string($xml_response);
@@ -425,17 +403,25 @@ class UsersController extends AppController {
 					
 					$h = null;
 					$h['RequesterCredentials']['eBayAuthToken'] =
-						$this->accounts[$accountid]['ebaytoken'];
+						$itemdata[$accountid]['accounts']['ebaytoken'];
 					$h['ItemID'] = $obj->ItemID;
 					$gio = $this->callapi('GetItem', $h);
-					error_log('GetItem:'.print_r($gio,1));
 					
-					$sql = "UPDATE items SET"
-						. " ebayitemid = '".mysql_real_escape_string($obj->ItemID)."',"
-						. " starttime  = '".mysql_real_escape_string($obj->StartTime)."',"
-						. " endtime    = '".mysql_real_escape_string($obj->EndTime)."'"
-						. " WHERE itemid = "
-						. $itemdata[$accountid]['items'][$idx]['itemid'];
+					$j = null;
+					$j['ebayitemid']  = $obj->ItemID;
+					$j['starttime']   = $obj->StartTime;
+					$j['endtime']     = $obj->EndTime;
+					$j['viewitemurl'] = $gio->Item->ListingDetails->ViewItemURL;
+					
+					$sql_u = null;
+					foreach ($j as $f => $v) {
+						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+					}			  
+					
+					$sql = "UPDATE items"
+						. " SET ".implode(', ', $sql_u)
+						. " WHERE itemid = ".$itemdata[$accountid]['items'][$idx]['itemid'];
+					
 					error_log($sql);
 					$this->User->query($sql);
 					
@@ -671,12 +657,12 @@ class UsersController extends AppController {
 		$xml_response = $this->post($url, $xml_request);
 		$xmlobj = simplexml_load_string($xml_response);
 		
-		file_put_contents('/var/www/dev.xboo.st/app/tmp/'
-						  . 'api.'.date("YmdHis").'.'.$call.'.request.xml',
+		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
+						  . date("mdHis").'.'.$call.'.request.xml',
 						  $xml_request);
 		
-		file_put_contents('/var/www/dev.xboo.st/app/tmp/'
-						  . 'api.'.date("YmdHis").'.'.$call.'.response.xml',
+		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
+						  . date("mdHis").'.'.$call.'.response.xml',
 						  $xml_response);
 		
 		return $xmlobj;
