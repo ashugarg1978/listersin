@@ -121,6 +121,14 @@ class UsersController extends AppController {
 				$item['endtime'] = '-';
 			}
 			
+			if ($i['listingstatus'] == 'Active') {
+				$item['listingstatus_label'] = '<span style="color:green">б№</span>';
+			} else if ($i['listingstatus'] == 'Completed') {
+				$item['listingstatus_label'] = '<span style="color:gray">во</span>';
+			} else {
+				$item['listingstatus_label'] = '<span style="color:#cccccc">во</span>';
+			}
+			
 			$item['ebayitemid'] = isset($i['ebayitemid']) ? $i['ebayitemid'] : '-';
 			$item['startprice']  = $i['startprice'];
 
@@ -560,48 +568,24 @@ class UsersController extends AppController {
 		$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
 		
-		$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-			. '<GetSellerListRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-			. $this->xml($h, 1)
-			. '</GetSellerListRequest>'."\n";
-		
-		file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
-						  .$ebayuserid.".".date("YmdHis").".import.xml", $xml);
-		
-		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
-		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
-		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
-		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
-		$headers['X-EBAY-API-CALL-NAME'] = 'GetSellerList';
-		$headers['X-EBAY-API-SITEID']    = 0;
-		
-		$url = EBAY_SERVERURL;
-		
-		$this->r = new HttpRequest();
-		$this->r->setHeaders($headers);
-		
-		$xml_response = $this->post($url, $xml);
-		
-		//header("Content-Type: application/xml");
-		
-		$xmlobj = simplexml_load_string($xml_response);
-		file_put_contents("/var/www/dev.xboo.st/app/tmp/_"
-						  .$ebayuserid.".".date("YmdHis").".import.response.xml",
-						  print_r($xmlobj,1));
+		$xmlobj = $this->callapi('GetSellerList', $h);
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			print '<pre>'.print_r($o,1).'</pre>';
 			
 			$i = null;
-			$i['accountid']   = $account['accountid'];
-			$i['ebayitemid']  = $o->ItemID.'';
-			$i['starttime']   = $o->ListingDetails->StartTime.'';
-			$i['endtime']     = $o->ListingDetails->EndTime.'';
-			$i['viewitemurl'] = $o->ListingDetails->ViewItemURL.'';
-			$i['title']       = $o->Title.'';
-			$i['description'] = $o->Description.'';
-			$i['startprice']  = $o->StartPrice.'';
-			$i['galleryurl']  = $o->PictureDetails->GalleryURL.'';
+			$i['accountid']     = $account['accountid'];
+			$i['ebayitemid']    = $o->ItemID.'';
+			$i['starttime']     = $o->ListingDetails->StartTime.'';
+			$i['endtime']       = $o->ListingDetails->EndTime.'';
+			$i['viewitemurl']   = $o->ListingDetails->ViewItemURL.'';
+			$i['title']         = $o->Title.'';
+			$i['description']   = $o->Description.'';
+			$i['startprice']    = $o->StartPrice.'';
+			$i['galleryurl']    = $o->PictureDetails->GalleryURL.'';
+			$i['categoryid']    = $o->PrimaryCategory->CategoryID;
+			$i['categoryname']  = $o->PrimaryCategory->CategoryName;
+			$i['listingstatus'] = $o->SellingStatus->ListingStatus;
 			
 			foreach ($i as $f => $v) {
 				$i[$f] = "'".mysql_real_escape_string($v)."'";
@@ -612,6 +596,7 @@ class UsersController extends AppController {
 				. " (".implode(",", array_values($i)).")";
 			$res = $this->User->query($sql_insert);
 		}
+		
 		exit;
 	}
 	

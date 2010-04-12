@@ -129,7 +129,7 @@ function itemrow(data)
 	html = '<tr id="r'+itemid+'">'
 		+ '<td id="r'+itemid+'cb">'
 		+ '<input type="checkbox" name="item[]" value="'+itemid+'"></td>'
-		+ '<td id="r'+itemid+'ii">'+itemid+'</td>'
+		+ '<td id="r'+itemid+'ii">'+data.listingstatus_label+itemid+'</td>'
 		+ '<td id="r'+itemid+'im" align="center">'
 		+ '<img src="'+data.galleryurl+'" height="20"></td>'
 		+ '<td id="r'+itemid+'tt"><a href="" class="title">'+data.title+'</a></td>'

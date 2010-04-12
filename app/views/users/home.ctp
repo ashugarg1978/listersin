@@ -71,13 +71,38 @@ foreach ($accounts as $accountid => $row) {
 <div id="templatewrap" style="display:none;">
 <div id="template" style="display:none;">
 <table class="detail">
-<tr><td nowrap>ei</td><td>[ebayitemid]</td></tr>
-<tr><td nowrap>開始日時</td><td>[starttime]</td></tr>
-<tr><td nowrap>終了日時</td><td>[endtime]</td></tr>
-<tr><td nowrap>開始価格</td><td class="edit startprice">[startprice]</td></tr>
-<tr><td nowrap>タイトル</td><td class="edit title">[title]</td></tr>
-<tr><td nowrap>説明</td><td class="edit description">[description]</td></tr>
-<tr><td nowrap>画像</td><td class=""><img src="[galleryurl]"><br>[galleryurl]</td></tr>
+<tr>
+	<td nowrap>ei</td>
+	<td>[ebayitemid]</td>
+</tr>
+<tr>
+	<td nowrap>開始日時</td>
+	<td>[starttime]</td>
+</tr>
+<tr>
+	<td nowrap>終了日時</td>
+	<td>[endtime]</td>
+</tr>
+<tr>
+	<td nowrap>開始価格</td>
+	<td class="edit startprice">[startprice]</td>
+</tr>
+<tr>
+	<td nowrap>タイトル</td>
+	<td class="edit title">[title]</td>
+</tr>
+<tr>
+	<td nowrap>カテゴリ</td>
+	<td class="edit categoryid">[categoryname]</td>
+</tr>
+<tr>
+	<td nowrap>説明</td>
+	<td class="edit description">[description]</td>
+</tr>
+<tr>
+	<td nowrap>画像</td>
+	<td class=""><img src="[galleryurl]"><br>[galleryurl]</td>
+</tr>
 </table>
 </div>
 </div>
