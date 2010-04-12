@@ -1,6 +1,12 @@
 imp:<?
 foreach ($accounts as $accountid => $row) {
-	print '<a href="/users/import/'.$row['ebayuserid'].'/" target="_blank">'
+	print '<a href="/users/import/'.$row['ebayuserid'].'" target="_blank">'
+		. $row['ebayuserid']. '</a> ';
+}
+?><br>
+upd:<?
+foreach ($accounts as $accountid => $row) {
+	print '<a href="/users/getsellerlist/'.$accountid.'" target="_blank">'
 		. $row['ebayuserid']. '</a> ';
 }
 ?>
