@@ -110,6 +110,7 @@ class UsersController extends AppController {
 			$item['accountid']   = $i['accountid'];
 			$item['title']       = $i['title'];
 			$item['viewitemurl'] = $i['viewitemurl'];
+			$item['listingstatus'] = $i['listingstatus'];
 			
 			if (isset($i['endtime'])) {
 				if (date('Y-m-d', strtotime($i['endtime'])) == date('Y-m-d')) {
@@ -121,12 +122,13 @@ class UsersController extends AppController {
 				$item['endtime'] = '-';
 			}
 			
+			
 			if ($i['listingstatus'] == 'Active') {
-				$item['listingstatus_label'] = '<span style="color:green">б№</span>';
+				$item['listingstatus_label'] = 'O';
 			} else if ($i['listingstatus'] == 'Completed') {
-				$item['listingstatus_label'] = '<span style="color:gray">во</span>';
+				$item['listingstatus_label'] = '=';
 			} else {
-				$item['listingstatus_label'] = '<span style="color:#cccccc">во</span>';
+				$item['listingstatus_label'] = 'I';
 			}
 			
 			$item['ebayitemid'] = isset($i['ebayitemid']) ? $i['ebayitemid'] : '-';
