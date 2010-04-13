@@ -88,7 +88,7 @@ class UsersController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		$sql .= " ORDER BY itemid DESC";
+		$sql .= " ORDER BY endtime DESC, itemid DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
@@ -116,7 +116,7 @@ class UsersController extends AppController {
 				if (date('Y-m-d', strtotime($i['endtime'])) == date('Y-m-d')) {
 					$item['endtime'] = date('H:i', strtotime($i['endtime']));
 				} else {
-					$item['endtime'] = date('n·îjÆü', strtotime($i['endtime']));
+					$item['endtime'] = date('næœˆjæ—¥', strtotime($i['endtime']));
 				}
 			} else {
 				$item['endtime'] = '-';
@@ -565,26 +565,25 @@ class UsersController extends AppController {
 		$h['DetailLevel'] = 'ItemReturnDescription';
 		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 50;
+		$h['Pagination']['EntriesPerPage'] = 200;
 		$h['Sort'] = 1;
-		$h['UserID'] = 'testuser_tlbbidder1';
+		//$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
-			print '<pre>'.print_r($o,1).'</pre>';
-			
+		  
 			$i = null;
 			$i['accountid']     = $account['accountid'];
-			$i['ebayitemid']    = $o->ItemID.'';
-			$i['starttime']     = $o->ListingDetails->StartTime.'';
-			$i['endtime']       = $o->ListingDetails->EndTime.'';
-			$i['viewitemurl']   = $o->ListingDetails->ViewItemURL.'';
-			$i['title']         = $o->Title.'';
-			$i['description']   = $o->Description.'';
-			$i['startprice']    = $o->StartPrice.'';
-			$i['galleryurl']    = $o->PictureDetails->GalleryURL.'';
+			$i['ebayitemid']    = $o->ItemID;
+			$i['starttime']     = $o->ListingDetails->StartTime;
+			$i['endtime']       = $o->ListingDetails->EndTime;
+			$i['viewitemurl']   = $o->ListingDetails->ViewItemURL;
+			$i['title']         = $o->Title;
+			$i['description']   = $o->Description;
+			$i['startprice']    = $o->StartPrice;
+			$i['galleryurl']    = $o->PictureDetails->GalleryURL;
 			$i['categoryid']    = $o->PrimaryCategory->CategoryID;
 			$i['categoryname']  = $o->PrimaryCategory->CategoryName;
 			$i['listingstatus'] = $o->SellingStatus->ListingStatus;
@@ -592,11 +591,31 @@ class UsersController extends AppController {
 			foreach ($i as $f => $v) {
 				$i[$f] = "'".mysql_real_escape_string($v)."'";
 			}			  
-			$sql_insert = "INSERT INTO items"
+			
+			/* SELECT */
+			$sql_select = "SELECT itemid FROM items"
+			  . " WHERE ebayitemid = ".$i['ebayitemid'];
+			$res = $this->User->query($sql_select);
+			if (!empty($res[0]['items']['itemid'])) {
+			  
+			  /* UPDATE */
+			  $sql_update = "UPDATE items SET";
+			  foreach ($i as $f => $v) {
+				$sql_update .= $f."".$v;
+			  }
+			  $sql_update .= " WHERE itemid = ".$i['ebayitemid'];
+			  //$res = $this->User->query($sql_update);
+			  
+			} else {
+			  
+			  /* INSERT */
+			  $sql_insert = "INSERT INTO items"
 				. " (".implode(",", array_keys($i)).")"
 				. " VALUES"
 				. " (".implode(",", array_values($i)).")";
-			$res = $this->User->query($sql_insert);
+			  $res = $this->User->query($sql_insert);
+			  
+			}
 		}
 		
 		exit;
