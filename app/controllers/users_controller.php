@@ -599,12 +599,13 @@ class UsersController extends AppController {
 			if (!empty($res[0]['items']['itemid'])) {
 			  
 			  /* UPDATE */
-			  $sql_update = "UPDATE items SET";
 			  foreach ($i as $f => $v) {
-				$sql_update .= $f."".$v;
+				$sql_updates[] = $f." = ".$v;
 			  }
-			  $sql_update .= " WHERE itemid = ".$i['ebayitemid'];
-			  //$res = $this->User->query($sql_update);
+			  $sql_update = "UPDATE items"
+				. " SET ".implode(",",$sql_updates)
+				. " WHERE itemid = ".$i['ebayitemid'];
+			  $res = $this->User->query($sql_update);
 			  
 			} else {
 			  
