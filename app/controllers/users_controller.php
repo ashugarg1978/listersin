@@ -211,11 +211,12 @@ class UsersController extends AppController {
 	{
 		if (empty($_POST['item'])) return;
 		
+		// todo: list copy column names
 		$sql_copy = "INSERT INTO items ("
-			. " accountid, title, description,"
+			. " accountid, title, description, categoryid, "
 			. " startprice"
 			. " ) SELECT"
-			. " accountid, title, description,"
+			. " accountid, title, description, categoryid, "
 			. " startprice"
 			. " FROM items"
 			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
@@ -622,38 +623,24 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function category()
+	function category($id=null)
 	{
-		
+	  
+	}
+	
+	function getcategories()
+	{
 		$sql = "SELECT * FROM accounts"
 			. " WHERE ebayuserid = 'testuser_tokyo'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
-		
-		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
-		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
-		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
-		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
-		$headers['X-EBAY-API-CALL-NAME'] = 'GetCategories';
-		$headers['X-EBAY-API-SITEID']    = 0;
-		
-		$url = EBAY_SERVERURL;
-		
-		$this->r = new HttpRequest();
-		$this->r->setHeaders($headers);
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		$h['CategorySiteID'] = 0;
 		$h['DetailLevel'] = 'ReturnAll';
 		
-		$xml = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-			. '<GetCategoriesRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-			. $this->xml($h, 1)
-			. '</GetCategoriesRequest>'."\n";
-			
-		$xml_response = $this->post($url, $xml);
-		$xmlobj = simplexml_load_string($xml_response);
+		$xmlobj = $this->callapi("Getcategories", $h);
 		
 		foreach ($xmlobj->CategoryArray->Category as $i => $o) {
 			$line[] = "("
@@ -664,9 +651,8 @@ class UsersController extends AppController {
 					. ")";
 		}
 		
-		$sql = "INSERT INTO categories"
-			 . " (id, level, name, parentid) VALUES"
-			 . implode(',', $line);
+		$sql = "INSERT INTO categories (id, level, name, parentid)"
+		  . " VALUES ".implode(',', $line);
 		$res = $this->User->query($sql);
 		
 		print '<pre>';

@@ -139,6 +139,9 @@ foreach ($accounts as $accountid => $row) {
 </tr>
 <tr>
 	<td>**title**</td>
+	<td class="formcategory">
+	<input class="form" name="title" type="text" size="50">
+	</td>
 </tr>
 <tr>
 	<td>**description**</td>
