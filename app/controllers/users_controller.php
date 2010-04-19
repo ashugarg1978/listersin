@@ -29,7 +29,7 @@ class UsersController extends AppController {
 	
 	function index()
 	{
-		
+	  
 	}
 	
 	function getAccounts($userid)
@@ -293,46 +293,11 @@ class UsersController extends AppController {
 		$cmd = 'PATH=/usr/local/php-5.2.10/bin'
 			. ' /var/www/dev.xboo.st/cake/console/cake'
 			. ' -app /var/www/dev.xboo.st/app daemon'
-			. ' '.implode(',', $_POST['item'])
+			. ' additems '.implode(',', $_POST['item'])
 			. ' > /dev/null &';
 		system($cmd);
 		error_log($cmd);
 		
-		exit;
-	}
-	
-	function getsellerlist($accountid)
-	{
-		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[$accountid]['ebaytoken'];
-		$h['DetailLevel'] = 'ItemReturnDescription';
-		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
-		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 200;
-		$h['Sort'] = 1;
-		
-		$oxml = $this->callapi('GetSellerList', $h);
-		foreach ($oxml->ItemArray->Item as $idx => $o) {
-			
-			$i = null;
-			$i['listingstatus'] = $o->SellingStatus->ListingStatus;
-			$i['starttime']     = $o->ListingDetails->StartTime;
-			$i['endtime']       = $o->ListingDetails->EndTime;
-			
-			$arr = null;
-			foreach ($i as $k => $v) {
-				$arr[] = $k." = '".mysql_real_escape_string($v)."'";
-			}
-			if (is_array($arr)) {
-				$sql_update = "UPDATE items"
-				  . " SET ".implode(', ', $arr)
-				  . " WHERE ebayitemid = ".$o->ItemID;
-				$res = $this->User->query($sql_update);
-			}
-			
-		}
-		
-		print_r($o);
 		exit;
 	}
 	
@@ -372,6 +337,7 @@ class UsersController extends AppController {
 			$itemdata[$accountid]['items'][]  = $arr['items'];
 		}
 		
+		// todo: replace with callapi method
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
 		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
@@ -553,7 +519,8 @@ class UsersController extends AppController {
 		return $i;
 	}
 	
-	function import($ebayuserid)
+	// todo: authorize login user or daemon process
+	function getsellerlist($ebayuserid)
 	{
 		$sql = "SELECT * FROM accounts"
 			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
@@ -641,7 +608,7 @@ class UsersController extends AppController {
 		$h['CategorySiteID'] = 0;
 		$h['DetailLevel'] = 'ReturnAll';
 		
-		$xmlobj = $this->callapi("Getcategories", $h);
+		$xmlobj = $this->callapi("GetCategories", $h);
 		
 		foreach ($xmlobj->CategoryArray->Category as $i => $o) {
 			$line[] = "("
@@ -665,6 +632,7 @@ class UsersController extends AppController {
 	
 	function callapi($call, $xmldata)
 	{
+		/* prepare */
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
 		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
@@ -677,17 +645,19 @@ class UsersController extends AppController {
 		$this->r = new HttpRequest();
 		$this->r->setHeaders($headers);
 		
+		/* request */
 		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
 			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
 			. $this->xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
-		$xml_response = $this->post($url, $xml_request);
-		$xmlobj = simplexml_load_string($xml_response);
-		
 		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
 						  . date("mdHis").'.'.$call.'.request.xml',
 						  $xml_request);
+
+		/* response */
+		$xml_response = $this->post($url, $xml_request);
+		$xmlobj = simplexml_load_string($xml_response);
 		
 		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
 						  . date("mdHis").'.'.$call.'.response.xml',
