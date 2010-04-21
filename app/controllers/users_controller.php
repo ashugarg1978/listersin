@@ -132,8 +132,8 @@ class UsersController extends AppController {
 			}
 			
 			$item['ebayitemid'] = isset($i['ebayitemid']) ? $i['ebayitemid'] : '-';
-			$item['startprice']  = $i['startprice'];
-
+			$item['startprice'] = $i['startprice'];
+			
 			$items[] = $item;
 		}
 		
