@@ -9,6 +9,7 @@ function bindevents ()
 {
 	$('a.title').live('click', function(event){
 			
+			//itemid = $(this).closest('tbody').attr('id');
 			itemid = $(this).parent().attr('id').replace(/^r/, '').replace(/tt$/, '');
 			
 			if ($('#d'+itemid).css('display') == 'block') {
@@ -212,6 +213,8 @@ function updatelist()
 			   html = '';
 			   $.each(data.res, function(idx, val){
 					   html += itemrow(val);
+					   dom = getrow(idx, val);
+					   $('#items').append(dom);
 				   });
 			   $('#tbdy').html(html);
 			   
@@ -219,6 +222,21 @@ function updatelist()
 			   
 		   },
 		   'json');
+}
+
+function getrow(itemid, row)
+{
+	dom = $('#rowtemplate').clone().attr('id', itemid);
+	
+	$.each(row, function(col, val){
+			$('.'+col, dom).html(val);
+		});
+	
+	$('a.ebayitemid', dom).attr('href', row['viewitemurl']);
+	//$('input checkbox');
+	
+	
+	return dom;
 }
 
 function paging(cnt)

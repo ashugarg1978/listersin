@@ -29,8 +29,8 @@ foreach ($accounts as $accountid => $row) {
 
 <form id="filter">
 <input type="hidden" name="offset" value="0">
-<input type="hidden" name="limit" value="100">
-<table class="items">
+<input type="hidden" name="limit" value="1">
+<table id="items" class="items">
 <tr id="r0">
 <th>&nbsp;</th>
 <th>ID</th>
@@ -61,6 +61,32 @@ foreach ($accounts as $accountid => $row) {
 <td></td>
 <td></td>
 </tr>
+<tbody id="rowtemplate">
+<tr class="row1">
+	<td><input type="checkbox" name="item[]"></td>
+	<td class="itemid"></td>
+	<td class="galleryurl"></td>
+	<td><a href="" class="title"></a></td>
+	<td class="ebayuserid"></td>
+	<td><a href="" class="ebayitemid" target="_blank"></a></td>
+	<td class="endtime"></td>
+	<td class="startprice"></td>
+</tr>
+<tr class="row2">
+	<td colspan="8">
+	<div class="detail">
+	
+	<table class="detail">
+	<tr><td>タイトル</td><td class="title"></td></tr>
+	<tr><td>カテゴリ</td><td class="categoryname"></td></tr>
+	<tr><td>説明</td><td class="description"></td></tr>
+	<tr><td>画像</td><td class="galleryurl"></td></tr>
+	</table>
+	
+	</div>
+	</td>
+</tr>
+</tbody>
 <tbody id="tbdy"></tbody>
 </table>
 </form>

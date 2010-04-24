@@ -101,40 +101,32 @@ class UsersController extends AppController {
 		
 		/* modify result records */
 		foreach ($res as $idx => $row) {
-			$a = $row['accounts'];
-			$i = $row['items'];
+		  
+			$item = $row['items'];
+			$itemid = $item['itemid'];
 			
-			$item = null;
-			$item['ebayuserid']  = $a['ebayuserid'];
-			$item['itemid']      = $i['itemid'];
-			$item['accountid']   = $i['accountid'];
-			$item['title']       = $i['title'];
-			$item['viewitemurl'] = $i['viewitemurl'];
-			$item['listingstatus'] = $i['listingstatus'];
+			$item['ebayuserid'] = $row['accounts']['ebayuserid'];
 			
-			if (isset($i['endtime'])) {
-				if (date('Y-m-d', strtotime($i['endtime'])) == date('Y-m-d')) {
-					$item['endtime'] = date('H:i', strtotime($i['endtime']));
+			if (isset($item['endtime'])) {
+				if (date('Y-m-d', strtotime($item['endtime'])) == date('Y-m-d')) {
+					$item['endtime'] = date('H:i', strtotime($item['endtime']));
 				} else {
-					$item['endtime'] = date('n月j日', strtotime($i['endtime']));
+					$item['endtime'] = date('n月j日', strtotime($item['endtime']));
 				}
 			} else {
 				$item['endtime'] = '-';
 			}
 			
 			
-			if ($i['listingstatus'] == 'Active') {
+			if ($item['listingstatus'] == 'Active') {
 				$item['listingstatus_label'] = 'O';
-			} else if ($i['listingstatus'] == 'Completed') {
+			} else if ($item['listingstatus'] == 'Completed') {
 				$item['listingstatus_label'] = '=';
 			} else {
 				$item['listingstatus_label'] = 'I';
 			}
 			
-			$item['ebayitemid'] = isset($i['ebayitemid']) ? $i['ebayitemid'] : '-';
-			$item['startprice'] = $i['startprice'];
-			
-			$items[] = $item;
+			$items[$itemid] = $item;
 		}
 		
 		$data['cnt'] = $cnt;

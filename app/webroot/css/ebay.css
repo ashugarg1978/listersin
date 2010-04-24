@@ -73,8 +73,8 @@ table.items {
 	width: 940px;
 }
 
-table.items tr {
-	border-bottom: 1px solid #eeeeee;
+table.items tr.row2 {
+	border-bottom: 1px solid #999999;
 }
 
 tr.rowover {
@@ -96,13 +96,14 @@ table.items th a {
 	font-weight: bold;
 }
 
-table.items td {
+table.items tr.row1 td {
 	font-size: 10pt;
-	padding: 3px 10px 3px 10px;
+	padding: 2px 10px 0px 10px;
 }
 
-table.items td.ei {
-	color: blue;
+table.items tr.row2 td {
+	font-size: 10pt;
+	padding: 0px 10px 2px 10px;
 }
 
 table.items td.eimo {
