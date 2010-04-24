@@ -9,38 +9,10 @@ function bindevents ()
 {
 	$('a.title').live('click', function(event){
 			
-			//itemid = $(this).closest('tbody').attr('id');
-			itemid = $(this).parent().attr('id').replace(/^r/, '').replace(/tt$/, '');
+			itemid = $(this).closest('tbody').attr('id');
+			$('div.detail', '#'+itemid).slideToggle('fast');
 			
-			if ($('#d'+itemid).css('display') == 'block') {
-				$('#d'+itemid).slideToggle('fast', function(){
-						$('#rd'+itemid).remove();
-					});
-				return false;
-			}
-			if ($('#d'+itemid).css('display')) {
-				$('#d'+itemid).slideToggle('fast');
-				return false;
-			}
-				
-			$.getJSON('/users/item/'+itemid, function(data){
-					tmpl = $('#templatewrap').html();
-					tmpl = tmpl.replace('template', 'd'+itemid+'');
-					
-					$.each(data, function(idx, val){
-							tmpl = tmpl.replace('['+idx+']', val);
-						});
-					
-					$('#r'+itemid).after('<tr id="rd'+itemid+'" class="detail">'
-										 + '<td colspan="8">'
-										 + tmpl
-										 + '</td>'
-										 + '</tr>');
-					
-					$('#d'+itemid).slideDown('first');
-					//$.scrollTo('#r'+itemid, {duration:200, axis:'y', offset:-42});
-					bindform(itemid);
-				});
+			//$.scrollTo('#'+itemid, {duration:200, axis:'y', offset:-42});
 			
 			return false;
 		});
@@ -232,9 +204,9 @@ function getrow(itemid, row)
 			$('.'+col, dom).html(val);
 		});
 	
-	$('a.ebayitemid', dom).attr('href', row['viewitemurl']);
-	//$('input checkbox');
-	
+	$('input:checkbox', dom).val(itemid);
+	$('a.ebayitemid',   dom).attr('href', row['viewitemurl']);
+	$('img.galleryurl', dom).attr('src', row['galleryurl']);
 	
 	return dom;
 }

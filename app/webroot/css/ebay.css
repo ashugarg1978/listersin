@@ -159,3 +159,11 @@ div#paging a {
 	margin: 2px;
 	padding: 0.1em 0.4em;
 }
+
+tbody#rowtemplate {
+	display: none;
+}
+
+div.detail {
+	display: none;
+}
