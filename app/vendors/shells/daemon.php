@@ -8,9 +8,9 @@ class DaemonShell extends Shell {
 	
 	function main()
 	{
-		error_log(print_r($this->args, 1));
+		error_log('daemon:'.implode(" ", $this->args));
 		
-		$funcname = $this->arg[0];
+		$funcname = $this->args[0];
 		$arg = explode(',', $this->args[1]);
 		
 		$users = new UsersController();

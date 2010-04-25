@@ -1,9 +1,46 @@
 $(document).bind({
 		ready: function(event) {
-			updatelist();
+			items();
 			bindevents();
 		}
 	});
+
+function items()
+{
+	$.post('/users/items/',
+		   $('input, select', '#filter').serialize(),
+		   function(data) {
+			   paging(data.cnt);
+			   
+			   $('tbody:gt(2)').remove();
+			   $.each(data.res, function(itemid, row) {
+					   dom = getrow(itemid, row);
+					   $('#items').append(dom);
+				   });
+		   },
+		   'json');
+}
+
+function getrow(itemid, row)
+{
+	dom = $('#rowtemplate').clone().attr('id', itemid);
+	
+	$.each(row, function(colname, colval) {
+			if (colname == 'title' || colname == 'description') {
+				//colval = colval.replace(/\n/g, "___LF___");
+				colval = $('<div/>').text(colval).html();
+				//colval = colval.replace(/___LF___/g, '<br>');
+				colval = colval.replace(/\n/g, '<br>');
+			}
+			$('.'+colname, dom).html(colval);
+		});
+	
+	$('input:checkbox', dom).val(itemid);
+	$('a.ebayitemid',   dom).attr('href', row['viewitemurl']);
+	$('img.galleryurl', dom).attr('src', row['galleryurl']);
+	
+	return dom;
+}
 
 function bindevents ()
 {
@@ -17,6 +54,13 @@ function bindevents ()
 			return false;
 		});
 	
+	$('#paging > a').live('click', function() {
+			offset = ($(this).html() - 1) * limit;
+			$('input[name=offset]').val(offset);
+			items();
+			return false;
+		});
+	
 	$('input:button.edit', 'div.detail').live('click', function() {
 			itemid = $(this).closest('tbody.itemrow').attr('id');
 			
@@ -27,8 +71,10 @@ function bindevents ()
 					
 					colval = $(v).html();
 					if (colname == 'title' || colname == 'description') {
-						colval = colval.replace(/<br>/g, "\n");
+						//colval = colval.replace(/<br>/g, '___LF___');
 						colval = $('<div/>').html(colval).text();
+						//colval = colval.replace(/___LF___/g, "\n");
+						colval = colval.replace(/<br>/g, '\n');
 					}
 					
 					f = $('.'+colname, '#editform').clone().val(colval);
@@ -114,17 +160,17 @@ function update()
 	return;
 }
 
-function submititems()
+function additems()
 {
 	var postdata = "";
 	postdata = $("input[name='item[]']:checked").serialize();
 	
-	$("input[name='item[]']:checked").each(function(){
+	$("input[name='item[]']:checked").each(function() {
 		$(this).css('visibility', 'hidden');
 		$(this).parent().addClass('loading');
 	});
 	
-	$.post('/users/submit/',
+	$.post('/users/additems/',
 		   postdata,
 		   function(data){
 			   $('#debug').html('<pre>'+data+'</pre>');
@@ -138,43 +184,8 @@ function submititems()
 function filter()
 {
 	$('input[name=offset]').val(0);
-	updatelist();
+	items();
 	return;
-}
-
-function updatelist()
-{
-	$.post('/users/items/',
-		   $('#filter').serialize(),
-		   function(data){
-			   html = '';
-			   $.each(data.res, function(idx, row){
-					   dom = getrow(idx, row);
-					   $('#items').append(dom);
-				   });
-			   
-			   paging(data.cnt);
-		   },
-		   'json');
-}
-
-function getrow(itemid, row)
-{
-	dom = $('#rowtemplate').clone().attr('id', itemid);
-	
-	$.each(row, function(colname, colval){
-			if (colname == 'title' || colname == 'description') {
-				colval = $('<div/>').text(colval).html();
-				colval = colval.replace(/\n/g, '<br>');
-			}
-			$('.'+colname, dom).html(colval);
-		});
-	
-	$('input:checkbox', dom).val(itemid);
-	$('a.ebayitemid',   dom).attr('href', row['viewitemurl']);
-	$('img.galleryurl', dom).attr('src', row['galleryurl']);
-	
-	return dom;
 }
 
 function paging(cnt)
@@ -199,15 +210,6 @@ function paging(cnt)
 	}
 	
 	$('#paging').html(html);
-	
-	$('#paging > a').bind({
-			click: function(event){
-				offset = ($(this).html() - 1) * limit;
-				$('input[name=offset]').val(offset);
-				updatelist();
-				return false;
-			}
-		});
 	
 	return;
 }

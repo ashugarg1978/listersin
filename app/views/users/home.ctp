@@ -1,6 +1,6 @@
 imp:<?
 foreach ($accounts as $accountid => $row) {
-	print '<a href="/users/import/'.$row['ebayuserid'].'" target="_blank">'
+	print '<a href="/users/getsellerlist/'.$row['ebayuserid'].'" target="_blank">'
 		. $row['ebayuserid']. '</a> ';
 }
 ?><br>
@@ -18,7 +18,7 @@ foreach ($accounts as $accountid => $row) {
 <input type="button" value="全て" onclick="chkall();">
 <input type="button" value="リセット" onclick="unchkall();">
 
-<input type="button" value="出品"   onclick="submititems();">
+<input type="button" value="出品"   onclick="additems();">
 <input type="button" value="コピー" onclick="copyitems();">
 <input type="button" value="更新"   onclick="update();">
 <input type="button" value="削除"   onclick="delete();">
@@ -27,40 +27,50 @@ foreach ($accounts as $accountid => $row) {
 
 <div id="paging"></div>
 
-<form id="filter">
-<input type="hidden" name="offset" value="0">
-<input type="hidden" name="limit" value="30">
+
 <table id="items" class="items">
-<tr id="r0">
-<th>&nbsp;</th>
-<th>ID</th>
-<th>画像</th>
-<th>タイトル</th>
-<th>eBayアカウント</th>
-<th nowrap>eBay商品ID</th>
-<th nowrap>終了日</th>
-<th nowrap>開始価格</th>
+
+<thead>
+<tr>
+	<th></th>
+	<th>ID</th>
+	<th>画像</th>
+	<th>タイトル</th>
+	<th>eBayアカウント</th>
+	<th>eBay商品ID</th>
+	<th>終了日</th>
+	<th>開始価格</th>
+</tr>
+</thead>
+
+<tr id="filter">
+<td>
+</td>
+<td>
+	<input type="text" name="itemid" size="4">
+</td>
+<td></td>
+<td>
+	<input type="text" name="title" size="30"></td>
+	<input type="text" name="offset" value="0"  size="2">
+	<input type="text" name="limit"  value="30" size="2">
+<td>
+	<select name="accountid" onchange="filter();">
+	<option value=""></option>
+	<?
+	foreach ($accounts as $accountid => $row) {
+		echo '<option value="'.$accountid.'">'.$row['ebayuserid'].'</option>';
+	}	
+	?>
+	</select>
+</td>
+<td>
+	<input type="text" name="startprice" size="6">
+</td>
+<td></td>
+<td></td>
 </tr>
 
-<tr>
-<td></td>
-<td><input type="text" name="itemid" size="4"></td>
-<td></td>
-<td><input type="text" name="title" size="30"></td>
-<td>
-<select name="accountid" onchange="filter();">
-<option value=""></option>
-<?
-foreach ($accounts as $accountid => $row) {
-	echo '<option value="'.$accountid.'">'.$row['ebayuserid'].'</option>';
-}	
-?>
-</select>
-</td>
-<td><input type="text" name="itemid" size="6"></td>
-<td></td>
-<td></td>
-</tr>
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
 	<td><input type="checkbox" name="item[]"></td>
@@ -77,6 +87,9 @@ foreach ($accounts as $accountid => $row) {
 	<div class="detail">
 	
 	<table class="detail">
+	<col align="right">
+	<col>
+	<tbody>
 	<tr><td width="100">タイトル</td><td class="title"></td></tr>
 	<tr><td>カテゴリ</td><td class="categoryname"></td></tr>
 	<tr><td>説明</td><td class="description"></td></tr>
@@ -89,14 +102,21 @@ foreach ($accounts as $accountid => $row) {
 		<input type="button" class="cancel" value="キャンセル">
 		</td>
 	</tr>
+	</tbody>
 	</table>
 	
 	</div>
 	</td>
 </tr>
 </tbody>
+<tbody>
+<tr>
+	<td colspan="8" align="center" style="height:100px;">
+		商品情報を読み込んでいます・・・
+	</td>
+</tr>
+</tbody>
 </table>
-</form>
 
 <div style="width=300px;" id="debug"></div>
 

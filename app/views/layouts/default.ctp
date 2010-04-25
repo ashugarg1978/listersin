@@ -3,7 +3,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>...</title>
+<title>ebaytool.jp</title>
 <meta name="description" content="dev">
 <meta name="keywords" content="dev">
 <link href="/css/ebay.css" rel="stylesheet" type="text/css">

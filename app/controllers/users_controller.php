@@ -10,6 +10,8 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
+		error_log($this->action.' beforeFilter:'.print_r($_POST,1));
+		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
 		$this->Auth->fields = array('username' => 'email', 
@@ -50,17 +52,6 @@ class UsersController extends AppController {
 	
 	function home()
 	{
-		$userid = $this->user['User']['userid'];
-		
-		$sql = "SELECT *"
-			. " FROM items"
-			. " JOIN accounts USING (accountid)"
-			. " WHERE userid = ".$userid
-			. " ORDER BY itemid DESC"
-			. " LIMIT 100"; 
-		$res = $this->User->query($sql);
-		
-		$this->set('items', $res);
 		
 	}
 	
@@ -105,9 +96,8 @@ class UsersController extends AppController {
 		/* modify result records */
 		foreach ($res as $idx => $row) {
 		  
+			$itemid = $row['items']['itemid'];			
 			$item = $row['items'];
-			$itemid = $item['itemid'];
-			
 			$item['ebayuserid'] = $row['accounts']['ebayuserid'];
 			
 			if (isset($item['endtime'])) {
@@ -119,7 +109,6 @@ class UsersController extends AppController {
 			} else {
 				$item['endtime'] = '-';
 			}
-			
 			
 			if ($item['listingstatus'] == 'Active') {
 				$item['listingstatus_label'] = 'O';
@@ -289,12 +278,11 @@ class UsersController extends AppController {
 		if (empty($_POST['item'])) return;
 		
 		$cmd = 'PATH=/usr/local/php-5.2.10/bin'
-			. ' /var/www/dev.xboo.st/cake/console/cake'
-			. ' -app /var/www/dev.xboo.st/app daemon'
+			. ' '.ROOT.'/cake/console/cake'
+			. ' -app '.ROOT.'/app daemon'
 			. ' additems '.implode(',', $_POST['item'])
 			. ' > /dev/null &';
 		system($cmd);
-		error_log($cmd);
 		
 		exit;
 	}
@@ -312,9 +300,21 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function additems($itemids)
+	function additems($itemids=null)
 	{
-		if (empty($itemids)) return;
+		if (empty($itemids) && isset($_POST['item'])) {
+			$cmd = 'PATH=/usr/local/php/bin'
+				. ' '.ROOT.'/cake/console/cake'
+				. ' -app '.ROOT.'/app daemon'
+				. ' additems '.implode(',', $_POST['item'])
+				. ' > /dev/null &';
+			system($cmd);
+			error_log($cmd);
+			exit;
+		} else if (empty($itemids)) {
+			return;
+		}
+		error_log('additems:'.implode(',', $itemids));
 		
 		// read data from db
 		$sql = "SELECT *"
@@ -535,6 +535,7 @@ class UsersController extends AppController {
 		$h['Sort'] = 1;
 		//$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
+		$h['UserID'] = 'testuser_etyoul';
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
