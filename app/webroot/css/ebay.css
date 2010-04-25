@@ -179,7 +179,7 @@ tbody#rowtemplate {
 }
 
 div.detail {
-	border: 2px dotted #009900;
+	border: 1px dotted #006600;
 	margin: 5px;
 	padding: 5px;
 	display: none;
@@ -187,4 +187,10 @@ div.detail {
 
 div#editform {
 	display: none;
+}
+
+td.description iframe {
+	width: 750px;
+	height: 300px;
+	border: 1px dotted #999999;
 }

@@ -38,6 +38,7 @@ function getrow(itemid, row)
 	$('input:checkbox', dom).val(itemid);
 	$('a.ebayitemid',   dom).attr('href', row['viewitemurl']);
 	$('img.galleryurl', dom).attr('src', row['galleryurl']);
+	//$('iframe.description',     dom).attr('src', '/users/description/'+itemid);
 	
 	return dom;
 }
@@ -47,6 +48,11 @@ function bindevents ()
 	$('a.title').live('click', function(){
 			
 			itemid = $(this).closest('tbody').attr('id');
+			
+			description = $('<iframe/>').attr('src', '/users/description/'+itemid);
+				
+			$('.description', $(this).closest('tbody')).html(description);
+			
 			$('div.detail', '#'+itemid).slideToggle('fast');
 			
 			//$.scrollTo('#'+itemid, {duration:200, axis:'y', offset:-42});

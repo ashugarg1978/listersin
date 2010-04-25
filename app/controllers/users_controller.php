@@ -141,6 +141,22 @@ class UsersController extends AppController {
 		$this->set('item', $res[0]['items']);
 	}
 	
+	function description($itemid)
+	{
+		//$itemid = $_POST['itemid'];
+		$sql = "SELECT description FROM items WHERE itemid = ".$itemid;
+		$res = $this->User->query($sql);
+		$html = $res[0]['items']['description'];
+		
+		echo '<html>';
+		echo '<body>';
+		echo $html;
+		echo '</body>';
+		echo '</html>';
+		
+		exit;
+	}
+	
     function login() {
 		
     }
