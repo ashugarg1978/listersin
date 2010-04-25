@@ -61,11 +61,11 @@ foreach ($accounts as $accountid => $row) {
 <td></td>
 <td></td>
 </tr>
-<tbody id="rowtemplate">
+<tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
 	<td><input type="checkbox" name="item[]"></td>
 	<td class="itemid"></td>
-	<td><img class="galleryurl"></td>
+	<td><img class="galleryurl" height="20"></td>
 	<td><a href="" class="title"></a></td>
 	<td class="ebayuserid"></td>
 	<td><a href="" class="ebayitemid" target="_blank"></a></td>
@@ -77,104 +77,34 @@ foreach ($accounts as $accountid => $row) {
 	<div class="detail">
 	
 	<table class="detail">
-	<tr><td>タイトル</td><td class="title"></td></tr>
+	<tr><td width="100">タイトル</td><td class="title"></td></tr>
 	<tr><td>カテゴリ</td><td class="categoryname"></td></tr>
 	<tr><td>説明</td><td class="description"></td></tr>
 	<tr><td>画像</td><td><img class="galleryurl"></td></tr>
+	<tr><td>開始価格</td><td class="startprice"></td></tr>
+	<tr>
+		<td colspan="2" align="center">
+		<input type="button" class="edit" value="編集する">
+		<input type="button" class="update" value="更新する">
+		<input type="button" class="cancel" value="キャンセル">
+		</td>
+	</tr>
 	</table>
 	
 	</div>
 	</td>
 </tr>
 </tbody>
-<tbody id="tbdy"></tbody>
 </table>
 </form>
 
 <div style="width=300px;" id="debug"></div>
 
-
-<div id="templatewrap" style="display:none;">
-<div id="template" style="display:none;">
-<table class="detail">
-<tr>
-	<td nowrap>ei</td>
-	<td>[ebayitemid]</td>
-</tr>
-<tr>
-	<td nowrap>開始日時</td>
-	<td>[starttime]</td>
-</tr>
-<tr>
-	<td nowrap>終了日時</td>
-	<td>[endtime]</td>
-</tr>
-<tr>
-	<td nowrap>開始価格</td>
-	<td class="edit startprice">[startprice]</td>
-</tr>
-<tr>
-	<td nowrap>タイトル</td>
-	<td class="edit title">[title]</td>
-</tr>
-<tr>
-	<td nowrap>カテゴリ</td>
-	<td class="edit categoryid">[categoryname]</td>
-</tr>
-<tr>
-	<td nowrap>説明</td>
-	<td class="edit description">[description]</td>
-</tr>
-<tr>
-	<td nowrap>画像</td>
-	<td class=""><img src="[galleryurl]"><br>[galleryurl]</td>
-</tr>
-</table>
+<div id="editform">
+<input class="title" name="title" type="text" size="60">
+<input class="startprice" name="startprice" type="text" size="10">
+<textarea class="description" name="description" cols="90" rows="5"></textarea>
+<div class="categoryname">
+category select form
 </div>
-</div>
-
-
-<div id="form" style="display:none;">
-<form name="itemform">
-<table class="detail">
-<tr>
-	<td>**ei**</td>
-	<td>
-		[ebayitemid]
-	</td>
-</tr>
-<tr>
-	<td>**st**</td>
-	<td>[starttime]</td>
-</tr>
-<tr>
-	<td>**st**</td>
-	<td>[endtime]</td>
-</tr>
-<tr>
-	<td>**startprice**</td>
-	<td class="formstartprice">
-	<input class="form" name="startprice" type="text" size="10">
-	</td>
-</tr>
-<tr>
-	<td>**title**</td>
-	<td class="formtitle">
-	<input class="form" name="title" type="text" size="50">
-	</td>
-</tr>
-<tr>
-	<td>**title**</td>
-	<td class="formcategory">
-	<input class="form" name="title" type="text" size="50">
-	</td>
-</tr>
-<tr>
-	<td>**description**</td>
-	<td class="formdescription">
-	<textarea class="form" name="description" cols="90" rows="5"></textarea>
-	</td>
-</tr>
-</table>
-</form>
 </div>

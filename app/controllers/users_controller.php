@@ -72,6 +72,9 @@ class UsersController extends AppController {
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
 		
+		if (!empty($_POST["itemid"]))
+			$sql_filter[] = "itemid = '".mysql_real_escape_string($_POST["itemid"])."'";
+		
 		if (!empty($_POST["accountid"]))
 			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
 		
@@ -230,21 +233,24 @@ class UsersController extends AppController {
 	
 	function update()
 	{
-		if (empty($_POST['item'])) return;
-						
-		//	 . " DATE_FORMAT(starttime, '%m-%d %H:%i') AS starttime,"
-		//	 . " DATE_FORMAT(endtime,   '%m-%d %H:%i') AS endtime,"
-		$sql = "SELECT itemid, ebayuserid, ebayitemid,"
-			. " starttime, endtime, title"
-			. " FROM items"
-			. " JOIN accounts USING (accountid)"
-			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
-			. " ORDER BY itemid DESC"
-			. " LIMIT ".count($_POST['item']);
-		$res = $this->User->query($sql);
+		if (empty($_POST['itemid'])) return;
 		
-		error_log(print_r($res,1));
-		print json_encode($res);
+		$itemid = $_POST['itemid'];
+		
+		$sqlcol = null;
+		foreach ($_POST as $k => $v) {
+			$sqlcol[] = $k." = '".mysql_real_escape_string($v)."'";
+		}
+		
+		$sql_update = "UPDATE items"
+			. " SET ".implode(", ", $sqlcol)
+			. " WHERE itemid = ".$itemid;
+		$res = $this->User->query($sql_update);
+		
+		$_POST = null;
+		$_POST['itemid'] = $itemid;
+		
+		$this->items();
 		
 		exit;
 	}

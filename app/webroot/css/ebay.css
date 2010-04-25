@@ -60,6 +60,12 @@ div.debug {
 }
 
 
+
+
+
+
+
+
 table.detail {
     border-spacing: 0px;
     border-collapse: collapse;
@@ -112,7 +118,7 @@ table.items td.eimo {
 }
 
 table.items input {
-	/* border: 1px solid #999999; */
+	border: 1px solid #999999;
 	font-family: "Arial","Helvetica",sans-serif;
 	font-size: 10pt;
 }
@@ -165,5 +171,9 @@ tbody#rowtemplate {
 }
 
 div.detail {
+	display: none;
+}
+
+div#editform {
 	display: none;
 }

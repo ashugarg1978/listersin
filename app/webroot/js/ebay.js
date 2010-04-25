@@ -7,7 +7,7 @@ $(document).bind({
 
 function bindevents ()
 {
-	$('a.title').live('click', function(event){
+	$('a.title').live('click', function(){
 			
 			itemid = $(this).closest('tbody').attr('id');
 			$('div.detail', '#'+itemid).slideToggle('fast');
@@ -17,58 +17,66 @@ function bindevents ()
 			return false;
 		});
 	
+	$('input:button.edit', 'div.detail').live('click', function() {
+			itemid = $(this).closest('tbody.itemrow').attr('id');
+			
+			$.each($('td', $(this).closest('table')), function(i, v) {
+					
+					colname = $(v).attr('class');
+					if (colname == '') return;
+					
+					colval = $(v).html();
+					if (colname == 'title' || colname == 'description') {
+						colval = colval.replace(/<br>/g, "\n");
+						colval = $('<div/>').html(colval).text();
+					}
+					
+					f = $('.'+colname, '#editform').clone().val(colval);
+					if (colname == 'description') {
+						f.attr('rows', (colval.split(/\n/).length + 2));
+					}
+					
+					$(v).html(f);
+					//$('.'+colname, '#'+itemid).html($(v));
+				});
+			
+		});
+	
+	$('input:button.update', 'div.detail').live('click', function() {
+			itemid = $(this).closest('tbody.itemrow').attr('id');
+			
+			postdata = $('input:text, textarea', $(this).closest('table')).serialize();
+			
+			$.post('/users/update/',
+				   'itemid='+itemid+'&'+postdata,
+				   function(data){
+					   row = getrow(itemid, data.res[itemid]);
+					   $('#'+itemid).replaceWith(row);
+					   $('div.detail', '#'+itemid).show();
+				   },
+				   'json');
+		});
+	
+	$('input:button.cancel', 'div.detail').live('click', function() {
+			itemid = $(this).closest('tbody.itemrow').attr('id');
+			
+			$.post('/users/items/',
+				   'itemid='+itemid,
+				   function(data) {
+					   row = getrow(itemid, data.res[itemid]);
+					   $('#'+itemid).replaceWith(row);
+					   $('div.detail', '#'+itemid).show();
+				   },
+				   'json');
+			
+		});
+	
 	$('#delete').live('click', function(){
 			$.post();
 		});
 	
 }	
 	
-function bindform(itemid)
-{
-	$("td.edit").live('click', function(event){
-				
-			if (this.firstChild.tagName == "INPUT") return;
-			if (this.firstChild.tagName == "TEXTAREA") return;
-			
-			colname = $(this).attr('class').replace('edit ', '');
-			
-			orgval = $(this).html();
-			
-			fobj = $('td.form'+colname).children().first().clone();
-			fobj.val(orgval);
-			
-			$(this).html(fobj);
-			
-			$(this).children().first().focus();
-				
-			$(this).children().first().bind({
-					blur: function(event){
-						val = $(this).val();
-						$(this).parent().html(val);
-						
-						$.post('/users/edit/'+itemid,
-							   $(this).serialize(),
-							   function(data){
-								   a = '';
-							   });
-					}
-				});
-		});
-	
-	
-	return;
-	
-	
-	$("tr").bind("mouseover", function(event){
-		$(this).addClass('rowover');
-	});
-	$("tr").bind("mouseout", function(event){
-		$(this).removeClass('rowover');
-	});
-	
-	return;
-}
-
 function copyitems()
 {
 	$.post('/users/copy/',
@@ -77,45 +85,12 @@ function copyitems()
 			   
 			   html = '';
 			   $.each(data, function(idx){
-				   html += itemrow(data[idx]);
 			   });
 			   $('#tbdy').html(html+$('#tbdy').html());
 		   },
 		   'json');
 	
 	return;
-}
-
-function itemrow(data)
-{
-	itemid = data.itemid;
-	
-	data.galleryurl = '/img/img.png';
-	
-	html = '<tr id="r'+itemid+'">'
-		+ '<td id="r'+itemid+'cb">'
-		+ '<input type="checkbox" name="item[]" value="'+itemid+'"></td>'
-		+ '<td id="r'+itemid+'ii">'+data.listingstatus_label+itemid+'</td>'
-		+ '<td id="r'+itemid+'im" align="center">'
-		+ '<img src="'+data.galleryurl+'" height="20"></td>'
-		+ '<td id="r'+itemid+'tt"><a href="" class="title">'+data.title+'</a></td>'
-		+ '<td id="r'+itemid+'eu">'+data.ebayuserid+'</td>'
-		+ '<td id="r'+itemid+'ei">'
-		+ '<a href="'+data.viewitemurl+'" target="_blank">'+data.ebayitemid+'</a>'
-		+ '<a href="/users/getitem/'+data.accountid+'/'+data.ebayitemid+'" target="_blank">UPD</a>'
-		+ '</td>'
-		+ '<td id="r'+itemid+'et">'+data.endtime+'</td>'
-		+ '<td id="r'+itemid+'sp">'+data.startprice+'</td>'
-		+ '</tr>';
-	
-	return html;
-}
-
-function openebay(ebayitemid)
-{
-	window.open('http://cgi.sandbox.ebay.com/ws/eBayISAPI.dll'
-			   + '?ViewItem&item='+ebayitemid, 'ebay');
-	return false;
 }
 
 function update()
@@ -126,16 +101,6 @@ function update()
 			   
 			   $.each(data, function(idx){
 				   itemid = data[idx].items.itemid;
-				   
-				   if (data[idx].items.ebayitemid) {
-					   $('#r'+itemid+'ei').html('<a href="">'+data[idx].items.ebayitemid+'</a>');
-					   $('#r'+itemid+'st').html(data[idx].items.starttime.replace(/^.....(.+)...$/, '$1'));
-					   $('#r'+itemid+'et').html(data[idx].items.endtime.replace(/^.....(.+)...$/, '$1'));
-					   $('#r'+itemid+'cb').removeClass('loading');
-					   $('#r'+itemid+'cb > input').css('visibility', '');
-					   $('#r'+itemid+'cb > input').attr('checked', '');
-					   
-				   }
 				   
 			   });
 			   
@@ -183,15 +148,12 @@ function updatelist()
 		   $('#filter').serialize(),
 		   function(data){
 			   html = '';
-			   $.each(data.res, function(idx, val){
-					   html += itemrow(val);
-					   dom = getrow(idx, val);
+			   $.each(data.res, function(idx, row){
+					   dom = getrow(idx, row);
 					   $('#items').append(dom);
 				   });
-			   $('#tbdy').html(html);
 			   
 			   paging(data.cnt);
-			   
 		   },
 		   'json');
 }
@@ -200,8 +162,12 @@ function getrow(itemid, row)
 {
 	dom = $('#rowtemplate').clone().attr('id', itemid);
 	
-	$.each(row, function(col, val){
-			$('.'+col, dom).html(val);
+	$.each(row, function(colname, colval){
+			if (colname == 'title' || colname == 'description') {
+				colval = $('<div/>').text(colval).html();
+				colval = colval.replace(/\n/g, '<br>');
+			}
+			$('.'+colname, dom).html(colval);
 		});
 	
 	$('input:checkbox', dom).val(itemid);
