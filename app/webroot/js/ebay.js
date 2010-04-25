@@ -43,15 +43,26 @@ function getrow(itemid, row)
 	return dom;
 }
 
+function descriptionframe(itemid)
+{
+	td = $('td.description', 'tbody#'+itemid);
+	
+	if ($(td).html().match(/^<iframe/i)) return;
+	
+	description = $('<iframe/>').attr('src', '/users/description/'+itemid);
+	
+	$(td).html(description);
+	
+	return;
+}
+
 function bindevents ()
 {
 	$('a.title').live('click', function(){
 			
 			itemid = $(this).closest('tbody').attr('id');
 			
-			description = $('<iframe/>').attr('src', '/users/description/'+itemid);
-				
-			$('.description', $(this).closest('tbody')).html(description);
+			descriptionframe(itemid);
 			
 			$('div.detail', '#'+itemid).slideToggle('fast');
 			
@@ -117,6 +128,7 @@ function bindevents ()
 				   function(data) {
 					   row = getrow(itemid, data.res[itemid]);
 					   $('#'+itemid).replaceWith(row);
+					   descriptionframe(itemid);
 					   $('div.detail', '#'+itemid).show();
 				   },
 				   'json');
