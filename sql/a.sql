@@ -1,3 +1,8 @@
-alter table items add listingstatus varchar(10);
-alter table items add categoryid bigint;
-alter table items add categoryname varchar(200);
+drop   table testtbl;
+create table testtbl (
+	   id    serial,
+	   Title varchar(10),
+  	   ListingDetails_StartTime varchar(10),
+	   ListingDetails_EndTime varchar(10),
+	   ShippingDetails_ShippingServiceOptions_ShippingServicePriority varchar(10)
+);

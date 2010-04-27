@@ -289,20 +289,6 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function submit()
-	{
-		if (empty($_POST['item'])) return;
-		
-		$cmd = 'PATH=/usr/local/php-5.2.10/bin'
-			. ' '.ROOT.'/cake/console/cake'
-			. ' -app '.ROOT.'/app daemon'
-			. ' additems '.implode(',', $_POST['item'])
-			. ' > /dev/null &';
-		system($cmd);
-		
-		exit;
-	}
-	
 	function getitem($accountid, $ebayitemid)
 	{
 		$h = null;
@@ -319,6 +305,8 @@ class UsersController extends AppController {
 	function additems($itemids=null)
 	{
 		if (empty($itemids) && isset($_POST['item'])) {
+			
+			// If called from browser, kick background process and exit
 			$cmd = 'PATH=/usr/local/php/bin'
 				. ' '.ROOT.'/cake/console/cake'
 				. ' -app '.ROOT.'/app daemon'
@@ -327,12 +315,13 @@ class UsersController extends AppController {
 			system($cmd);
 			error_log($cmd);
 			exit;
+			
 		} else if (empty($itemids)) {
 			return;
 		}
 		error_log('additems:'.implode(',', $itemids));
 		
-		// read data from db
+		// read item data from database
 		$sql = "SELECT *"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
@@ -503,32 +492,34 @@ class UsersController extends AppController {
 	
 	function xml_item($d)
 	{
-		$i['Title']       = $d['title'];
-		$i['Description'] = $d['description'];
-		$i['PrimaryCategory']['CategoryID'] = '279';
-		$i['CategoryMappingAllowed'] = 'true';
-		$i['Site']        = 'US';
-		$i['Quantity']    = '1';
-		$i['StartPrice']  = $d['startprice'];
-		$i['ListingDuration'] = 'Days_7';
-		$i['ListingType'] = 'Chinese';
+		$i['Title']           = $d['title'];
+		$i['Description']     = $d['description'];
+		$i['PrimaryCategory']['CategoryID'] = $d['categoryid'];
+		$i['CategoryMappingAllowed']        = 'true';
+		$i['Site']            = 'US';
+		$i['Quantity']        = $d['quantity'];
+		$i['StartPrice']      = $d['startprice'];
+		$i['ListingDuration'] = $d['listingduration'];
+		$i['ListingType']     = 'Chinese';
 		$i['DispatchTimeMax'] = '3';
+		
 		$i['ShippingDetails']['ShippingType'] = 'Flat';
 		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServicePriority'] = '1';
-		$i['ShippingDetails']['ShippingServiceOptions']['ShippingService'] = 'USPSMedia';
-		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost'] = '2.50';
-		$i['ReturnPolicy']['ReturnsAcceptedOption'] = 'ReturnsAccepted';
-		$i['ReturnPolicy']['RefundOption'] = 'MoneyBack';
-		$i['ReturnPolicy']['ReturnsWithinOption'] = 'Days_30';
-		$i['ReturnPolicy']['Description'] = 'foobar';
+		$i['ShippingDetails']['ShippingServiceOptions']['ShippingService']         = 'USPSMedia';
+		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost']     = '2.50';
+		
+		$i['ReturnPolicy']['ReturnsAcceptedOption']    = 'ReturnsAccepted';
+		$i['ReturnPolicy']['RefundOption']             = 'MoneyBack';
+		$i['ReturnPolicy']['ReturnsWithinOption']      = 'Days_30';
+		$i['ReturnPolicy']['Description']              = 'foobar';
 		$i['ReturnPolicy']['ShippingCostPaidByOption'] = 'Buyer';
-		$i['Country'] = 'US';
-		$i['Currency'] = 'USD';
-		$i['PostalCode'] = '95125';
-		$i['PaymentMethods'] = 'PayPal';
-		$i['PayPalEmailAddress'] = 'magicalbookseller@yahoo.com';
-		$i['PictureDetails']['PictureURL'] =
-		  'http://thumbs.ebaystatic.com/pict/41007087008080_0.jpg';
+		
+		$i['Country']            = 'US';
+		$i['Currency']           = 'USD';
+		$i['PostalCode']         = '95125';
+		$i['PaymentMethods']     = $d['paymentmethods'];
+		$i['PayPalEmailAddress'] = $d['paypalemailaddress'];
+		$i['PictureDetails']['PictureURL'] = $d['pictureurl'];
 		
 		return $i;
 	}
