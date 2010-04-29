@@ -297,9 +297,30 @@ class UsersController extends AppController {
 		
 		$gio = $this->callapi('GetItem', $h);
 		
-		print_r($gio);
+		foreach ($gio->Item->children() as $o) {
+			echo $o->getName()."[".$o."]<br>";
+			//print_r($o);
+		}
+		
+		$this->xml2arr($gio->Item, $arr, '');
+		
+		echo '<pre>';
+		print_r($arr);
+		print_r($gio->Item);
+		echo '</pre>';
 		
 		exit;
+	}
+	
+	function xml2arr($xml, &$arr, $path)
+	{
+		foreach ($xml->children() as $child) {
+			if ($child->children()) {
+				$this->xml2arr($child, $arr, $path.".".$child->getName());
+			} else {
+				$arr[$path.".".$child->getName()] = $child.'';
+			}
+		}
 	}
 	
 	function additems($itemids=null)
