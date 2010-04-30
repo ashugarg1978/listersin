@@ -542,7 +542,7 @@ class UsersController extends AppController {
 		$h['Sort'] = 1;
 		//$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
-		$h['UserID'] = 'testuser_etyoul';
+		//$h['UserID'] = 'testuser_etyoul';
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
