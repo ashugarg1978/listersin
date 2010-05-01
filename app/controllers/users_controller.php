@@ -557,9 +557,9 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ItemReturnDescription';
-		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-03-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Pagination']['EntriesPerPage'] = 10;
 		$h['Sort'] = 1;
 		//$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
@@ -568,7 +568,14 @@ class UsersController extends AppController {
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
-		  
+			
+			$this->xml2arr($o, $arr, '');
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
+			
+			break;
+			
 			$i = null;
 			$i['accountid']     = $account['accountid'];
 			$i['ebayitemid']    = $o->ItemID;
