@@ -297,9 +297,30 @@ class UsersController extends AppController {
 		
 		$gio = $this->callapi('GetItem', $h);
 		
-		print_r($gio);
+		foreach ($gio->Item->children() as $o) {
+			echo $o->getName()."[".$o."]<br>";
+			//print_r($o);
+		}
+		
+		$this->xml2arr($gio->Item, $arr, '');
+		
+		echo '<pre>';
+		print_r($arr);
+		print_r($gio->Item);
+		echo '</pre>';
 		
 		exit;
+	}
+	
+	function xml2arr($xml, &$arr, $path)
+	{
+		foreach ($xml->children() as $child) {
+			if ($child->children()) {
+				$this->xml2arr($child, $arr, $path.".".$child->getName());
+			} else {
+				$arr[$path.".".$child->getName()] = $child.'';
+			}
+		}
 	}
 	
 	function additems($itemids=null)
@@ -536,9 +557,9 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ItemReturnDescription';
-		$h['StartTimeFrom'] = '2010-01-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-03-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Pagination']['EntriesPerPage'] = 10;
 		$h['Sort'] = 1;
 		//$h['UserID'] = 'testuser_tlbbidder1';
 		//$h['UserID'] = 'testuser_seamlessrick';
@@ -547,7 +568,14 @@ class UsersController extends AppController {
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
-		  
+			
+			$this->xml2arr($o, $arr, '');
+			echo '<pre>';
+			print_r($arr);
+			echo '</pre>';
+			
+			break;
+			
 			$i = null;
 			$i['accountid']     = $account['accountid'];
 			$i['ebayitemid']    = $o->ItemID;
