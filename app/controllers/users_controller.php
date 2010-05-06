@@ -63,31 +63,37 @@ class UsersController extends AppController {
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
 		
-		if (!empty($_POST["itemid"]))
-			$sql_filter[] = "itemid = '".mysql_real_escape_string($_POST["itemid"])."'";
+		if (!empty($_POST["id"]))
+			$sql_filter[] = "id = '".mysql_real_escape_string($_POST["id"])."'";
 		
 		if (!empty($_POST["accountid"]))
 			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
 		
-		if (!empty($_POST["title"]))
-			$sql_filter[] = "title LIKE '%".mysql_real_escape_string($_POST["title"])."%'";
+		if (!empty($_POST["Title"]))
+			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
 		/* create sql statement */
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
-			. " accounts.ebayuserid, items.*"
+			. " accounts.ebayuserid,"
+			. " items.id,"
+			. " items.ItemID,"
+			. " items.ListingDetails_EndTime,"
+			. " items.Title,"
+			. " items.PictureDetails_PictureURL,"
+			. " items.StartPrice"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		$sql .= " ORDER BY endtime DESC, itemid DESC";
+		$sql .= " ORDER BY ListingDetails_EndTime DESC, id DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
-		error_log($sql);
 		$res = $this->User->query($sql);
+		error_log($sql);
 		
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
@@ -95,21 +101,24 @@ class UsersController extends AppController {
 		
 		/* modify result records */
 		foreach ($res as $idx => $row) {
-		  
-			$itemid = $row['items']['itemid'];			
+			
+			$id = $row['items']['id'];
 			$item = $row['items'];
 			$item['ebayuserid'] = $row['accounts']['ebayuserid'];
 			
-			if (isset($item['endtime'])) {
-				if (date('Y-m-d', strtotime($item['endtime'])) == date('Y-m-d')) {
-					$item['endtime'] = date('H:i', strtotime($item['endtime']));
+			if (isset($item['ListingDetails_EndTime'])) {
+				if (date('Y-m-d', strtotime($item['ListingDetails_EndTime'])) == date('Y-m-d')) {
+					$item['ListingDetails_EndTime'] =
+						date('H:i', strtotime($item['ListingDetails_EndTime']));
 				} else {
-					$item['endtime'] = date('n月j日', strtotime($item['endtime']));
+					$item['ListingDetails_EndTime'] =
+						date('n月j日', strtotime($item['ListingDetails_EndTime']));
 				}
 			} else {
-				$item['endtime'] = '-';
+				$item['ListingDetails_EndTime'] = '-';
 			}
 			
+			/*
 			if ($item['listingstatus'] == 'Active') {
 				$item['listingstatus_label'] = 'O';
 			} else if ($item['listingstatus'] == 'Completed') {
@@ -117,21 +126,23 @@ class UsersController extends AppController {
 			} else {
 				$item['listingstatus_label'] = 'I';
 			}
+			*/
 			
-			$items[$itemid] = $item;
+			$items[$id] = $item;
 		}
 		
 		$data['cnt'] = $cnt;
 		$data['res'] = $items;
+		error_log(print_r($data,1));
 		
 		print json_encode($data);
 		
 		exit;
 	}
 	
-	function item($itemid)
+	function item($id)
 	{
-		$sql = "SELECT * FROM items WHERE itemid = ".$itemid;
+		$sql = "SELECT * FROM items WHERE itemid = ".$id;
 		$res = $this->User->query($sql);
 		
 		print json_encode($res[0]['items']);
@@ -141,10 +152,10 @@ class UsersController extends AppController {
 		$this->set('item', $res[0]['items']);
 	}
 	
-	function description($itemid)
+	function description($id)
 	{
-		//$itemid = $_POST['itemid'];
-		$sql = "SELECT description FROM items WHERE itemid = ".$itemid;
+		//$id = $_POST['itemid'];
+		$sql = "SELECT description FROM items WHERE itemid = ".$id;
 		$res = $this->User->query($sql);
 		$html = $res[0]['items']['description'];
 		
@@ -557,7 +568,7 @@ class UsersController extends AppController {
 	
 	function getitemcols()
 	{
-		$sql = "DESC items2;";
+		$sql = "DESC items;";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $row) {
 			$f[$row['COLUMNS']['Field']] = 1;
@@ -567,7 +578,7 @@ class UsersController extends AppController {
 	}
 	
 	// todo: authorize login user or daemon process
-	function getsellerlist($ebayuserid)
+	function getsellerlist($ebayuserid, $userid=null)
 	{
 		$sql = "SELECT * FROM accounts"
 			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
@@ -580,13 +591,13 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ItemReturnDescription';
-		$h['StartTimeFrom'] = '2010-03-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 10;
+		$h['Pagination']['EntriesPerPage'] = 20;
 		$h['Sort'] = 1;
-		//$h['UserID'] = 'testuser_tlbbidder1';
-		//$h['UserID'] = 'testuser_seamlessrick';
-		//$h['UserID'] = 'testuser_etyoul';
+		if ($userid) {
+			$h['UserID'] = 'testuser_'.$userid;
+		}
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);
 		
@@ -599,28 +610,30 @@ class UsersController extends AppController {
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
+			print_r($arr);
 			
 			/* SELECT */
 			// todo: catch INSERT/UPDATE query result.
-			$res = $this->User->query("SELECT id FROM items2 WHERE ItemID = ".$i['ItemID']);
-			if (!empty($res[0]['items2']['id'])) {
+			$res = $this->User->query("SELECT id FROM items WHERE ItemID = ".$i['ItemID']);
+			if (!empty($res[0]['items']['id'])) {
 				
 				/* UPDATE */
 				$sql_updates = null;
 				foreach ($i as $f => $v) {
 					$sql_updates[] = $f." = ".$v;
 				}
-				$sql_update = "UPDATE items2"
+				$sql_update = "UPDATE items"
 					. " SET ".implode(",",$sql_updates)
 					. " WHERE ItemID = ".$i['ItemID'];
 				$res = $this->User->query($sql_update);
 				
 			} else {
 				
-				$i['created'] = "NOW()";
+				$i['created']   = "NOW()";
+				$i['accountid'] = $account['accountid'];
 				
 				/* INSERT */
-				$sql_insert = "INSERT INTO items2"
+				$sql_insert = "INSERT INTO items"
 					. " (".implode(",", array_keys($i)).")"
 					. " VALUES"
 					. " (".implode(",", array_values($i)).")";

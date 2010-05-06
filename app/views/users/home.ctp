@@ -75,13 +75,13 @@ foreach ($accounts as $accountid => $row) {
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
 	<td><input type="checkbox" name="item[]"></td>
-	<td class="itemid"></td>
-	<td><img class="galleryurl" height="20"></td>
-	<td><a href="" class="title"></a></td>
+	<td class="id"></td>
+	<td><img class="PictureDetails_PictureURL" height="20"></td>
+	<td><a href="" class="Title"></a></td>
 	<td class="ebayuserid"></td>
-	<td><a href="" class="ebayitemid" target="_blank"></a></td>
-	<td class="endtime"></td>
-	<td class="startprice"></td>
+	<td><a href="" class="ItemID" target="_blank"></a></td>
+	<td class="ListingDetails_EndTime"></td>
+	<td class="StartPrice"></td>
 </tr>
 <tr class="row2">
 	<td colspan="8">
@@ -94,7 +94,7 @@ foreach ($accounts as $accountid => $row) {
 	<tr><td width="100">タイトル</td><td class="title"></td></tr>
 	<tr><td>カテゴリ</td><td class="categoryname"></td></tr>
 	<tr><td>説明</td><td class="description"></td></tr>
-	<tr><td>画像</td><td><img class="galleryurl"></td></tr>
+	<tr><td>画像</td><td><img class="PictureDetails_PictureURL"></td></tr>
 	<tr><td>開始価格</td><td class="startprice"></td></tr>
 	<tr>
 		<td colspan="2" align="center">

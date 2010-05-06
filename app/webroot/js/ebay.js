@@ -1,9 +1,9 @@
 $(document).bind({
-		ready: function(event) {
-			items();
-			bindevents();
-		}
-	});
+	ready: function(event) {
+		items();
+		bindevents();
+	}
+});
 
 function items()
 {
@@ -13,20 +13,20 @@ function items()
 			   paging(data.cnt);
 			   
 			   $('tbody:gt(2)').remove();
-			   $.each(data.res, function(itemid, row) {
-					   dom = getrow(itemid, row);
-					   $('#items').append(dom);
-				   });
+			   $.each(data.res, function(id, row) {
+				   dom = getrow(id, row);
+				   $('#items').append(dom);
+			   });
 		   },
 		   'json');
 }
 
-function getrow(itemid, row)
+function getrow(id, row)
 {
-	dom = $('#rowtemplate').clone().attr('id', itemid);
+	dom = $('#rowtemplate').clone().attr('id', id);
 	
 	$.each(row, function(colname, colval) {
-			if (colname == 'title' || colname == 'description') {
+			if (colname == 'Title' || colname == 'Description') {
 				//colval = colval.replace(/\n/g, "___LF___");
 				colval = $('<div/>').text(colval).html();
 				//colval = colval.replace(/___LF___/g, '<br>');
@@ -35,10 +35,10 @@ function getrow(itemid, row)
 			$('.'+colname, dom).html(colval);
 		});
 	
-	$('input:checkbox', dom).val(itemid);
-	$('a.ebayitemid',   dom).attr('href', row['viewitemurl']);
-	$('img.galleryurl', dom).attr('src', row['galleryurl']);
-	//$('iframe.description',     dom).attr('src', '/users/description/'+itemid);
+	$('input:checkbox', dom).val(id);
+	$('a.itemid',   dom).attr('href', row['viewitemurl']);
+	$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
+	//$('iframe.description',     dom).attr('src', '/users/description/'+id);
 	
 	return dom;
 }
