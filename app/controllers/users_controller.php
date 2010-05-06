@@ -297,10 +297,12 @@ class UsersController extends AppController {
 		
 		$gio = $this->callapi('GetItem', $h);
 		
+		/*
 		foreach ($gio->Item->children() as $o) {
 			echo $o->getName()."[".$o."]<br>";
 			//print_r($o);
 		}
+		*/
 		
 		$this->xml2arr($gio->Item, $arr, '');
 		
@@ -316,9 +318,17 @@ class UsersController extends AppController {
 	{
 		foreach ($xml->children() as $child) {
 			if ($child->children()) {
-				$this->xml2arr($child, $arr, $path.".".$child->getName());
+				if ($path) {
+					$this->xml2arr($child, $arr, $path.".".$child->getName());
+				} else {
+					$this->xml2arr($child, $arr, $child->getName());
+				}
 			} else {
-				$arr[$path.".".$child->getName()] = $child.'';
+				if ($path) {
+					$arr[$path.".".$child->getName()] = $child.'';
+				} else {
+					$arr[$child->getName()] = $child.'';
+				}
 			}
 		}
 	}
@@ -545,6 +555,17 @@ class UsersController extends AppController {
 		return $i;
 	}
 	
+	function getitemcols()
+	{
+		$sql = "DESC items2;";
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $row) {
+			$f[$row['COLUMNS']['Field']] = 1;
+		}
+		
+		return $f;
+	}
+	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid)
 	{
@@ -552,6 +573,8 @@ class UsersController extends AppController {
 			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
+		
+		$colnames = $this->getitemcols();
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
@@ -570,7 +593,13 @@ class UsersController extends AppController {
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
 			$this->xml2arr($o, $arr, '');
+			foreach ($arr as $c => $v) {
+				if (isset($colnames[str_replace('.','_',$c)])) {
+					$i[$c] = "'".mysql_real_escape_string($v)."'";
+				}
+			}
 			echo '<pre>';
+			print_r(array_keys($i));
 			print_r($arr);
 			echo '</pre>';
 			
