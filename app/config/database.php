@@ -76,9 +76,9 @@ class DATABASE_CONFIG {
 	var $default = array(
 		'driver' => 'mysql',
 		'persistent' => false,
-		'host' => '127.0.0.1',
+		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'kjkp98u',
+		'password' => '',
 		'database' => 'ebay',
 		'prefix' => '',
 	);
