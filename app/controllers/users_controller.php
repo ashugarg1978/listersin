@@ -594,60 +594,37 @@ class UsersController extends AppController {
 			
 			$this->xml2arr($o, $arr, '');
 			foreach ($arr as $c => $v) {
-				if (isset($colnames[str_replace('.','_',$c)])) {
+				$c = str_replace('.','_',$c);
+				if (isset($colnames[$c])) {
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
-			echo '<pre>';
-			print_r(array_keys($i));
-			print_r($arr);
-			echo '</pre>';
-			
-			break;
-			
-			$i = null;
-			$i['accountid']     = $account['accountid'];
-			$i['ebayitemid']    = $o->ItemID;
-			$i['starttime']     = $o->ListingDetails->StartTime;
-			$i['endtime']       = $o->ListingDetails->EndTime;
-			$i['viewitemurl']   = $o->ListingDetails->ViewItemURL;
-			$i['title']         = $o->Title;
-			$i['description']   = $o->Description;
-			$i['startprice']    = $o->StartPrice;
-			$i['galleryurl']    = $o->PictureDetails->GalleryURL;
-			$i['categoryid']    = $o->PrimaryCategory->CategoryID;
-			$i['categoryname']  = $o->PrimaryCategory->CategoryName;
-			$i['listingstatus'] = $o->SellingStatus->ListingStatus;
-			
-			foreach ($i as $f => $v) {
-				$i[$f] = "'".mysql_real_escape_string($v)."'";
-			}			  
 			
 			/* SELECT */
-			$sql_select = "SELECT itemid FROM items"
-			  . " WHERE ebayitemid = ".$i['ebayitemid'];
-			$res = $this->User->query($sql_select);
-			if (!empty($res[0]['items']['itemid'])) {
-			  
-			  /* UPDATE */
-			  $sql_updates = null;
-			  foreach ($i as $f => $v) {
-				$sql_updates[] = $f." = ".$v;
-			  }
-			  $sql_update = "UPDATE items"
-				. " SET ".implode(",",$sql_updates)
-				. " WHERE ebayitemid = ".$i['ebayitemid'];
-			  $res = $this->User->query($sql_update);
-			  
+			// todo: catch INSERT/UPDATE query result.
+			$res = $this->User->query("SELECT id FROM items2 WHERE ItemID = ".$i['ItemID']);
+			if (!empty($res[0]['items2']['id'])) {
+				
+				/* UPDATE */
+				$sql_updates = null;
+				foreach ($i as $f => $v) {
+					$sql_updates[] = $f." = ".$v;
+				}
+				$sql_update = "UPDATE items2"
+					. " SET ".implode(",",$sql_updates)
+					. " WHERE ItemID = ".$i['ItemID'];
+				$res = $this->User->query($sql_update);
+				
 			} else {
-			  
-			  /* INSERT */
-			  $sql_insert = "INSERT INTO items"
-				. " (".implode(",", array_keys($i)).")"
-				. " VALUES"
-				. " (".implode(",", array_values($i)).")";
-			  $res = $this->User->query($sql_insert);
-			  
+				
+				$i['created'] = "NOW()";
+				
+				/* INSERT */
+				$sql_insert = "INSERT INTO items2"
+					. " (".implode(",", array_keys($i)).")"
+					. " VALUES"
+					. " (".implode(",", array_values($i)).")";
+				$res = $this->User->query($sql_insert);
 			}
 		}
 		
