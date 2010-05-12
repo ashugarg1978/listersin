@@ -74,7 +74,7 @@ foreach ($accounts as $accountid => $row) {
 
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
-	<td><input type="checkbox" name="item[]"></td>
+	<td><input type="checkbox" name="id[]"></td>
 	<td class="id"></td>
 	<td><img class="PictureDetails_PictureURL" height="20"></td>
 	<td><a href="" class="Title"></a></td>
@@ -91,11 +91,23 @@ foreach ($accounts as $accountid => $row) {
 	<col align="right">
 	<col>
 	<tbody>
-	<tr><td width="100">タイトル</td><td class="title"></td></tr>
-	<tr><td>カテゴリ</td><td class="categoryname"></td></tr>
-	<tr><td>説明</td><td class="description"></td></tr>
+	<tr>
+	  <td width="100">タイトル</td>
+	  <td><input name="Title" type="text" size="60"></td>
+	</tr>
+	<tr>
+	  <td>カテゴリ</td>
+	  <td class="categoryname"></td>
+	</tr>
+	<tr>
+	  <td>説明</td>
+	  <td class="Description"></td>
+	</tr>
 	<tr><td>画像</td><td><img class="PictureDetails_PictureURL"></td></tr>
-	<tr><td>開始価格</td><td class="startprice"></td></tr>
+	<tr>
+	  <td>開始価格</td>
+	  <td><input name="StartPrice" type="text" size="10"></td>
+	</tr>
 	<tr>
 		<td colspan="2" align="center">
 		<input type="button" class="edit" value="編集する">
@@ -122,8 +134,8 @@ foreach ($accounts as $accountid => $row) {
 <div style="width=300px;" id="debug"></div>
 
 <div id="editform">
-<input class="title" name="title" type="text" size="60">
-<input class="startprice" name="startprice" type="text" size="10">
+
+
 <textarea class="description" name="description" cols="90" rows="5"></textarea>
 <div class="categoryname">
 category select form
