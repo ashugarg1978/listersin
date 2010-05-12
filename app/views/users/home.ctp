@@ -101,7 +101,8 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td>説明</td>
-	  <td class="Description"></td>
+	  <td class="Description">
+	  </td>
 	</tr>
 	<tr><td>画像</td><td><img class="PictureDetails_PictureURL"></td></tr>
 	<tr>
@@ -110,7 +111,7 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 		<td colspan="2" align="center">
-		<input type="button" class="edit" value="編集する">
+		<input type="button" class="edit"   value="編集する">
 		<input type="button" class="update" value="更新する">
 		<input type="button" class="cancel" value="キャンセル">
 		</td>
