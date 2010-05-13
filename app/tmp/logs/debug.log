@@ -129,3 +129,7 @@
 2010-04-19 06:33:04 Notice: Notice (8): Undefined variable: line in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 656]
 2010-04-19 06:33:04 Notice: Notice (8): Undefined variable: line in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 660]
 2010-04-24 16:10:40 Notice: Notice (8): Undefined variable: itemid in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 142]
+2010-05-11 11:07:33 Notice: Notice (8): Undefined variable: items in [/mnt/sda6/var/www/dev.xboo.st/app/controllers/users_controller.php, line 135]
+2010-05-11 11:07:57 Notice: Notice (8): Undefined variable: items in [/mnt/sda6/var/www/dev.xboo.st/app/controllers/users_controller.php, line 135]
+2010-05-11 11:19:23 Notice: Notice (8): Undefined offset: 0 in [/mnt/sda6/var/www/dev.xboo.st/app/controllers/users_controller.php, line 160]
+2010-05-11 11:20:48 Notice: Notice (8): Undefined offset: 0 in [/mnt/sda6/var/www/dev.xboo.st/app/controllers/users_controller.php, line 160]
