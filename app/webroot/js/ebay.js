@@ -113,57 +113,46 @@ function bindevents()
 	});
 	
 	$('input:button.edit', 'div.detail').live('click', function() {
-		itemid = $(this).closest('tbody.itemrow').attr('id');
 		
-		$.each($('td', $(this).closest('table')), function(i, v) {
-			
-			colname = $(v).attr('class');
-			if (colname == '') return;
-			
-			colval = $(v).html();
-			if (colname == 'title' || colname == 'description') {
-				//colval = colval.replace(/<br>/g, '___LF___');
-				colval = $('<div/>').html(colval).text();
-				//colval = colval.replace(/___LF___/g, "\n");
-				colval = colval.replace(/<br>/g, '\n');
-			}
-			
-			f = $('.'+colname, '#editform').clone().val(colval);
-			if (colname == 'description') {
-				f.attr('rows', (colval.split(/\n/).length + 2));
-			}
-			
-			$(v).html(f);
-			//$('.'+colname, '#'+itemid).html($(v));
+		dom = $('table.detail', '#rowtemplate').clone();
+		
+		id = $(this).closest('tbody.itemrow').attr('id');
+		$.each(rowsdata[id], function(colname, colval) {
+			$('input[name='+colname+']', dom).val(colval);
 		});
 		
+		$('div.detail', '#'+id).html(dom);
+		
+		return;
 	});
 	
 	$('input:button.update', 'div.detail').live('click', function() {
-		itemid = $(this).closest('tbody.itemrow').attr('id');
+		
+		id = $(this).closest('tbody.itemrow').attr('id');
 		
 		postdata = $('input:text, textarea', $(this).closest('table')).serialize();
 		
 		$.post('/users/update/',
-			   'itemid='+itemid+'&'+postdata,
-			   function(data){
-				   row = getrow(itemid, data.res[itemid]);
-				   $('#'+itemid).replaceWith(row);
-				   $('div.detail', '#'+itemid).show();
+			   'id='+id+'&'+postdata,
+			   function(data) {
+				   dom = getrow(id, data.res[id]);
+				   detail = getdetail(id, data.res[id]);
+				   $('div.detail', dom).html(detail);
+				   $('#'+id).replaceWith(dom);
 			   },
 			   'json');
 	});
 	
 	$('input:button.cancel', 'div.detail').live('click', function() {
-		itemid = $(this).closest('tbody.itemrow').attr('id');
+		id = $(this).closest('tbody.itemrow').attr('id');
 		
 		$.post('/users/items/',
-			   'itemid='+itemid,
+			   'id='+id,
 			   function(data) {
-				   row = getrow(itemid, data.res[itemid]);
-				   $('#'+itemid).replaceWith(row);
-				   descriptionframe(itemid);
-				   $('div.detail', '#'+itemid).show();
+				   row = getrow(id, data.res[id]);
+				   $('#'+id).replaceWith(row);
+				   descriptionframe(id);
+				   $('div.detail', '#'+id).show();
 			   },
 			   'json');
 		
@@ -197,7 +186,7 @@ function update()
 		   function(data) {
 			   
 			   $.each(data, function(idx) {
-				   itemid = data[idx].items.itemid;
+				   id = data[idx].items.id;
 				   
 			   });
 			   

@@ -249,9 +249,9 @@ class UsersController extends AppController {
 	
 	function update()
 	{
-		if (empty($_POST['itemid'])) return;
+		if (empty($_POST['id'])) return;
 		
-		$itemid = $_POST['itemid'];
+		$id = $_POST['id'];
 		
 		$sqlcol = null;
 		foreach ($_POST as $k => $v) {
@@ -260,11 +260,12 @@ class UsersController extends AppController {
 		
 		$sql_update = "UPDATE items"
 			. " SET ".implode(", ", $sqlcol)
-			. " WHERE itemid = ".$itemid;
+			. " WHERE id = ".$id;
+		error_log($sql_update);
 		$res = $this->User->query($sql_update);
 		
 		$_POST = null;
-		$_POST['itemid'] = $itemid;
+		$_POST['id'] = $id;
 		
 		$this->items();
 		
