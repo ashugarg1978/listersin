@@ -134,9 +134,11 @@ function bindevents()
 		
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
-			   function(data){
+			   function(data) {
+				   dom = getrow(id, data.res[id]);
 				   detail = getdetail(id, data.res[id]);
-				   $('div.detail', '#'+id).html(detail);
+				   $('div.detail', dom).html(detail);
+				   $('#'+id).replaceWith(dom);
 			   },
 			   'json');
 	});
