@@ -589,10 +589,10 @@ class UsersController extends AppController {
 		$h['DetailLevel'] = 'ItemReturnDescription';
 		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 20;
+		$h['Pagination']['EntriesPerPage'] = 200;
 		$h['Sort'] = 1;
 		if ($userid) {
-			$h['UserID'] = 'testuser_'.$userid;
+			$h['UserID'] = $userid;
 		}
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);

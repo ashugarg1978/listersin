@@ -103,7 +103,8 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td>説明<br>
-	  <iframe class="description"></iframe>
+	  <textarea name="description" cols="100" rows="10"></textarea>
+	  <a class="wysiwyg">RTE</a>
 	  </td>
 	</tr>
 	<tr>

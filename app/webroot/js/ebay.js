@@ -36,9 +36,9 @@ function getrow(id, row)
 	$.each(row, function(colname, colval) {
 		if (colname == 'Title' || colname == 'Description') {
 			//colval = colval.replace(/\n/g, "___LF___");
-			colval = $('<div/>').text(colval).html();
+			//colval = $('<div/>').text(colval).html();
 			//colval = colval.replace(/___LF___/g, '<br>');
-			colval = colval.replace(/\n/g, '<br>');
+			//colval = colval.replace(/\n/g, '<br>');
 		}
 		$('.'+colname, dom).html(colval);
 	});
@@ -55,16 +55,18 @@ function getdetail(id, row)
 	detail = $('table.detail', '#rowtemplate').clone();
 	
 	$('img.PictureDetails_PictureURL', detail).attr('src', row['PictureDetails_PictureURL']);
-	$('iframe.description', detail).attr('src', '/users/description/'+id);
+	
+	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
+	$('textarea[name=description]', detail).replaceWith(iframe);
 	
 	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
 		if (colname == 'Title' || colname == 'Description') {
 			//colval = colval.replace(/\n/g, "___LF___");
-			colval = $('<div/>').text(colval).html();
+			//colval = $('<div/>').text(colval).html();
 			//colval = colval.replace(/___LF___/g, '<br>');
-			colval = colval.replace(/\n/g, '<br>');
+			//colval = colval.replace(/\n/g, '<br>');
 		}
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
@@ -100,6 +102,7 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
+					   rowsdata[id] = data;
 					   detail = getdetail(id, data);
 					   $('div.detail', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
@@ -128,6 +131,8 @@ function bindevents()
 		
 		$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
 		
+		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
+		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input[name='+colname+']', dom).val(colval);
@@ -135,9 +140,9 @@ function bindevents()
 		
 		showbuttons(dom, 'update,cancel');
 		
-		$('iframe.description', '#'+id).replaceWith('<div/>').wysiwyg();
-		
 		$('div.detail', '#'+id).html(dom);
+		
+		$('textarea[name=description]', '#'+id).wysiwyg();
 		
 		return;
 	});
@@ -151,6 +156,7 @@ function bindevents()
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
+				   rowsdata[id] = data;
 				   dom = getrow(id, data.res[id]);
 				   detail = getdetail(id, data.res[id]);
 				   $('div.detail', dom).append(detail).css('display', 'block');
@@ -170,6 +176,11 @@ function bindevents()
 	
 	$('#delete').live('click', function() {
 		$.post();
+	});
+
+	$('a.wysiwyg').live('click', function() {
+		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
+		return false;
 	});
 }	
 	
