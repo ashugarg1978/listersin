@@ -52,7 +52,12 @@ function getrow(id, row)
 
 function getdetail(id, row)
 {
-	dom = $('table.detail', '#rowtemplate').clone();
+	detail = $('table.detail', '#rowtemplate').clone();
+	
+	$('img.PictureDetails_PictureURL', detail).attr('src', row['PictureDetails_PictureURL']);
+	$('iframe.description', detail).attr('src', '/users/description/'+id);
+	
+	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
 		if (colname == 'Title' || colname == 'Description') {
@@ -61,20 +66,20 @@ function getdetail(id, row)
 			//colval = colval.replace(/___LF___/g, '<br>');
 			colval = colval.replace(/\n/g, '<br>');
 		}
-		$('input[name='+colname+']', dom).parent().html(colval);
+		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
 	
-	$('input:checkbox', dom).val(id);
-	$('a.ItemId', dom).attr('href', row['viewitemurl']);
-	$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
+	form = $('<form method="post" action=""')
 	
-	return dom;
+	return detail;
 }
 
 
-function descriptionframe(itemid)
+function descriptionframe(id)
 {
-	td = $('td.description', 'tbody#'+itemid);
+	iframe = $('iframe.description', 'tbody#'+id);
+	
+	$(iframe).attr('src', '/users/description/'+id);
 	
 	if ($(td).html().match(/^<iframe/i)) return;
 	
@@ -92,14 +97,19 @@ function bindevents()
 		id = $(this).closest('tbody').attr('id');
 		
 		if (!$('div.detail', '#'+id).html().match(/^<table/i)) {
-			detail = getdetail(id, rowsdata[id]);
-			$('div.detail', '#'+id).html(detail);
+			$.post('/users/item/',
+				   'id='+id,
+				   function(data) {
+					   detail = getdetail(id, data);
+					   $('div.detail', '#'+id).html(detail);
+					   $('div.detail', '#'+id).slideToggle('fast');
+				   },
+				   'json');
+		} else {
+			$('div.detail', '#'+id).slideToggle('fast');
 		}
 		
 		//descriptionframe(id);
-		
-		$('div.detail', '#'+id).slideToggle('fast');
-		
 		//$.scrollTo('#'+id, {duration:200, axis:'y', offset:-42});
 		
 		return false;
@@ -116,10 +126,16 @@ function bindevents()
 		
 		dom = $('table.detail', '#rowtemplate').clone();
 		
+		$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
+		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input[name='+colname+']', dom).val(colval);
 		});
+		
+		showbuttons(dom, 'update,cancel');
+		
+		$('iframe.description', '#'+id).replaceWith('<div/>').wysiwyg();
 		
 		$('div.detail', '#'+id).html(dom);
 		
@@ -137,8 +153,8 @@ function bindevents()
 			   function(data) {
 				   dom = getrow(id, data.res[id]);
 				   detail = getdetail(id, data.res[id]);
-				   $('div.detail', dom).html(detail);
-				   $('#'+id).replaceWith(dom);
+				   $('div.detail', dom).append(detail).css('display', 'block');
+				   $('tbody#'+id).replaceWith(dom);
 			   },
 			   'json');
 	});
@@ -146,15 +162,9 @@ function bindevents()
 	$('input:button.cancel', 'div.detail').live('click', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
-		$.post('/users/items/',
-			   'id='+id,
-			   function(data) {
-				   row = getrow(id, data.res[id]);
-				   $('#'+id).replaceWith(row);
-				   descriptionframe(id);
-				   $('div.detail', '#'+id).show();
-			   },
-			   'json');
+		detail = getdetail(id, rowsdata[id]);
+		showbuttons(detail, 'edit,copy,delete');
+		$('table.detail', '#'+id).replaceWith(detail);
 		
 	});
 	
@@ -262,4 +272,16 @@ function chkall()
 function unchkall()
 {
 	$(":checkbox").attr('checked', '');
+}
+
+function showbuttons(detail, buttons)
+{
+	$('input:button', detail).hide();
+
+	buttons = 'input:button.'+buttons.replace(/,/g, ',input:button.');
+	
+	$('input:button', detail).hide();
+	$(buttons, detail).show();
+	
+	return;
 }

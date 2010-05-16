@@ -6,13 +6,18 @@
 <title>ebaytool.jp</title>
 <meta name="description" content="dev">
 <meta name="keywords" content="dev">
-<link href="/css/ebay.css" rel="stylesheet" type="text/css">
-<link href="/css/rndbtn/style.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="/js/jquery-1.4.1.js"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/ebay.css">
+<link rel="stylesheet" type="text/css" href="/css/rndbtn/style.css">
+<link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
+
+<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/ajaxupload.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
+
 </head>
 <body>
 

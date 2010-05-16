@@ -88,30 +88,41 @@ foreach ($accounts as $accountid => $row) {
 	<div class="detail">
 	
 	<table class="detail">
-	<col align="right">
-	<col>
 	<tbody>
 	<tr>
-	  <td width="100">タイトル</td>
-	  <td><input name="Title" type="text" size="60"></td>
-	</tr>
-	<tr>
-	  <td>カテゴリ</td>
-	  <td class="categoryname"></td>
-	</tr>
-	<tr>
-	  <td>説明</td>
-	  <td class="Description">
+	  <td width="100">
+		タイトル<br>
+		<input name="Title" type="text" size="60">
 	  </td>
 	</tr>
-	<tr><td>画像</td><td><img class="PictureDetails_PictureURL"></td></tr>
 	<tr>
-	  <td>開始価格</td>
-	  <td><input name="StartPrice" type="text" size="10"></td>
+	  <td>
+		カテゴリ<br>
+		<input name="PrimaryCategory_CategoryName" type="text" size="60">
+	  </td>
+	</tr>
+	<tr>
+	  <td>説明<br>
+	  <iframe class="description"></iframe>
+	  </td>
+	</tr>
+	<tr>
+	  <td>画像<br>
+		<img class="PictureDetails_PictureURL"><br>
+		<input type="file" name="PictureDetails_PictureURL">
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+		開始価格<br>
+		<input name="StartPrice" type="text" size="10">
+	  </td>
 	</tr>
 	<tr>
 		<td colspan="2" align="center">
 		<input type="button" class="edit"   value="編集する">
+		<input type="button" class="copy"   value="コピーする">
+		<input type="button" class="delete" value="削除する">
 		<input type="button" class="update" value="更新する">
 		<input type="button" class="cancel" value="キャンセル">
 		</td>

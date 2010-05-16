@@ -140,30 +140,25 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function item($id)
+	function item()
 	{
-		$sql = "SELECT * FROM items WHERE itemid = ".$id;
+		// todo: check userid and accountid
+		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
 		$res = $this->User->query($sql);
 		
 		print json_encode($res[0]['items']);
 		
 		exit;
-		
-		$this->set('item', $res[0]['items']);
 	}
 	
 	function description($id)
 	{
 		//$id = $_POST['itemid'];
-		$sql = "SELECT description FROM items WHERE itemid = ".$id;
+		$sql = "SELECT description FROM items WHERE id = ".$id;
 		$res = $this->User->query($sql);
 		$html = $res[0]['items']['description'];
 		
-		echo '<html>';
-		echo '<body>';
 		echo $html;
-		echo '</body>';
-		echo '</html>';
 		
 		exit;
 	}

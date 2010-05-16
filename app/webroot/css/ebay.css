@@ -179,7 +179,9 @@ tbody#rowtemplate {
 }
 
 div.detail {
-	border: 1px dotted #006600;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #aaaaaa;
 	margin: 5px;
 	padding: 5px;
 	display: none;
@@ -189,8 +191,20 @@ div#editform {
 	display: none;
 }
 
-td.description iframe {
+iframe.description {
 	width: 750px;
 	height: 300px;
 	border: 1px dotted #999999;
+}
+
+img.PictureDetails_PictureURL {
+	max-width:  300px;
+	max-height: 300px;
+}
+
+input.update {
+	display: none;
+}
+input.cancel {
+	display: none;
 }
