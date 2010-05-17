@@ -35,7 +35,8 @@ div#header a:hover {
 }
 
 div#content {
-	width: 940px;
+	/* width: 100%; */
+	/* width: 940px; */
 	margin: 50px auto 10px auto;
 	padding-left : 10px;
 	padding-right: 10px;
@@ -75,7 +76,7 @@ table.detail {
 table.items {
     border-spacing: 0px;
     border-collapse: collapse;
-	width: 940px;
+	/* width: 940px; */
 }
 
 table.items tr.row2 {
