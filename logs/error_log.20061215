@@ -1,5 +1,0 @@
-[Fri Dec 15 13:25:44 2006] [error] [client 218.216.71.115] Directory index forbidden by Options directive: /var/www/dev.xboo.st/webroot/, referer: http://dev.xboo.st/task.html
-[Fri Dec 15 14:09:52 2006] [error] [client 218.216.71.115] script '/var/www/dev.xboo.st/webroot/gettask.php' not found or unable to stat
-[Fri Dec 15 14:09:52 2006] [error] [client 218.216.71.115] script '/var/www/dev.xboo.st/webroot/gettask.php' not found or unable to stat
-[Fri Dec 15 14:09:52 2006] [error] [client 218.216.71.115] script '/var/www/dev.xboo.st/webroot/gettask.php' not found or unable to stat
-[Fri Dec 15 14:10:52 2006] [error] [client 218.216.71.115] File does not exist: /var/www/dev.xboo.st/webroot/ta

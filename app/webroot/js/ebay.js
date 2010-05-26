@@ -224,7 +224,7 @@ function update()
 function additems()
 {
 	var postdata = "";
-	postdata = $("input[name='item[]']:checked").serialize();
+	postdata = $("input[name='id[]']:checked").serialize();
 	
 	$("input[name='item[]']:checked").each(function() {
 		$(this).css('visibility', 'hidden');

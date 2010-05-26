@@ -1,4 +1,0 @@
-218.216.71.115 - - [28/Dec/2006:01:15:06 +0900] "GET /bm.html HTTP/1.1" 401 401 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"
-218.216.71.115 - devuser [28/Dec/2006:01:15:08 +0900] "GET /bm.html HTTP/1.1" 304 - "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"
-218.216.71.115 - - [28/Dec/2006:10:05:02 +0900] "GET /bm.html HTTP/1.1" 401 401 "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"
-218.216.71.115 - devuser [28/Dec/2006:10:05:04 +0900] "GET /bm.html HTTP/1.1" 304 - "-" "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727)"

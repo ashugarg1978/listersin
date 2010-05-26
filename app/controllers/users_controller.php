@@ -340,30 +340,30 @@ class UsersController extends AppController {
 		}
 	}
 	
-	function additems($itemids=null)
+	function additems($ids=null)
 	{
-		if (empty($itemids) && isset($_POST['item'])) {
+		if (empty($ids) && isset($_POST['id'])) {
 			
 			// If called from browser, kick background process and exit
 			$cmd = 'PATH=/usr/local/php/bin'
 				. ' '.ROOT.'/cake/console/cake'
 				. ' -app '.ROOT.'/app daemon'
-				. ' additems '.implode(',', $_POST['item'])
+				. ' additems '.implode(',', $_POST['id'])
 				. ' > /dev/null &';
 			system($cmd);
 			error_log($cmd);
 			exit;
 			
-		} else if (empty($itemids)) {
+		} else if (empty($ids)) {
 			return;
 		}
-		error_log('additems:'.implode(',', $itemids));
+		error_log('additems:'.implode(',', $ids));
 		
 		// read item data from database
 		$sql = "SELECT *"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
-			. " WHERE itemid IN (".implode(",", $itemids).")";
+			. " WHERE itemid IN (".implode(",", $ids).")";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $arr) {
 			

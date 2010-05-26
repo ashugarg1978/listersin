@@ -1,3 +1,0 @@
-[Tue Feb 16 05:59:41 2010] [error] [client 122.208.131.98] user devxboo not found: /users/login
-[Tue Feb 16 08:38:07 2010] [warn] RSA server certificate CommonName (CN) `localhost.localdomain' does NOT match server name!?
-[Tue Feb 16 09:05:20 2010] [warn] RSA server certificate CommonName (CN) `localhost.localdomain' does NOT match server name!?
