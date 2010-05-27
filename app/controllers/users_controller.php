@@ -321,6 +321,19 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function arr2xml($arr, $val)
+	{
+		if (count($arr) > 1) {
+			$here = array_shift($arr);
+			$res[$here] = $this->arr2xml($arr, $val);
+			return $res;
+		} else {
+			$here = $arr[0];
+			$res[$here] = $val;
+			return $res;
+		}
+	}
+	
 	function xml2arr($xml, &$arr, $path)
 	{
 		foreach ($xml->children() as $child) {
@@ -340,38 +353,38 @@ class UsersController extends AppController {
 		}
 	}
 	
-	function additems($itemids=null)
+	function additems($ids=null)
 	{
-		if (empty($itemids) && isset($_POST['item'])) {
+		if (empty($ids) && isset($_POST['id'])) {
 			
 			// If called from browser, kick background process and exit
 			$cmd = 'PATH=/usr/local/php/bin'
 				. ' '.ROOT.'/cake/console/cake'
 				. ' -app '.ROOT.'/app daemon'
-				. ' additems '.implode(',', $_POST['item'])
+				. ' additems '.implode(',', $_POST['id'])
 				. ' > /dev/null &';
 			system($cmd);
 			error_log($cmd);
 			exit;
 			
-		} else if (empty($itemids)) {
+		} else if (empty($ids)) {
 			return;
 		}
-		error_log('additems:'.implode(',', $itemids));
+		error_log('additems:'.implode(',', $ids));
 		
 		// read item data from database
 		$sql = "SELECT *"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
-			. " WHERE itemid IN (".implode(",", $itemids).")";
+			. " WHERE id IN (".implode(",", $ids).")";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $arr) {
 			
 			// todo: just for debug
-			$arr['items']['title'] = "(".$arr['items']['itemid'].")".$arr['items']['title'];
+			$arr['items']['Title'] = "(".$arr['items']['id'].")".$arr['items']['Title'];
 			
 			// todo: cut string in another way
-			$arr['items']['title'] = substr($arr['items']['title'], 0, 55);
+			$arr['items']['Title'] = substr($arr['items']['Title'], 0, 55);
 			
 			$accountid = $arr['items']['accountid'];
 			$itemdata[$accountid]['accounts'] = $arr['accounts'];
@@ -526,6 +539,22 @@ class UsersController extends AppController {
 		}
 		
 		return $xml;
+	}
+	
+	function xml_item2()
+	{
+		$sql = "SELECT * FROM items ORDER BY RAND() LIMIT 1";
+		$res = $this->User->query($sql);
+		$i = $res[0]['items'];
+		foreach ($i as $col => $val) {
+			$depth = explode('_', $col);
+			$xml = $this->arr2xml($depth, $val);
+			print_r($depth);
+			print_r($xml);
+			print '<br>';
+		}
+		print_r($i);
+		exit;
 	}
 	
 	function xml_item($d)

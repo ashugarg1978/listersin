@@ -78,7 +78,7 @@ class DATABASE_CONFIG {
 		'persistent' => false,
 		'host' => 'localhost',
 		'login' => 'root',
-		'password' => 'kjkp98u',
+		'password' => '',
 		'database' => 'ebay',
 		'prefix' => '',
 	);

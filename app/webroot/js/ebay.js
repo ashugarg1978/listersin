@@ -94,6 +94,10 @@ function descriptionframe(id)
 
 function bindevents()
 {
+	$(window).resize(function() {
+		$('#content').css('width', ($(window).width()-50)+'px');
+	});
+	
 	$('a.Title').live('click', function() {
 		
 		id = $(this).closest('tbody').attr('id');
@@ -224,9 +228,9 @@ function update()
 function additems()
 {
 	var postdata = "";
-	postdata = $("input[name='item[]']:checked").serialize();
+	postdata = $("input[name='id[]']:checked").serialize();
 	
-	$("input[name='item[]']:checked").each(function() {
+	$("input[name='id[]']:checked").each(function() {
 		$(this).css('visibility', 'hidden');
 		$(this).parent().addClass('loading');
 	});
