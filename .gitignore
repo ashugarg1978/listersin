@@ -1,2 +1,4 @@
 app/config/database.php
-app/tmp/*
+app/tmp
+app/tmp/logs/*
+logs
