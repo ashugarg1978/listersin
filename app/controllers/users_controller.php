@@ -321,14 +321,18 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function arr2xml($arr, $val)
+	function arr2xml(&$arr, $depth, $val)
 	{
-		if (count($arr) > 1) {
-			$here = array_shift($arr);
-			$res[$here] = $this->arr2xml($arr, $val);
+		if (count($depth) > 1) {
+			$here = array_shift($depth);
+			//$this->arr2xml($arr, $depth, $val);
+			//return;
+			$res[$here] = $this->arr2xml($arr, $depth, $val);
 			return $res;
 		} else {
-			$here = $arr[0];
+			$here = $depth[0];
+			//$arr[$here] = $val;
+			//return;
 			$res[$here] = $val;
 			return $res;
 		}
@@ -546,14 +550,21 @@ class UsersController extends AppController {
 		$sql = "SELECT * FROM items ORDER BY RAND() LIMIT 1";
 		$res = $this->User->query($sql);
 		$i = $res[0]['items'];
+		$xml = array();
 		foreach ($i as $col => $val) {
 			$depth = explode('_', $col);
-			$xml = $this->arr2xml($depth, $val);
-			print_r($depth);
-			print_r($xml);
-			print '<br>';
+			$xml = array_merge_recursive
+			  ($xml, $this->arr2xml($arr, $depth, $val));
+			//print_r($depth);
+			//echo '<pre>';
+			//print_r($xml);
+			//echo '</pre>';
+			//print '<br>';
 		}
+		echo '<pre>';
+		print_r($xml);
 		print_r($i);
+		echo '</pre>';
 		exit;
 	}
 	
