@@ -11,9 +11,7 @@ ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippintServiceCost
 
 ALTER TABLE items ADD ReturnPolicy_ReturnsAcceptedOption varchar(20);
 ALTER TABLE items ADD ReturnPolicy_RefundOption varchar(30);
-ALTER TABLE items ADD ReturnPolicy_ReturnsWithinOption ;
+ALTER TABLE items ADD ReturnPolicy_ReturnsWithinOption varchar(7);
 ALTER TABLE items ADD ReturnPolicy_Description text;
-ALTER TABLE items ADD ReturnPolicy_ ShippingCostPaidByOption;
-
-ALTER TABLE items ADD ;
+ALTER TABLE items ADD ReturnPolicy_ ShippingCostPaidByOption varchar(6);
 
