@@ -184,3 +184,4 @@
 2010-05-27 15:11:32 Notice: Notice (8): Undefined variable: itemdata in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 518]
 2010-05-31 21:24:31 Notice: Notice (8): Undefined variable: xml in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 551]
 2010-05-31 21:27:58 Notice: Notice (8): Undefined variable: xml in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 558]
+2010-06-02 21:50:10 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 136]
