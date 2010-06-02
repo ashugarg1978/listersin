@@ -88,7 +88,8 @@ class UsersController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		$sql .= " ORDER BY ListingDetails_EndTime DESC, id DESC";
+		//$sql .= " ORDER BY ListingDetails_EndTime DESC, id DESC";
+		$sql .= " ORDER BY id DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
@@ -422,7 +423,7 @@ class UsersController extends AppController {
 				
 				foreach ($items as $i => $arr) {
 					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
-					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
+					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item2($arr);
 				}
 				
 				$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -545,13 +546,19 @@ class UsersController extends AppController {
 		return $xml;
 	}
 	
-	function xml_item2()
+	function xml_item2($i)
 	{
-		$sql = "SELECT * FROM items ORDER BY RAND() LIMIT 1";
-		$res = $this->User->query($sql);
-		$i = $res[0]['items'];
+	  //$sql = "SELECT * FROM items ORDER BY id DESC LIMIT 1";
+	  //$res = $this->User->query($sql);
+	  //$i = $res[0]['items'];
 		$xml = array();
 		foreach ($i as $col => $val) {
+		  if (preg_match('/(^[a-z]|ListingDetails|CategoryName|ItemID)/', $col)) {
+			continue;
+		  }
+		  if ($val == '') {
+			continue;
+		  }
 			$depth = explode('_', $col);
 			$xml = array_merge_recursive
 			  ($xml, $this->arr2xml($arr, $depth, $val));
@@ -561,11 +568,15 @@ class UsersController extends AppController {
 			//echo '</pre>';
 			//print '<br>';
 		}
+		/*
 		echo '<pre>';
 		print_r($xml);
 		print_r($i);
 		echo '</pre>';
 		exit;
+		*/
+		
+		return $xml;
 	}
 	
 	function xml_item($d)
