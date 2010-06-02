@@ -13,5 +13,7 @@ ALTER TABLE items ADD ReturnPolicy_ReturnsAcceptedOption varchar(20);
 ALTER TABLE items ADD ReturnPolicy_RefundOption varchar(30);
 ALTER TABLE items ADD ReturnPolicy_ReturnsWithinOption varchar(7);
 ALTER TABLE items ADD ReturnPolicy_Description text;
-ALTER TABLE items ADD ReturnPolicy_ ShippingCostPaidByOption varchar(6);
+ALTER TABLE items ADD ReturnPolicy_ShippingCostPaidByOption varchar(6);
 
+ALTER TABLE items ADD PaymentMethods varchar(30);
+ALTER TABLE items ADD PayPalEmailAddress varchar(255);
