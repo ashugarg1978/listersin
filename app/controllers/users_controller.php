@@ -607,8 +607,9 @@ class UsersController extends AppController {
 		$sql = "DESC items;";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $row) {
-			$f[$row['COLUMNS']['Field']] = 1;
+			$f[$row['COLUMNS']['Field']] = $row;
 		}
+		print_r($f);exit;
 		
 		return $f;
 	}
