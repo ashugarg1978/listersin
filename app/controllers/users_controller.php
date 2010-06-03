@@ -620,7 +620,6 @@ class UsersController extends AppController {
 		foreach ($res as $i => $row) {
 			$f[$row['COLUMNS']['Field']] = $row;
 		}
-		print_r($f);exit;
 		
 		return $f;
 	}
@@ -637,7 +636,7 @@ class UsersController extends AppController {
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
+		$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ItemReturnDescription';
 		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
