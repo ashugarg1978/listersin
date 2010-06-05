@@ -423,7 +423,7 @@ class UsersController extends AppController {
 				
 				foreach ($items as $i => $arr) {
 					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
-					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item2($arr);
+					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 				}
 				
 				$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -581,14 +581,14 @@ class UsersController extends AppController {
 	
 	function xml_item($d)
 	{
-		$i['Title']           = $d['title'];
-		$i['Description']     = $d['description'];
-		$i['PrimaryCategory']['CategoryID'] = $d['categoryid'];
+		$i['Title']           = $d['Title'];
+		$i['Description']     = $d['Description'];
+		$i['PrimaryCategory']['CategoryID'] = $i['PrimaryCategory']['CategoryID'];
 		$i['CategoryMappingAllowed']        = 'true';
 		$i['Site']            = 'US';
-		$i['Quantity']        = $d['quantity'];
-		$i['StartPrice']      = $d['startprice'];
-		$i['ListingDuration'] = $d['listingduration'];
+		$i['Quantity']        = '1';
+		$i['StartPrice']      = '1000';
+		$i['ListingDuration'] = $d['ListingDuration'];
 		$i['ListingType']     = 'Chinese';
 		$i['DispatchTimeMax'] = '3';
 		
@@ -606,9 +606,9 @@ class UsersController extends AppController {
 		$i['Country']            = 'US';
 		$i['Currency']           = 'USD';
 		$i['PostalCode']         = '95125';
-		$i['PaymentMethods']     = $d['paymentmethods'];
-		$i['PayPalEmailAddress'] = $d['paypalemailaddress'];
-		$i['PictureDetails']['PictureURL'] = $d['pictureurl'];
+		$i['PaymentMethods']     = $d['PaymentMethods'];
+		$i['PayPalEmailAddress'] = $d['PayPalEmailAddress'];
+		//$i['PictureDetails']['PictureURL'] = $d['PictureDetails']['PictureURL'];
 		
 		return $i;
 	}
@@ -637,10 +637,11 @@ class UsersController extends AppController {
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
-		$h['DetailLevel'] = 'ItemReturnDescription';
+		$h['DetailLevel'] = 'ReturnAll';
+		//$h['DetailLevel'] = 'ItemReturnDescription';
 		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Pagination']['EntriesPerPage'] = 2;
 		$h['Sort'] = 1;
 		if ($userid) {
 			$h['UserID'] = $userid;
