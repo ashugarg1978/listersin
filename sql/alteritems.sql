@@ -5,9 +5,13 @@ ALTER TABLE items ADD ListingType varchar(20);
 ALTER TABLE items ADD DispatchTimeMax int;
 
 ALTER TABLE items ADD ShippingDetails_ShippingType varchar(50);
-ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippintServicePriority int;
-ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippintService varchar(100);
-ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippintServiceCost double;
+ALTER TABLE items drop ShippingDetails_ShippingServiceOptions_ShippintServicePriority;
+ALTER TABLE items drop ShippingDetails_ShippingServiceOptions_ShippintService;
+ALTER TABLE items drop ShippingDetails_ShippingServiceOptions_ShippintServiceCost;
+
+ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippingServicePriority int;
+ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippingService varchar(100);
+ALTER TABLE items ADD ShippingDetails_ShippingServiceOptions_ShippingServiceCost double;
 
 ALTER TABLE items ADD ReturnPolicy_ReturnsAcceptedOption varchar(20);
 ALTER TABLE items ADD ReturnPolicy_RefundOption varchar(30);
