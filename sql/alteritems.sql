@@ -1,3 +1,8 @@
+ALTER TABLE items DROP TimeLeft;
+/* ALTER TABLE items ADD TimeLeft datetime; */
+
+\q
+
 ALTER TABLE items ADD CategoryMappingAllowed boolean;
 ALTER TABLE items ADD Site varchar(4);
 ALTER TABLE items ADD ListingDuration varchar(8);

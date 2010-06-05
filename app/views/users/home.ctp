@@ -1,32 +1,55 @@
-imp:<?
+
+
+<div id="toolbar">
+<div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>
+
+<div style="font-size:11px; margin-right:10px;">
+<b><?= $user['User']['email'] ?></b><br>
+<div style="text-align:right;"><a href="/users/logout"><?= __('Sign out') ?></a></div>
+</div>
+
+<br>
+
+Item Status<br>
+<ul id="selling" class="accounts">
+<li>Scheduled</li>
+<li>Active</li>
+<li>Sold</li>
+<li>Unsold</li>
+<li>Other</li>
+</ul>
+
+<br>
+
+eBay Accounts<br>
+<ul class="accounts">
+<?
 foreach ($accounts as $accountid => $row) {
-	print '<a href="/users/getsellerlist/'.$row['ebayuserid'].'" target="_blank">'
-		. $row['ebayuserid']. '</a> ';
-}
-?><br>
-upd:<?
-foreach ($accounts as $accountid => $row) {
-	print '<a href="/users/getsellerlist/'.$accountid.'" target="_blank">'
-		. $row['ebayuserid']. '</a> ';
+	echo '<li><span class="more">▼</span>'.$row['ebayuserid'].'</li>';
 }
 ?>
-<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">regacc</a>
+</ul>
+<br>
 
-<br><br>
 
-<div>
-<input type="button" value="全て" onclick="chkall();">
+<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
+
+</div>
+
+<div id="content">
+
+<div style="float:left; margin:10px;">
+<input type="button" value="全て"     onclick="chkall();">
 <input type="button" value="リセット" onclick="unchkall();">
-
 <input type="button" value="出品"   onclick="additems();">
 <input type="button" value="コピー" onclick="copyitems();">
 <input type="button" value="更新"   onclick="update();">
 <input type="button" value="削除"   onclick="delete();">
-
 </div>
 
 <div id="paging"></div>
 
+<div style="clear:both;"></div>
 
 <table id="items" class="items">
 
@@ -34,12 +57,12 @@ foreach ($accounts as $accountid => $row) {
 <tr>
 	<th></th>
 	<th>ID</th>
-	<th>画像</th>
-	<th>タイトル</th>
-	<th>eBayアカウント</th>
-	<th>eBay商品ID</th>
-	<th>終了日</th>
-	<th>開始価格</th>
+	<th><?= __('Pict') ?></th>
+	<th><?= __('Title') ?></th>
+	<th>eBay Account</th>
+	<th>eBay Item ID</th>
+	<th align="right"><?= __('Start Price') ?></th>
+	<th align="right"><?= __('End') ?></th>
 </tr>
 </thead>
 
@@ -54,6 +77,7 @@ foreach ($accounts as $accountid => $row) {
 	<input type="text" name="title" size="30">
 	<input type="text" name="offset" value="0"  size="2">
 	<input type="text" name="limit"  value="30" size="2">
+	<input type="text" name="selling" size="10" value="active">
 </td>
 <td>
 	<select name="accountid" onchange="filter();">
@@ -80,8 +104,8 @@ foreach ($accounts as $accountid => $row) {
 	<td><a href="" class="Title"></a></td>
 	<td class="ebayuserid"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
-	<td class="ListingDetails_EndTime"></td>
 	<td class="StartPrice"></td>
+	<td class="ListingDetails_EndTime"></td>
 </tr>
 <tr class="row2">
 	<td colspan="8">
@@ -120,6 +144,12 @@ foreach ($accounts as $accountid => $row) {
 	  </td>
 	</tr>
 	<tr>
+	  <td>
+		ListingDuration<br>
+		<input name="ListingDuration" type="text" size="10">
+	  </td>
+	</tr>
+	<tr>
 		<td colspan="2" align="center">
 		<input type="button" class="edit"   value="編集する">
 		<input type="button" class="copy"   value="コピーする">
@@ -138,7 +168,7 @@ foreach ($accounts as $accountid => $row) {
 <tbody>
 <tr>
 	<td colspan="8" align="center" style="height:100px;">
-		商品情報を読み込んでいます・・・
+		No Item Data Found.
 	</td>
 </tr>
 </tbody>
@@ -154,3 +184,7 @@ foreach ($accounts as $accountid => $row) {
 category select form
 </div>
 </div>
+
+</div>
+
+<div style="clear:both;"></div>

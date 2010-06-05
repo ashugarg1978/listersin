@@ -21,35 +21,8 @@
 </head>
 <body>
 
-<div id="header">
-<div id="header_inside">
-<div style="background-color:#adadad; color:white; float:left; padding:3px 20px 3px 20px; font-weight:bold;">LOGO</div>
-<? if (isset($user['User']['email'])) { ?>
-<a href="/users/home">home</a>
-<a href="/users/logout">ログアウト</a>
-[<?= $user['User']['email'] ?>]<br>
-<? } else { ?>
-<a href="/users/login">ログイン</a>
-<? } ?>
-</div>
-</div>
-
-<div id="content">
+<div id="container">
 <?php echo $content_for_layout ?>
-</div>
-
-<? if (false) { ?>
-<br><br><br><br>
-<div class="debug">
-<pre><? print_r($_SESSION); ?></pre>
-<pre><? print_r($_SERVER); ?></pre>
-</div>
-<? } ?>
-
-<div id="footer">
-<div id="footer_inside">
-ebaytool.jp
-</div>
 </div>
 
 </body>

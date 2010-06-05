@@ -6,6 +6,11 @@ $(document).bind({
 	ready: function(event) {
 		items();
 		bindevents();
+
+		$('div#content').width(($('div#container').width()-194));
+		$('table#items').width(($('div#container').width()-194));
+		
+		$('ul#selling li:contains("Active")').click();
 	}
 });
 
@@ -96,6 +101,13 @@ function bindevents()
 {
 	$(window).resize(function() {
 		$('#content').css('width', ($(window).width()-50)+'px');
+	});
+	
+	$('ul#selling li').live('click', function() {
+		$('input[name=selling]').val($(this).text());
+		items();
+		$('ul#selling li').removeClass('tabselected');
+		$(this).addClass('tabselected');
 	});
 	
 	$('a.Title').live('click', function() {
@@ -258,13 +270,13 @@ function paging(cnt)
 	limit  = $('input[name=limit]').val() - 0;
 	offset = $('input[name=offset]').val() - 0;
 	
-	html = (offset+1)+' 〜 ';
+	html = (offset+1)+' - ';
 	if (offset+limit >= cnt) {
 		html += cnt;
 	} else {
 		html += (offset+limit);
 	}
-	html += ' / '+cnt+'&nbsp;&nbsp;&nbsp;';
+	html += ' of '+cnt+'&nbsp;';
 	
 	for (i=0; i<(cnt/limit); i++) {
 		if (offset == i*limit) {

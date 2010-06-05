@@ -31,7 +31,9 @@ class UsersController extends AppController {
 	
 	function index()
 	{
-	  
+		if (isset($this->user['User']['userid'])) {
+			$this->render('home');
+		}
 	}
 	
 	function getAccounts($userid)
@@ -72,6 +74,14 @@ class UsersController extends AppController {
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
+		$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
+		$sql_selling['Active']    = "ListingDetails_EndTime > Now()";
+		$sql_selling['Sold']      = "";
+		$sql_selling['Unsold']    = "";
+		$sql_selling['Other']     = "ItemID IS NULL";
+		if (!empty($_POST['selling'])) 
+			$sql_filter[] = $sql_selling[$_POST['selling']];
+		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
@@ -81,6 +91,7 @@ class UsersController extends AppController {
 			. " items.id,"
 			. " items.ItemID,"
 			. " items.ListingDetails_EndTime,"
+			. " items.ListingDetails_ViewItemURL,"
 			. " items.Title,"
 			. " items.PictureDetails_PictureURL,"
 			. " items.StartPrice"
@@ -88,8 +99,7 @@ class UsersController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		//$sql .= " ORDER BY ListingDetails_EndTime DESC, id DESC";
-		$sql .= " ORDER BY id DESC";
+		$sql .= " ORDER BY ListingDetails_EndTime ASC, id DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
@@ -107,34 +117,29 @@ class UsersController extends AppController {
 			$item = $row['items'];
 			$item['ebayuserid'] = $row['accounts']['ebayuserid'];
 			
+			/* ListingDetails_EndTime */
 			if (isset($item['ListingDetails_EndTime'])) {
 				if (date('Y-m-d', strtotime($item['ListingDetails_EndTime'])) == date('Y-m-d')) {
 					$item['ListingDetails_EndTime'] =
 						date('H:i', strtotime($item['ListingDetails_EndTime']));
 				} else {
 					$item['ListingDetails_EndTime'] =
-						date('n月j日', strtotime($item['ListingDetails_EndTime']));
+						date('M j', strtotime($item['ListingDetails_EndTime']));
 				}
 			} else {
 				$item['ListingDetails_EndTime'] = '-';
 			}
 			
-			/*
-			if ($item['listingstatus'] == 'Active') {
-				$item['listingstatus_label'] = 'O';
-			} else if ($item['listingstatus'] == 'Completed') {
-				$item['listingstatus_label'] = '=';
-			} else {
-				$item['listingstatus_label'] = 'I';
-			}
-			*/
+			/* StartPrice */
+			$item['StartPrice'] = number_format($item['StartPrice']);
 			
-			$items[$id] = $item;
+			
+			/* add to rows */
+			$items[] = $item;
 		}
 		
 		$data['cnt'] = $cnt;
 		$data['res'] = $items;
-		error_log(print_r($data,1));
 		
 		print json_encode($data);
 		
@@ -334,7 +339,7 @@ class UsersController extends AppController {
 			$here = $depth[0];
 			//$arr[$here] = $val;
 			//return;
-			$res[$here] = $val;
+			$res[$here] = htmlspecialchars($val);
 			return $res;
 		}
 	}
@@ -342,7 +347,7 @@ class UsersController extends AppController {
 	function xml2arr($xml, &$arr, $path)
 	{
 		foreach ($xml->children() as $child) {
-			if ($child->children()) {
+			if (count($child->children())) {
 				if ($path) {
 					$this->xml2arr($child, $arr, $path.".".$child->getName());
 				} else {
@@ -423,7 +428,7 @@ class UsersController extends AppController {
 				
 				foreach ($items as $i => $arr) {
 					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
-					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item2($arr);
+					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 				}
 				
 				$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -546,71 +551,21 @@ class UsersController extends AppController {
 		return $xml;
 	}
 	
-	function xml_item2($i)
+	function xml_item($i)
 	{
-	  //$sql = "SELECT * FROM items ORDER BY id DESC LIMIT 1";
-	  //$res = $this->User->query($sql);
-	  //$i = $res[0]['items'];
 		$xml = array();
 		foreach ($i as $col => $val) {
-		  if (preg_match('/(^[a-z]|ListingDetails|CategoryName|ItemID)/', $col)) {
-			continue;
-		  }
-		  if ($val == '') {
-			continue;
-		  }
+			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|ItemID)/', $col)) {
+				continue;
+			}
+			if ($val == '') {
+				continue;
+			}
 			$depth = explode('_', $col);
-			$xml = array_merge_recursive
-			  ($xml, $this->arr2xml($arr, $depth, $val));
-			//print_r($depth);
-			//echo '<pre>';
-			//print_r($xml);
-			//echo '</pre>';
-			//print '<br>';
+			$xml = array_merge_recursive($xml, $this->arr2xml($arr, $depth, $val));
 		}
-		/*
-		echo '<pre>';
-		print_r($xml);
-		print_r($i);
-		echo '</pre>';
-		exit;
-		*/
 		
 		return $xml;
-	}
-	
-	function xml_item($d)
-	{
-		$i['Title']           = $d['title'];
-		$i['Description']     = $d['description'];
-		$i['PrimaryCategory']['CategoryID'] = $d['categoryid'];
-		$i['CategoryMappingAllowed']        = 'true';
-		$i['Site']            = 'US';
-		$i['Quantity']        = $d['quantity'];
-		$i['StartPrice']      = $d['startprice'];
-		$i['ListingDuration'] = $d['listingduration'];
-		$i['ListingType']     = 'Chinese';
-		$i['DispatchTimeMax'] = '3';
-		
-		$i['ShippingDetails']['ShippingType'] = 'Flat';
-		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServicePriority'] = '1';
-		$i['ShippingDetails']['ShippingServiceOptions']['ShippingService']         = 'USPSMedia';
-		$i['ShippingDetails']['ShippingServiceOptions']['ShippingServiceCost']     = '2.50';
-		
-		$i['ReturnPolicy']['ReturnsAcceptedOption']    = 'ReturnsAccepted';
-		$i['ReturnPolicy']['RefundOption']             = 'MoneyBack';
-		$i['ReturnPolicy']['ReturnsWithinOption']      = 'Days_30';
-		$i['ReturnPolicy']['Description']              = 'foobar';
-		$i['ReturnPolicy']['ShippingCostPaidByOption'] = 'Buyer';
-		
-		$i['Country']            = 'US';
-		$i['Currency']           = 'USD';
-		$i['PostalCode']         = '95125';
-		$i['PaymentMethods']     = $d['paymentmethods'];
-		$i['PayPalEmailAddress'] = $d['paypalemailaddress'];
-		$i['PictureDetails']['PictureURL'] = $d['pictureurl'];
-		
-		return $i;
 	}
 	
 	function getitemcols()
@@ -636,8 +591,9 @@ class UsersController extends AppController {
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
+		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ItemReturnDescription';
+		//$h['DetailLevel'] = 'ReturnAll';
 		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo']   = date('Y-m-d H:i:s');
 		$h['Pagination']['EntriesPerPage'] = 200;
@@ -654,10 +610,13 @@ class UsersController extends AppController {
 			foreach ($arr as $c => $v) {
 				$c = str_replace('.','_',$c);
 				if (isset($colnames[$c])) {
+					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
+			echo '<pre>';
 			print_r($arr);
+			echo '</pre>';
 			
 			/* SELECT */
 			// todo: catch INSERT/UPDATE query result.
@@ -788,5 +747,31 @@ class UsersController extends AppController {
 		
 		return $html;
 	}
+	
+	
+	/**
+	 * RefURL: http://dev-forums.ebay.com/thread.jspa?threadID=500003564
+	 */
+	function duration2str($time, $rounding = TRUE) {
+		
+        preg_match("/P" .
+				   "(?:(?P<year>[0-9]*)Y)?" . 
+				   "(?:(?P<month>[0-9]*)M)?" .
+				   "(?:(?P<day>[0-9]*)D)?" .
+				   "(?:T" .
+				   "(?:(?P<hour>[0-9]*)H)?" .
+				   "(?:(?P<minute>[0-9]*)M)?" .
+				   "(?:(?P<second>[0-9\.]*)S)?" .
+				   ")?/s", $time, $d);
+		
+		$str = ($d['year']-0)
+			. '-'.($d['month']-0)
+			. '-'.($d['day']-0)
+			. ' '.($d['hour']-0)
+			. ':'.($d['minute']-0)
+			. ':'.($d['second']-0);
+		
+        return $str;
+    }
 }
 ?>
