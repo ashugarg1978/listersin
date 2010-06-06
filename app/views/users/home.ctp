@@ -10,13 +10,12 @@
 
 <br>
 
-Item Status<br>
 <ul id="selling" class="accounts">
-<li>Scheduled</li>
-<li>Active</li>
-<li>Sold</li>
-<li>Unsold</li>
-<li>Other</li>
+<li><a href="">Scheduled</a></li>
+<li><a href="">Active</a></li>
+<li><a href="">Sold</a></li>
+<li><a href="">Unsold</a></li>
+<li><a href="">Other</a></li>
 </ul>
 
 <br>
@@ -111,6 +110,15 @@ foreach ($accounts as $accountid => $row) {
 	<td colspan="8">
 	<div class="detail">
 	
+	<ul class="tabNav">
+		<li class="current"><a href="#">Detail</a></li>
+		<li><a href="#">Description</a></li>
+		<li><a href="#">Pictures</a></li>
+	</ul>
+	 
+	<div class="tabContainer">
+		<div class="tab current">
+
 	<table class="detail">
 	<tbody>
 	<tr>
@@ -126,18 +134,6 @@ foreach ($accounts as $accountid => $row) {
 	  </td>
 	</tr>
 	<tr>
-	  <td>説明<br>
-	  <textarea name="description" cols="100" rows="10"></textarea>
-	  <a class="wysiwyg">RTE</a>
-	  </td>
-	</tr>
-	<tr>
-	  <td>画像<br>
-		<img class="PictureDetails_PictureURL"><br>
-		<input type="file" name="PictureDetails_PictureURL">
-	  </td>
-	</tr>
-	<tr>
 	  <td>
 		開始価格<br>
 		<input name="StartPrice" type="text" size="10">
@@ -149,6 +145,21 @@ foreach ($accounts as $accountid => $row) {
 		<input name="ListingDuration" type="text" size="10">
 	  </td>
 	</tr>
+	</table>
+
+		</div>
+		<div class="tab">
+			<textarea name="description" cols="100" rows="10"></textarea>
+			<a class="wysiwyg">RTE</a>
+		</div>
+		<div class="tab">
+			<img class="PictureDetails_PictureURL"><br>
+			<input type="file" name="PictureDetails_PictureURL">
+		</div>
+	</div>
+	 
+	<table class="detail">
+	<tbody>
 	<tr>
 		<td colspan="2" align="center">
 		<input type="button" class="edit"   value="編集する">
@@ -173,17 +184,6 @@ foreach ($accounts as $accountid => $row) {
 </tr>
 </tbody>
 </table>
-
-<div style="width=300px;" id="debug"></div>
-
-<div id="editform">
-
-
-<textarea class="description" name="description" cols="90" rows="5"></textarea>
-<div class="categoryname">
-category select form
-</div>
-</div>
 
 </div>
 

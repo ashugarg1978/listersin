@@ -10,7 +10,7 @@ $(document).bind({
 		$('div#content').width(($('div#container').width()-194));
 		$('table#items').width(($('div#container').width()-194));
 		
-		$('ul#selling li:contains("Active")').click();
+		$('ul#selling li a:contains("Active")').click();
 	}
 });
 
@@ -26,38 +26,35 @@ function items()
 			   
 			   $('tbody:gt(2)').remove();
 			   $.each(data.res, function(id, row) {
-				   dom = getrow(id, row);
+				   dom = getrow(row);
 				   $('#items').append(dom);
 			   });
 		   },
 		   'json');
 }
 
-function getrow(id, row)
+function getrow(row)
 {
+	id = row['id'];
+	
 	dom = $('#rowtemplate').clone().attr('id', id);
-	$('table.detail', dom).remove();
+	$('div.detail', dom).remove();
 	
 	$.each(row, function(colname, colval) {
-		if (colname == 'Title' || colname == 'Description') {
-			//colval = colval.replace(/\n/g, "___LF___");
-			//colval = $('<div/>').text(colval).html();
-			//colval = colval.replace(/___LF___/g, '<br>');
-			//colval = colval.replace(/\n/g, '<br>');
-		}
 		$('.'+colname, dom).html(colval);
 	});
 	
 	$('input:checkbox', dom).val(id);
-	$('a.ItemId', dom).attr('href', row['viewitemurl']);
+	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
 	
 	return dom;
 }
 
-function getdetail(id, row)
+function getdetail(row)
 {
-	detail = $('table.detail', '#rowtemplate').clone();
+	id = row['id'];
+	detail = $('div.detail', '#rowtemplate').clone();
 	
 	$('img.PictureDetails_PictureURL', detail).attr('src', row['PictureDetails_PictureURL']);
 	
@@ -67,16 +64,8 @@ function getdetail(id, row)
 	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
-		if (colname == 'Title' || colname == 'Description') {
-			//colval = colval.replace(/\n/g, "___LF___");
-			//colval = $('<div/>').text(colval).html();
-			//colval = colval.replace(/___LF___/g, '<br>');
-			//colval = colval.replace(/\n/g, '<br>');
-		}
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
-	
-	form = $('<form method="post" action=""')
 	
 	return detail;
 }
@@ -103,24 +92,39 @@ function bindevents()
 		$('#content').css('width', ($(window).width()-50)+'px');
 	});
 	
-	$('ul#selling li').live('click', function() {
+	$('ul.tabNav a').live('click', function() {
+		var curChildIndex = $(this).parent().prevAll().length + 1;
+		$(this).parent().parent().children('.current').removeClass('current');
+		$(this).parent().addClass('current');
+		$(this).parent().parent().next('.tabContainer').children('.current').slideUp('fast',function() {
+			$(this).removeClass('current');
+			$(this).parent().children('div:nth-child('+curChildIndex+')').slideDown('fast',function() {
+				$(this).addClass('current');
+			});
+		});
+		return false;
+	});
+	
+	
+	$('ul#selling li a').live('click', function() {
 		$('input[name=selling]').val($(this).text());
 		items();
 		$('ul#selling li').removeClass('tabselected');
-		$(this).addClass('tabselected');
+		$(this).closest('li').addClass('tabselected');
+		return false;
 	});
 	
 	$('a.Title').live('click', function() {
 		
 		id = $(this).closest('tbody').attr('id');
 		
-		if (!$('div.detail', '#'+id).html().match(/^<table/i)) {
+		if (!$('tr.row2 td', '#'+id).html().match(/^<div/i)) {
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
 					   rowsdata[id] = data;
-					   detail = getdetail(id, data);
-					   $('div.detail', '#'+id).html(detail);
+					   detail = getdetail(data);
+					   $('tr.row2 td', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
 				   },
 				   'json');
@@ -173,8 +177,8 @@ function bindevents()
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
-				   dom = getrow(id, data.res[id]);
-				   detail = getdetail(id, data.res[id]);
+				   dom = getrow(data.res[id]);
+				   detail = getdetail(data.res[id]);
 				   $('div.detail', dom).append(detail).css('display', 'block');
 				   $('tbody#'+id).replaceWith(dom);
 			   },
@@ -184,7 +188,7 @@ function bindevents()
 	$('input:button.cancel', 'div.detail').live('click', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
-		detail = getdetail(id, rowsdata[id]);
+		detail = getdetail(rowsdata[id]);
 		showbuttons(detail, 'edit,copy,delete');
 		$('table.detail', '#'+id).replaceWith(detail);
 		

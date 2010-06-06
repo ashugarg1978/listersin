@@ -76,8 +76,9 @@ class UsersController extends AppController {
 		
 		$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
 		$sql_selling['Active']    = "ListingDetails_EndTime > Now()";
-		$sql_selling['Sold']      = "";
-		$sql_selling['Unsold']    = "";
+		$sql_selling['Sold']      = "SellingStatus_QuantitySold > 0";
+		$sql_selling['Unsold']    = "ListingDetails_EndTime < Now()"
+			. " AND SellingStatus_QuantitySold = 0";
 		$sql_selling['Other']     = "ItemID IS NULL";
 		if (!empty($_POST['selling'])) 
 			$sql_filter[] = $sql_selling[$_POST['selling']];
@@ -142,6 +143,7 @@ class UsersController extends AppController {
 		$data['res'] = $items;
 		
 		print json_encode($data);
+		error_log(print_r($data,1));
 		
 		exit;
 	}

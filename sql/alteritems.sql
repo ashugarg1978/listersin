@@ -1,7 +1,9 @@
-ALTER TABLE items DROP TimeLeft;
-/* ALTER TABLE items ADD TimeLeft datetime; */
+ALTER TABLE items ADD SellingStatus_QuantitySold int;
 
 \q
+
+ALTER TABLE items DROP TimeLeft;
+/* ALTER TABLE items ADD TimeLeft datetime; */
 
 ALTER TABLE items ADD CategoryMappingAllowed boolean;
 ALTER TABLE items ADD Site varchar(4);

@@ -97,11 +97,13 @@ table.items a {
 	color: #0000ff;
 }
 
+/*
 table.items a:hover {
 	text-decoration: none;
 	color: #ffffff;
 	background-color: #0000ff;
 }
+*/
 
 div.success {
 	border: 2px solid #009900;
@@ -143,11 +145,6 @@ tbody#rowtemplate {
 }
 
 div.detail {
-	-moz-border-radius: 5px;
-	-webkit-border-radius: 5px;
-	border: 1px solid #aaaaaa;
-	margin: 5px;
-	padding: 5px;
 	display: none;
 }
 
@@ -182,12 +179,6 @@ ul.accounts li {
 	margin: 0px;
 	padding: 2px;
 }
-ul.accounts li:hover {
-	background-color: #cccccc;
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
-	cursor: hand;
-}
 
 .tabselected {
 	background-color: #cccccc;
@@ -205,4 +196,46 @@ td.ListingDetails_EndTime {
 
 span.more {
 	font-size: 9px;
+}
+
+
+
+/* item detail tab navigation */
+ul.tabNav {
+	float: left;
+	list-style: none;
+	margin: 10px 0px 0px 10px;
+	padding: 0px;
+}
+
+ul.tabNav li {
+	float: left;
+	margin-right: 5px;
+	background: #fafafa;
+	padding: 3px;
+	border: 1px solid #eeeeee;
+}
+
+ul.tabNav li.current {
+	background-color: #ffffff;
+	border: 1px solid #999999;
+	border-bottom: 1px solid #ffffff;
+}
+
+div.tabContainer {
+	clear: both;
+	float: left;
+	width: 100%;
+	margin-bottom: 8px;
+	margin-top: -1px;
+}
+
+div.tabContainer div.tab {
+	border: 1px solid #999999;
+	display: none;
+	padding: 10px;
+}
+
+div.tabContainer div.current {
+	display: block;
 }
