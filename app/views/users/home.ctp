@@ -33,7 +33,7 @@ foreach ($accounts as $accountid => $row) {
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
-<div id="debug" style="background-color:#ffffcc;"></div>
+<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;"></div>
 
 </div>
 
@@ -102,7 +102,7 @@ foreach ($accounts as $accountid => $row) {
 	<td><input type="checkbox" name="id[]"></td>
 	<td class="id"></td>
 	<td><img class="PictureDetails_PictureURL" height="20"></td>
-	<td><div style="width:150px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
+	<td><div style="overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="ebayuserid"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="StartPrice"></td>
