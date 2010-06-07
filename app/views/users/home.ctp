@@ -74,9 +74,9 @@ foreach ($accounts as $accountid => $row) {
 <td></td>
 <td>
 	<input type="text" name="title" size="30">
-	<input type="text" name="offset" value="0"  size="2">
-	<input type="text" name="limit"  value="30" size="2">
-	<input type="text" name="selling" size="10" value="active">
+	<input type="hidden" name="offset" value="0"  size="2">
+	<input type="hidden" name="limit"  value="30" size="2">
+	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
 	<select name="accountid" onchange="filter();">

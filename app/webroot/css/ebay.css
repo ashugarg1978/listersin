@@ -32,7 +32,7 @@ div#content {
 table.detail {
     border-spacing: 0px;
     border-collapse: collapse;
-	width: 850px;
+	/* width: 800px; */
 }
 
 table.items {
@@ -92,10 +92,12 @@ table.items input {
 	font-size: 10pt;
 }
 
+/*
 table.items a {
 	text-decoration: none;
 	color: #0000ff;
 }
+*/
 
 /*
 table.items a:hover {
@@ -192,6 +194,7 @@ td.StartPrice {
 
 td.ListingDetails_EndTime {
 	text-align: right;
+	white-space: nowrap;
 }
 
 span.more {

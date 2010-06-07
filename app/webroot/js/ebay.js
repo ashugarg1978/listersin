@@ -93,15 +93,14 @@ function bindevents()
 	});
 	
 	$('ul.tabNav a').live('click', function() {
-		var curChildIndex = $(this).parent().prevAll().length + 1;
+		var curIdx = $(this).parent().prevAll().length + 1;
 		$(this).parent().parent().children('.current').removeClass('current');
 		$(this).parent().addClass('current');
-		$(this).parent().parent().next('.tabContainer').children('.current').slideUp('fast',function() {
-			$(this).removeClass('current');
-			$(this).parent().children('div:nth-child('+curChildIndex+')').slideDown('fast',function() {
-				$(this).addClass('current');
-			});
-		});
+		$(this).parent().parent().next('.tabContainer').children('.current').hide();
+		$(this).parent().parent().next('.tabContainer').children('.current').removeClass('current');
+		$(this).parent().parent().next('.tabContainer').children('div:nth-child('+curIdx+')').show();
+		$(this).parent().parent().next('.tabContainer').children('div:nth-child('+curIdx+')').addClass('current');
+		
 		return false;
 	});
 	
