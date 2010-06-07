@@ -6,7 +6,8 @@ body {
 }
 
 div#container {
-	margin: 10px;
+	margin: 9px;
+	border: 1px solid red;
 }
 
 div#toolbar {
@@ -36,6 +37,7 @@ table.detail {
 }
 
 table.items {
+	margin: 0px 0px 0px 0px;
     border-spacing: 0px;
     border-collapse: collapse;
 	/* width: 940px; */

@@ -1,7 +1,5 @@
 ALTER TABLE items ADD SellingStatus_QuantitySold int;
 
-\q
-
 ALTER TABLE items DROP TimeLeft;
 /* ALTER TABLE items ADD TimeLeft datetime; */
 

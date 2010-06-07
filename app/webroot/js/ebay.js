@@ -6,9 +6,6 @@ $(document).bind({
 	ready: function(event) {
 		items();
 		bindevents();
-
-		$('div#content').width(($('div#container').width()-194));
-		$('table#items').width(($('div#container').width()-194));
 		
 		$('ul#selling li a:contains("Active")').click();
 	}
@@ -29,6 +26,8 @@ function items()
 				   dom = getrow(row);
 				   $('#items').append(dom);
 			   });
+			   
+			   resizediv();
 		   },
 		   'json');
 }
@@ -86,10 +85,18 @@ function descriptionframe(id)
 	return;
 }
 
+function resizediv()
+{
+	$('div#content').width(($('div#container').width()-179));
+	$('table#items').width(($('div#container').width()-179));
+	return;
+}
+
 function bindevents()
 {
 	$(window).resize(function() {
-		$('#content').css('width', ($(window).width()-50)+'px');
+		resizediv();
+		//$('#content').css('width', ($(window).width()-50)+'px');
 	});
 	
 	$('ul.tabNav a').live('click', function() {
@@ -110,6 +117,12 @@ function bindevents()
 		items();
 		$('ul#selling li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
+		
+		debug = $('div#container').width() + '<br>';
+		debug += $('div#content').width() + '<br>';
+		debug += $('table#items').width() + '<br>';
+		$('div#debug').html(debug);
+
 		return false;
 	});
 	
