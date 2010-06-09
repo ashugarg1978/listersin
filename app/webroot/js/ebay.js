@@ -87,10 +87,10 @@ function descriptionframe(id)
 
 function resizediv()
 {
-	$('table#items').width(($('div#container').width()-179));
-	
-	//$('div#content').width(($('table#items').width()));
-	$('div#content').width(($('div#container').width()-179));
+	w = $('div#container').width()-179;
+	$('table#items').width(w);
+	$('div#content').width(w);
+	$('a.Title').parent().width(w-600);
 	return;
 }
 
