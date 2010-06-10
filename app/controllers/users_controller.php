@@ -581,6 +581,18 @@ class UsersController extends AppController {
 		return $f;
 	}
 	
+	function getcategoryfeatures()
+	{
+	  $h = null;
+	  $h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+	  $h['DetailLevel'] = 'ReturnAll';
+	  
+	  $xmlobj = $this->callapi('GetCategoryFeatures', $h);
+
+	  print_r($xmlobj);
+	  exit;
+	}
+	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)
 	{
