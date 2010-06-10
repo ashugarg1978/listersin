@@ -40,12 +40,12 @@ foreach ($accounts as $accountid => $row) {
 <div id="content">
 
 <div style="float:left; margin:10px;">
-<input type="button" value="全て"     onclick="chkall();">
-<input type="button" value="リセット" onclick="unchkall();">
-<input type="button" value="出品"   onclick="additems();">
-<input type="button" value="コピー" onclick="copyitems();">
-<input type="button" value="更新"   onclick="update();">
-<input type="button" value="削除"   onclick="delete();">
+<input type="button" value="All"    onclick="chkall();">
+<input type="button" value="Reset"  onclick="unchkall();">
+<input type="button" value="List"   onclick="additems();">
+<input type="button" value="Copy"   onclick="copyitems();">
+<input type="button" value="Update" onclick="update();">
+<input type="button" value="Delete" onclick="delete();">
 </div>
 
 <div id="paging"></div>
@@ -53,16 +53,15 @@ foreach ($accounts as $accountid => $row) {
 <div style="clear:both;"></div>
 
 <table id="items" class="items">
-
 <thead>
 <tr>
 	<th></th>
 	<th>ID</th>
 	<th><?= __('Pict') ?></th>
 	<th><?= __('Title') ?></th>
-	<th>eBay Account</th>
-	<th>eBay Item ID</th>
-	<th align="right"><?= __('Start Price') ?></th>
+	<th><?= __('Account') ?></th>
+	<th><?= __('eBay Item ID') ?></th>
+	<th align="right"><?= __('Price') ?></th>
 	<th align="right"><?= __('End') ?></th>
 </tr>
 </thead>
@@ -77,10 +76,12 @@ foreach ($accounts as $accountid => $row) {
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="30" size="2">
+	<input type="hidden" name="limit"  value="50" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
+	<input type="accountid" name="title" size="10">
+<? if (false) { ?>
 	<select name="accountid" onchange="filter();">
 	<option value=""></option>
 	<?
@@ -89,6 +90,7 @@ foreach ($accounts as $accountid => $row) {
 	}	
 	?>
 	</select>
+<? } ?>
 </td>
 <td>
 	<input type="text" name="startprice" size="6">
@@ -102,7 +104,7 @@ foreach ($accounts as $accountid => $row) {
 	<td><input type="checkbox" name="id[]"></td>
 	<td class="id"></td>
 	<td><img class="PictureDetails_PictureURL" height="20"></td>
-	<td><div style="overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
+	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="ebayuserid"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="StartPrice"></td>

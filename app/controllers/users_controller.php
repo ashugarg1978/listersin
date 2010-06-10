@@ -1,4 +1,13 @@
 <?
+/**
+ *
+ *
+ * [ToDo]
+ * - scrollbar appear when item detail expanded, width broken.
+ *
+ *
+ *
+ */
 class UsersController extends AppController {
 	
     var $name = 'Users';    

@@ -15,6 +15,7 @@
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
+<script type="text/javascript" src="/js/jquery.comet.js"></script>
 <script type="text/javascript" src="/js/ajaxupload.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
 
