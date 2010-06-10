@@ -40,12 +40,12 @@ foreach ($accounts as $accountid => $row) {
 <div id="content">
 
 <div style="float:left; margin:10px;">
-<input type="button" value="全て"     onclick="chkall();">
-<input type="button" value="リセット" onclick="unchkall();">
-<input type="button" value="出品"   onclick="additems();">
-<input type="button" value="コピー" onclick="copyitems();">
-<input type="button" value="更新"   onclick="update();">
-<input type="button" value="削除"   onclick="delete();">
+<input type="button" value="All"    onclick="chkall();">
+<input type="button" value="Reset"  onclick="unchkall();">
+<input type="button" value="List"   onclick="additems();">
+<input type="button" value="Copy"   onclick="copyitems();">
+<input type="button" value="Update" onclick="update();">
+<input type="button" value="Delete" onclick="delete();">
 </div>
 
 <div id="paging"></div>
@@ -76,7 +76,7 @@ foreach ($accounts as $accountid => $row) {
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="30" size="2">
+	<input type="hidden" name="limit"  value="50" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
