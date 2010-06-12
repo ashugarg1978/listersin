@@ -578,3 +578,7 @@
 2010-06-12 06:38:18 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]
 2010-06-12 06:40:01 Notice: Notice (8): Undefined index: active in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 93]
 2010-06-12 06:40:01 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]
+2010-06-12 06:44:22 Notice: Notice (8): Undefined index: active in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 93]
+2010-06-12 06:44:22 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]
+2010-06-12 06:44:47 Notice: Notice (8): Undefined index: active in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 93]
+2010-06-12 06:44:47 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]
