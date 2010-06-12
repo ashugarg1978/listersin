@@ -111,16 +111,36 @@ foreach ($accounts as $accountid => $row) {
 </tr>
 <tr class="row2">
 	<td colspan="8">
-	<div class="detail">
+	</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+	<td colspan="8" align="center" style="height:100px;">
+		No Item Data Found.
+	</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+
+<div style="clear:both;"></div>
+
+
+
+<div id="detailtemplate">
+<div class="detail">
 	
-	<ul class="tabNav">
-		<li class="current"><a href="#">Detail</a></li>
-		<li><a href="#">Description</a></li>
-		<li><a href="#">Pictures</a></li>
-	</ul>
+<ul class="tabNav">
+<li class="current"><a href="#">Detail</a></li>
+<li><a href="#">Description</a></li>
+<li><a href="#">Pictures</a></li>
+</ul>
 	 
-	<div class="tabContainer">
-		<div class="tab current">
+<div class="tabContainer">
+
+<div class="tab current">
 
 	<table class="detail">
 	<tbody>
@@ -149,44 +169,30 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	</table>
 
-		</div>
-		<div class="tab">
-			<textarea name="description" cols="100" rows="10"></textarea>
-			<a class="wysiwyg">RTE</a>
-		</div>
-		<div class="tab">
-			<img class="PictureDetails_PictureURL"><br>
-			<input type="file" name="PictureDetails_PictureURL">
-		</div>
-	</div>
+</div>
+<div class="tab">
+	<textarea name="description" cols="100" rows="10"></textarea>
+	<a class="wysiwyg">RTE</a>
+</div>
+<div class="tab">
+	<img class="PictureDetails_PictureURL"><br>
+	<input type="file" name="PictureDetails_PictureURL">
+</div>
+</div>
 	 
-	<table class="detail">
-	<tbody>
-	<tr>
-		<td colspan="2" align="center">
-		<input type="button" class="edit"   value="編集する">
-		<input type="button" class="copy"   value="コピーする">
-		<input type="button" class="delete" value="削除する">
-		<input type="button" class="update" value="更新する">
-		<input type="button" class="cancel" value="キャンセル">
-		</td>
-	</tr>
-	</tbody>
-	</table>
-	
-	</div>
-	</td>
-</tr>
-</tbody>
+<table class="detail">
 <tbody>
 <tr>
-	<td colspan="8" align="center" style="height:100px;">
-		No Item Data Found.
+	<td colspan="2" align="center">
+	<input type="button" class="edit"   value="編集する">
+	<input type="button" class="copy"   value="コピーする">
+	<input type="button" class="delete" value="削除する">
+	<input type="button" class="update" value="更新する">
+	<input type="button" class="cancel" value="キャンセル">
 	</td>
 </tr>
 </tbody>
 </table>
 
 </div>
-
-<div style="clear:both;"></div>
+</div>

@@ -771,6 +771,7 @@ class UsersController extends AppController {
 	function post($url, $postdata)
 	{
 		$this->r->setMethod(HttpRequest::METH_POST);
+		$this->r->setOptions(array('timeout' => '60'));
 		$this->r->setUrl($url);
 		$this->r->setRawPostData($postdata);
 		$this->r->send();

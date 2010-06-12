@@ -21,7 +21,7 @@ function items()
 			   paging(data.cnt);
 			   rowsdata = data.res;
 			   
-			   $('tbody:gt(2)').remove();
+			   $('tbody:gt(1)').remove();
 			   $.each(data.res, function(id, row) {
 				   dom = getrow(row);
 				   $('#items').append(dom);
@@ -37,7 +37,7 @@ function getrow(row)
 	id = row['id'];
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
-	$('div.detail', dom).remove();
+	//$('div.detail', dom).remove();
 	
 	$.each(row, function(colname, colval) {
 		$('.'+colname, dom).html(colval);
@@ -53,7 +53,7 @@ function getrow(row)
 function getdetail(row)
 {
 	id = row['id'];
-	detail = $('div.detail', '#rowtemplate').clone();
+	detail = $('div.detail', 'div#detailtemplate').clone();
 	
 	$('img.PictureDetails_PictureURL', detail).attr('src', row['PictureDetails_PictureURL']);
 	
@@ -63,6 +63,7 @@ function getdetail(row)
 	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
+		alert(colname);
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
 	
