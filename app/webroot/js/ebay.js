@@ -63,7 +63,6 @@ function getdetail(row)
 	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
-		alert(colname);
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
 	

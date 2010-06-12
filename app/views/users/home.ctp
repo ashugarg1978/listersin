@@ -117,7 +117,7 @@ foreach ($accounts as $accountid => $row) {
 <tbody>
 <tr>
 	<td colspan="8" align="center" style="height:100px;">
-		No Item Data Found.
+		Loading Item Data ...
 	</td>
 </tr>
 </tbody>
