@@ -1,4 +1,13 @@
 <?
+/**
+ *
+ *
+ * [ToDo]
+ * - scrollbar appear when item detail expanded, width broken.
+ *
+ *
+ *
+ */
 class UsersController extends AppController {
 	
     var $name = 'Users';    
@@ -87,11 +96,12 @@ class UsersController extends AppController {
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
 		/* create sql statement */
+		// todo: timezone convert.
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " accounts.ebayuserid,"
 			. " items.id,"
 			. " items.ItemID,"
-			. " items.ListingDetails_EndTime,"
+			. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
 			. " items.ListingDetails_ViewItemURL,"
 			. " items.Title,"
 			. " items.PictureDetails_PictureURL,"
@@ -113,6 +123,8 @@ class UsersController extends AppController {
 		
 		/* modify result records */
 		foreach ($res as $idx => $row) {
+			
+			$row['items']['ListingDetails_EndTime'] = $row[0]['ListingDetails_EndTime'];
 			
 			$id = $row['items']['id'];
 			$item = $row['items'];
@@ -579,6 +591,24 @@ class UsersController extends AppController {
 		}
 		
 		return $f;
+	}
+
+	function getebaydetails()
+	{
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+		
+		$xmlobj = $this->callapi('GeteBayDetails', $h);
+	}
+	
+	function getcategoryfeatures()
+	{
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+		$h['DetailLevel'] = 'ReturnAll';
+		$h['ViewAllNodes'] = 'true';
+		
+		$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 	}
 	
 	function getcategoryfeatures()
