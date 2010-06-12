@@ -592,12 +592,21 @@ class UsersController extends AppController {
 		
 		return $f;
 	}
+
+	function getebaydetails()
+	{
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+		
+		$xmlobj = $this->callapi('GeteBayDetails', $h);
+	}
 	
 	function getcategoryfeatures()
 	{
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 		$h['DetailLevel'] = 'ReturnAll';
+		$h['ViewAllNodes'] = 'true';
 		
 		$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 	}
