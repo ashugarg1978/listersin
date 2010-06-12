@@ -1,5 +1,4 @@
 
-
 <div id="toolbar">
 <div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>
 
@@ -126,26 +125,25 @@ foreach ($accounts as $accountid => $row) {
 	<table class="detail">
 	<tbody>
 	<tr>
-	  <td width="100">
-		タイトル<br>
-		<input name="Title" type="text" size="60">
+	  <td>
+		Title<br><input name="Title" type="text" size="60">
 	  </td>
 	</tr>
 	<tr>
 	  <td>
-		カテゴリ<br>
+		Category<br>
 		<input name="PrimaryCategory_CategoryName" type="text" size="60">
 	  </td>
 	</tr>
 	<tr>
 	  <td>
-		開始価格<br>
+		Start Price<br>
 		<input name="StartPrice" type="text" size="10">
 	  </td>
 	</tr>
 	<tr>
 	  <td>
-		ListingDuration<br>
+		Listing Duration<br>
 		<input name="ListingDuration" type="text" size="10">
 	  </td>
 	</tr>
