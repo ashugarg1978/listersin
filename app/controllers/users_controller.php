@@ -682,6 +682,49 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function category2()
+	{
+	  $categoryid = $_POST['categoryid'];
+	  $categoryid = 38095;
+	  $parentid = null;
+	  
+	  while (true) {
+		
+		// myself
+		$sql = "SELECT * FROM categories"
+		  . " WHERE id = ".$categoryid;
+		$res = $this->User->query($sql);
+		$row = $res[0]['categories'];
+		$data['level'][$row['level']] = $row['id'];
+		//$data['nodes'][] = $row;
+		$parentid = $row['parentid'];
+		
+		// siblings
+		$sibs = null;
+		if ($row['level'] == 1) {
+		  $sql2 = "SELECT * FROM categories"
+			. " WHERE level = ".$row['level'];
+		} else {
+		  $sql2 = "SELECT * FROM categories"
+			. " WHERE parentid = ".$row['parentid']
+			. " AND level = ".$row['level'];
+		}
+		$res2 = $this->User->query($sql2);
+		foreach ($res2 as $i => $row2) {
+		  $sibs[] = $row2['categories'];
+		}
+		$data['nodes'][$row['level']] = $sibs;
+		
+		// next loop
+		if ($row['level'] == 1) {
+		  break;
+		}
+		$categoryid = $row['parentid'];
+	  }
+	  
+	  print_r($data);exit;
+	}
+	
 	function category()
 	{
 	  

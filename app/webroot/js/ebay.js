@@ -4,7 +4,7 @@ var rowsdata = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
-		items();
+		//items();
 		bindevents();
 		categoryselector(0);
 		$('ul#selling li a:contains("Active")').click();
@@ -101,7 +101,21 @@ function bindevents()
 		//$('#content').css('width', ($(window).width()-50)+'px');
 	});
 	
-	//$().live();
+	$('select.category').live('change', function() {
+		$.post('/users/category/',
+			   'categoryid='+$(this).val(),
+			   function(data){
+				   sel = $('<select class="category"/>');
+				   $.each(data, function(id, row) {
+					   sel.append('<option value="'+row['id']+'">'
+								  + row['name']
+								  + '</option>');
+				   });
+				   $('div#debug').append(sel);
+			   },
+			   'json');
+		
+	});
 	
 	$('ul.tabNav a').live('click', function() {
 		var curIdx = $(this).parent().prevAll().length + 1;
