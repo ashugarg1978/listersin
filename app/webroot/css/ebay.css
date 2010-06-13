@@ -73,12 +73,12 @@ table.items th a {
 
 table.items tr.row1 td {
 	font-size: 10pt;
-	padding: 2px 10px 0px 10px;
+	padding: 2px 10px 2px 10px;
 }
 
 table.items tr.row2 td {
 	font-size: 10pt;
-	padding: 0px 10px 2px 10px;
+	padding: 0px 10px 0px 10px;
 }
 
 table.items td.eimo {
@@ -148,6 +148,7 @@ tbody#rowtemplate {
 
 div.detail {
 	display: none;
+	margin-bottom: 10px;
 }
 
 div#editform {
@@ -207,7 +208,7 @@ span.more {
 ul.tabNav {
 	float: left;
 	list-style: none;
-	margin: 10px 0px 0px 10px;
+	margin: 5px 0px 0px 10px;
 	padding: 0px;
 }
 
@@ -215,28 +216,26 @@ ul.tabNav li {
 	float: left;
 	margin-right: 5px;
 	background: #fafafa;
-	padding: 3px;
+	padding: 3px 5px 3px 5px;
 	border: 1px solid #eeeeee;
 }
 
 ul.tabNav li.current {
-	background-color: #ffffff;
+	background-color: #dddddd;
 	border: 1px solid #999999;
-	border-bottom: 1px solid #ffffff;
 }
 
 div.tabContainer {
 	clear: both;
 	float: left;
-	width: 100%;
-	margin-bottom: 8px;
+	margin-bottom: 10px;
 	margin-top: -1px;
+	border: 1px solid #999999;
+	padding: 10px;
 }
 
 div.tabContainer div.tab {
-	border: 1px solid #999999;
 	display: none;
-	padding: 10px;
 }
 
 div.tabContainer div.current {

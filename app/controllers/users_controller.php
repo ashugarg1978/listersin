@@ -682,9 +682,18 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function category($id=null)
+	function category()
 	{
 	  
+	  $sql = "SELECT * FROM categories"
+		. " WHERE parentid = ".$_POST['categoryid'];
+	  $res = $this->User->query($sql);
+	  foreach ($res as $i => $row) {
+		$rows[] = $row['categories'];
+	  }
+	  
+	  print json_encode($rows);
+	  exit;
 	}
 	
 	function getcategories()

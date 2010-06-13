@@ -1,12 +1,12 @@
 /* store rows data */
-var rowsdata;
+var rowsdata = new Array();
 
 /* initialize */
 $(document).bind({
 	ready: function(event) {
 		items();
 		bindevents();
-		
+		categoryselector(0);
 		$('ul#selling li a:contains("Active")').click();
 	}
 });
@@ -19,12 +19,12 @@ function items()
 		   function(data) {
 			   
 			   paging(data.cnt);
-			   rowsdata = data.res;
 			   
 			   $('tbody:gt(1)', 'table#items').remove();
-			   $.each(data.res, function(id, row) {
+			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
 				   $('#items').append(dom);
+				   rowsdata[row['id']] = row;
 			   });
 			   
 			   resizediv();
@@ -37,7 +37,6 @@ function getrow(row)
 	id = row['id'];
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
-	//$('div.detail', dom).remove();
 	
 	$.each(row, function(colname, colval) {
 		$('.'+colname, dom).html(colval);
@@ -88,9 +87,10 @@ function descriptionframe(id)
 function resizediv()
 {
 	w = $('div#container').width()-179;
-	$('table#items').width(w);
 	$('div#content').width(w);
+	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
+	$('div.tabContainer').width(w-42);
 	return;
 }
 
@@ -100,6 +100,8 @@ function bindevents()
 		resizediv();
 		//$('#content').css('width', ($(window).width()-50)+'px');
 	});
+	
+	//$().live();
 	
 	$('ul.tabNav a').live('click', function() {
 		var curIdx = $(this).parent().prevAll().length + 1;
@@ -190,12 +192,12 @@ function bindevents()
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
-				   rowsdata[id] = data;
-				   dom = getrow(data.res[id]);
-				   detail = getdetail(data.res[id]);
+				   rowsdata[id] = data.res[0];
+				   dom = getrow(data.res[0]);
+				   detail = getdetail(data.res[0]);
 				   detail.css('display', 'block');
-				   $('div.detail', dom).replaceWith(detail);
-				   //$('tbody#'+id).replaceWith(dom);
+				   $('tr.row2 td', dom).html(detail);
+				   $('tbody#'+id).replaceWith(dom);
 			   },
 			   'json');
 	});
@@ -331,4 +333,20 @@ function showbuttons(detail, buttons)
 	$(buttons, detail).show();
 	
 	return;
+}
+
+function categoryselector(categoryid)
+{
+	$.post('/users/category/',
+		   'categoryid=id',
+		   function(data){
+			   sel = $('<select class="category"/>');
+			   $.each(data, function(id, row) {
+				   sel.append('<option value="'+row['id']+'">'
+							  + row['name']
+							  + '</option>');
+			   });
+			   $('#debug').append(sel);
+		   },
+		   'json');
 }
