@@ -32,7 +32,6 @@ div#content {
 table.detail {
     border-spacing: 0px;
     border-collapse: collapse;
-	/* width: 800px; */
 }
 
 table.items {

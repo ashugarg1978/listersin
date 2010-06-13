@@ -21,7 +21,7 @@ function items()
 			   paging(data.cnt);
 			   rowsdata = data.res;
 			   
-			   $('tbody:gt(1)').remove();
+			   $('tbody:gt(1)', 'table#items').remove();
 			   $.each(data.res, function(id, row) {
 				   dom = getrow(row);
 				   $('#items').append(dom);
@@ -161,7 +161,7 @@ function bindevents()
 	
 	$('input:button.edit', 'div.detail').live('click', function() {
 		
-		dom = $('table.detail', '#rowtemplate').clone();
+		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
 		$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
 		
@@ -174,7 +174,7 @@ function bindevents()
 		
 		showbuttons(dom, 'update,cancel');
 		
-		$('div.detail', '#'+id).html(dom);
+		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
 		$('textarea[name=description]', '#'+id).wysiwyg();
 		
@@ -185,7 +185,7 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
-		postdata = $('input:text, textarea', $(this).closest('table')).serialize();
+		postdata = $('input:text, textarea', $(this).closest('div.detail')).serialize();
 		
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
@@ -193,8 +193,9 @@ function bindevents()
 				   rowsdata[id] = data;
 				   dom = getrow(data.res[id]);
 				   detail = getdetail(data.res[id]);
-				   $('div.detail', dom).append(detail).css('display', 'block');
-				   $('tbody#'+id).replaceWith(dom);
+				   detail.css('display', 'block');
+				   $('div.detail', dom).replaceWith(detail);
+				   //$('tbody#'+id).replaceWith(dom);
 			   },
 			   'json');
 	});
@@ -203,8 +204,9 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
 		detail = getdetail(rowsdata[id]);
+		detail.css('display', 'block');
 		showbuttons(detail, 'edit,copy,delete');
-		$('table.detail', '#'+id).replaceWith(detail);
+		$('div.detail', 'tbody#'+id).replaceWith(detail);
 		
 	});
 	

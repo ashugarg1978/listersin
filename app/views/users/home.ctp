@@ -139,9 +139,7 @@ foreach ($accounts as $accountid => $row) {
 </ul>
 	 
 <div class="tabContainer">
-
 <div class="tab current">
-firsttab
 	<table class="detail">
 	<tbody>
 	<tr>
@@ -168,7 +166,6 @@ firsttab
 	  </td>
 	</tr>
 	</table>
-
 </div>
 <div class="tab">
 	<textarea name="description" cols="100" rows="10"></textarea>
@@ -180,19 +177,14 @@ firsttab
 </div>
 </div>
 	 
-<table class="detail">
-<tbody>
-<tr>
-	<td colspan="2" align="center">
-	<input type="button" class="edit"   value="編集する">
-	<input type="button" class="copy"   value="コピーする">
-	<input type="button" class="delete" value="削除する">
-	<input type="button" class="update" value="更新する">
-	<input type="button" class="cancel" value="キャンセル">
-	</td>
-</tr>
-</tbody>
-</table>
+<div style="clear:both;"></div>
+<div style="text-align:center;">
+	<input type="button" class="edit"   value="Edit">
+	<input type="button" class="copy"   value="Copy">
+	<input type="button" class="delete" value="Delete">
+	<input type="button" class="update" value="Update">
+	<input type="button" class="cancel" value="Cancel">
+</div>
 
 </div>
 </div>
