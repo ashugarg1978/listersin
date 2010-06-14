@@ -101,6 +101,7 @@ function bindevents()
 		//$('#content').css('width', ($(window).width()-50)+'px');
 	});
 	
+	// todo: simalteniously modify broken
 	$('select.category').live('change', function() {
 		curelm = this;
 		curidx = $(this).prevAll().length + 1;
@@ -116,7 +117,7 @@ function bindevents()
 				   });
 				   $('select.category:gt('+curidx+')').remove();
 				   $(curelm).after(sel);
-				   $('input[name=PrimaryCategory_CategoryID]', $(curelm).parent()).val(curval);
+				   $('input[name=PrimaryCategory_CategoryID]', $(curelm).closest('td')).val(curval);
 			   },
 			   'json');
 		
@@ -231,7 +232,7 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
-		postdata = $('input:text, textarea', $(this).closest('div.detail')).serialize();
+		postdata = $('input:text, input:hidden, textarea', $(this).closest('div.detail')).serialize();
 		
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,

@@ -607,6 +607,7 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 		$h['DetailLevel'] = 'ReturnAll';
 		$h['ViewAllNodes'] = 'true';
+		$h['CategoryID'] = '146492';
 		
 		$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 	}
@@ -635,6 +636,7 @@ class UsersController extends AppController {
 		}
 		
 		$xmlobj = $this->callapi('GetSellerList', $h);
+		echo '<pre>',print_r($xmlobj,1).'</pre>';
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
@@ -646,9 +648,7 @@ class UsersController extends AppController {
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
-			echo '<pre>';
-			print_r($arr);
-			echo '</pre>';
+			echo '<pre>',print_r($arr,1).'</pre>';
 			
 			/* SELECT */
 			// todo: catch INSERT/UPDATE query result.

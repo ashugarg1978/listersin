@@ -156,7 +156,7 @@ foreach ($accounts as $accountid => $row) {
 	<tr>
 	  <td>
 		CategoryID<br>
-		<input name="PrimaryCategory_CategoryID" type="text" size="60">
+		<input name="PrimaryCategory_CategoryID" type="text" size="10">
 	  </td>
 	</tr>
 	<tr>
