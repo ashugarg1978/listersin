@@ -102,6 +102,9 @@ function bindevents()
 	});
 	
 	$('select.category').live('change', function() {
+		curelm = this;
+		curidx = $(this).prevAll().length + 1;
+		curval = $(this).val();
 		$.post('/users/category/',
 			   'categoryid='+$(this).val(),
 			   function(data){
@@ -111,7 +114,9 @@ function bindevents()
 								  + row['name']
 								  + '</option>');
 				   });
-				   $('div#debug').append(sel);
+				   $('select.category:gt('+curidx+')').remove();
+				   $(curelm).after(sel);
+				   $('input[name=PrimaryCategory_CategoryID]', $(curelm).parent()).val(curval);
 			   },
 			   'json');
 		
@@ -185,7 +190,7 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		$.each(rowsdata[id], function(colname, colval) {
-			$('input[name='+colname+']', dom).val(colval);
+			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
 		showbuttons(dom, 'update,cancel');
@@ -193,6 +198,31 @@ function bindevents()
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
 		$('textarea[name=description]', '#'+id).wysiwyg();
+		
+		// category selector
+		$.post('/users/category2/',
+			   'categoryid='+rowsdata[id]['PrimaryCategory_CategoryID'],
+			   function(data) {
+				   sels = $('<div/>');
+				   $.each(data['level'], function(idx, val) {
+					   sel = $('<select class="category"/>');
+					   $.each(data['nodes'][idx], function(id, row) {
+						   if (row['id'] == val) {
+							   sel.append('<option value="'+row['id']+'" selected="selected">'
+										  + row['name']
+										  + '</option>');
+						   } else {
+							   sel.append('<option value="'+row['id']+'">'
+										  + row['name']
+										  + '</option>');
+						   }
+					   });
+					   
+					   sels.append(sel);
+				   });
+				   $('input[name=PrimaryCategory_CategoryID]', dom).after(sels);
+			   },
+			   'json');
 		
 		return;
 	});
@@ -363,4 +393,8 @@ function categoryselector(categoryid)
 			   $('#debug').append(sel);
 		   },
 		   'json');
+}
+
+function addcatsel(newelm, elm) {
+	alert($(elm).html());
 }

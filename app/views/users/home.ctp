@@ -155,6 +155,12 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td>
+		CategoryID<br>
+		<input name="PrimaryCategory_CategoryID" type="text" size="60">
+	  </td>
+	</tr>
+	<tr>
+	  <td>
 		Start Price<br>
 		<input name="StartPrice" type="text" size="10">
 	  </td>

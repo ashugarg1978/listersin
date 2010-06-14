@@ -685,8 +685,6 @@ class UsersController extends AppController {
 	function category2()
 	{
 	  $categoryid = $_POST['categoryid'];
-	  $categoryid = 38095;
-	  $parentid = null;
 	  
 	  while (true) {
 		
@@ -721,8 +719,10 @@ class UsersController extends AppController {
 		}
 		$categoryid = $row['parentid'];
 	  }
+	  ksort($data['level']);
 	  
-	  print_r($data);exit;
+	  print json_encode($data);
+	  exit;
 	}
 	
 	function category()
@@ -735,6 +735,7 @@ class UsersController extends AppController {
 		$rows[] = $row['categories'];
 	  }
 	  
+	  error_log("::".json_encode($rows));
 	  print json_encode($rows);
 	  exit;
 	}
