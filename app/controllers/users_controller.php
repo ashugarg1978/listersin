@@ -360,6 +360,7 @@ class UsersController extends AppController {
 	
 	function xml2arr($xml, &$arr, $path)
 	{
+	  error_log(print_r($xml->attributes(),1));
 		foreach ($xml->children() as $child) {
 			if (count($child->children())) {
 				if ($path) {
@@ -369,10 +370,21 @@ class UsersController extends AppController {
 				}
 			} else {
 				if ($path) {
-					$arr[$path.".".$child->getName()] = $child.'';
+				  $newpath = $path.".".$child->getName();
 				} else {
-					$arr[$child->getName()] = $child.'';
+				  $newpath = $child->getName();
 				}
+				
+				if (isset($arr[$newpath])) {
+				  if (!is_array($arr[$newpath])) {
+					$org = $arr[$newpath];
+					$arr[$newpath] = array($org);
+				  }
+				  $arr[$newpath][] = $child.'';
+				} else {
+				  $arr[$newpath] = $child.'';
+				}
+				  
 			}
 		}
 	}
@@ -609,7 +621,15 @@ class UsersController extends AppController {
 		$h['ViewAllNodes'] = 'true';
 		$h['CategoryID'] = '146492';
 		
-		$xmlobj = $this->callapi('GetCategoryFeatures', $h);
+		
+		$xml_response = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/0615211732.GetCategoryFeatures.response.xml');
+		$xmlobj = simplexml_load_string($xml_response);
+		//$xmlobj = $this->callapi('GetCategoryFeatures', $h);
+		
+		$this->xml2arr($xmlobj, $arr, '');
+		
+		echo '<pre>'.print_r($xmlobj).'</pre>';
+		echo '<pre>'.print_r($arr).'</pre>';exit;
 	}
 	
 	// todo: authorize login user or daemon process
