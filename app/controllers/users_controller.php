@@ -619,17 +619,22 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 		$h['DetailLevel'] = 'ReturnAll';
 		$h['ViewAllNodes'] = 'true';
-		$h['CategoryID'] = '146492';
+		//$h['CategoryID'] = '146492';
 		
 		
-		$xml_response = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/0615211732.GetCategoryFeatures.response.xml');
+		$xml_response = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
 		$xmlobj = simplexml_load_string($xml_response);
 		//$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 		
-		$this->xml2arr($xmlobj, $arr, '');
+		//$this->xml2arr($xmlobj, $arr, '');
 		
-		echo '<pre>'.print_r($xmlobj).'</pre>';
-		echo '<pre>'.print_r($arr).'</pre>';exit;
+		$ns = $xmlobj->getDocNamespaces();
+		print_r($ns);
+		echo '<pre>';
+		print_r($xmlobj->xpath("/GetCategoryFeaturesResponse[namespace(.)='urn:ebay:apis:eBLBaseComponents']"));
+		echo '</pre>';
+		//echo '<pre>'.print_r($arr).'</pre>';
+		exit;
 	}
 	
 	// todo: authorize login user or daemon process
