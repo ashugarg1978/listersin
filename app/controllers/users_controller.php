@@ -629,9 +629,10 @@ class UsersController extends AppController {
 		//$this->xml2arr($xmlobj, $arr, '');
 		
 		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		print_r($ns);
 		echo '<pre>';
-		print_r($xmlobj->xpath("/GetCategoryFeaturesResponse[namespace(.)='urn:ebay:apis:eBLBaseComponents']"));
+		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category"));
 		echo '</pre>';
 		//echo '<pre>'.print_r($arr).'</pre>';
 		exit;
