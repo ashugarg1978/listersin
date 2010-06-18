@@ -110,7 +110,7 @@ function bindevents()
 			   'categoryid='+$(this).val(),
 			   function(data){
 				   sel = $('<select class="category"/>');
-				   $.each(data, function(id, row) {
+				   $.each(data['categories'], function(id, row) {
 					   sel.append('<option value="'+row['id']+'">'
 								  + row['name']
 								  + '</option>');

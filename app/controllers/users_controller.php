@@ -613,14 +613,14 @@ class UsersController extends AppController {
 		$xmlobj = $this->callapi('GeteBayDetails', $h);
 	}
 	
-	function getcategoryfeatures()
+	function getcategoryfeatures($categoryid=null)
 	{
+	  echo $categoryid; exit;
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 		$h['DetailLevel'] = 'ReturnAll';
 		$h['ViewAllNodes'] = 'true';
 		//$h['CategoryID'] = '146492';
-		
 		
 		$xml_response = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
 		$xmlobj = simplexml_load_string($xml_response);
@@ -630,9 +630,12 @@ class UsersController extends AppController {
 		
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		print_r($ns);
+		
 		echo '<pre>';
-		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category"));
+		//print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=19068]"));
+		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults"));
+		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions"));
+		//print_r($xmlobj);
 		echo '</pre>';
 		//echo '<pre>'.print_r($arr).'</pre>';
 		exit;
@@ -753,7 +756,7 @@ class UsersController extends AppController {
 	
 	function category()
 	{
-	  
+	  /* child categories */
 	  $sql = "SELECT * FROM categories"
 		. " WHERE parentid = ".$_POST['categoryid'];
 	  $res = $this->User->query($sql);
@@ -761,8 +764,22 @@ class UsersController extends AppController {
 		$rows[] = $row['categories'];
 	  }
 	  
-	  error_log("::".json_encode($rows));
-	  print json_encode($rows);
+	  
+	  /* category features */
+	  $xml_response = file_get_contents
+		('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+	  $xmlobj = simplexml_load_string($xml_response);
+	  $ns = $xmlobj->getDocNamespaces();
+	  $xmlobj->registerXPathNamespace('ns', $ns['']);
+	  $sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
+	  $data['sd'] = $sd;
+	  //error_log(print_r($sd,1));
+	  
+	  
+	  /* response */
+	  $data['categories'] = $rows;
+	  error_log(print_r(json_encode($data),1));
+	  print json_encode($data);
 	  exit;
 	}
 	
