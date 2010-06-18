@@ -109,6 +109,9 @@ function bindevents()
 		$.post('/users/category/',
 			   'categoryid='+$(this).val(),
 			   function(data){
+
+				   $('input:text[name=ListingDuration]').after($.dump(data['sd']['ListingDuration']));
+				   
 				   sel = $('<select class="category"/>');
 				   $.each(data['categories'], function(id, row) {
 					   sel.append('<option value="'+row['id']+'">'

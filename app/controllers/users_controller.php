@@ -615,16 +615,19 @@ class UsersController extends AppController {
 	
 	function getcategoryfeatures($categoryid=null)
 	{
-	  echo $categoryid; exit;
-		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
-		$h['DetailLevel'] = 'ReturnAll';
-		$h['ViewAllNodes'] = 'true';
-		//$h['CategoryID'] = '146492';
+		if (false) {
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+			$h['DetailLevel'] = 'ReturnAll';
+			$h['ViewAllNodes'] = 'true';
+			$h['CategoryID'] = '45111';
+			$xmlobj = $this->callapi('GetCategoryFeatures', $h);
+		}
 		
-		$xml_response = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
-		$xmlobj = simplexml_load_string($xml_response);
-		//$xmlobj = $this->callapi('GetCategoryFeatures', $h);
+		if (true) {
+			$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+			$xmlobj = simplexml_load_string($tmp);
+		}
 		
 		//$this->xml2arr($xmlobj, $arr, '');
 		
@@ -633,13 +636,83 @@ class UsersController extends AppController {
 		
 		echo '<pre>';
 		//print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=19068]"));
-		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults"));
-		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions"));
+		$fd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions/ns:ListingDurations/ns:ListingDuration");
+		echo '<pre>'.print_r($fd,1).'</pre>';
+		foreach ($fd as $i => $o) {
+			
+			$o->registerXPathNamespace('ns', $ns['']);
+			
+			$attr = $o->attributes();
+			$setid = $attr['durationSetID'];
+			
+			$dur = $o->children($ns['']);
+			
+			$a = null;
+			foreach ($dur as $j => $v) {
+				$a[] = $v.'';
+			}
+			
+			echo $setid.' : '.print_r($a,1).'<br>';
+		}
+		
+		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults/ns:ListingDuration");
+		echo '<pre>'.print_r($ld,1).'</pre>';
+		
+		foreach ($ld as $i => $o) {
+			$attr = $o->attributes();
+			$t = $attr['type'];
+			echo $t.' : '.$o.'<br>';
+		}
+		
+		//print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions"));
 		//print_r($xmlobj);
 		echo '</pre>';
 		//echo '<pre>'.print_r($arr).'</pre>';
 		exit;
 	}
+	
+	function getListingDuration()
+	{
+		$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+		$xmlobj = simplexml_load_string($tmp);
+		
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		$fd = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+							 . '/ns:FeatureDefinitions'
+							 . '/ns:ListingDurations'
+							 . '/ns:ListingDuration');
+		foreach ($fd as $i => $o) {
+			
+			$o->registerXPathNamespace('ns', $ns['']);
+			
+			$attr = $o->attributes();
+			$setid = $attr['durationSetID'].'';
+			
+			$dur = $o->children($ns['']);
+			
+			$a = null;
+			foreach ($dur as $j => $v) {
+				$a[] = $v.'';
+			}
+			
+			$durmap[$setid] = $a;
+		}
+		
+		$ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+							 . '/ns:SiteDefaults'
+							 . '/ns:ListingDuration');
+		foreach ($ld as $i => $o) {
+			$attr = $o->attributes();
+			$t = $attr['type'].'';
+			$data[$t] = $durmap[$o.''];
+		}
+		
+		echo '<pre>'.print_r($data,1).'</pre>';
+		exit;
+	}
+	
 	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)

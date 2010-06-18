@@ -167,6 +167,18 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td>
+		Quantity<br>
+		<input name="Quantity" type="text" size="5">
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+		Listing Type<br>
+		<input name="ListingType" type="text" size="20">
+	  </td>
+	</tr>
+	<tr>
+	  <td>
 		Listing Duration<br>
 		<input name="ListingDuration" type="text" size="10">
 	  </td>
