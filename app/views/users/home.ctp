@@ -140,58 +140,52 @@ foreach ($accounts as $accountid => $row) {
 	 
 <div class="tabContainer">
 <div class="tab current">
-	<table class="detail">
-	<tbody>
+<table class="detail">
+  <tbody>
 	<tr>
+	  <td>Title</td>
+	  <td><input name="Title" type="text" size="60"></td>
+	</tr>
+	<tr>
+	  <td>Category</td>
+	  <td><input name="PrimaryCategory_CategoryID" type="text" size="10"></td>
+	</tr>
+	<tr>
+	  <td>Start Price</td>
+	  <td><input name="StartPrice" type="text" size="10"></td>
+	</tr>
+	<tr>
+	  <td>Quantity</td>
+	  <td><input name="Quantity" type="text" size="5"></td>
+	</tr>
+	<tr>
+	  <td>Listing Type</td>
 	  <td>
-		Title<br><input name="Title" type="text" size="60">
+		<select name="ListingType">
+		<option value="">-</option>  
+		<option value="Chinese">Online Auction</option>  
+		<option value="FixedPriceItem">Fixed Price</option>
+		</select>
 	  </td>
 	</tr>
 	<tr>
-	  <td>
-		Category<br>
-		<input name="PrimaryCategory_CategoryName" type="text" size="60">
-	  </td>
+	  <td>Listing Duration</td>
+	  <td><input name="ListingDuration" type="text" size="10"></td>
 	</tr>
-	<tr>
-	  <td>
-		CategoryID<br>
-		<input name="PrimaryCategory_CategoryID" type="text" size="10">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		Start Price<br>
-		<input name="StartPrice" type="text" size="10">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		Quantity<br>
-		<input name="Quantity" type="text" size="5">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		Listing Type<br>
-		<input name="ListingType" type="text" size="20">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		Listing Duration<br>
-		<input name="ListingDuration" type="text" size="10">
-	  </td>
-	</tr>
-	</table>
+  </tbody>
+</table>
 </div>
 <div class="tab">
+  <div class="description">
 	<textarea name="description" cols="100" rows="10"></textarea>
 	<a class="wysiwyg">RTE</a>
+  </div>
 </div>
 <div class="tab">
+  <div class="pictures">
 	<img class="PictureDetails_PictureURL"><br>
 	<input type="file" name="PictureDetails_PictureURL">
+  </div>
 </div>
 </div>
 	 

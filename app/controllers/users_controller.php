@@ -635,7 +635,7 @@ class UsersController extends AppController {
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
 		echo '<pre>';
-		//print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=19068]"));
+		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$categoryid."]"));
 		$fd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions/ns:ListingDurations/ns:ListingDuration");
 		echo '<pre>'.print_r($fd,1).'</pre>';
 		foreach ($fd as $i => $o) {
@@ -728,8 +728,8 @@ class UsersController extends AppController {
 		  $h = null;
 		  $h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		  //$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
-		  $h['DetailLevel'] = 'ItemReturnDescription';
-		  //$h['DetailLevel'] = 'ReturnAll';
+		  //$h['DetailLevel'] = 'ItemReturnDescription';
+		  $h['DetailLevel'] = 'ReturnAll';
 		  $h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		  $h['StartTimeTo']   = date('Y-m-d H:i:s');
 		  $h['Pagination']['EntriesPerPage'] = 200;

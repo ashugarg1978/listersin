@@ -59,6 +59,9 @@ function getdetail(row)
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=description]', detail).replaceWith(iframe);
 	
+	tmpv = $('select[name=ListingType] > option[value='+row['ListingType']+']', detail).text();
+	$('select[name=ListingType]', detail).replaceWith(tmpv);
+	
 	$('input:file', detail).remove();
 	
 	$.each(row, function(colname, colval) {
@@ -192,12 +195,15 @@ function bindevents()
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		
+		$('select[name=ListingType]', dom).val(rowsdata[id]['ListingType']);
+		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
 		showbuttons(dom, 'update,cancel');
+		
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
@@ -235,7 +241,8 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
-		postdata = $('input:text, input:hidden, textarea', $(this).closest('div.detail')).serialize();
+		postdata = $('input:text, input:hidden, select, textarea',
+					 $(this).closest('div.detail')).serialize();
 		
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
