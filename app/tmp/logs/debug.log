@@ -856,3 +856,4 @@
 2010-06-18 07:47:35 Notice: Notice (8): Undefined variable: rows in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 767]
 2010-06-18 07:47:35 Notice: Notice (8): Undefined variable: rows in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 768]
 2010-06-19 00:03:33 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]
+2010-06-19 11:49:40 Notice: Notice (8): Undefined variable: items in [/var/www/dev.xboo.st/app/controllers/users_controller.php, line 155]

@@ -104,6 +104,15 @@ function bindevents()
 		//$('#content').css('width', ($(window).width()-50)+'px');
 	});
 	
+    $('input:file').live('change', function() {
+	
+	frm = $('<form id="frm" method="post" action="/users/upload"'
+		+ ' target="posttarget" enctype="multipart/form-data"/>');
+	$(this).wrap(frm);
+	$('form#frm').submit();
+    });
+    
+    
 	// todo: simalteniously modify broken
 	$('select.category').live('change', function() {
 		curelm = this;

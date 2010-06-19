@@ -23,7 +23,7 @@ eBay Accounts<br>
 <ul class="accounts">
 <?
 foreach ($accounts as $accountid => $row) {
-	echo '<li><span class="more">▼</span>'.$row['ebayuserid'].'</li>';
+	echo '<li><span class="more">- </span>'.$row['ebayuserid'].'</li>';
 }
 ?>
 </ul>
@@ -32,6 +32,7 @@ foreach ($accounts as $accountid => $row) {
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
+<iframe name="posttarget" width="130" height="100"></iframe>
 <div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;"></div>
 
 </div>
@@ -145,6 +146,10 @@ foreach ($accounts as $accountid => $row) {
 	<tr>
 	  <td>Title</td>
 	  <td><input name="Title" type="text" size="60"></td>
+	</tr>
+	<tr>
+	  <td>SubTitle</td>
+	  <td><input name="SubTitle" type="text" size="60"></td>
 	</tr>
 	<tr>
 	  <td>Category</td>

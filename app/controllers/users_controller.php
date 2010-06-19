@@ -171,6 +171,15 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function upload()
+	{
+	  echo '<pre>';
+	  print_r($_POST);
+	  print_r($_FILES);
+	  echo '</pre>';
+	  exit;
+	}
+	
 	function description($id)
 	{
 		//$id = $_POST['itemid'];
@@ -952,11 +961,18 @@ class UsersController extends AppController {
 		$this->r->setUrl($url);
 		$this->r->setRawPostData($postdata);
 
-		try {
-		  $this->r->send();
-		} catch (HttpException $ex) {
-		  echo '<pre>'.print_r($ex,1).'</pre>';
-			exit;
+		$trycount = 0;
+
+		while ($trycount < 5) {
+		  try {
+		    $this->r->send();
+		  } catch (HttpException $ex) {
+		    sleep(5);
+		    $trycount++;
+		    error_log($trycount.':'.$url);
+		    continue;
+		  }
+		  break;
 		}
 		
 		$html = $this->r->getResponseBody();

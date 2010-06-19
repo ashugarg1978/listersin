@@ -1,3 +1,5 @@
+ALTER TABLE items ADD SubTitle varchar(55);
+
 ALTER TABLE items ADD SellingStatus_QuantitySold int;
 
 ALTER TABLE items DROP TimeLeft;
