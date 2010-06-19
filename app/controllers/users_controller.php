@@ -724,24 +724,32 @@ class UsersController extends AppController {
 		
 		$colnames = $this->getitemcols();
 		
-		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
-		$h['DetailLevel'] = 'ItemReturnDescription';
-		//$h['DetailLevel'] = 'ReturnAll';
-		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
-		$h['StartTimeTo']   = date('Y-m-d H:i:s');
-		$h['Pagination']['EntriesPerPage'] = 200;
-		$h['Sort'] = 1;
-		if ($userid) {
+		if (true) {
+		  $h = null;
+		  $h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+		  //$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
+		  $h['DetailLevel'] = 'ItemReturnDescription';
+		  //$h['DetailLevel'] = 'ReturnAll';
+		  $h['StartTimeFrom'] = '2010-04-01 00:00:00';
+		  $h['StartTimeTo']   = date('Y-m-d H:i:s');
+		  $h['Pagination']['EntriesPerPage'] = 200;
+		  $h['Sort'] = 1;
+		  if ($userid) {
 			$h['UserID'] = $userid;
+		  }
+		  
+		  $xmlobj = $this->callapi('GetSellerList', $h);
+		} else {
+		  $xml_response = file_get_contents
+			('/var/www/dev.xboo.st/app/tmp/apilogs/'
+			 . '0618235436.GetSellerList.response.xml');
+		  $xmlobj = simplexml_load_string($xml_response);
 		}
-		
-		$xmlobj = $this->callapi('GetSellerList', $h);
 		echo '<pre>',print_r($xmlobj,1).'</pre>';
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
+			$arr = null;
 			$this->xml2arr($o, $arr, '');
 			foreach ($arr as $c => $v) {
 				$c = str_replace('.','_',$c);
@@ -847,7 +855,7 @@ class UsersController extends AppController {
 	  $sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
 	  $data['sd'] = $sd;
 	  //error_log(print_r($sd,1));
-	  
+	  $data['ld'] = $this->getListingDuration();
 	  
 	  /* response */
 	  $data['categories'] = $rows;
@@ -943,7 +951,13 @@ class UsersController extends AppController {
 		$this->r->setOptions(array('timeout' => '60'));
 		$this->r->setUrl($url);
 		$this->r->setRawPostData($postdata);
-		$this->r->send();
+
+		try {
+		  $this->r->send();
+		} catch (HttpException $ex) {
+		  echo '<pre>'.print_r($ex,1).'</pre>';
+			exit;
+		}
 		
 		$html = $this->r->getResponseBody();
 		
