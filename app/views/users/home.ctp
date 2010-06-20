@@ -188,8 +188,24 @@ foreach ($accounts as $accountid => $row) {
 </div>
 <div class="tab">
   <div class="pictures">
-	<img class="PictureDetails_PictureURL"><br>
-	<input type="file" name="PictureDetails_PictureURL">
+
+	<form method="post" action="/users/upload" target="posttarget" enctype="multipart/form-data">
+	<table>
+	<tr><?
+	for ($i=1; $i<=12; $i++) {
+		 echo '<td>';
+		 echo '<div class="picdiv">';
+		 echo '<img class="PictureDetails_PictureURL PD_PURL_'.$i.'" src="/img/noimage.jpg">';
+		 echo '</div>';
+		 echo '<input type="file" name="PictureDetails_PictureURL" size="5">';
+		 echo '</td>';
+		 
+		 if ($i == 6) echo '</tr><tr>';
+	}
+	?></tr>
+	</table>
+	</form>
+	
   </div>
 </div>
 </div>

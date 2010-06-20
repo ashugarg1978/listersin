@@ -54,7 +54,9 @@ function getdetail(row)
 	id = row['id'];
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	
-	$('img.PictureDetails_PictureURL', detail).attr('src', row['PictureDetails_PictureURL']);
+	$.each(row['PictureDetails_PictureURL'], function(i, url) {
+		$('img.PD_PURL_'+(i+1), detail).attr('src', url);
+	});
 	
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=description]', detail).replaceWith(iframe);
@@ -105,13 +107,8 @@ function bindevents()
 	});
 	
     $('input:file').live('change', function() {
-	
-	frm = $('<form id="frm" method="post" action="/users/upload"'
-		+ ' target="posttarget" enctype="multipart/form-data"/>');
-	$(this).wrap(frm);
-	$('form#frm').submit();
+		$(this).closest('form').submit();
     });
-    
     
 	// todo: simalteniously modify broken
 	$('select.category').live('change', function() {
@@ -417,4 +414,9 @@ function categoryselector(categoryid)
 
 function addcatsel(newelm, elm) {
 	alert($(elm).html());
+}
+
+function dump(o)
+{
+	$('div#debug').html($.dump(o));
 }

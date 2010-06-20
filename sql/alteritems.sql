@@ -1,3 +1,5 @@
+ALTER TABLE items MODIFY PictureDetails_PictureURL text;
+
 ALTER TABLE items ADD SubTitle varchar(55);
 
 ALTER TABLE items ADD SellingStatus_QuantitySold int;

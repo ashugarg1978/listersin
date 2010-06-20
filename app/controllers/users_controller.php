@@ -166,6 +166,9 @@ class UsersController extends AppController {
 		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
 		$res = $this->User->query($sql);
 		
+		$res[0]['items']['PictureDetails_PictureURL'] =
+			explode("\n", $res[0]['items']['PictureDetails_PictureURL']);
+		
 		print json_encode($res[0]['items']);
 		
 		exit;
@@ -759,11 +762,18 @@ class UsersController extends AppController {
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
 			$arr = null;
+			$i = null;
 			$this->xml2arr($o, $arr, '');
 			foreach ($arr as $c => $v) {
 				$c = str_replace('.','_',$c);
 				if (isset($colnames[$c])) {
+					
 					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
+					
+					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
+						$v = implode("\n", $v);
+					}
+					
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
