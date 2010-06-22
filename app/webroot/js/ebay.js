@@ -111,6 +111,7 @@ function bindevents()
 	
     $('input:file').live('change', function() {
 		$(this).closest('form').submit();
+		$(this).closest('form')[0].reset();
     });
     
 	// todo: simalteniously modify broken
@@ -201,11 +202,13 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
-		//$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
 		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
 			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
-			$('input:file[name=PD_PURL_'+(i+1)+']', dom).attr('name', 'PD_PURL_'+id+'_'+(i+1));
 		});
+		for (i=1; i<=12; i++) {
+			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
+			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
+		}
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		

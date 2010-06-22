@@ -174,17 +174,43 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	// todo: various error check
 	function upload()
 	{
-	  echo '<pre>';
-	  print_r($_POST);
-	  print_r($_FILES);
-	  echo '</pre>';
-
-	  if (isset($_FILES)) {
-	    
-	  }
-	  exit;
+		if (isset($_FILES) && is_array($_FILES)) {
+			foreach ($_FILES as $fname => $arr) {
+				if ($arr['error'] != 0) continue;
+				
+				preg_match('/_([\d]+)_([\d]+)$/', $fname, $matches);
+				$id  = $matches[1];
+				$num = $matches[2];
+				
+				preg_match('/([^\.]+)$/', $arr['name'], $matches);
+				$ext = $matches[1];
+				$savename = $fname.'_'.date('YmdHis').'.'.$ext;
+				
+				move_uploaded_file($arr['tmp_name'], ROOT.'/app/webroot/itemimg/'.$savename);
+				
+				$sql = "SELECT PictureDetails_PictureURL FROM items WHERE id = ".$id;
+				$res = $this->User->query($sql);
+				$arrurl = explode("\n", $res[0]['items']['PictureDetails_PictureURL']);
+				$arrurl[$num-1] = 'http://localhost/itemimg/'.$savename;
+				$sql = "UPDATE items"
+					. " SET PictureDetails_PictureURL"
+					. " = '".mysql_real_escape_string(implode("\n", $arrurl))."'"
+					. " WHERE id = ".$id;
+				$res = $this->User->query($sql);
+				
+				error_log($fname);
+				error_log(print_r($arr,1));
+				
+				$this->set('id', $id);
+				$this->set('arrurl', $arrurl);
+			}
+		}
+		
+		$this->layout = null;
+		
 	}
 	
 	function description($id)

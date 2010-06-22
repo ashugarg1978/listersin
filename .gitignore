@@ -3,4 +3,5 @@
 
 app/config/database.php
 app/tmp
+app/webroot/itemimg
 logs
