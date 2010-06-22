@@ -57,12 +57,12 @@ function getdetail(row)
 	id = row['id'];
 	detail = $('div.detail', 'div#detailtemplate').clone();
     
-	    // preserve selected tab
-	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	    tabnum = tab.parent().prevAll().length + 1;
-	    $('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
-	    $('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
-	    $('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
+	// preserve selected tab
+	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	tabnum = tab.parent().prevAll().length + 1;
+	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
 	
 	$.each(row['PictureDetails_PictureURL'], function(i, url) {
 		$('img.PD_PURL_'+(i+1), detail).attr('src', url);
@@ -123,24 +123,33 @@ function bindevents()
     
 	// todo: simalteniously modify broken
 	$('select.category').live('change', function() {
+		
 		curelm = this;
-		curidx = $(this).prevAll().length + 1;
-		curval = $(this).val();
 		$.post('/users/category/',
 			   'categoryid='+$(this).val(),
-			   function(data){
+			   function(data) {
+				   
+				   $(curelm).nextAll('select').remove();
+				   if ($.isEmptyObject(data)) {
+					   
+					   
+				   } else {
+					   
+					   sel = $('<select class="category"/>');
+					   opt = $('<option/>').val('').text('');
+					   sel.append(opt);
+					   $.each(data['categories'], function(id, row) {
+						   opt = $('<option/>').val(row['id']).text(row['name']);
+						   sel.append(opt);
+					   });
+					   $(curelm).after(sel);
+				   }
 
+				   $('select.category', $(curelm).parent()).attr('name', '');
+				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
+				   
 				   $('input:text[name=ListingDuration]').after($.dump(data['sd']['ListingDuration']));
 				   
-				   sel = $('<select class="category"/>');
-				   $.each(data['categories'], function(id, row) {
-					   sel.append('<option value="'+row['id']+'">'
-								  + row['name']
-								  + '</option>');
-				   });
-				   $('select.category:gt('+curidx+')').remove();
-				   $(curelm).after(sel);
-				   $('input[name=PrimaryCategory_CategoryID]', $(curelm).closest('td')).val(curval);
 			   },
 			   'json');
 		
@@ -209,13 +218,14 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 
-	    // preserve selected tab
+	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
 	    tabnum = tab.parent().prevAll().length + 1;
 	    $('.tabNav', dom).children('li:nth-child('+tabnum+')').addClass('current');
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
+		/* replace form values */
 		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
 			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
 		});
@@ -225,33 +235,32 @@ function bindevents()
 		}
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
-		
-		$('select[name=ListingType]', dom).val(rowsdata[id]['ListingType']);
+		$('select[name=ListingType]',   dom).val(rowsdata[id]['ListingType']);
 		
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
-		showbuttons(dom, 'update,cancel');
-		
-		// category selector
+		/* category selector */
 		pathdata = rowsdata[id]['categorypath'];
-		sels = $('<div/>');
 		$.each(pathdata['level'], function(idx, val) {
 		    sel = $('<select class="category"/>');
 		    $.each(pathdata['nodes'][idx], function(id, row) {
-			opt = $('<option/>').val(row['id']).text(row['name']);
-			if (row['id'] == val) opt.attr('selected', 'selected');
-			sel.append(opt);
+				opt = $('<option/>').val(row['id']).text(row['name']);
+				if (row['id'] == val) opt.attr('selected', 'selected');
+				sel.append(opt);
 		    });
-		    sels.append(sel);
+			//if (idx > 1) $('td.category', dom).append(' &gt; ');
+			$('td.category', dom).append(sel);
 		});
-		$('input[name=PrimaryCategory_CategoryID]', dom).after(sels);
+		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
+		
+		
+		showbuttons(dom, 'update,cancel');
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
 		$('textarea[name=description]', '#'+id).wysiwyg();
-		
 		
 		return;
 	});
@@ -260,6 +269,11 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
+		// todo: varidation check
+		if ($('select[name=PrimaryCategory_CategoryID]', $(this).closest('div.detail')).val() == '') {
+			alert('category error.');
+			return false;
+		}
 		postdata = $('input:text, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
 		
@@ -407,26 +421,6 @@ function showbuttons(detail, buttons)
 	$(buttons, detail).show();
 	
 	return;
-}
-
-function categoryselector(categoryid)
-{
-	$.post('/users/category/',
-		   'categoryid=id',
-		   function(data){
-			   sel = $('<select class="category"/>');
-			   $.each(data, function(id, row) {
-				   sel.append('<option value="'+row['id']+'">'
-							  + row['name']
-							  + '</option>');
-			   });
-			   $('#debug').append(sel);
-		   },
-		   'json');
-}
-
-function addcatsel(newelm, elm) {
-	alert($(elm).html());
 }
 
 function dump(o)

@@ -35,7 +35,7 @@ class UsersController extends AppController {
 		}
 		$this->set('accounts', $this->accounts);
 		
-		error_log($this->action.':'.print_r($_POST,1));
+		error_log($this->action.':POST:'.print_r($_POST,1));
     }	
 	
 	function index()
@@ -172,8 +172,10 @@ class UsersController extends AppController {
 		$data = $res[0]['items'];
 		
 		// todo: avoid infinite loop
-		$data['categorypath'] =
-		  $this->categorypath($res[0]['items']['PrimaryCategory_CategoryID']);
+		if ($res[0]['items']['PrimaryCategory_CategoryID'] > 0) {
+			$data['categorypath'] =
+				$this->categorypath($res[0]['items']['PrimaryCategory_CategoryID']);
+		}
 		
 		error_log(print_r($data,1));
 		print json_encode($data);
@@ -758,6 +760,7 @@ class UsersController extends AppController {
 			$data[$t] = $durmap[$o.''];
 		}
 		
+		return $data;
 		echo '<pre>'.print_r($data,1).'</pre>';
 		exit;
 	}
@@ -887,31 +890,34 @@ class UsersController extends AppController {
 	
 	function category()
 	{
-	  /* child categories */
-	  $sql = "SELECT * FROM categories"
-		. " WHERE parentid = ".$_POST['categoryid'];
-	  $res = $this->User->query($sql);
-	  foreach ($res as $i => $row) {
-		$rows[] = $row['categories'];
-	  }
-	  
-	  
-	  /* category features */
-	  $xml_response = file_get_contents
-		('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
-	  $xmlobj = simplexml_load_string($xml_response);
-	  $ns = $xmlobj->getDocNamespaces();
-	  $xmlobj->registerXPathNamespace('ns', $ns['']);
-	  $sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
-	  $data['sd'] = $sd;
-	  //error_log(print_r($sd,1));
-	  $data['ld'] = $this->getListingDuration();
-	  
-	  /* response */
-	  $data['categories'] = $rows;
-	  error_log(print_r(json_encode($data),1));
-	  print json_encode($data);
-	  exit;
+		/* child categories */
+		$sql = "SELECT * FROM categories"
+			. " WHERE parentid = ".$_POST['categoryid']
+			. " AND id != ".$_POST['categoryid'];
+		$res = $this->User->query($sql);
+		if (count($res) == 0) {
+			print json_encode('');
+			exit;
+		}
+		foreach ($res as $i => $row) {
+			$rows[] = $row['categories'];
+		}
+		
+		/* category features */
+		$xml_response = file_get_contents
+			('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+		$xmlobj = simplexml_load_string($xml_response);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		$sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
+		$data['sd'] = $sd;
+		$data['ld'] = $this->getListingDuration();
+		
+		/* response */
+		$data['categories'] = $rows;
+		error_log(print_r(json_encode($data['categories']),1));
+		print json_encode($data);
+		exit;
 	}
 	
 	function getcategories()
