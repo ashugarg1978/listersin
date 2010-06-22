@@ -4,10 +4,13 @@ var rowsdata = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
-		//items();
 		bindevents();
-		categoryselector(0);
 		$('ul#selling li a:contains("Active")').click();
+		
+		/* auto click for debug */
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
 
@@ -197,7 +200,10 @@ function bindevents()
 		
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
-		$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
+		//$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
+		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
+			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
+		});
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		
