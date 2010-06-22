@@ -198,18 +198,19 @@ function bindevents()
 	
 	$('input:button.edit', 'div.detail').live('click', function() {
 		
+		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
 		//$('img.PictureDetails_PictureURL', dom).attr('src', rowsdata[id]['PictureDetails_PictureURL']);
 		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
 			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
+			$('input:file[name=PD_PURL_'+(i+1)+']', dom).attr('name', 'PD_PURL_'+id+'_'+(i+1));
 		});
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		
 		$('select[name=ListingType]', dom).val(rowsdata[id]['ListingType']);
 		
-		id = $(this).closest('tbody.itemrow').attr('id');
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});

@@ -197,7 +197,7 @@ foreach ($accounts as $accountid => $row) {
 		 echo '<div class="picdiv">';
 		 echo '<img class="PictureDetails_PictureURL PD_PURL_'.$i.'" src="/img/noimage.jpg">';
 		 echo '</div>';
-		 echo '<input type="file" name="PictureDetails_PictureURL" size="5">';
+		 echo '<input type="file" name="PD_PURL_'.$i.'" size="5">';
 		 echo '</td>';
 		 
 		 if ($i == 6) echo '</tr><tr>';
