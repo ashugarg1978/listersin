@@ -32,7 +32,7 @@ foreach ($accounts as $accountid => $row) {
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
-<iframe name="posttarget" width="130" height="100"></iframe>
+<iframe name="posttarget" width="130" height="100" src="/blank.html" style="display:none;"></iframe>
 <div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;"></div>
 
 </div>
@@ -134,13 +134,13 @@ foreach ($accounts as $accountid => $row) {
 <div class="detail">
 	
 <ul class="tabNav">
-<li class="current"><a href="#">Detail</a></li>
+<li><a href="#">Detail</a></li>
 <li><a href="#">Description</a></li>
 <li><a href="#">Pictures</a></li>
 </ul>
 	 
 <div class="tabContainer">
-<div class="tab current">
+<div class="tab">
 <table class="detail">
   <tbody>
 	<tr>

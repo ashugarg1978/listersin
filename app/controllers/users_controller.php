@@ -169,7 +169,14 @@ class UsersController extends AppController {
 		$res[0]['items']['PictureDetails_PictureURL'] =
 			explode("\n", $res[0]['items']['PictureDetails_PictureURL']);
 		
-		print json_encode($res[0]['items']);
+		$data = $res[0]['items'];
+		
+		// todo: avoid infinite loop
+		$data['categorypath'] =
+		  $this->categorypath($res[0]['items']['PrimaryCategory_CategoryID']);
+		
+		error_log(print_r($data,1));
+		print json_encode($data);
 		
 		exit;
 	}
@@ -841,26 +848,21 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function category2()
+	function categorypath($categoryid)
 	{
-	  $categoryid = $_POST['categoryid'];
-	  
+	  error_log($categoryid);
 	  while (true) {
 		
 		// myself
-		$sql = "SELECT * FROM categories"
-		  . " WHERE id = ".$categoryid;
-		$res = $this->User->query($sql);
+		$res = $this->User->query("SELECT * FROM categories WHERE id = ".$categoryid);
 		$row = $res[0]['categories'];
 		$data['level'][$row['level']] = $row['id'];
-		//$data['nodes'][] = $row;
 		$parentid = $row['parentid'];
 		
 		// siblings
 		$sibs = null;
 		if ($row['level'] == 1) {
-		  $sql2 = "SELECT * FROM categories"
-			. " WHERE level = ".$row['level'];
+		  $sql2 = "SELECT * FROM categories WHERE level = ".$row['level'];
 		} else {
 		  $sql2 = "SELECT * FROM categories"
 			. " WHERE parentid = ".$row['parentid']
@@ -880,8 +882,7 @@ class UsersController extends AppController {
 	  }
 	  ksort($data['level']);
 	  
-	  print json_encode($data);
-	  exit;
+	  return $data;
 	}
 	
 	function category()

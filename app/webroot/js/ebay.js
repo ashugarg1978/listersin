@@ -8,9 +8,9 @@ $(document).bind({
 		$('ul#selling li a:contains("Active")').click();
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
-		setTimeout("$('li > a:contains(Pictures)').click()", 3000);
+		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
 
@@ -56,6 +56,13 @@ function getdetail(row)
 {
 	id = row['id'];
 	detail = $('div.detail', 'div#detailtemplate').clone();
+    
+	    // preserve selected tab
+	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	    tabnum = tab.parent().prevAll().length + 1;
+	    $('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
+	    $('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
+	    $('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
 	
 	$.each(row['PictureDetails_PictureURL'], function(i, url) {
 		$('img.PD_PURL_'+(i+1), detail).attr('src', url);
@@ -201,6 +208,13 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+
+	    // preserve selected tab
+	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	    tabnum = tab.parent().prevAll().length + 1;
+	    $('.tabNav', dom).children('li:nth-child('+tabnum+')').addClass('current');
+	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
+	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
 		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
 			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
@@ -220,35 +234,24 @@ function bindevents()
 		
 		showbuttons(dom, 'update,cancel');
 		
+		// category selector
+		pathdata = rowsdata[id]['categorypath'];
+		sels = $('<div/>');
+		$.each(pathdata['level'], function(idx, val) {
+		    sel = $('<select class="category"/>');
+		    $.each(pathdata['nodes'][idx], function(id, row) {
+			opt = $('<option/>').val(row['id']).text(row['name']);
+			if (row['id'] == val) opt.attr('selected', 'selected');
+			sel.append(opt);
+		    });
+		    sels.append(sel);
+		});
+		$('input[name=PrimaryCategory_CategoryID]', dom).after(sels);
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
 		$('textarea[name=description]', '#'+id).wysiwyg();
 		
-		// category selector
-		$.post('/users/category2/',
-			   'categoryid='+rowsdata[id]['PrimaryCategory_CategoryID'],
-			   function(data) {
-				   sels = $('<div/>');
-				   $.each(data['level'], function(idx, val) {
-					   sel = $('<select class="category"/>');
-					   $.each(data['nodes'][idx], function(id, row) {
-						   if (row['id'] == val) {
-							   sel.append('<option value="'+row['id']+'" selected="selected">'
-										  + row['name']
-										  + '</option>');
-						   } else {
-							   sel.append('<option value="'+row['id']+'">'
-										  + row['name']
-										  + '</option>');
-						   }
-					   });
-					   
-					   sels.append(sel);
-				   });
-				   $('input[name=PrimaryCategory_CategoryID]', dom).after(sels);
-			   },
-			   'json');
 		
 		return;
 	});
