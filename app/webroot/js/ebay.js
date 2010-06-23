@@ -76,6 +76,20 @@ function getdetail(row)
 	
 	$('input:file', detail).remove();
 	
+	// category
+	var catstr = '';
+	pathdata = row['categorypath'];
+	$.each(pathdata['level'], function(idx, val) {
+		$.each(pathdata['nodes'][idx], function(catid, catrow) {
+			if (catrow['id'] == val) {
+				if (idx > 1) catstr += ' &gt; ';
+				catstr += catrow['name'];
+			}
+		});
+		$('td.category', detail).html(catstr);
+	});
+	
+	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
