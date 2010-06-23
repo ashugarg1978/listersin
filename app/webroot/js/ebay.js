@@ -200,8 +200,7 @@ function bindevents()
 			$('div.detail', '#'+id).slideToggle('fast');
 		}
 		
-		//descriptionframe(id);
-		//$.scrollTo('#'+id, {duration:200, axis:'y', offset:-42});
+		$.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
 		
 		return false;
 	});
