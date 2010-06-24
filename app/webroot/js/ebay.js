@@ -1,5 +1,6 @@
 /* store rows data */
 var rowsdata = new Array();
+var hash = new Array();
 
 /* initialize */
 $(document).bind({
@@ -7,8 +8,10 @@ $(document).bind({
 		bindevents();
 		$('ul#selling li a:contains("Active")').click();
 		
+		$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
+		
 		/* auto click for debug */
-		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
@@ -89,6 +92,10 @@ function getdetail(row)
 		$('td.category', detail).html(catstr);
 	});
 	
+	// duration
+	var ldstr = '';
+	ldstr = hash['ld'][row['ListingType']][row['ListingDuration']];
+	$('td.duration', detail).text(ldstr);
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -144,11 +151,8 @@ function bindevents()
 			   function(data) {
 				   
 				   $(curelm).nextAll('select').remove();
-				   if ($.isEmptyObject(data)) {
-					   
-					   
+				   if ($.isEmptyObject(data['categories'])) {
 				   } else {
-					   
 					   sel = $('<select class="category"/>');
 					   opt = $('<option/>').val('').text('');
 					   sel.append(opt);
@@ -158,11 +162,8 @@ function bindevents()
 					   });
 					   $(curelm).after(sel);
 				   }
-
 				   $('select.category', $(curelm).parent()).attr('name', '');
 				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
-				   
-				   $('input:text[name=ListingDuration]').after($.dump(data['sd']['ListingDuration']));
 				   
 			   },
 			   'json');

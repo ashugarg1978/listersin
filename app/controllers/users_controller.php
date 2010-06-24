@@ -66,6 +66,14 @@ class UsersController extends AppController {
 		
 	}
 	
+	function inithash()
+	{
+		$data['ld'] = $this->getListingDuration();
+		
+		echo json_encode($data);
+		exit;
+	}
+	
 	function items()
 	{
 		$userid = $this->user['User']['userid'];
@@ -666,7 +674,7 @@ class UsersController extends AppController {
 	
 	function getcategoryfeatures($categoryid=null)
 	{
-		if (false) {
+		if (true) {
 			$h = null;
 			$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 			$h['DetailLevel'] = 'ReturnAll';
@@ -675,7 +683,7 @@ class UsersController extends AppController {
 			$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 		}
 		
-		if (true) {
+		if (false) {
 			$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
 			$xmlobj = simplexml_load_string($tmp);
 		}
@@ -744,8 +752,14 @@ class UsersController extends AppController {
 			$dur = $o->children($ns['']);
 			
 			$a = null;
+			$a['Days_1'] = '1 Day';
 			foreach ($dur as $j => $v) {
-				$a[] = $v.'';
+				$v = $v.''; // todo: cast string
+				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
+					$a[$v] = $matches[1].' Days';
+				} else if ($v == 'GTC') {
+					$a[$v] = "Good 'Til Cancelled";
+				}
 			}
 			
 			$durmap[$setid] = $a;
@@ -759,6 +773,7 @@ class UsersController extends AppController {
 			$t = $attr['type'].'';
 			$data[$t] = $durmap[$o.''];
 		}
+		// Good 'Til Cancelled
 		
 		return $data;
 		echo '<pre>'.print_r($data,1).'</pre>';
@@ -895,12 +910,11 @@ class UsersController extends AppController {
 			. " WHERE parentid = ".$_POST['categoryid']
 			. " AND id != ".$_POST['categoryid'];
 		$res = $this->User->query($sql);
-		if (count($res) == 0) {
-			print json_encode('');
-			exit;
-		}
-		foreach ($res as $i => $row) {
-			$rows[] = $row['categories'];
+		if (count($res) > 0) {
+			foreach ($res as $i => $row) {
+				$rows[] = $row['categories'];
+			}
+			$data['categories'] = $rows;
 		}
 		
 		/* category features */
@@ -910,12 +924,11 @@ class UsersController extends AppController {
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		$sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
-		$data['sd'] = $sd;
+		$data['sd'] = $sd[0];
 		$data['ld'] = $this->getListingDuration();
 		
 		/* response */
-		$data['categories'] = $rows;
-		error_log(print_r(json_encode($data['categories']),1));
+		error_log(print_r($data['ld'],1));
 		print json_encode($data);
 		exit;
 	}

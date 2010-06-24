@@ -175,7 +175,7 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td>Listing Duration</td>
-	  <td><input name="ListingDuration" type="text" size="10"></td>
+	  <td class="duration"></td>
 	</tr>
   </tbody>
 </table>
