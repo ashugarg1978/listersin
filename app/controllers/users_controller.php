@@ -68,7 +68,7 @@ class UsersController extends AppController {
 	
 	function inithash()
 	{
-		$data['ld'] = $this->getListingDuration();
+		$data = $this->getListingDuration();
 		
 		echo json_encode($data);
 		exit;
@@ -734,12 +734,13 @@ class UsersController extends AppController {
 	
 	function getListingDuration()
 	{
+		/* load xml */
 		$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
 		$xmlobj = simplexml_load_string($tmp);
-		
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
+		/* DurationSet */
 		$fd = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
 							 . '/ns:FeatureDefinitions'
 							 . '/ns:ListingDurations'
@@ -754,7 +755,7 @@ class UsersController extends AppController {
 			$dur = $o->children($ns['']);
 			
 			$a = null;
-			$a['Days_1'] = '1 Day';
+			//$a['Days_1'] = '1 Day';
 			foreach ($dur as $j => $v) {
 				$v = $v.''; // todo: cast string
 				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
@@ -766,19 +767,21 @@ class UsersController extends AppController {
 			
 			$durmap[$setid] = $a;
 		}
+		$data['durationset'] = $durmap;
 		
+		/* ListingDuration */
 		$ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
 							 . '/ns:SiteDefaults'
 							 . '/ns:ListingDuration');
 		foreach ($ld as $i => $o) {
 			$attr = $o->attributes();
 			$t = $attr['type'].'';
-			$data[$t] = $durmap[$o.''];
+			$arrld[$t] = $o.'';
 		}
-		// Good 'Til Cancelled
+		$data['durationtype'] = $arrld;
 		
+		error_log(print_r($data,1));
 		return $data;
-		echo '<pre>'.print_r($data,1).'</pre>';
 		exit;
 	}
 	
@@ -907,6 +910,8 @@ class UsersController extends AppController {
 	
 	function category()
 	{
+		$data = array();
+		
 		/* child categories */
 		$sql = "SELECT * FROM categories"
 			. " WHERE parentid = ".$_POST['categoryid']
@@ -926,13 +931,27 @@ class UsersController extends AppController {
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		$ft = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-				     . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]"
-				     . "/ns:ListingDuration");
+				     . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]");
+		//error_log(print_r($ft,1));
+		//error_log($ft->asXML());
+		
+		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+							 . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]"
+							 . "/ns:ListingDuration");
+		if ($ld) {
+			foreach ($ld as $i => $o) {
+				$attr = $o->attributes();
+				$t = $attr['type'].'';
+				$arrld[$t] = $o.'';
+			}
+			$data['ld'] = $arrld;
+		}
+		
 		
 		//$ld = $ft->ListingDuration;
 		
 		/* response */
-		error_log(print_r($ft,1));
+		error_log(json_encode($data));
 		print json_encode($data);
 		exit;
 	}

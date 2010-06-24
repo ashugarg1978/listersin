@@ -94,7 +94,9 @@ function getdetail(row)
 	
 	// duration
 	var ldstr = '';
-	ldstr = hash['ld'][row['ListingType']][row['ListingDuration']];
+	setid = hash['durationtype'][row['ListingType']];
+	ldarr = hash['durationset'][setid];
+	ldstr = ldarr[row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
 	
 	$.each(row, function(colname, colval) {
@@ -164,6 +166,8 @@ function bindevents()
 				   }
 				   $('select.category', $(curelm).parent()).attr('name', '');
 				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
+
+				   $('td.duration').html($.dump(data['ld']));
 				   
 			   },
 			   'json');
