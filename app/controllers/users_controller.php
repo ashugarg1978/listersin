@@ -678,8 +678,10 @@ class UsersController extends AppController {
 			$h = null;
 			$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 			$h['DetailLevel'] = 'ReturnAll';
-			$h['ViewAllNodes'] = 'true';
-			$h['CategoryID'] = '15825';
+			//$h['ViewAllNodes'] = 'true';
+			//$h['AllFeaturesForCategory'] = 'true';
+			$h['FeatureID'] = 'ListingDuration';
+			//$h['CategoryID'] = '15825';
 			$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 		}
 		
@@ -923,12 +925,14 @@ class UsersController extends AppController {
 		$xmlobj = simplexml_load_string($xml_response);
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		$sd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults");
-		$data['sd'] = $sd[0];
-		$data['ld'] = $this->getListingDuration();
+		$ft = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+				     . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]"
+				     . "/ns:ListingDuration");
+		
+		//$ld = $ft->ListingDuration;
 		
 		/* response */
-		error_log(print_r($data['ld'],1));
+		error_log(print_r($ft,1));
 		print json_encode($data);
 		exit;
 	}
