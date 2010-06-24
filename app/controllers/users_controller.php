@@ -679,7 +679,7 @@ class UsersController extends AppController {
 			$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
 			$h['DetailLevel'] = 'ReturnAll';
 			$h['ViewAllNodes'] = 'true';
-			$h['CategoryID'] = '45111';
+			$h['CategoryID'] = '15825';
 			$xmlobj = $this->callapi('GetCategoryFeatures', $h);
 		}
 		
