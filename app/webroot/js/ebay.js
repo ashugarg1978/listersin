@@ -92,14 +92,8 @@ function getdetail(row)
 		$('td.category', detail).html(catstr);
 	});
 	
-	// duration
-	/*
-	var ldstr = '';
-	setid = hash['durationtype'][row['ListingType']];
-	ldarr = hash['durationset'][setid];
-	ldstr = ldarr[row['ListingDuration']];
+	var ldstr = row['durationset'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
-	*/
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -219,7 +213,6 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   alert($.dump(data));
 					   rowsdata[id] = data;
 					   detail = getdetail(data);
 					   $('tr.row2 td', '#'+id).html(detail);
@@ -246,7 +239,7 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-
+		
 	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
 	    tabnum = tab.parent().prevAll().length + 1;
@@ -283,6 +276,15 @@ function bindevents()
 			$('td.category', dom).append(sel);
 		});
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
+		
+		/* listing duration */
+		sel = $('<select/>').attr('name', 'ListingDuration');
+		$.each(rowsdata[id]['durationset'][rowsdata[id]['ListingType']], function(k, v) {
+			opt = $('<option/>').val(k).text(v);
+			if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
+			sel.append(opt);
+		});
+		$('td.duration', dom).html(sel);
 		
 		
 		showbuttons(dom, 'update,cancel');
@@ -464,7 +466,7 @@ function updateduration(id)
 	listingtype = $('select[name=ListingType]', '#'+id).val();
 	
 	sel = $('<select/>').attr('name', 'ListingDuration');
-	$.each(rowsdata[id]['duration'][listingtype], function(k, v) {
+	$.each(rowsdata[id]['durationset'][listingtype], function(k, v) {
 		opt = $('<option/>').val(k).text(v);
 		sel.append(opt);
 	});
