@@ -2,9 +2,9 @@
 /**
  *
  *
- * [ToDo]
+ * todo:
  * - scrollbar appear when item detail expanded, width broken.
- *
+ * - use html5
  *
  *
  */
@@ -66,14 +66,10 @@ class UsersController extends AppController {
 		
 	}
 	
-	function inithash()
-	{
-		$data = $this->getListingDuration();
-		
-		echo json_encode($data);
-		exit;
-	}
 	
+	/**
+	 * get summary data of items.
+	 */
 	function items()
 	{
 		$userid = $this->user['User']['userid'];
@@ -168,6 +164,10 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	
+	/**
+	 * get detail data of one item.
+	 */
 	function item()
 	{
 		// todo: check userid and accountid
@@ -183,6 +183,8 @@ class UsersController extends AppController {
 		if ($res[0]['items']['PrimaryCategory_CategoryID'] > 0) {
 			$data['categorypath'] =
 				$this->categorypath($res[0]['items']['PrimaryCategory_CategoryID']);
+			
+			// todo: also return duration data.
 		}
 		
 		error_log(print_r($data,1));
@@ -191,7 +193,11 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	// todo: various error check
+	
+	/**
+	 * upload image file into web server.
+	 * todo: various error check
+	 */
 	function upload()
 	{
 		if (isset($_FILES) && is_array($_FILES)) {
@@ -230,6 +236,7 @@ class UsersController extends AppController {
 		
 	}
 	
+	
 	function description($id)
 	{
 		//$id = $_POST['itemid'];
@@ -242,15 +249,27 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+
+	/**
+	 * login
+	 */
     function login() {
 		
     }
-	
+
+
+	/**
+	 * logout
+	 */
     function logout() {
         $this->Auth->logout();
         $this->redirect('/');
     }
 	
+
+	/**
+	 * register new user.
+	 */
 	function register() {
 		
 		if (!empty($this->data)) {
@@ -271,7 +290,11 @@ class UsersController extends AppController {
 			
 		}
 	}
-
+	
+	
+	/**
+	 * callback from ebay oauth flow.
+	 */
 	function accept()
 	{
 		if ($user = $this->Auth->user()) {
@@ -348,20 +371,20 @@ class UsersController extends AppController {
 	
 	function edit($itemid)
 	{
-	  if (!preg_match('/^[\d]+$/', $itemid)) return null;
-	  
-	  $arr = null;
-	  foreach ($_POST as $k => $v) {
-		$arr[] = $k." = '".mysql_real_escape_string($v)."'";
-	  }
-	  if (is_array($arr)) {
-		$sql_update = "UPDATE items"
-		  . " SET ".implode(', ', $arr)
-		  . " WHERE itemid = ".$itemid;
-		$res = $this->User->query($sql_update);
+		if (!preg_match('/^[\d]+$/', $itemid)) return null;
 		
-	  }
-	  exit;
+		$arr = null;
+		foreach ($_POST as $k => $v) {
+			$arr[] = $k." = '".mysql_real_escape_string($v)."'";
+		}
+		if (is_array($arr)) {
+			$sql_update = "UPDATE items"
+				. " SET ".implode(', ', $arr)
+				. " WHERE itemid = ".$itemid;
+			$res = $this->User->query($sql_update);
+			
+		}
+		exit;
 	}
 	
 	function delete()
@@ -374,6 +397,8 @@ class UsersController extends AppController {
 		
 		exit;
 	}
+	
+	
 	
 	function getitem($accountid, $ebayitemid)
 	{
@@ -653,6 +678,10 @@ class UsersController extends AppController {
 		return $xml;
 	}
 	
+	
+	/**
+	 * get column name of items table.
+	 */
 	function getitemcols()
 	{
 		$sql = "DESC items;";
@@ -732,7 +761,7 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function getListingDuration()
+	function getListingDuration($categoryid=null)
 	{
 		/* load xml */
 		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
@@ -775,8 +804,8 @@ class UsersController extends AppController {
 							 . '/ns:ListingDuration');
 		foreach ($ld as $i => $o) {
 			$attr = $o->attributes();
-			$t = $attr['type'].'';
-			$arrld[$t] = $o.'';
+			$type = $attr['type'].'';
+			$arrld[$type] = $o.'';
 		}
 		$data['durationtype'] = $arrld;
 		
@@ -871,11 +900,10 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function categoryfeatures($categoryid)
-	{
-		
-	}
 	
+	/**
+	 * get hierarchical path data of specific category and its parents.
+	 */
 	function categorypath($categoryid)
 	{
 		while (true) {
@@ -967,6 +995,9 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	/**
+	 * 
+	 */
 	function getcategories()
 	{
 		$sql = "SELECT * FROM accounts"
@@ -1001,6 +1032,10 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	
+	/**
+	 * common function to call ebay api.
+	 */
 	function callapi($call, $xmldata)
 	{
 		/* prepare */
@@ -1058,15 +1093,15 @@ class UsersController extends AppController {
 		$trycount = 0;
 
 		while ($trycount < 5) {
-		  try {
-		    $this->r->send();
-		  } catch (HttpException $ex) {
-		    sleep(5);
-		    $trycount++;
-		    error_log($trycount.':'.$url);
-		    continue;
-		  }
-		  break;
+			try {
+				$this->r->send();
+			} catch (HttpException $ex) {
+				sleep(5);
+				$trycount++;
+				error_log($trycount.':'.$url);
+				continue;
+			}
+			break;
 		}
 		
 		$html = $this->r->getResponseBody();

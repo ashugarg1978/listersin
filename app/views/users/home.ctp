@@ -167,7 +167,6 @@ foreach ($accounts as $accountid => $row) {
 	  <td>Listing Type</td>
 	  <td>
 		<select name="ListingType">
-		<option value="">-</option>  
 		<option value="Chinese">Online Auction</option>  
 		<option value="FixedPriceItem">Fixed Price</option>
 		</select>

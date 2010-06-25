@@ -144,7 +144,7 @@ function bindevents()
 		$(this).closest('form')[0].reset();
     });
     
-	// todo: simalteniously modify broken
+	// todo: simalteniously modification causes broken
 	$('select.category').live('change', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
@@ -171,16 +171,15 @@ function bindevents()
 			       
 				   // duration
 				   rowsdata[id]['duration'] = data['duration'];
-				   ltp = $('select[name=ListingType]', '#'+id).val();
-			       $('td.duration').html($.dump(data['duration'][ltp]));
-				   
+				   updateduration(id);
 			   },
 			   'json');
 		
 	});
 	
 	$('select[name=ListingType]').live('change', function() {
-		
+		id = $(this).closest('tbody.itemrow').attr('id');
+		updateduration(id);
 	});
 	
 	$('ul.tabNav a').live('click', function() {
@@ -455,4 +454,18 @@ function showbuttons(detail, buttons)
 function dump(o)
 {
 	$('div#debug').html($.dump(o));
+}
+
+function updateduration(id)
+{
+	listingtype = $('select[name=ListingType]', '#'+id).val();
+	
+	sel = $('<select/>').attr('name', 'ListingDuration');
+	$.each(rowsdata[id]['duration'][listingtype], function(k, v) {
+		opt = $('<option/>').val(k).text(v);
+		sel.append(opt);
+	});
+	$('td.duration', '#'+id).text(sel.text());
+	
+	return;
 }
