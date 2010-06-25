@@ -913,42 +913,12 @@ class UsersController extends AppController {
 			$data['categories'] = $rows;
 		}
 		
-		
-		/* category features */
-		$xml_response = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
-		$xmlobj = simplexml_load_string($xml_response);
-		$ns = $xmlobj->getDocNamespaces();
-		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		
-		//$ft = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-		//					 . "/ns:Category[ns:CategoryID=".$categoryid."]");
-		
-		
-		/* duration data */
-		$hashld = $this->getdurationset();
-		
-		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
-							 . "/ns:ListingDuration");
-		if ($ld) {
-			foreach ($ld as $i => $o) {
-				$attr = $o->attributes();
-				$type = $attr['type'].'';
-				$hashld['durationtype'][$type] = $o.'';
-			}
-		}
-		
-		$arrld = null;
-		foreach ($hashld['durationtype'] as $type => $setid) {
-			$arrld[$type] = $hashld['durationset'][$setid];
-		}
-		$data['duration'] = $arrld;
+		$data['durationset']  = $this->getdurationset($categoryid);
 		
 		
 		/* response */
 		error_log(print_r($data,1));
-		error_log(json_encode($data));
-		print json_encode($data);
+		echo json_encode($data);
 		exit;
 	}
 	
@@ -1007,6 +977,7 @@ class UsersController extends AppController {
 							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
 							 . "/ns:ListingDuration");
 		if ($ld) {
+		  error_log(print_r($ld,1));
 			foreach ($ld as $i => $o) {
 				$attr = $o->attributes();
 				$type = $attr['type'].'';

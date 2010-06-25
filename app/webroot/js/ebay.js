@@ -152,6 +152,7 @@ function bindevents()
 				   
 				   $(curelm).nextAll('select').remove();
 				   if ($.isEmptyObject(data['categories'])) {
+					   // do nothing
 				   } else {
 					   sel = $('<select class="category"/>');
 					   opt = $('<option/>').val('').text('');
@@ -166,8 +167,8 @@ function bindevents()
 				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
 			       
 				   // duration
-				   rowsdata[id]['duration'] = data['duration'];
-				   updateduration(id);
+				   //rowsdata[id]['duration'] = data['duration'];
+				   //updateduration(id);
 			   },
 			   'json');
 		
@@ -470,7 +471,7 @@ function updateduration(id)
 		opt = $('<option/>').val(k).text(v);
 		sel.append(opt);
 	});
-	$('td.duration', '#'+id).text(sel.text());
+	$('select[name=ListingDuration]', '#'+id).replaceWith(sel);
 	
 	return;
 }
