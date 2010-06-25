@@ -12,7 +12,7 @@ $(document).bind({
 		
 		/* auto click for debug */
 		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
