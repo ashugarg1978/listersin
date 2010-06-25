@@ -92,11 +92,7 @@ function getdetail(row)
 		$('td.category', detail).html(catstr);
 	});
 	
-	// duration
-	var ldstr = '';
-	setid = hash['durationtype'][row['ListingType']];
-	ldarr = hash['durationset'][setid];
-	ldstr = ldarr[row['ListingDuration']];
+	var ldstr = row['durationset'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
 	
 	$.each(row, function(colname, colval) {
@@ -144,8 +140,10 @@ function bindevents()
 		$(this).closest('form')[0].reset();
     });
     
-	// todo: simalteniously modify broken
+	// todo: simalteniously modification causes broken
 	$('select.category').live('change', function() {
+		
+		id = $(this).closest('tbody.itemrow').attr('id');
 		
 		curelm = this;
 		$.post('/users/category/',
@@ -154,6 +152,7 @@ function bindevents()
 				   
 				   $(curelm).nextAll('select').remove();
 				   if ($.isEmptyObject(data['categories'])) {
+					   // do nothing
 				   } else {
 					   sel = $('<select class="category"/>');
 					   opt = $('<option/>').val('').text('');
@@ -166,12 +165,18 @@ function bindevents()
 				   }
 				   $('select.category', $(curelm).parent()).attr('name', '');
 				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
-
-				   $('td.duration').html($.dump(data['ld']));
-				   
+			       
+				   // duration
+				   //rowsdata[id]['duration'] = data['duration'];
+				   //updateduration(id);
 			   },
 			   'json');
 		
+	});
+	
+	$('select[name=ListingType]').live('change', function() {
+		id = $(this).closest('tbody.itemrow').attr('id');
+		updateduration(id);
 	});
 	
 	$('ul.tabNav a').live('click', function() {
@@ -235,7 +240,7 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-
+		
 	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
 	    tabnum = tab.parent().prevAll().length + 1;
@@ -273,6 +278,15 @@ function bindevents()
 		});
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
 		
+		/* listing duration */
+		sel = $('<select/>').attr('name', 'ListingDuration');
+		$.each(rowsdata[id]['durationset'][rowsdata[id]['ListingType']], function(k, v) {
+			opt = $('<option/>').val(k).text(v);
+			if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
+			sel.append(opt);
+		});
+		$('td.duration', dom).html(sel);
+		
 		
 		showbuttons(dom, 'update,cancel');
 		
@@ -280,6 +294,8 @@ function bindevents()
 		
 		$('textarea[name=description]', '#'+id).wysiwyg();
 		
+	    $('input[name=Title]', 'tbody#'+id).focus();
+	    
 		return;
 	});
 	
@@ -444,4 +460,18 @@ function showbuttons(detail, buttons)
 function dump(o)
 {
 	$('div#debug').html($.dump(o));
+}
+
+function updateduration(id)
+{
+	listingtype = $('select[name=ListingType]', '#'+id).val();
+	
+	sel = $('<select/>').attr('name', 'ListingDuration');
+	$.each(rowsdata[id]['durationset'][listingtype], function(k, v) {
+		opt = $('<option/>').val(k).text(v);
+		sel.append(opt);
+	});
+	$('select[name=ListingDuration]', '#'+id).replaceWith(sel);
+	
+	return;
 }

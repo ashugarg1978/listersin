@@ -33,7 +33,7 @@ foreach ($accounts as $accountid => $row) {
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
 <iframe name="posttarget" width="130" height="100" src="/blank.html" style="display:none;"></iframe>
-<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;"></div>
+<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa; min-height:500px;"></div>
 
 </div>
 
@@ -167,7 +167,6 @@ foreach ($accounts as $accountid => $row) {
 	  <td>Listing Type</td>
 	  <td>
 		<select name="ListingType">
-		<option value="">-</option>  
 		<option value="Chinese">Online Auction</option>  
 		<option value="FixedPriceItem">Fixed Price</option>
 		</select>
