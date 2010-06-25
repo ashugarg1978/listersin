@@ -93,11 +93,13 @@ function getdetail(row)
 	});
 	
 	// duration
+	/*
 	var ldstr = '';
 	setid = hash['durationtype'][row['ListingType']];
 	ldarr = hash['durationset'][setid];
 	ldstr = ldarr[row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
+	*/
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -217,6 +219,7 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
+					   alert($.dump(data));
 					   rowsdata[id] = data;
 					   detail = getdetail(data);
 					   $('tr.row2 td', '#'+id).html(detail);

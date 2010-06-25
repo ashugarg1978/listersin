@@ -4,7 +4,8 @@
  *
  * todo:
  * - scrollbar appear when item detail expanded, width broken.
- * - use html5
+ * - use html5.
+ * - unify json response to one code.
  *
  *
  */
@@ -19,7 +20,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-		error_log($this->action.' beforeFilter:'.print_r($_POST,1));
+		error_log('action:'.$this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
@@ -34,8 +35,6 @@ class UsersController extends AppController {
 			$this->accounts = $this->getAccounts($this->user['User']['userid']);
 		}
 		$this->set('accounts', $this->accounts);
-		
-		error_log($this->action.':POST:'.print_r($_POST,1));
     }	
 	
 	function index()
@@ -158,8 +157,8 @@ class UsersController extends AppController {
 		$data['cnt'] = $cnt;
 		$data['res'] = $items;
 		
-		print json_encode($data);
-		error_log(print_r($data,1));
+		echo json_encode($data);
+		//error_log(print_r($data,1));
 		
 		exit;
 	}
@@ -173,22 +172,19 @@ class UsersController extends AppController {
 		// todo: check userid and accountid
 		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
 		$res = $this->User->query($sql);
-		
-		$res[0]['items']['PictureDetails_PictureURL'] =
-			explode("\n", $res[0]['items']['PictureDetails_PictureURL']);
-		
 		$data = $res[0]['items'];
 		
+		// 
+		$data['PictureDetails_PictureURL'] = explode("\n", $data['PictureDetails_PictureURL']);
+		
 		// todo: avoid infinite loop
-		if ($res[0]['items']['PrimaryCategory_CategoryID'] > 0) {
-			$data['categorypath'] =
-				$this->categorypath($res[0]['items']['PrimaryCategory_CategoryID']);
-			
-			// todo: also return duration data.
+		if ($data['PrimaryCategory_CategoryID'] > 0) {
+			$data['categorypath'] = $this->categorypath($data['PrimaryCategory_CategoryID']);
+			$data['durationset']  = $this->getdurationset($data['PrimaryCategory_CategoryID']);
 		}
 		
 		error_log(print_r($data,1));
-		print json_encode($data);
+		echo json_encode($data);
 		
 		exit;
 	}
@@ -315,6 +311,10 @@ class UsersController extends AppController {
 		
 	}
 	
+	
+	/**
+	 * copy items
+	 */
 	function copy()
 	{
 		if (empty($_POST['item'])) return;
@@ -333,16 +333,17 @@ class UsersController extends AppController {
 		
 		// todo: separate by userid
 		$sql = "SELECT itemid, ebayuserid, title"
-			 . " FROM items"
-			 . " JOIN accounts USING (accountid)"
-			 . " ORDER BY itemid DESC"
-			 . " LIMIT ".count($_POST['item']);
+			. " FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " ORDER BY itemid DESC"
+			. " LIMIT ".count($_POST['item']);
 		$res = $this->User->query($sql);
 		
-		print json_encode($res);
+		echo json_encode($res);
 		
 		exit;
 	}
+	
 	
 	function update()
 	{
@@ -369,6 +370,7 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	
 	function edit($itemid)
 	{
 		if (!preg_match('/^[\d]+$/', $itemid)) return null;
@@ -387,6 +389,10 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	
+	/**
+	 * delete items.
+	 */
 	function delete()
 	{
 		if (empty($_POST['item'])) return;
@@ -761,59 +767,6 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function getListingDuration($categoryid=null)
-	{
-		/* load xml */
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
-		$xmlobj = simplexml_load_string($xml);
-		$ns = $xmlobj->getDocNamespaces();
-		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		
-		/* DurationSet */
-		$durationset = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
-							 . '/ns:FeatureDefinitions'
-							 . '/ns:ListingDurations'
-							 . '/ns:ListingDuration');
-		foreach ($durationset as $i => $o) {
-			
-			$o->registerXPathNamespace('ns', $ns['']);
-			
-			$attr = $o->attributes();
-			$setid = $attr['durationSetID'].'';
-			
-			$dur = $o->children($ns['']);
-			
-			$a = null;
-			//$a['Days_1'] = '1 Day';
-			foreach ($dur as $j => $v) {
-				$v = $v.''; // todo: cast string
-				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
-					$a[$v] = $matches[1].' Days';
-				} else if ($v == 'GTC') {
-					$a[$v] = "Good 'Til Cancelled";
-				}
-			}
-			
-			$durmap[$setid] = $a;
-		}
-		$data['durationset'] = $durmap;
-		
-		/* ListingDuration */
-		$ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
-							 . '/ns:SiteDefaults'
-							 . '/ns:ListingDuration');
-		foreach ($ld as $i => $o) {
-			$attr = $o->attributes();
-			$type = $attr['type'].'';
-			$arrld[$type] = $o.'';
-		}
-		$data['durationtype'] = $arrld;
-		
-		error_log(print_r($data,1));
-		return $data;
-		exit;
-	}
-	
 	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)
@@ -929,7 +882,7 @@ class UsersController extends AppController {
 			}
 			$data['nodes'][$row['level']] = $sibs;
 			
-			/* next loop upper depth */
+			/* next loop for upper depth */
 			if ($row['level'] == 1) break;
 			$categoryid = $row['parentid'];
 		}
@@ -938,6 +891,10 @@ class UsersController extends AppController {
 		return $data;
 	}
 	
+	
+	/**
+	 * 
+	 */
 	function category()
 	{
 		$categoryid = $_POST['categoryid'];
@@ -968,7 +925,7 @@ class UsersController extends AppController {
 		
 		
 		/* duration data */
-		$hashld = $this->getListingDuration();
+		$hashld = $this->getdurationset();
 		
 		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
 							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
@@ -994,6 +951,79 @@ class UsersController extends AppController {
 		print json_encode($data);
 		exit;
 	}
+	
+	
+	/**
+	 *
+	 * todo: inherit features from its all parents.
+	 */
+	function getdurationset($categoryid=null)
+	{
+		/* load xml */
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
+		$xmlobj = simplexml_load_string($xml);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		/* DurationSet */
+		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+									. '/ns:FeatureDefinitions'
+									. '/ns:ListingDurations'
+									. '/ns:ListingDuration');
+		foreach ($xmlobj_ld as $i => $o) {
+			
+			$o->registerXPathNamespace('ns', $ns['']);
+			$attr = $o->attributes();
+			$setid = $attr['durationSetID'].'';
+			$dur = $o->children($ns['']);
+			
+			$a = null;
+			//$a['Days_1'] = '1 Day';
+			foreach ($dur as $j => $v) {
+				$v = $v.''; // todo: cast string
+				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
+					$a[$v] = $matches[1].' Days';
+				} else if ($v == 'GTC') {
+					$a[$v] = "Good 'Til Cancelled";
+				}
+			}
+			
+			$durationset[$setid] = $a;
+		}
+		//error_log(print_r($durationset,1));
+		
+		/* ListingDuration */
+		$xmlobj_sd = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+									. '/ns:SiteDefaults'
+									. '/ns:ListingDuration');
+		foreach ($xmlobj_sd as $i => $o) {
+			$attr = $o->attributes();
+			$type = $attr['type'].'';
+			$typedefault[$type] = $o.'';
+		}
+		
+		/* overwrite */
+		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
+							 . "/ns:ListingDuration");
+		if ($ld) {
+			foreach ($ld as $i => $o) {
+				$attr = $o->attributes();
+				$type = $attr['type'].'';
+				$typedefault[$type] = $o.'';
+			}
+		}
+		//error_log(print_r($typedefault,1));
+		
+		/* result  */
+		foreach ($typedefault as $type => $setid) {
+			$data[$type] = $durationset[$setid];
+		}
+		//error_log(print_r($data,1));
+		
+		return $data;
+	}
+	
 	
 	/**
 	 * 
