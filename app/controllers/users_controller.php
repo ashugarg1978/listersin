@@ -735,17 +735,17 @@ class UsersController extends AppController {
 	function getListingDuration()
 	{
 		/* load xml */
-		$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
-		$xmlobj = simplexml_load_string($tmp);
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
+		$xmlobj = simplexml_load_string($xml);
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
 		/* DurationSet */
-		$fd = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+		$durationset = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
 							 . '/ns:FeatureDefinitions'
 							 . '/ns:ListingDurations'
 							 . '/ns:ListingDuration');
-		foreach ($fd as $i => $o) {
+		foreach ($durationset as $i => $o) {
 			
 			$o->registerXPathNamespace('ns', $ns['']);
 			
@@ -871,51 +871,55 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function categoryfeatures($categoryid)
+	{
+		
+	}
+	
 	function categorypath($categoryid)
 	{
-	  error_log($categoryid);
-	  while (true) {
-		
-		// myself
-		$res = $this->User->query("SELECT * FROM categories WHERE id = ".$categoryid);
-		$row = $res[0]['categories'];
-		$data['level'][$row['level']] = $row['id'];
-		$parentid = $row['parentid'];
-		
-		// siblings
-		$sibs = null;
-		if ($row['level'] == 1) {
-		  $sql2 = "SELECT * FROM categories WHERE level = ".$row['level'];
-		} else {
-		  $sql2 = "SELECT * FROM categories"
-			. " WHERE parentid = ".$row['parentid']
-			. " AND level = ".$row['level'];
+		while (true) {
+			
+			/* myself */
+			$res = $this->User->query("SELECT * FROM categories WHERE id = ".$categoryid);
+			$row = $res[0]['categories'];
+			$data['level'][$row['level']] = $row['id'];
+			$parentid = $row['parentid'];
+			
+			/* siblings */
+			$sibs = null;
+			if ($row['level'] == 1) {
+				$sql2 = "SELECT * FROM categories WHERE level = ".$row['level'];
+			} else {
+				$sql2 = "SELECT * FROM categories"
+					. " WHERE parentid = ".$row['parentid']
+					. " AND level = ".$row['level'];
+			}
+			$res2 = $this->User->query($sql2);
+			foreach ($res2 as $i => $row2) {
+				$sibs[] = $row2['categories'];
+			}
+			$data['nodes'][$row['level']] = $sibs;
+			
+			/* next loop upper depth */
+			if ($row['level'] == 1) break;
+			$categoryid = $row['parentid'];
 		}
-		$res2 = $this->User->query($sql2);
-		foreach ($res2 as $i => $row2) {
-		  $sibs[] = $row2['categories'];
-		}
-		$data['nodes'][$row['level']] = $sibs;
+		ksort($data['level']);
 		
-		// next loop
-		if ($row['level'] == 1) {
-		  break;
-		}
-		$categoryid = $row['parentid'];
-	  }
-	  ksort($data['level']);
-	  
-	  return $data;
+		return $data;
 	}
 	
 	function category()
 	{
+		$categoryid = $_POST['categoryid'];
+		
 		$data = array();
 		
 		/* child categories */
 		$sql = "SELECT * FROM categories"
-			. " WHERE parentid = ".$_POST['categoryid']
-			. " AND id != ".$_POST['categoryid'];
+			. " WHERE parentid = ".$categoryid
+			. " AND id != ".$categoryid;
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
@@ -924,33 +928,40 @@ class UsersController extends AppController {
 			$data['categories'] = $rows;
 		}
 		
+		
 		/* category features */
-		$xml_response = file_get_contents
-			('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+		$xml_response = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
 		$xmlobj = simplexml_load_string($xml_response);
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		$ft = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-				     . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]");
-		//error_log(print_r($ft,1));
-		//error_log($ft->asXML());
+		
+		//$ft = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+		//					 . "/ns:Category[ns:CategoryID=".$categoryid."]");
+		
+		
+		/* duration data */
+		$hashld = $this->getListingDuration();
 		
 		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-							 . "/ns:Category[ns:CategoryID=".$_POST['categoryid']."]"
+							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
 							 . "/ns:ListingDuration");
 		if ($ld) {
 			foreach ($ld as $i => $o) {
 				$attr = $o->attributes();
-				$t = $attr['type'].'';
-				$arrld[$t] = $o.'';
+				$type = $attr['type'].'';
+				$hashld['durationtype'][$type] = $o.'';
 			}
-			$data['ld'] = $arrld;
 		}
 		
+		$arrld = null;
+		foreach ($hashld['durationtype'] as $type => $setid) {
+			$arrld[$type] = $hashld['durationset'][$setid];
+		}
+		$data['duration'] = $arrld;
 		
-		//$ld = $ft->ListingDuration;
 		
 		/* response */
+		error_log(print_r($data,1));
 		error_log(json_encode($data));
 		print json_encode($data);
 		exit;

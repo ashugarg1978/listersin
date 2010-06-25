@@ -147,6 +147,8 @@ function bindevents()
 	// todo: simalteniously modify broken
 	$('select.category').live('change', function() {
 		
+		id = $(this).closest('tbody.itemrow').attr('id');
+		
 		curelm = this;
 		$.post('/users/category/',
 			   'categoryid='+$(this).val(),
@@ -167,19 +169,17 @@ function bindevents()
 				   $('select.category', $(curelm).parent()).attr('name', '');
 				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
 			       
-			       hhh = hash['durationtype'];
-			       cld = Array.copy(hhh);
-			       $.each(hhh, function(k, v) {
-				   alert(k+'|'+v);
-				   cld[k] = v;
-			       });
-			       $.each(data['ld'], function(k, v) {
-				   cld[k] = v;
-			       });
-			       $('td.duration').html($.dump(cld)+'<br>'+$.dump(hash['durationtype']));
+				   // duration
+				   rowsdata[id]['duration'] = data['duration'];
+				   ltp = $('select[name=ListingType]', '#'+id).val();
+			       $('td.duration').html($.dump(data['duration'][ltp]));
 				   
 			   },
 			   'json');
+		
+	});
+	
+	$('select[name=ListingType]').live('change', function() {
 		
 	});
 	
