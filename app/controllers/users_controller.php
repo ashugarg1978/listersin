@@ -20,7 +20,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-		error_log('action:'.$this->action.' POST:'.print_r($_POST,1));
+		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
@@ -180,10 +180,11 @@ class UsersController extends AppController {
 		// todo: avoid infinite loop
 		if ($data['PrimaryCategory_CategoryID'] > 0) {
 			$data['categorypath'] = $this->categorypath($data['PrimaryCategory_CategoryID']);
-			$data['durationset']  = $this->getdurationset($data['PrimaryCategory_CategoryID']);
+			$data['categoryfeatures']  =
+				$this->categoryfeatures($data['PrimaryCategory_CategoryID']);
 		}
 		
-		error_log(print_r($data,1));
+		//error_log(print_r($data,1));
 		echo json_encode($data);
 		
 		exit;
@@ -353,7 +354,11 @@ class UsersController extends AppController {
 		
 		$sqlcol = null;
 		foreach ($_POST as $k => $v) {
-			$sqlcol[] = $k." = '".mysql_real_escape_string($v)."'";
+			if (is_array($v)) {
+				$sqlcol[] = $k." = '".mysql_real_escape_string(implode("\n", $v))."'";
+			} else {
+				$sqlcol[] = $k." = '".mysql_real_escape_string($v)."'";
+			}
 		}
 		
 		$sql_update = "UPDATE items"
@@ -435,22 +440,22 @@ class UsersController extends AppController {
 	{
 		if (count($depth) > 1) {
 			$here = array_shift($depth);
-			//$this->arr2xml($arr, $depth, $val);
-			//return;
 			$res[$here] = $this->arr2xml($arr, $depth, $val);
 			return $res;
 		} else {
 			$here = $depth[0];
-			//$arr[$here] = $val;
-			//return;
-			$res[$here] = htmlspecialchars($val);
+			if (is_array($val)) {
+				$res[$here] = $val;
+			} else {
+				$res[$here] = htmlspecialchars($val);
+			}
 			return $res;
 		}
 	}
 	
 	function xml2arr($xml, &$arr, $path)
 	{
-	  error_log(print_r($xml->attributes(),1));
+		error_log(print_r($xml->attributes(),1));
 		foreach ($xml->children() as $child) {
 			if (count($child->children())) {
 				if ($path) {
@@ -460,21 +465,20 @@ class UsersController extends AppController {
 				}
 			} else {
 				if ($path) {
-				  $newpath = $path.".".$child->getName();
+					$newpath = $path.".".$child->getName();
 				} else {
-				  $newpath = $child->getName();
+					$newpath = $child->getName();
 				}
 				
 				if (isset($arr[$newpath])) {
-				  if (!is_array($arr[$newpath])) {
-					$org = $arr[$newpath];
-					$arr[$newpath] = array($org);
-				  }
-				  $arr[$newpath][] = $child.'';
+					if (!is_array($arr[$newpath])) {
+						$org = $arr[$newpath];
+						$arr[$newpath] = array($org);
+					}
+					$arr[$newpath][] = $child.'';
 				} else {
-				  $arr[$newpath] = $child.'';
+					$arr[$newpath] = $child.'';
 				}
-				  
 			}
 		}
 	}
@@ -643,16 +647,26 @@ class UsersController extends AppController {
 		return $itemdata;
 	}
 	
+	
+	/**
+	 * convert php array to xml string.
+	 */
 	function xml($arr, $depth=0)
 	{
 		$xml = "";
 		foreach ($arr as $k => $v) {
 			if (is_array($v)) {
 				if (array_key_exists(0, $v)) {
-					foreach ($v as $j => $tmp) {
-						$xml .= str_repeat("\t", $depth)."<".$k.">\n";
-						$xml .= $this->xml($tmp, ($depth+1));
-						$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+					if (is_array($v[0])) {
+						foreach ($v as $j => $tmp) {
+							$xml .= str_repeat("\t", $depth)."<".$k.">\n";
+							$xml .= $this->xml($tmp, ($depth+1));
+							$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+						}
+					} else {
+						foreach ($v as $j => $tmp) {
+							$xml .= str_repeat("\t", $depth)."<".$k.">".$tmp."</".$k.">"."\n";
+						}
 					}
 				} else {
 					$xml .= str_repeat("\t", $depth)."<".$k.">\n";
@@ -677,6 +691,9 @@ class UsersController extends AppController {
 			if ($val == '') {
 				continue;
 			}
+			if ($col == 'PaymentMethods') {
+				$val = explode("\n", $val);
+			} 
 			$depth = explode('_', $col);
 			$xml = array_merge_recursive($xml, $this->arr2xml($arr, $depth, $val));
 		}
@@ -698,7 +715,7 @@ class UsersController extends AppController {
 		
 		return $f;
 	}
-
+	
 	function getebaydetails()
 	{
 		$h = null;
@@ -715,13 +732,14 @@ class UsersController extends AppController {
 			$h['DetailLevel'] = 'ReturnAll';
 			//$h['ViewAllNodes'] = 'true';
 			//$h['AllFeaturesForCategory'] = 'true';
-			$h['FeatureID'] = 'ListingDuration';
-			//$h['CategoryID'] = '15825';
+			//$h['FeatureID'] = 'ListingDuration';
+			if ($categoryid) {
+				$h['CategoryID'] = $categoryid;
+			}
 			$xmlobj = $this->callapi('GetCategoryFeatures', $h);
-		}
-		
-		if (false) {
-			$tmp = file_get_contents('/var/www/dev.xboo.st/app/tmp/apilogs/CategoryFeatures.xml');
+			
+		} else {
+			$tmp = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
 			$xmlobj = simplexml_load_string($tmp);
 		}
 		
@@ -731,8 +749,12 @@ class UsersController extends AppController {
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
 		echo '<pre>';
-		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$categoryid."]"));
-		$fd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:FeatureDefinitions/ns:ListingDurations/ns:ListingDuration");
+		print_r($xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+							   . "/ns:Category[ns:CategoryID=".$categoryid."]"));
+		$fd = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+							 . "/ns:FeatureDefinitions"
+							 . "/ns:ListingDurations"
+							 . "/ns:ListingDuration");
 		echo '<pre>'.print_r($fd,1).'</pre>';
 		foreach ($fd as $i => $o) {
 			
@@ -751,7 +773,9 @@ class UsersController extends AppController {
 			echo $setid.' : '.print_r($a,1).'<br>';
 		}
 		
-		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse/ns:SiteDefaults/ns:ListingDuration");
+		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
+							 . "/ns:SiteDefaults"
+							 . "/ns:ListingDuration");
 		echo '<pre>'.print_r($ld,1).'</pre>';
 		
 		foreach ($ld as $i => $o) {
@@ -779,25 +803,25 @@ class UsersController extends AppController {
 		$colnames = $this->getitemcols();
 		
 		if (true) {
-		  $h = null;
-		  $h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		  //$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
-		  //$h['DetailLevel'] = 'ItemReturnDescription';
-		  $h['DetailLevel'] = 'ReturnAll';
-		  $h['StartTimeFrom'] = '2010-04-01 00:00:00';
-		  $h['StartTimeTo']   = date('Y-m-d H:i:s');
-		  $h['Pagination']['EntriesPerPage'] = 200;
-		  $h['Sort'] = 1;
-		  if ($userid) {
-			$h['UserID'] = $userid;
-		  }
-		  
-		  $xmlobj = $this->callapi('GetSellerList', $h);
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+			//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
+			//$h['DetailLevel'] = 'ItemReturnDescription';
+			$h['DetailLevel'] = 'ReturnAll';
+			$h['StartTimeFrom'] = '2010-06-20 00:00:00';
+			//$h['StartTimeTo']   = date('Y-m-d H:i:s');
+			$h['StartTimeTo']   = '2010-09-01 00:00:00';
+			$h['Pagination']['EntriesPerPage'] = 200;
+			$h['Sort'] = 1;
+			if ($userid) {
+				$h['UserID'] = $userid;
+			}
+			
+			$xmlobj = $this->callapi('GetSellerList', $h);
 		} else {
-		  $xml_response = file_get_contents
-			('/var/www/dev.xboo.st/app/tmp/apilogs/'
-			 . '0618235436.GetSellerList.response.xml');
-		  $xmlobj = simplexml_load_string($xml_response);
+			$xml_response = file_get_contents
+				(ROOT.'/app/tmp/apilogs/0625224943.GetSellerList.response.xml');
+			$xmlobj = simplexml_load_string($xml_response);
 		}
 		echo '<pre>',print_r($xmlobj,1).'</pre>';
 		
@@ -806,13 +830,16 @@ class UsersController extends AppController {
 			$arr = null;
 			$i = null;
 			$this->xml2arr($o, $arr, '');
+			
 			foreach ($arr as $c => $v) {
 				$c = str_replace('.','_',$c);
 				if (isset($colnames[$c])) {
 					
 					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
 					
-					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
+					if ($c == 'PictureDetails.PictureURL' && is_array($v)) {
+						$v = implode("\n", $v);
+					} else if ($c == 'PaymentMethods' && is_array($v)) {
 						$v = implode("\n", $v);
 					}
 					
@@ -826,6 +853,7 @@ class UsersController extends AppController {
 			$res = $this->User->query("SELECT id FROM items WHERE ItemID = ".$i['ItemID']);
 			if (!empty($res[0]['items']['id'])) {
 				
+				// todo: check accountid
 				/* UPDATE */
 				$sql_updates = null;
 				foreach ($i as $f => $v) {
@@ -878,6 +906,7 @@ class UsersController extends AppController {
 			}
 			$res2 = $this->User->query($sql2);
 			foreach ($res2 as $i => $row2) {
+				// todo: show > for indicate whether have children.
 				$sibs[] = $row2['categories'];
 			}
 			$data['nodes'][$row['level']] = $sibs;
@@ -913,11 +942,10 @@ class UsersController extends AppController {
 			$data['categories'] = $rows;
 		}
 		
-		$data['durationset']  = $this->getdurationset($categoryid);
-		
+		$data['categoryfeatures']  = $this->categoryfeatures($categoryid);
 		
 		/* response */
-		error_log(print_r($data,1));
+		//error_log(print_r($data,1));
 		echo json_encode($data);
 		exit;
 	}
@@ -927,7 +955,7 @@ class UsersController extends AppController {
 	 *
 	 * todo: inherit features from its all parents.
 	 */
-	function getdurationset($categoryid=null)
+	function categoryfeatures($categoryid=null)
 	{
 		/* load xml */
 		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
@@ -962,34 +990,60 @@ class UsersController extends AppController {
 		}
 		//error_log(print_r($durationset,1));
 		
-		/* ListingDuration */
-		$xmlobj_sd = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
-									. '/ns:SiteDefaults'
-									. '/ns:ListingDuration');
+		
+		/* SiteDefaults */
+		$sdns = '/ns:GetCategoryFeaturesResponse/ns:SiteDefaults';
+		
+		$xmlobj_sd = $xmlobj->xpath($sdns.'/ns:ListingDuration');
 		foreach ($xmlobj_sd as $i => $o) {
 			$attr = $o->attributes();
 			$type = $attr['type'].'';
 			$typedefault[$type] = $o.'';
 		}
 		
-		/* overwrite */
-		$ld = $xmlobj->xpath("/ns:GetCategoryFeaturesResponse"
-							 . "/ns:Category[ns:CategoryID=".$categoryid."]"
-							 . "/ns:ListingDuration");
-		if ($ld) {
-		  error_log(print_r($ld,1));
-			foreach ($ld as $i => $o) {
-				$attr = $o->attributes();
-				$type = $attr['type'].'';
-				$typedefault[$type] = $o.'';
-			}
+		$xmlobj_pm = $xmlobj->xpath($sdns.'/ns:PaymentMethod');
+		foreach ($xmlobj_pm as $i => $o) {
+			if ($o.'' == 'CustomCode') continue;
+			$arrpm[] = $o.'';
 		}
-		//error_log(print_r($typedefault,1));
+		
+		/* overwrite by child nodes */
+		$path = $this->categorypath($categoryid);
+		error_log(print_r($path['level'],1));
+		foreach ($path['level'] as $level => $cid) {
+			
+			$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
+			
+			$ld = $xmlobj->xpath($cns."/ns:ListingDuration");
+			if ($ld) {
+				foreach ($ld as $i => $o) {
+					$attr = $o->attributes();
+					$type = $attr['type'].'';
+					$typedefault[$type] = $o.'';
+				}
+			}
+			
+			$pm = $xmlobj->xpath($cns."/ns:PaymentMethod");
+			if ($pm) {
+				$tmppm = null;
+				foreach ($pm as $i => $o) {
+					if ($o.'' == 'CustomCode') continue;
+					$tmppm[] = $o.'';
+				}
+				$arrpm = $tmppm;
+			}
+			
+		}
 		
 		/* result  */
 		foreach ($typedefault as $type => $setid) {
-			$data[$type] = $durationset[$setid];
+			$data['ListingDuration'][$type] = $durationset[$setid];
 		}
+		// it's tricky!
+		$data['ListingDuration']['Chinese'] =
+			array('Days_1' => '1 Day') + $data['ListingDuration']['Chinese'];
+		
+		$data['PaymentMethod'] = $arrpm;
 		//error_log(print_r($data,1));
 		
 		return $data;

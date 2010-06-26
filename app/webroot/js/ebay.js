@@ -8,7 +8,7 @@ $(document).bind({
 		bindevents();
 		$('ul#selling li a:contains("Active")').click();
 		
-		$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
+		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
 		setTimeout("$('a.Title:lt(2):last').click()", 1000);
@@ -50,7 +50,12 @@ function getrow(row)
 	
 	$('input:checkbox', dom).val(id);
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
-	$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
+	
+	if (row['PictureDetails_PictureURL']) {
+		$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
+	} else {
+		$('img.PictureDetails_PictureURL', dom).remove();
+	}
 	
 	return dom;
 }
@@ -92,8 +97,11 @@ function getdetail(row)
 		$('td.category', detail).html(catstr);
 	});
 	
-	var ldstr = row['durationset'][row['ListingType']][row['ListingDuration']];
+	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
+	
+	var pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
+	$('td.paymentmethod', detail).html(pmstr);
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -124,7 +132,8 @@ function resizediv()
 	$('div#content').width(w);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
-	$('div.tabContainer').width(w-42);
+	$('div.tabContainer').width(w-32);
+	
 	return;
 }
 
@@ -224,7 +233,7 @@ function bindevents()
 			$('div.detail', '#'+id).slideToggle('fast');
 		}
 		
-		$.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
+		//$.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
 		
 		return false;
 	});
@@ -269,7 +278,7 @@ function bindevents()
 		$.each(pathdata['level'], function(idx, val) {
 		    sel = $('<select class="category"/>');
 		    $.each(pathdata['nodes'][idx], function(id, row) {
-				opt = $('<option/>').val(row['id']).text(row['name']);
+				opt = $('<option/>').val(row['id']).text(row['name']+'('+row['id']+')');
 				if (row['id'] == val) opt.attr('selected', 'selected');
 				sel.append(opt);
 		    });
@@ -280,12 +289,23 @@ function bindevents()
 		
 		/* listing duration */
 		sel = $('<select/>').attr('name', 'ListingDuration');
-		$.each(rowsdata[id]['durationset'][rowsdata[id]['ListingType']], function(k, v) {
+		$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][rowsdata[id]['ListingType']], function(k, v) {
 			opt = $('<option/>').val(k).text(v);
 			if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
 			sel.append(opt);
 		});
 		$('td.duration', dom).html(sel);
+		
+		/* payment method */
+		$.each(rowsdata[id]['categoryfeatures']['PaymentMethod'], function(k, v) {
+			chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
+			if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
+				chk.attr('checked', 'checked');
+			}
+			$('td.paymentmethod', dom).append(chk);
+			$('td.paymentmethod', dom).append(v+'<br>');
+		});
+		//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
 		
 		
 		showbuttons(dom, 'update,cancel');
@@ -308,7 +328,7 @@ function bindevents()
 			alert('category error.');
 			return false;
 		}
-		postdata = $('input:text, input:hidden, select, textarea',
+		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
 		
 		$.post('/users/update/',
@@ -467,7 +487,7 @@ function updateduration(id)
 	listingtype = $('select[name=ListingType]', '#'+id).val();
 	
 	sel = $('<select/>').attr('name', 'ListingDuration');
-	$.each(rowsdata[id]['durationset'][listingtype], function(k, v) {
+	$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][listingtype], function(k, v) {
 		opt = $('<option/>').val(k).text(v);
 		sel.append(opt);
 	});
