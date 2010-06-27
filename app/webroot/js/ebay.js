@@ -11,8 +11,8 @@ $(document).bind({
 		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
@@ -83,6 +83,9 @@ function getdetail(row)
 	$('select[name=ListingType]', detail).replaceWith(tmpv);
 	
 	$('input:file', detail).remove();
+	
+	// site
+	$('select[name=Site]', detail).replaceWith(row['Site']);
 	
 	// category
 	var catstr = '';
@@ -268,6 +271,7 @@ function bindevents()
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		$('select[name=ListingType]',   dom).val(rowsdata[id]['ListingType']);
+		$('select[name=Site]',          dom).val(rowsdata[id]['Site']);
 		
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');

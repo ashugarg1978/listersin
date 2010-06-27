@@ -40,7 +40,7 @@ CREATE TABLE `items` (
   `ShippingDetails_ShippingServiceOptions_ShippingServicePriority` int(11) default NULL,
   `ShippingDetails_ShippingServiceOptions_ShippingService` varchar(100) default NULL,
   `ShippingDetails_ShippingType` varchar(50) default NULL,
-  `Site` varchar(4) default NULL,
+  `Site` varchar(20) default NULL,
   `StartPrice` double default NULL,
   `StartPrice@currencyID` char(3) default NULL,
   `SubTitle` varchar(55) default NULL,

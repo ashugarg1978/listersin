@@ -24,11 +24,8 @@ class UsersController extends AppController {
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
-		$this->Auth->fields = array('username' => 'email', 
-									'password' => 'password');
-		
+		$this->Auth->fields = array('username' => 'email',  'password' => 'password');
 		$this->user = $this->Auth->user();
-		
 		$this->set('user', $this->Auth->user());
 		
 		if (isset($this->user['User']['userid'])) {
@@ -40,6 +37,7 @@ class UsersController extends AppController {
 	function index()
 	{
 		if (isset($this->user['User']['userid'])) {
+			$this->set('site', $this->sitedetails());
 			$this->render('home');
 		}
 	}
@@ -183,6 +181,8 @@ class UsersController extends AppController {
 			$data['categoryfeatures']  =
 				$this->categoryfeatures($data['PrimaryCategory_CategoryID']);
 		}
+		
+		$data['other']['site'] = $this->sitedetails();
 		
 		//error_log(print_r($data,1));
 		echo json_encode($data);
@@ -455,7 +455,6 @@ class UsersController extends AppController {
 	
 	function xml2arr($xml, &$arr, $path)
 	{
-		error_log(print_r($xml->attributes(),1));
 		foreach ($xml->children() as $child) {
 			if (count($child->children())) {
 				if ($path) {
@@ -478,6 +477,10 @@ class UsersController extends AppController {
 					$arr[$newpath][] = $child.'';
 				} else {
 					$arr[$newpath] = $child.'';
+					
+					foreach ($child->attributes() as $attr) {
+						$arr[$newpath.'@'.$attr->getName()] = $attr.'';
+					}
 				}
 			}
 		}
@@ -502,6 +505,8 @@ class UsersController extends AppController {
 		}
 		error_log('additems:'.implode(',', $ids));
 		
+		$sites = $this->sitedetails();
+		
 		// read item data from database
 		$sql = "SELECT *"
 			. " FROM items"
@@ -511,14 +516,15 @@ class UsersController extends AppController {
 		foreach ($res as $i => $arr) {
 			
 			// todo: just for debug
-			$arr['items']['Title'] = "(".$arr['items']['id'].")".$arr['items']['Title'];
+			$arr['items']['Title'] = $arr['items']['Site']." ".$arr['items']['Title'];
 			
 			// todo: cut string in another way
 			$arr['items']['Title'] = substr($arr['items']['Title'], 0, 55);
 			
 			$accountid = $arr['items']['accountid'];
+			$site      = $arr['items']['Site'];
 			$itemdata[$accountid]['accounts'] = $arr['accounts'];
-			$itemdata[$accountid]['items'][]  = $arr['items'];
+			$itemdata[$accountid][$site]['items'][]  = $arr['items'];
 		}
 		
 		// todo: replace with callapi method
@@ -527,51 +533,55 @@ class UsersController extends AppController {
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
 		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
 		$headers['X-EBAY-API-CALL-NAME'] = 'AddItems';
-		$headers['X-EBAY-API-SITEID']    = 0;
+		//$headers['X-EBAY-API-SITEID']    = 2;
 		
 		$url = EBAY_SERVERURL;
 		
 		$pool = new HttpRequestPool();
 		
 		$seqidx = 0;
-		foreach ($itemdata as $accountid => $hash) {
+		foreach ($itemdata as $accountid => $sitehash) {
 			
-			$chunked = array_chunk($hash['items'], 5);
-			foreach ($chunked as $chunkedidx => $items) {
-				
-				// build xml
-				$h = null;
-				$h['RequesterCredentials']['eBayAuthToken'] = $hash['accounts']['ebaytoken'];
-				$h['Version']       = EBAY_COMPATLEVEL;
-				$h['ErrorLanguage'] = 'en_US';
-				$h['WarningLevel']  = 'High';
-				
-				foreach ($items as $i => $arr) {
-					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
-					$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
+			foreach ($sitehash as $site => $hash) {
+			
+				$chunked = array_chunk($hash['items'], 5);
+				foreach ($chunked as $chunkedidx => $items) {
+					
+					// build xml
+					$h = null;
+					$h['RequesterCredentials']['eBayAuthToken'] = $sitehash['accounts']['ebaytoken'];
+					$h['Version']       = EBAY_COMPATLEVEL;
+					$h['ErrorLanguage'] = 'en_US';
+					$h['WarningLevel']  = 'High';
+					
+					foreach ($items as $i => $arr) {
+						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
+						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
+					}
+					
+					$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+						. '<AddItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+						. $this->xml($h, 1)
+						. '</AddItemsRequest>'."\n";
+					
+					file_put_contents(ROOT.'/app/tmp/apilogs/'
+									  . date("mdHis").'.AddItems.request.'
+									  . $hash['accounts']['ebayuserid'].'.'.$chunkedidx.'.xml',
+									  $xml_request);
+					
+					$r = null;
+					$r = new HttpRequest();
+					$headers['X-EBAY-API-SITEID'] = $sites[$site];
+					$r->setHeaders($headers);
+					$r->setMethod(HttpRequest::METH_POST);
+					$r->setUrl($url);
+					$r->setRawPostData($xml_request);
+					$pool->attach($r);
+					
+					$seqmap[$seqidx]['accountid'] = $accountid;
+					$seqmap[$seqidx]['chunkeidx'] = $chunkedidx;
+					$seqidx++;
 				}
-				
-				$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-					. '<AddItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-					. $this->xml($h, 1)
-					. '</AddItemsRequest>'."\n";
-				
-				file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
-								  . date("mdHis").'.AddItems.request.'
-								  . $hash['accounts']['ebayuserid'].'.'.$chunkedidx.'.xml',
-								  $xml_request);
-				
-				$r = null;
-				$r = new HttpRequest();
-				$r->setHeaders($headers);
-				$r->setMethod(HttpRequest::METH_POST);
-				$r->setUrl($url);
-				$r->setRawPostData($xml_request);
-				$pool->attach($r);
-				
-				$seqmap[$seqidx]['accountid'] = $accountid;
-				$seqmap[$seqidx]['chunkeidx'] = $chunkedidx;
-				$seqidx++;
 			}
 		}
 		
@@ -688,6 +698,9 @@ class UsersController extends AppController {
 			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|ItemID)/', $col)) {
 				continue;
 			}
+			if (preg_match('/@/', $col)) {
+				continue;
+			}
 			if ($val == '') {
 				continue;
 			}
@@ -720,8 +733,12 @@ class UsersController extends AppController {
 	{
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+		$h['DetailName'] = 'SiteDetails';
 		
 		$xmlobj = $this->callapi('GeteBayDetails', $h);
+
+		pr($xmlobj);
+		exit;
 	}
 	
 	function getcategoryfeatures($categoryid=null)
@@ -808,9 +825,9 @@ class UsersController extends AppController {
 			//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 			//$h['DetailLevel'] = 'ItemReturnDescription';
 			$h['DetailLevel'] = 'ReturnAll';
-			$h['StartTimeFrom'] = '2010-06-20 00:00:00';
-			//$h['StartTimeTo']   = date('Y-m-d H:i:s');
-			$h['StartTimeTo']   = '2010-09-01 00:00:00';
+			$h['StartTimeFrom'] = '2010-06-01 00:00:00';
+			$h['StartTimeTo']   = date('Y-m-d H:i:s');
+			//$h['StartTimeTo']   = '2010-09-01 00:00:00';
 			$h['Pagination']['EntriesPerPage'] = 200;
 			$h['Sort'] = 1;
 			if ($userid) {
@@ -843,10 +860,11 @@ class UsersController extends AppController {
 						$v = implode("\n", $v);
 					}
 					
+					if (preg_match('/@/', $c)) $c = '`'.$c.'`';
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
-			echo '<pre>',print_r($arr,1).'</pre>';
+			//echo error_log(print_r($arr,1));
 			
 			/* SELECT */
 			// todo: catch INSERT/UPDATE query result.
@@ -863,6 +881,7 @@ class UsersController extends AppController {
 					. " SET ".implode(",",$sql_updates)
 					. " WHERE ItemID = ".$i['ItemID'];
 				$res = $this->User->query($sql_update);
+				//error_log($sql_update);
 				
 			} else {
 				
@@ -875,6 +894,7 @@ class UsersController extends AppController {
 					. " VALUES"
 					. " (".implode(",", array_values($i)).")";
 				$res = $this->User->query($sql_insert);
+				//error_log($sql_insert);
 			}
 		}
 		
@@ -1049,6 +1069,22 @@ class UsersController extends AppController {
 		return $data;
 	}
 	
+	function sitedetails()
+	{
+		/* load xml */
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/SiteDetails.xml');
+		$xmlobj = simplexml_load_string($xml);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		foreach ($xmlobj->SiteDetails as $o) {
+			$site = $o->Site.'';
+			$siteid = $o->SiteID.'';
+			$data[$site] = $siteid;
+		}
+		
+		return $data;
+	}
 	
 	/**
 	 * 

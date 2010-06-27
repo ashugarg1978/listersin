@@ -37,6 +37,7 @@ foreach ($accounts as $accountid => $row) {
 <div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;">
 </div>
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
+<a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
 
 </div>
 
@@ -153,6 +154,16 @@ foreach ($accounts as $accountid => $row) {
 	<tr>
 	  <td>SubTitle</td>
 	  <td><input name="SubTitle" type="text" size="60"></td>
+	</tr>
+	<tr>
+	  <td>Site</td>
+	  <td>
+		<select name="Site"><?
+		foreach ($site as $sitestr => $siteid) {
+			echo '<option value="'.$sitestr.'">'.$sitestr.'</option>';
+	 	}
+	 	?></select>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Category</td>
