@@ -1098,34 +1098,43 @@ class UsersController extends AppController {
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			
-			$h = null;
-			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-			$h['CategorySiteID'] = $siteid;
-			$h['DetailLevel'] = 'ReturnAll';
+			if (false) {
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+				$h['CategorySiteID'] = $siteid;
+				$h['DetailLevel'] = 'ReturnAll';
+				
+				$xmlobj = $this->callapi("GetCategories", $h, $sitename);
+			} else {
+				
+				$tmp = file_get_contents(ROOT.'/app/tmp/apilogs/GetCategories.'.$sitename.'.xml');
+				$xmlobj = simplexml_load_string($tmp);
+				
+				$line = null;
+				foreach ($xmlobj->CategoryArray->Category as $i => $o) {
+					$line[] = "("
+						. $o->CategoryID.","
+						. $o->CategoryLevel.","
+						. $o->CategoryParentID.","
+						. "'".mysql_real_escape_string($o->CategoryName)."',"
+						. ($o->LeafCategory ? 1 : 0)
+						. ")";
+				}
+				
+				$sql = "INSERT INTO categories_".strtolower($sitename)." ("
+					. " CategoryID,"
+					. " CategoryLevel,"
+					. " CategoryParentID,"
+					. " CategoryName,"
+					. " LeafCategory)"
+					. " VALUES ".implode(',', $line);
+				$res = $this->User->query($sql);
+				
+			}
 			
-			$xmlobj = $this->callapi("GetCategories", $h, $sitename);
 		}
 		exit;
 		
-		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		$h['CategorySiteID'] = 0;
-		$h['DetailLevel'] = 'ReturnAll';
-		
-		$xmlobj = $this->callapi("GetCategories", $h);
-		
-		foreach ($xmlobj->CategoryArray->Category as $i => $o) {
-			$line[] = "("
-					. $o->CategoryID.","
-					. $o->CategoryLevel.","
-					. "'".mysql_real_escape_string($o->CategoryName)."',"
-					. $o->CategoryParentID
-					. ")";
-		}
-		
-		$sql = "INSERT INTO categories (id, level, name, parentid)"
-		  . " VALUES ".implode(',', $line);
-		$res = $this->User->query($sql);
 		
 		print '<pre>';
 		print_r($line);
