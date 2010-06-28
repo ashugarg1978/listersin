@@ -92,9 +92,9 @@ function getdetail(row)
 	pathdata = row['categorypath'];
 	$.each(pathdata['level'], function(idx, val) {
 		$.each(pathdata['nodes'][idx], function(catid, catrow) {
-			if (catrow['id'] == val) {
+			if (catrow['CategoryID'] == val) {
 				if (idx > 1) catstr += ' &gt; ';
-				catstr += catrow['name'];
+				catstr += catrow['CategoryName'];
 			}
 		});
 		$('td.category', detail).html(catstr);
@@ -103,7 +103,10 @@ function getdetail(row)
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
 	
-	var pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
+	var pmstr = "";
+	if (row['PaymentMethods']) {
+		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
+	}
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	$.each(row, function(colname, colval) {
@@ -301,16 +304,17 @@ function bindevents()
 		$('td.duration', dom).html(sel);
 		
 		/* payment method */
-		$.each(rowsdata[id]['categoryfeatures']['PaymentMethod'], function(k, v) {
-			chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
-			if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
-				chk.attr('checked', 'checked');
-			}
-			$('td.paymentmethod', dom).append(chk);
-			$('td.paymentmethod', dom).append(v+'<br>');
-		});
-		//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
-		
+		if (rowsdata[id]['categoryfeatures']['PaymentMethod']) {
+			$.each(rowsdata[id]['categoryfeatures']['PaymentMethod'], function(k, v) {
+				chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
+				if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
+					chk.attr('checked', 'checked');
+				}
+				$('td.paymentmethod', dom).append(chk);
+				$('td.paymentmethod', dom).append(v+'<br>');
+			});
+			//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
+		}
 		
 		showbuttons(dom, 'update,cancel');
 		

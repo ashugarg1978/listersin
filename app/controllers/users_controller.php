@@ -177,14 +177,16 @@ class UsersController extends AppController {
 		
 		// todo: avoid infinite loop
 		if ($data['PrimaryCategory_CategoryID'] > 0) {
-			$data['categorypath'] = $this->categorypath($data['PrimaryCategory_CategoryID']);
+			$data['categorypath'] =
+				$this->categorypath($data['Site'], $data['PrimaryCategory_CategoryID']);
 			$data['categoryfeatures']  =
-				$this->categoryfeatures($data['PrimaryCategory_CategoryID']);
+				$this->categoryfeatures($data['Site'], $data['PrimaryCategory_CategoryID']);
 		}
 		
 		$data['other']['site'] = $this->sitedetails();
 		
 		//error_log(print_r($data,1));
+		error_log(json_encode($data));
 		echo json_encode($data);
 		
 		exit;
@@ -741,7 +743,7 @@ class UsersController extends AppController {
 		exit;
 	}
 	
-	function getcategoryfeatures($categoryid=null)
+	function getcategoryfeatures($site, $categoryid=null)
 	{
 		if (true) {
 			$h = null;
@@ -905,37 +907,45 @@ class UsersController extends AppController {
 	/**
 	 * get hierarchical path data of specific category and its parents.
 	 */
-	function categorypath($categoryid)
+	function categorypath($site, $categoryid)
 	{
+		$table = "categories_".strtolower($site);
+		$data = null;
+		
 		while (true) {
 			
 			/* myself */
-			$res = $this->User->query("SELECT * FROM categories WHERE id = ".$categoryid);
-			$row = $res[0]['categories'];
-			$data['level'][$row['level']] = $row['id'];
-			$parentid = $row['parentid'];
+			$res = $this->User->query
+				("SELECT * FROM ".$table." WHERE CategoryID = ".$categoryid);
+			if (empty($res[0][$table])) break;
+			$row = $res[0][$table];
+			$data['level'][$row['CategoryLevel']] = $row['CategoryID'];
+			$parentid = $row['CategoryParentID'];
 			
 			/* siblings */
 			$sibs = null;
-			if ($row['level'] == 1) {
-				$sql2 = "SELECT * FROM categories WHERE level = ".$row['level'];
+			if ($row['CategoryLevel'] == 1) {
+				$sql2 = "SELECT * FROM ".$table
+					. " WHERE CategoryLevel = ".$row['CategoryLevel'];
 			} else {
-				$sql2 = "SELECT * FROM categories"
-					. " WHERE parentid = ".$row['parentid']
-					. " AND level = ".$row['level'];
+				$sql2 = "SELECT * FROM ".$table
+					. " WHERE CategoryParentID = ".$row['CategoryParentID']
+					. " AND CategoryLevel = ".$row['CategoryLevel'];
 			}
 			$res2 = $this->User->query($sql2);
 			foreach ($res2 as $i => $row2) {
 				// todo: show > for indicate whether have children.
-				$sibs[] = $row2['categories'];
+				$sibs[] = $row2[$table];
 			}
-			$data['nodes'][$row['level']] = $sibs;
+			$data['nodes'][$row['CategoryLevel']] = $sibs;
 			
 			/* next loop for upper depth */
-			if ($row['level'] == 1) break;
-			$categoryid = $row['parentid'];
+			if ($row['CategoryLevel'] == 1) break;
+			$categoryid = $row['CategoryParentID'];
 		}
-		ksort($data['level']);
+		if (is_array($data['level'])) {
+			ksort($data['level']);
+		}
 		
 		return $data;
 	}
@@ -975,7 +985,7 @@ class UsersController extends AppController {
 	 *
 	 * todo: inherit features from its all parents.
 	 */
-	function categoryfeatures($categoryid=null)
+	function categoryfeatures($site, $categoryid=null)
 	{
 		/* load xml */
 		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
@@ -1028,7 +1038,7 @@ class UsersController extends AppController {
 		}
 		
 		/* overwrite by child nodes */
-		$path = $this->categorypath($categoryid);
+		$path = $this->categorypath($site, $categoryid);
 		error_log(print_r($path['level'],1));
 		foreach ($path['level'] as $level => $cid) {
 			
@@ -1098,6 +1108,8 @@ class UsersController extends AppController {
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			
+			if ($siteid != 77) continue;
+			
 			if (false) {
 				$h = null;
 				$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
@@ -1110,6 +1122,7 @@ class UsersController extends AppController {
 				$tmp = file_get_contents(ROOT.'/app/tmp/apilogs/GetCategories.'.$sitename.'.xml');
 				$xmlobj = simplexml_load_string($tmp);
 				
+				
 				$line = null;
 				foreach ($xmlobj->CategoryArray->Category as $i => $o) {
 					$line[] = "("
@@ -1121,6 +1134,7 @@ class UsersController extends AppController {
 						. ")";
 				}
 				
+				$res = $this->User->query("DELETE FROM categories_".strtolower($sitename));
 				$sql = "INSERT INTO categories_".strtolower($sitename)." ("
 					. " CategoryID,"
 					. " CategoryLevel,"
