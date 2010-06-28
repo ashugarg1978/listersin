@@ -6,7 +6,7 @@
  * - scrollbar appear when item detail expanded, width broken.
  * - use html5.
  * - unify json response to one code.
- *
+ * - i18n.
  *
  */
 class UsersController extends AppController {
