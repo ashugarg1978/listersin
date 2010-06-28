@@ -285,8 +285,10 @@ function bindevents()
 		$.each(pathdata['level'], function(idx, val) {
 		    sel = $('<select class="category"/>');
 		    $.each(pathdata['nodes'][idx], function(id, row) {
-				opt = $('<option/>').val(row['id']).text(row['name']+'('+row['id']+')');
-				if (row['id'] == val) opt.attr('selected', 'selected');
+				str = row['CategoryName']+'('+row['CategoryID']+')';
+				if (row['LeafCategory'] == 0) str += ' &gt;';
+				opt = $('<option/>').val(row['CategoryID']).html(str);
+				if (row['CategoryID'] == val) opt.attr('selected', 'selected');
 				sel.append(opt);
 		    });
 			//if (idx > 1) $('td.category', dom).append(' &gt; ');
