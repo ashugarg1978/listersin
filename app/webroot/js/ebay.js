@@ -90,15 +90,20 @@ function getdetail(row)
 	// category
 	var catstr = '';
 	pathdata = row['categorypath'];
-	$.each(pathdata['level'], function(idx, val) {
-		$.each(pathdata['nodes'][idx], function(catid, catrow) {
-			if (catrow['CategoryID'] == val) {
-				if (idx > 1) catstr += ' &gt; ';
-				catstr += catrow['CategoryName'];
-			}
+	if (pathdata) {
+		$.each(pathdata['level'], function(idx, val) {
+			$.each(pathdata['nodes'][idx], function(catid, catrow) {
+				if (catrow['CategoryID'] == val) {
+					if (idx > 1) catstr += ' &gt; ';
+					catstr += catrow['CategoryName'];
+				}
+			});
 		});
 		$('td.category', detail).html(catstr);
-	});
+	} else {
+		catstr = '<span class="error">not selected</span>';
+	}
+	$('td.category', detail).html(catstr);
 	
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
@@ -162,7 +167,7 @@ function bindevents()
 		
 		curelm = this;
 		$.post('/users/category/',
-			   'categoryid='+$(this).val(),
+			   'site='+$('select[name=Site]', '#'+id).val()+'&categoryid='+$(this).val(),
 			   function(data) {
 				   
 				   $(curelm).nextAll('select').remove();
@@ -173,7 +178,9 @@ function bindevents()
 					   opt = $('<option/>').val('').text('');
 					   sel.append(opt);
 					   $.each(data['categories'], function(id, row) {
-						   opt = $('<option/>').val(row['id']).text(row['name']);
+						   str = row['CategoryName']+'('+row['CategoryID']+')';
+						   if (row['LeafCategory'] == 0) str += ' &gt;';
+						   opt = $('<option/>').val(row['CategoryID']).html(str);
 						   sel.append(opt);
 					   });
 					   $(curelm).after(sel);

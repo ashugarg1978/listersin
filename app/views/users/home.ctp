@@ -46,7 +46,7 @@ foreach ($accounts as $accountid => $row) {
 <div style="float:left; margin:10px;">
 <input type="button" value="All"    onclick="chkall();">
 <input type="button" value="Reset"  onclick="unchkall();">
-<input type="button" value="List"   onclick="additems();">
+<input type="button" value="(Re)List"   onclick="additems();">
 <input type="button" value="Copy"   onclick="copyitems();">
 <input type="button" value="Update" onclick="update();">
 <input type="button" value="Delete" onclick="delete();">

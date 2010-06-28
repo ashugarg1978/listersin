@@ -956,23 +956,25 @@ class UsersController extends AppController {
 	 */
 	function category()
 	{
+	  $site = $_POST['site'];
 		$categoryid = $_POST['categoryid'];
 		
 		$data = array();
 		
 		/* child categories */
-		$sql = "SELECT * FROM categories"
-			. " WHERE parentid = ".$categoryid
-			. " AND id != ".$categoryid;
+		$table = "categories_".strtolower($site);
+		$sql = "SELECT * FROM ".$table
+			. " WHERE CategoryParentID = ".$categoryid
+			. " AND CategoryID != ".$categoryid;
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
-				$rows[] = $row['categories'];
+				$rows[] = $row[$table];
 			}
 			$data['categories'] = $rows;
 		}
 		
-		$data['categoryfeatures']  = $this->categoryfeatures($categoryid);
+		$data['categoryfeatures']  = $this->categoryfeatures($site, $categoryid);
 		
 		/* response */
 		//error_log(print_r($data,1));
@@ -1039,8 +1041,8 @@ class UsersController extends AppController {
 		
 		/* overwrite by child nodes */
 		$path = $this->categorypath($site, $categoryid);
-		error_log(print_r($path['level'],1));
-		foreach ($path['level'] as $level => $cid) {
+		if (is_array($path['level'])) {
+		  foreach ($path['level'] as $level => $cid) {
 			
 			$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
 			
@@ -1062,7 +1064,7 @@ class UsersController extends AppController {
 				}
 				$arrpm = $tmppm;
 			}
-			
+		  }
 		}
 		
 		/* result  */
