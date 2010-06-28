@@ -24,6 +24,7 @@ eBay Accounts<br>
 <?
 foreach ($accounts as $accountid => $row) {
 	echo '<li><span class="more">- </span>'.$row['ebayuserid'].'</li>';
+	echo '<li><a href="/users/getsellerlist/'.$row['ebayuserid'].'" target="_blank">getsellerlist</a></li>';
 }
 ?>
 </ul>
@@ -33,7 +34,10 @@ foreach ($accounts as $accountid => $row) {
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
 <iframe name="posttarget" width="130" height="100" src="/blank.html" style="display:none;"></iframe>
-<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa; min-height:500px;"></div>
+<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;">
+</div>
+<a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
+<a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
 
 </div>
 
@@ -152,6 +156,16 @@ foreach ($accounts as $accountid => $row) {
 	  <td><input name="SubTitle" type="text" size="60"></td>
 	</tr>
 	<tr>
+	  <td>Site</td>
+	  <td>
+		<select name="Site"><?
+		foreach ($site as $sitestr => $siteid) {
+			echo '<option value="'.$sitestr.'">'.$sitestr.'</option>';
+	 	}
+	 	?></select>
+	  </td>
+	</tr>
+	<tr>
 	  <td>Category</td>
 	  <td class="category"></td>
 	</tr>
@@ -169,12 +183,17 @@ foreach ($accounts as $accountid => $row) {
 		<select name="ListingType">
 		<option value="Chinese">Online Auction</option>  
 		<option value="FixedPriceItem">Fixed Price</option>
+		<option value="LeadGeneration">Classified Ad</option>
 		</select>
 	  </td>
 	</tr>
 	<tr>
 	  <td>Listing Duration</td>
 	  <td class="duration"></td>
+	</tr>
+	<tr>
+	  <td>Payment Methods</td>
+	  <td class="paymentmethod"></td>
 	</tr>
   </tbody>
 </table>
