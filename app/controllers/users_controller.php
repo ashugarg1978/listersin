@@ -1091,10 +1091,21 @@ class UsersController extends AppController {
 	 */
 	function getcategories()
 	{
-		$sql = "SELECT * FROM accounts"
-			. " WHERE ebayuserid = 'testuser_tokyo'";
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
+		
+		$sites = $this->sitedetails();
+		foreach ($sites as $sitename => $siteid) {
+			
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+			$h['CategorySiteID'] = $siteid;
+			$h['DetailLevel'] = 'ReturnAll';
+			
+			$xmlobj = $this->callapi("GetCategories", $h, $sitename);
+		}
+		exit;
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
@@ -1127,15 +1138,17 @@ class UsersController extends AppController {
 	/**
 	 * common function to call ebay api.
 	 */
-	function callapi($call, $xmldata)
+	function callapi($call, $xmldata, $site='US')
 	{
+		$sites = $this->sitedetails();
+		
 		/* prepare */
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
 		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
 		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
 		$headers['X-EBAY-API-CALL-NAME'] = $call;
-		$headers['X-EBAY-API-SITEID']    = 0;
+		$headers['X-EBAY-API-SITEID']    = $sites[$site];
 		
 		$url = EBAY_SERVERURL;
 		
@@ -1148,16 +1161,15 @@ class UsersController extends AppController {
 			. $this->xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
-		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
-						  . date("mdHis").'.'.$call.'.request.xml',
+		$date = date("mdHis");
+		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.request.xml',
 						  $xml_request);
-
+		
 		/* response */
 		$xml_response = $this->post($url, $xml_request);
 		$xmlobj = simplexml_load_string($xml_response);
 		
-		file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
-						  . date("mdHis").'.'.$call.'.response.xml',
+		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.response.xml',
 						  $xml_response);
 		
 		return $xmlobj;
@@ -1182,7 +1194,7 @@ class UsersController extends AppController {
 		$this->r->setRawPostData($postdata);
 
 		$trycount = 0;
-
+		
 		while ($trycount < 5) {
 			try {
 				$this->r->send();
