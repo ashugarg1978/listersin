@@ -80,7 +80,7 @@ class UsersController extends AppController {
 		
 		if (!empty($_POST["accountid"]))
 			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
-		
+
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
@@ -525,7 +525,7 @@ class UsersController extends AppController {
 			
 			$accountid = $arr['items']['accountid'];
 			$site      = $arr['items']['Site'];
-			$itemdata[$accountid]['accounts'] = $arr['accounts'];
+			$accounts[$accountid] = $arr['accounts'];
 			$itemdata[$accountid][$site]['items'][]  = $arr['items'];
 		}
 		
@@ -545,13 +545,13 @@ class UsersController extends AppController {
 		foreach ($itemdata as $accountid => $sitehash) {
 			
 			foreach ($sitehash as $site => $hash) {
-			
+				
 				$chunked = array_chunk($hash['items'], 5);
 				foreach ($chunked as $chunkedidx => $items) {
 					
 					// build xml
 					$h = null;
-					$h['RequesterCredentials']['eBayAuthToken'] = $sitehash['accounts']['ebaytoken'];
+					$h['RequesterCredentials']['eBayAuthToken'] = $accounts[$accountid]['ebaytoken'];
 					$h['Version']       = EBAY_COMPATLEVEL;
 					$h['ErrorLanguage'] = 'en_US';
 					$h['WarningLevel']  = 'High';
@@ -568,7 +568,7 @@ class UsersController extends AppController {
 					
 					file_put_contents(ROOT.'/app/tmp/apilogs/'
 									  . date("mdHis").'.AddItems.request.'
-									  . $hash['accounts']['ebayuserid'].'.'.$chunkedidx.'.xml',
+									  . $accounts[$accountid]['ebayuserid'].'.'.$chunkedidx.'.xml',
 									  $xml_request);
 					
 					$r = null;
@@ -610,7 +610,7 @@ class UsersController extends AppController {
 					
 					$h = null;
 					$h['RequesterCredentials']['eBayAuthToken'] =
-						$itemdata[$accountid]['accounts']['ebaytoken'];
+						$accounts[$accountid]['ebaytoken'];
 					$h['ItemID'] = $obj->ItemID;
 					$gio = $this->callapi('GetItem', $h);
 					
@@ -627,7 +627,7 @@ class UsersController extends AppController {
 					
 					$sql = "UPDATE items"
 						. " SET ".implode(', ', $sql_u)
-						. " WHERE itemid = ".$itemdata[$accountid]['items'][$idx]['itemid'];
+						. " WHERE id = ".$itemdata[$accountid]['items'][$idx]['id'];
 					
 					error_log($sql);
 					$this->User->query($sql);

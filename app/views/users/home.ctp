@@ -84,8 +84,9 @@ foreach ($accounts as $accountid => $row) {
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
-	<input type="accountid" name="title" size="10">
 <? if (false) { ?>
+	<input type="text" name="ebayuserid" size="10">
+<? } else { ?>
 	<select name="accountid" onchange="filter();">
 	<option value=""></option>
 	<?

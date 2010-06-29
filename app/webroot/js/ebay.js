@@ -421,7 +421,7 @@ function update()
 function additems()
 {
 	var postdata = "";
-	postdata = $("input[name='id[]']:checked").serialize();
+	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
 	
 	$("input[name='id[]']:checked").each(function() {
 		$(this).css('visibility', 'hidden');
@@ -430,7 +430,7 @@ function additems()
 	
 	$.post('/users/additems/',
 		   postdata,
-		   function(data){
+		   function(data) {
 			   $('#debug').html('<pre>'+data+'</pre>');
 		   });
 	
