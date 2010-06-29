@@ -85,11 +85,18 @@ class UsersController extends AppController {
 			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
 		$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
-		$sql_selling['Active']    = "ListingDetails_EndTime > Now()";
-		$sql_selling['Sold']      = "SellingStatus_QuantitySold > 0";
+		
+		$sql_selling['Active']    = "ItemID IS NOT NULL"
+			. " AND ListingDetails_EndTime > Now()";
+		
+		$sql_selling['Sold']      = "ItemID IS NOT NULL"
+			. " AND SellingStatus_QuantitySold > 0";
+		
 		$sql_selling['Unsold']    = "ListingDetails_EndTime < Now()"
 			. " AND SellingStatus_QuantitySold = 0";
+		
 		$sql_selling['Other']     = "ItemID IS NULL";
+		
 		if (!empty($_POST['selling'])) 
 			$sql_filter[] = $sql_selling[$_POST['selling']];
 		
@@ -594,15 +601,13 @@ class UsersController extends AppController {
 				}
 			}
 		}
-		foreach ($pool as $r) {
-			error_log(print_r($r->getHeaders(),1));
-		}
+		
 		/* execute api call */
 		$trycount = 0;
 		while ($trycount < 5) {
 			try {
 				$pool->send();
-			} catch (HttpException $ex) {
+			} catch (Exception $ex) {
 				sleep(5);
 				$trycount++;
 				if ($trycount >= 5) {

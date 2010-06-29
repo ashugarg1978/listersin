@@ -433,7 +433,7 @@ function additems()
 			   $('#debug').html('<pre>'+data+'</pre>');
 		   });
 	
-	setTimeout(function(){update();}, 2000);
+	//setTimeout(function(){update();}, 2000);
 	
 	return;
 }

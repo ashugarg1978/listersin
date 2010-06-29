@@ -80,7 +80,7 @@ foreach ($accounts as $accountid => $row) {
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="50" size="2">
+	<input type="hidden" name="limit"  value="100" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
