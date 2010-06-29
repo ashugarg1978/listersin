@@ -499,7 +499,6 @@ class UsersController extends AppController {
 				. ' additems '.implode(',', $_POST['id'])
 				. ' > /dev/null &';
 			system($cmd);
-			error_log($cmd);
 			exit;
 			
 		} else if (empty($ids)) {
@@ -510,6 +509,7 @@ class UsersController extends AppController {
 		$sites = $this->sitedetails();
 		
 		// read item data from database
+		// todo: check user account id
 		$sql = "SELECT *"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
@@ -518,7 +518,9 @@ class UsersController extends AppController {
 		foreach ($res as $i => $arr) {
 			
 			// todo: just for debug
-			$arr['items']['Title'] = $arr['items']['Site']." ".$arr['items']['Title'];
+			$arr['items']['Title'] = $arr['items']['Site']
+			  . ".".$arr['items']['id']
+			  . ".".$arr['items']['Title'];
 			
 			// todo: cut string in another way
 			$arr['items']['Title'] = substr($arr['items']['Title'], 0, 55);
@@ -526,7 +528,7 @@ class UsersController extends AppController {
 			$accountid = $arr['items']['accountid'];
 			$site      = $arr['items']['Site'];
 			$accounts[$accountid] = $arr['accounts'];
-			$itemdata[$accountid][$site]['items'][]  = $arr['items'];
+			$itemdata[$accountid][$site]['items'][] = $arr['items'];
 		}
 		
 		// todo: replace with callapi method
@@ -535,7 +537,6 @@ class UsersController extends AppController {
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
 		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
 		$headers['X-EBAY-API-CALL-NAME'] = 'AddItems';
-		//$headers['X-EBAY-API-SITEID']    = 2;
 		
 		$url = EBAY_SERVERURL;
 		
@@ -543,7 +544,7 @@ class UsersController extends AppController {
 		
 		$seqidx = 0;
 		foreach ($itemdata as $accountid => $sitehash) {
-			
+		  
 			foreach ($sitehash as $site => $hash) {
 				
 				$chunked = array_chunk($hash['items'], 5);
@@ -557,6 +558,7 @@ class UsersController extends AppController {
 					$h['WarningLevel']  = 'High';
 					
 					foreach ($items as $i => $arr) {
+					  $arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
 						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 					}
@@ -588,7 +590,21 @@ class UsersController extends AppController {
 		}
 		
 		/* execute api call */
-		$pool->send();
+		$trycount = 0;
+		while ($trycount < 5) {
+		  try {
+			$pool->send();
+		  } catch (HttpException $ex) {
+			sleep(5);
+			$trycount++;
+			if ($trycount >= 5) {
+			  exit;
+			}
+			error_log('additems try['.$trycount.']');
+			continue;
+		  }
+		  break;
+		}
 		
 		$ridx = 0;
 		foreach ($pool as $r) {
@@ -597,7 +613,7 @@ class UsersController extends AppController {
 			
 			$xml_response = $r->getResponseBody();
 			
-			file_put_contents('/var/www/dev.xboo.st/app/tmp/apilogs/'
+			file_put_contents(ROOT.'/app/tmp/apilogs/'
 							  . date("mdHis").'.AddItems.response.'.$ridx.'.xml',
 							  $xml_response);
 			
@@ -1187,6 +1203,7 @@ class UsersController extends AppController {
 			. '</'.$call.'Request>'."\n";
 		
 		$date = date("mdHis");
+		$date = 9999999999 - $date;
 		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.request.xml',
 						  $xml_request);
 		
