@@ -383,14 +383,13 @@ function bindevents()
 	
 function copyitems()
 {
+	var postdata = "";
+	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
+	
 	$.post('/users/copy/',
-		   $("input[name='item[]']:checked").serialize(),
-		   function(data){
-			   
-			   html = '';
-			   $.each(data, function(idx){
-			   });
-			   $('#tbdy').html(html+$('#tbdy').html());
+		   postdata,
+		   function(data) {
+			   var a;
 		   },
 		   'json');
 	

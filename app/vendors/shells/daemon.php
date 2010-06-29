@@ -8,8 +8,6 @@ class DaemonShell extends Shell {
 	
 	function main()
 	{
-		error_log('daemon:'.implode(" ", $this->args));
-		
 		$funcname = $this->args[0];
 		$arg = explode(',', $this->args[1]);
 		

@@ -320,22 +320,27 @@ class UsersController extends AppController {
 	 */
 	function copy()
 	{
-		if (empty($_POST['item'])) return;
+		if (empty($_POST['id'])) return;
+		
+		$cols = $this->getitemcols();
+		unset($cols['id']);
+		unset($cols['ItemID']);
+		unset($cols['created']);
+		unset($cols['updated']);
+		unset($cols['ListingDetails_StartTime']);
+		unset($cols['ListingDetails_EndTime']);
+		$colnames = array_keys($cols);
 		
 		// todo: list copy column names
-		$sql_copy = "INSERT INTO items ("
-			. " accountid, title, description, categoryid, "
-			. " startprice"
-			. " ) SELECT"
-			. " accountid, title, description, categoryid, "
-			. " startprice"
-			. " FROM items"
-			. " WHERE itemid IN (".implode(",", $_POST['item']).")"
-			. " ORDER BY itemid";
+		$sql_copy = "INSERT INTO items (".implode(',', $colnames).", created, updated)"
+			. " SELECT ".implode(',', $colnames).", NOW(), NOW() FROM items"
+			. " WHERE id IN (".implode(",", $_POST['id']).")"
+			. " ORDER BY id";
+		error_log($sql_copy);
 		$res = $this->User->query($sql_copy);
 		
-		// todo: separate by userid
-		$sql = "SELECT itemid, ebayuserid, title"
+		/*
+		$sql = "SELECT id, ebayuserid, title"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " ORDER BY itemid DESC"
@@ -343,6 +348,7 @@ class UsersController extends AppController {
 		$res = $this->User->query($sql);
 		
 		echo json_encode($res);
+		*/
 		
 		exit;
 	}
@@ -558,7 +564,7 @@ class UsersController extends AppController {
 					$h['WarningLevel']  = 'High';
 					
 					foreach ($items as $i => $arr) {
-					  $arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
+						$arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
 						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 					}
@@ -569,7 +575,7 @@ class UsersController extends AppController {
 						. '</AddItemsRequest>'."\n";
 					
 					file_put_contents(ROOT.'/app/tmp/apilogs/'
-									  . date("mdHis").'.AddItems.request.'
+									  . (9999999999-date("mdHis")).'.AddItems.request.'
 									  . $accounts[$accountid]['ebayuserid'].'.'.$chunkedidx.'.xml',
 									  $xml_request);
 					
@@ -588,22 +594,24 @@ class UsersController extends AppController {
 				}
 			}
 		}
-		
+		foreach ($pool as $r) {
+			error_log(print_r($r->getHeaders(),1));
+		}
 		/* execute api call */
 		$trycount = 0;
 		while ($trycount < 5) {
-		  try {
-			$pool->send();
-		  } catch (HttpException $ex) {
-			sleep(5);
-			$trycount++;
-			if ($trycount >= 5) {
-			  exit;
+			try {
+				$pool->send();
+			} catch (HttpException $ex) {
+				sleep(5);
+				$trycount++;
+				if ($trycount >= 5) {
+					exit;
+				}
+				error_log('additems try['.$trycount.']');
+				continue;
 			}
-			error_log('additems try['.$trycount.']');
-			continue;
-		  }
-		  break;
+			break;
 		}
 		
 		$ridx = 0;
@@ -614,7 +622,7 @@ class UsersController extends AppController {
 			$xml_response = $r->getResponseBody();
 			
 			file_put_contents(ROOT.'/app/tmp/apilogs/'
-							  . date("mdHis").'.AddItems.response.'.$ridx.'.xml',
+							  . (9999999999-date("mdHis")).'.AddItems.response.'.$ridx.'.xml',
 							  $xml_response);
 			
 			$xmlobj = simplexml_load_string($xml_response);
@@ -741,7 +749,11 @@ class UsersController extends AppController {
 		$sql = "DESC items;";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $row) {
-			$f[$row['COLUMNS']['Field']] = $row;
+			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
+				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
+			} else {
+				$f[$row['COLUMNS']['Field']] = $row;
+			}
 		}
 		
 		return $f;
