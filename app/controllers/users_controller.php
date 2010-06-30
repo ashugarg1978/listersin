@@ -377,16 +377,14 @@ class UsersController extends AppController {
 			}
 		}
 		
-		$sql_update = "UPDATE items"
-			. " SET ".implode(", ", $sqlcol)
-			. " WHERE id = ".$id;
+		$sql_update = "UPDATE items SET ".implode(", ", $sqlcol)." WHERE id = ".$id;
 		error_log($sql_update);
 		$res = $this->User->query($sql_update);
 		
 		$_POST = null;
 		$_POST['id'] = $id;
 		
-		$this->items();
+		$this->item();
 		
 		exit;
 	}

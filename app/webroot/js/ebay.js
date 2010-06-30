@@ -49,6 +49,7 @@ function getrow(row)
 	});
 	
 	$('input:checkbox', dom).val(id);
+	dump(dom);
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
 	if (row['PictureDetails_PictureURL']) {
@@ -376,9 +377,10 @@ function bindevents()
 		$.post('/users/update/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
-				   rowsdata[id] = data.res[0];
-				   dom = getrow(data.res[0]);
-				   detail = getdetail(data.res[0]);
+				   rowsdata[id] = data;
+				   dump(data);
+				   dom = getrow(data);
+				   detail = getdetail(data);
 				   detail.css('display', 'block');
 				   $('tr.row2 td', dom).html(detail);
 				   $('tbody#'+id).replaceWith(dom);
