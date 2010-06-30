@@ -541,7 +541,7 @@ class UsersController extends AppController {
 			$accountid = $arr['items']['accountid'];
 			$site      = $arr['items']['Site'];
 			$accounts[$accountid] = $arr['accounts'];
-			$itemdata[$accountid][$site]['items'][] = $arr['items'];
+			$itemdata[$accountid][$site][] = $arr['items'];
 		}
 		
 		// todo: replace with callapi method
@@ -557,15 +557,21 @@ class UsersController extends AppController {
 		
 		$seqidx = 0;
 		foreach ($itemdata as $accountid => $sitehash) {
-		  
+			
 			foreach ($sitehash as $site => $hash) {
 				
-				$chunked = array_chunk($hash['items'], 5);
+				$chunked = array_chunk($hash, 5);
 				foreach ($chunked as $chunkedidx => $items) {
 					
-					// build xml
+					/* numbering each pool entities */
+					$seqidx++;
+					$seqmap[$seqidx]['accountid'] = $accountid;
+					$seqmap[$seqidx]['chunkeidx'] = $chunkedidx;
+					
+					/* build xml */
 					$h = null;
-					$h['RequesterCredentials']['eBayAuthToken'] = $accounts[$accountid]['ebaytoken'];
+					$h['RequesterCredentials']['eBayAuthToken'] =
+						$accounts[$accountid]['ebaytoken'];
 					$h['Version']       = EBAY_COMPATLEVEL;
 					$h['ErrorLanguage'] = 'en_US';
 					$h['WarningLevel']  = 'High';
@@ -582,10 +588,14 @@ class UsersController extends AppController {
 						. '</AddItemsRequest>'."\n";
 					
 					file_put_contents(ROOT.'/app/tmp/apilogs/'
-									  . (9999999999-date("mdHis")).'.AddItems.request.'
-									  . $accounts[$accountid]['ebayuserid'].'.'.$chunkedidx.'.xml',
+									  . (9999999999-date("mdHis")).'.AddIs.req'
+									  . '.'.substr('0'.$seqidx, -2)
+									  . '.'.$accounts[$accountid]['ebayuserid']
+									  . '.'.$site
+									  . '.'.$chunkedidx.'.xml',
 									  $xml_request);
 					
+					/* attach request object to pool */
 					$r = null;
 					$r = new HttpRequest();
 					$headers['X-EBAY-API-SITEID'] = $sites[$site];
@@ -594,10 +604,6 @@ class UsersController extends AppController {
 					$r->setUrl($url);
 					$r->setRawPostData($xml_request);
 					$pool->attach($r);
-					
-					$seqmap[$seqidx]['accountid'] = $accountid;
-					$seqmap[$seqidx]['chunkeidx'] = $chunkedidx;
-					$seqidx++;
 				}
 			}
 		}
@@ -622,12 +628,14 @@ class UsersController extends AppController {
 		$ridx = 0;
 		foreach ($pool as $r) {
 			
+			$ridx++;
 			$accountid = $seqmap[$ridx]['accountid'];
 			
 			$xml_response = $r->getResponseBody();
 			
 			file_put_contents(ROOT.'/app/tmp/apilogs/'
-							  . (9999999999-date("mdHis")).'.AddItems.response.'.$ridx.'.xml',
+							  . (9999999999-date("mdHis")).'.AddIs.res'
+							  . '.'.substr('0'.$ridx, -2).'.xml',
 							  $xml_response);
 			
 			$xmlobj = simplexml_load_string($xml_response);
@@ -681,8 +689,6 @@ class UsersController extends AppController {
 			}
 			
 			$itemdata[$accountid]['response'] = $xmlobj;
-			
-			$ridx++;
 		}
 		
 		return $itemdata;
