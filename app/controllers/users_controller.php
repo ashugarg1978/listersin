@@ -36,6 +36,7 @@ class UsersController extends AppController {
 	
 	function index()
 	{
+	  // todo: avoid /users/home request 
 		if (isset($this->user['User']['userid'])) {
 			$this->set('site', $this->sitedetails());
 			$this->render('home');
@@ -996,15 +997,22 @@ class UsersController extends AppController {
 	function category()
 	{
 	  $site = $_POST['site'];
+	  $categoryid = null;
+	  if (isset($_POST['categoryid'])) {
 		$categoryid = $_POST['categoryid'];
+	  }
 		
 		$data = array();
 		
 		/* child categories */
 		$table = "categories_".strtolower($site);
-		$sql = "SELECT * FROM ".$table
-			. " WHERE CategoryParentID = ".$categoryid
+		$sql = "SELECT * FROM ".$table;
+		if (empty($categoryid)) {
+		  $sql .= " WHERE CategoryLevel = 1";
+		} else {
+		  $sql .= " WHERE CategoryParentID = ".$categoryid
 			. " AND CategoryID != ".$categoryid;
+		}
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
@@ -1013,10 +1021,11 @@ class UsersController extends AppController {
 			$data['categories'] = $rows;
 		}
 		
-		$data['categoryfeatures']  = $this->categoryfeatures($site, $categoryid);
+		$data['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
 		
 		/* response */
 		//error_log(print_r($data,1));
+		error_log(json_encode($data));
 		echo json_encode($data);
 		exit;
 	}
@@ -1079,7 +1088,10 @@ class UsersController extends AppController {
 		}
 		
 		/* overwrite by child nodes */
-		$path = $this->categorypath($site, $categoryid);
+		$path = null;
+		if ($categoryid) {
+		  $path = $this->categorypath($site, $categoryid);
+		}
 		if (is_array($path['level'])) {
 		  foreach ($path['level'] as $level => $cid) {
 			

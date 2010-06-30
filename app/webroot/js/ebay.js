@@ -11,8 +11,8 @@ $(document).bind({
 		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
-		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
@@ -160,6 +160,31 @@ function bindevents()
 		$(this).closest('form')[0].reset();
     });
     
+	$('select[name=Site]').live('change', function() {
+		id = $(this).closest('tbody.itemrow').attr('id');
+		
+		$.post('/users/category/',
+			   'site='+$('select[name=Site]', '#'+id).val(),
+			   function(data) {
+				   
+				   $('select.category', 'tbody#'+id).remove();
+				   sel = $('<select class="category"/>');
+				   opt = $('<option/>').val('').text('');
+				   sel.append(opt);
+				   $.each(data['categories'], function(id, row) {
+					   str = row['CategoryName']+'('+row['CategoryID']+')';
+					   if (row['LeafCategory'] == 0) str += ' &gt;';
+					   opt = $('<option/>').val(row['CategoryID']).html(str);
+					   sel.append(opt);
+				   });
+				   $('td.category', 'tbody#'+id).append(sel);
+				   
+			   },
+			   'json');
+		
+		return;
+	});
+							  
 	// todo: simalteniously modification causes broken
 	$('select.category').live('change', function() {
 		
