@@ -579,6 +579,10 @@ class UsersController extends AppController {
 						$arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
 						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
+						
+						$seqmap2[$seqidx][($i+1)] = $arr['id'];
+						//error_log('q '.$accountid.'.'.$site.'.'.$chunkedidx.'('.$seqidx.')'
+						//		  . '.'.$i.':'.$arr['id']);
 					}
 					
 					$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -633,69 +637,56 @@ class UsersController extends AppController {
 		foreach ($pool as $r) {
 			
 			$ridx++;
-			$accountid = $seqmap[$ridx]['accountid'];
+			
+			/* HTTP error */
+			if ($r->getResponseCode() != 200) {
+				error_log('Error[ridx:'.$ridx.']'
+						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
+				continue;
+			}
 			
 			$xml_response = $r->getResponseBody();
 			
-			file_put_contents(ROOT.'/app/tmp/apilogs/'
-							  . (9999999999-date("mdHis")).'.AddIs.res'
-							  . '.'.substr('0'.$ridx, -2).'.xml',
-							  $xml_response);
+			$resfile = ROOT.'/app/tmp/apilogs/'
+				. (9999999999-date("mdHis")).'.AddIs.res.'.substr('0'.$ridx, -2).'.xml';
+			file_put_contents($resfile, $xml_response);
+			chmod($resfile, 0777);
 			
 			$xmlobj = simplexml_load_string($xml_response);
 			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
-			  
-				$idx = ($seqmap[$ridx]['chunkeidx'] * 5) + ($obj->CorrelationID - 1);
+				
+				$id = $seqmap2[$ridx][$obj->CorrelationID.''];
+				//error_log('r '.$ridx.'.'.$obj->CorrelationID
+				//		  . ':'.$seqmap2[$ridx][$obj->CorrelationID.'']);
 				
 				if (isset($obj->ItemID)) {
 					
-					$h = null;
-					$h['RequesterCredentials']['eBayAuthToken'] =
-						$accounts[$accountid]['ebaytoken'];
-					$h['ItemID'] = $obj->ItemID;
-					$gio = $this->callapi('GetItem', $h);
-					
 					$j = null;
-					$j['ebayitemid']  = $obj->ItemID;
-					$j['starttime']   = $obj->StartTime;
-					$j['endtime']     = $obj->EndTime;
-					$j['viewitemurl'] = $gio->Item->ListingDetails->ViewItemURL;
+					$j['ebayitemid'] = $obj->ItemID;
+					$j['starttime']  = $obj->StartTime;
+					$j['endtime']    = $obj->EndTime;
 					
 					$sql_u = null;
 					foreach ($j as $f => $v) {
 						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
 					}			  
 					
+					// todo: check userid/accountid
 					$sql = "UPDATE items"
 						. " SET ".implode(', ', $sql_u)
-						. " WHERE id = ".$itemdata[$accountid]['items'][$idx]['id'];
-					
-					error_log($sql);
+						. " WHERE id = ".$id;
 					$this->User->query($sql);
-					
-					$result = null;
-					$result['ebayitemid'] = $obj->ItemID;
-					$result['starttime']  = $obj->StartTime;
-					$result['endtime']    = $obj->EndTime;
-					
-					$itemdata[$accountid]['items'][$idx]['result'] = $result;
 					
 				} else if (isset($obj->Errors)) {
 					
-					$itemdata[$accountid]['items'][$idx]['errors'] = $obj->Errors->LongMessage;
-					
-				} else {
-					
-					$itemdata[$accountid]['items'][$idx]['exception']  = '*** ?????? ***';
+					// todo: save error message
 					
 				}
 				
 			}
 			
-			$itemdata[$accountid]['response'] = $xmlobj;
 		}
-		
-		return $itemdata;
+		return;
 	}
 	
 	
