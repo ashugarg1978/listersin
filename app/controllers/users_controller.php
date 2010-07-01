@@ -579,6 +579,10 @@ class UsersController extends AppController {
 						$arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
 						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
+						
+						$seqmap2[$seqidx][($i+1)] = $arr['id'];
+						//error_log('q '.$accountid.'.'.$site.'.'.$chunkedidx.'('.$seqidx.')'
+						//		  . '.'.$i.':'.$arr['id']);
 					}
 					
 					$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -639,22 +643,21 @@ class UsersController extends AppController {
 			
 			$xmlobj = simplexml_load_string($xml_response);
 			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
-			  
+				
+				error_log('r '.$ridx.'.'.$obj->CorrelationID
+						  . ':'.$seqmap2[$ridx][$obj->CorrelationID.'']);
+				
+				continue;
+				
+				$id = $seqmap2[$ridx][$obj->CorrelationID.'']
 				$idx = ($seqmap[$ridx]['chunkeidx'] * 5) + ($obj->CorrelationID - 1);
 				
 				if (isset($obj->ItemID)) {
-					
-					$h = null;
-					$h['RequesterCredentials']['eBayAuthToken'] =
-						$accounts[$accountid]['ebaytoken'];
-					$h['ItemID'] = $obj->ItemID;
-					$gio = $this->callapi('GetItem', $h);
 					
 					$j = null;
 					$j['ebayitemid']  = $obj->ItemID;
 					$j['starttime']   = $obj->StartTime;
 					$j['endtime']     = $obj->EndTime;
-					$j['viewitemurl'] = $gio->Item->ListingDetails->ViewItemURL;
 					
 					$sql_u = null;
 					foreach ($j as $f => $v) {
@@ -665,7 +668,6 @@ class UsersController extends AppController {
 						. " SET ".implode(', ', $sql_u)
 						. " WHERE id = ".$itemdata[$accountid]['items'][$idx]['id'];
 					
-					error_log($sql);
 					$this->User->query($sql);
 					
 					$result = null;
