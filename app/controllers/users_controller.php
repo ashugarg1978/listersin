@@ -617,7 +617,7 @@ class UsersController extends AppController {
 		while ($trycount < 5) {
 			try {
 				$pool->send();
-			} catch (Exception $ex) {
+			} catch (HttpRequestPoolException $ex) {
 			  $err = true;
 				$trycount++;
 				if ($trycount >= 5) {
@@ -632,6 +632,7 @@ class UsersController extends AppController {
 			  break;
 			}
 		}
+		//$pool->send();
 		
 		$ridx = 0;
 		foreach ($pool as $r) {
@@ -679,7 +680,14 @@ class UsersController extends AppController {
 					
 				} else if (isset($obj->Errors)) {
 					
+					$j = null;
+					$j['Errors_LongMessage'] = $obj->Errors->LongMessage;
+					
 					// todo: save error message
+					$sql = "UPDATE items"
+						. " SET ".implode(', ', $sql_u)
+						. " WHERE id = ".$id;
+					$this->User->query($sql);
 					
 				}
 				
