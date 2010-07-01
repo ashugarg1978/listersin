@@ -609,19 +609,24 @@ class UsersController extends AppController {
 		
 		/* execute api call */
 		$trycount = 0;
+		$err = false;
 		while ($trycount < 5) {
 			try {
 				$pool->send();
 			} catch (Exception $ex) {
-				sleep(5);
+			  $err = true;
 				$trycount++;
 				if ($trycount >= 5) {
 					exit;
 				}
+				//error_log(print_r($ex,1));
 				error_log('additems try['.$trycount.']');
-				continue;
 			}
-			break;
+			if ($err) {
+			  sleep(5);
+			} else {
+			  break;
+			}
 		}
 		
 		$ridx = 0;
