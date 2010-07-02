@@ -15,6 +15,7 @@
 <li><a href="">Sold</a></li>
 <li><a href="">Unsold</a></li>
 <li><a href="">Other</a></li>
+<li><a href="">All</a></li>
 </ul>
 
 <br>
@@ -74,7 +75,7 @@ foreach ($accounts as $accountid => $row) {
 <td>
 </td>
 <td>
-	<input type="text" name="itemid" size="4">
+	<input type="text" name="id" size="4">
 </td>
 <td></td>
 <td>
@@ -122,7 +123,7 @@ foreach ($accounts as $accountid => $row) {
 </tbody>
 <tbody>
 <tr>
-	<td colspan="8" align="center" style="height:100px;">
+	<td colspan="8" align="center" style="height:200px;">
 		Loading Item Data ...
 	</td>
 </tr>
@@ -238,7 +239,7 @@ foreach ($accounts as $accountid => $row) {
 	<input type="button" class="edit"   value="Edit">
 	<input type="button" class="copy"   value="Copy">
 	<input type="button" class="delete" value="Delete">
-	<input type="button" class="update" value="Update">
+	<input type="button" class="save"   value="Save">
 	<input type="button" class="cancel" value="Cancel">
 </div>
 

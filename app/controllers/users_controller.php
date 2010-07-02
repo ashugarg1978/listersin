@@ -98,8 +98,9 @@ class UsersController extends AppController {
 		
 		$sql_selling['Other']     = "ItemID IS NULL";
 		
-		if (!empty($_POST['selling'])) 
-			$sql_filter[] = $sql_selling[$_POST['selling']];
+		if (!empty($_POST['selling']) && $_POST['selling'] != 'All') {
+		  $sql_filter[] = $sql_selling[$_POST['selling']];
+		}
 		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
@@ -503,6 +504,35 @@ class UsersController extends AppController {
 		}
 	}
 	
+	function relistitem($id)
+	{
+	  $ids[] = $id;
+	  
+		$sites = $this->sitedetails();
+		
+		// read item data from database
+		// todo: check user account id
+		$sql = "SELECT *"
+			. " FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE id IN (".implode(",", $ids).")";
+		$res = $this->User->query($sql);
+	  
+		foreach ($res as $i => $arr) {
+
+		  $accounts = $arr['accounts'];
+		  $items    = $arr['items'];
+		  
+		  $h = null;
+		  $h['RequesterCredentials']['eBayAuthToken'] = $accounts['ebaytoken'];
+		  $h['Item'] = $this->xml_item($items);
+		  
+		  $rsp = $this->callapi('RelistItem', $h);
+		  
+		}
+		
+	}
+	
 	function additems($ids=null)
 	{
 		if (empty($ids) && isset($_POST['id'])) {
@@ -567,8 +597,6 @@ class UsersController extends AppController {
 					
 					/* numbering each pool entities */
 					$seqidx++;
-					$seqmap[$seqidx]['accountid'] = $accountid;
-					$seqmap[$seqidx]['chunkeidx'] = $chunkedidx;
 					
 					/* build xml */
 					$h = null;
@@ -584,8 +612,6 @@ class UsersController extends AppController {
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 						
 						$seqmap2[$seqidx][($i+1)] = $arr['id'];
-						//error_log('q '.$accountid.'.'.$site.'.'.$chunkedidx.'('.$seqidx.')'
-						//		  . '.'.$i.':'.$arr['id']);
 					}
 					
 					$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
@@ -605,6 +631,7 @@ class UsersController extends AppController {
 					$r = null;
 					$r = new HttpRequest();
 					$headers['X-EBAY-API-SITEID'] = $sites[$site];
+					$r->setOptions(array('timeout' => '60')); // todo: no mean?
 					$r->setHeaders($headers);
 					$r->setMethod(HttpRequest::METH_POST);
 					$r->setUrl($url);
@@ -626,7 +653,7 @@ class UsersController extends AppController {
 				if ($trycount >= 5) {
 					exit;
 				}
-				//error_log(print_r($ex,1));
+				error_log($ex->getMessage());
 				error_log('additems try['.$trycount.']');
 			}
 			if ($err) {
@@ -746,7 +773,8 @@ class UsersController extends AppController {
 	{
 		$xml = array();
 		foreach ($i as $col => $val) {
-			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|ItemID)/', $col)) {
+		  // todo: delete ItemID from caller function AddItems
+			if (preg_match('/(^[a-z]|ListingDetails|CategoryName)/', $col)) {
 				continue;
 			}
 			if (preg_match('/@/', $col)) {
@@ -1251,6 +1279,7 @@ class UsersController extends AppController {
 		/* request */
 		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
 			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+		  . '<WarningLevel>High</WarningLevel>'."\n"
 			. $this->xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
