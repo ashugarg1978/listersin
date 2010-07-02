@@ -5,6 +5,7 @@ var hash = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
+		resizediv();
 		bindevents();
 		$('ul#selling li a:contains("Active")').click();
 		
