@@ -5,6 +5,7 @@ var hash = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
+		resizediv();
 		bindevents();
 		$('ul#selling li a:contains("Active")').click();
 		
@@ -356,7 +357,7 @@ function bindevents()
 			//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
 		}
 		
-		showbuttons(dom, 'update,cancel');
+		showbuttons(dom, 'save,cancel');
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
@@ -367,7 +368,7 @@ function bindevents()
 		return;
 	});
 	
-	$('input:button.update', 'div.detail').live('click', function() {
+	$('input:button.save', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		

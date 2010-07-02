@@ -98,8 +98,9 @@ class UsersController extends AppController {
 		
 		$sql_selling['Other']     = "ItemID IS NULL";
 		
-		if (!empty($_POST['selling'])) 
-			$sql_filter[] = $sql_selling[$_POST['selling']];
+		if (!empty($_POST['selling']) && $_POST['selling'] != 'All') {
+		  $sql_filter[] = $sql_selling[$_POST['selling']];
+		}
 		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
@@ -1263,6 +1264,7 @@ class UsersController extends AppController {
 		/* request */
 		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
 			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+		  . '<WarningLevel>High</WarningLevel>'."\n"
 			. $this->xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
