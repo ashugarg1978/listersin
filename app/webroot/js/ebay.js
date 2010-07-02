@@ -59,7 +59,7 @@ function getrow(row)
 	}
 	
 	if (row['SellingStatus_ListingStatus'] == 'Active') {
-		st = $('<span/>').addClass('active').text('=> ');
+		st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
 	} else {
 		st = $(row['SellingStatus_ListingStatus']);
 	}
