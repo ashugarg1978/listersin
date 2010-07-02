@@ -11,8 +11,8 @@ $(document).bind({
 		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		setTimeout("$('a.Title:lt(10):last').click()", 1000);
+		setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
@@ -44,12 +44,17 @@ function getrow(row)
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
 	
+	var ts = "";
 	$.each(row, function(colname, colval) {
+
+		// todo: why at mark error?
+		if (colname.match(/\@/)) return;
+		
 		$('.'+colname, dom).html(colval);
 	});
 	
 	$('input:checkbox', dom).val(id);
-	dump(dom);
+	
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
 	if (row['PictureDetails_PictureURL']) {
@@ -378,7 +383,7 @@ function bindevents()
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
-				   dump(data);
+				   
 				   dom = getrow(data);
 				   detail = getdetail(data);
 				   detail.css('display', 'block');
