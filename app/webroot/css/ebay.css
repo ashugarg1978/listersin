@@ -292,3 +292,12 @@ div.picdiv img {
 	/*vertical-align: middle;*/
 	/*margin: 0 auto;*/
 }
+
+span.error {
+	color: red;
+	font-size: 9pt;
+}
+
+span.active {
+	color: green;
+}

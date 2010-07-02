@@ -11,8 +11,8 @@ $(document).bind({
 		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
+		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		//setTimeout("$('input:button.edit', 'div.detail').click()", 2000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 	}
 });
@@ -49,13 +49,25 @@ function getrow(row)
 	});
 	
 	$('input:checkbox', dom).val(id);
-	dump(dom);
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
 	if (row['PictureDetails_PictureURL']) {
 		$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
 	} else {
 		$('img.PictureDetails_PictureURL', dom).remove();
+	}
+	
+	if (row['SellingStatus_ListingStatus'] == 'Active') {
+		st = $('<span/>').addClass('active').text('=> ');
+	} else {
+		st = $(row['SellingStatus_ListingStatus']);
+	}
+	$('a.Title', dom).before(st);
+	
+	if (row['Errors_LongMessage']) {
+		err = $('<span/>').addClass('error').html('('+row['Site']+')'+row['Errors_LongMessage']);
+		$('a.Title', dom).after(err);
+		$('a.Title', dom).after('<br>');
 	}
 	
 	return dom;
@@ -114,6 +126,10 @@ function getdetail(row)
 		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
 	}
 	$('td.paymentmethod', detail).html(pmstr);
+	
+	// shippingservice
+	$('td.shippingservice', detail).html(row['ShippingDetails_ShippingServiceOptions_ShippingService']);
+	
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -378,7 +394,6 @@ function bindevents()
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
-				   dump(data);
 				   dom = getrow(data);
 				   detail = getdetail(data);
 				   detail.css('display', 'block');

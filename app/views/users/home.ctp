@@ -196,6 +196,10 @@ foreach ($accounts as $accountid => $row) {
 	  <td>Payment Methods</td>
 	  <td class="paymentmethod"></td>
 	</tr>
+	<tr>
+	  <td>Shipping Service</td>
+	  <td class="shippingservice"></td>
+	</tr>
   </tbody>
 </table>
 </div>

@@ -114,7 +114,10 @@ class UsersController extends AppController {
 			. " items.ListingDetails_ViewItemURL,"
 			. " items.Title,"
 			. " items.PictureDetails_PictureURL,"
-			. " items.StartPrice"
+			. " items.StartPrice,"
+			. " items.Site,"
+			. " items.SellingStatus_ListingStatus,"
+			. " items.Errors_LongMessage"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
@@ -194,7 +197,7 @@ class UsersController extends AppController {
 		$data['other']['site'] = $this->sitedetails();
 		
 		//error_log(print_r($data,1));
-		error_log(json_encode($data));
+		//error_log(json_encode($data));
 		echo json_encode($data);
 		
 		exit;
@@ -680,8 +683,15 @@ class UsersController extends AppController {
 					
 				} else if (isset($obj->Errors)) {
 					
+					error_log(print_r($obj,1));
+					
 					$j = null;
 					$j['Errors_LongMessage'] = $obj->Errors->LongMessage;
+					
+					$sql_u = null;
+					foreach ($j as $f => $v) {
+						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+					}			  
 					
 					// todo: save error message
 					$sql = "UPDATE items"
@@ -689,6 +699,7 @@ class UsersController extends AppController {
 						. " WHERE id = ".$id;
 					$this->User->query($sql);
 					
+					error_log($sql);
 				}
 				
 			}
@@ -777,11 +788,15 @@ class UsersController extends AppController {
 	{
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
-		$h['DetailName'] = 'SiteDetails';
-		
+		$h['DetailName'] = 'ShippingServiceDetails';
 		$xmlobj = $this->callapi('GeteBayDetails', $h);
 
-		pr($xmlobj);
+		foreach ($xmlobj->ShippingServiceDetails as $idx => $o) {
+			$arr = null;
+			$this->xml2arr($o, $arr, '');
+			pr($arr);
+		}
+		
 		exit;
 	}
 	
