@@ -76,8 +76,10 @@ class UsersController extends AppController {
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
 		
-		if (!empty($_POST["id"]))
-			$sql_filter[] = "id = '".mysql_real_escape_string($_POST["id"])."'";
+		// todo: avoid sql injection
+		if (!empty($_POST["id"])) {
+		  $sql_filter[] = "id IN (".implode(",", $_POST['id']).")";
+		}
 		
 		if (!empty($_POST["ItemID"]))
 			$sql_filter[] = "ItemID = '".mysql_real_escape_string($_POST["ItemID"])."'";
@@ -132,7 +134,7 @@ class UsersController extends AppController {
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res = $this->User->query($sql);
-		//error_log($sql);
+		error_log($sql);
 		
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");

@@ -16,7 +16,8 @@ $(document).bind({
 		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 		
-		websockettest();
+		setInterval(refresh, 5000);
+		//websockettest();
 	}
 });
 
@@ -459,21 +460,22 @@ function copyitems()
 	return;
 }
 
-function update()
+function refresh()
 {
-	$.post('/users/update/',
-		   $("input[name='item[]']:checked").serialize(),
+	loadings = $('td.loading > input:checkbox[name=id[]][value!=on]');
+	if (loadings.length <= 0) {
+		return;
+	}
+	
+	$.post('/users/items/',
+		   loadings.serialize(),
 		   function(data) {
-			   
-			   $.each(data, function(idx) {
-				   id = data[idx].items.id;
-				   
+			   dump(res);
+			   $.each(data.res, function(idx, row) {
+				   dom = getrow(row);
+				   $('tbody#'+row['id']).replaceWith(dom);
+				   rowsdata[row['id']] = row;
 			   });
-			   
-			   if ($("input[name='item[]']:checked").length > 0) {
-				   setTimeout(function(){update();}, 2000);
-			   }
-			   
 		   },
 		   'json');
 	
