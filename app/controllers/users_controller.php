@@ -650,27 +650,17 @@ class UsersController extends AppController {
 		}
 		
 		/* execute api call */
-		$trycount = 0;
-		$err = false;
-		while ($trycount < 5) {
-			try {
-				$pool->send();
-			} catch (HttpRequestPoolException $ex) {
-			  $err = true;
-				$trycount++;
-				if ($trycount >= 5) {
-					exit;
-				}
-				error_log($ex->getMessage());
-				error_log('additems try['.$trycount.']');
-			}
-			if ($err) {
-			  sleep(5);
-			} else {
-			  break;
-			}
+		if (true) {
+		  
+		  try {
+			$pool->send();
+		  } catch (HttpRequestPoolException $ex) {
+			error_log("pool->send() error\n".$ex->getMessage());
+		  }
+		  
+		} else {
+		  $pool->send();
 		}
-		//$pool->send();
 		
 		$ridx = 0;
 		foreach ($pool as $r) {
@@ -681,6 +671,8 @@ class UsersController extends AppController {
 			if ($r->getResponseCode() != 200) {
 				error_log('Error[ridx:'.$ridx.']'
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
+				$sql = "UPDATE items SET status = 0 WHERE id IN (".implode(",", $seqmap2[$ridx]).")";
+				error_log($sql);
 				continue;
 			}
 			
@@ -702,9 +694,10 @@ class UsersController extends AppController {
 					
 					$j = null;
 					$j['status'] = 0;
-					$j['ebayitemid'] = $obj->ItemID;
-					$j['starttime']  = $obj->StartTime;
-					$j['endtime']    = $obj->EndTime;
+					$j['ItemID'] = $obj->ItemID;
+					$j['SellingStatus_ListingStatus'] = 'Active'; // manually?
+					$j['ListingDetails_StartTime'] = $obj->StartTime;
+					$j['ListingDetails_EndTime']   = $obj->EndTime;
 					
 					$sql_u = null;
 					foreach ($j as $f => $v) {
