@@ -12,9 +12,11 @@ $(document).bind({
 		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(10):last').click()", 1000);
-		setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
+		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
+		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
+		
+		websockettest();
 	}
 });
 
@@ -54,6 +56,10 @@ function getrow(row)
 		$('.'+colname, dom).html(colval);
 	});
 	
+	if (row['status'] == 10) {
+		$('input:checkbox', dom).css('visibility', 'hidden');
+		$('input:checkbox', dom).parent().addClass('loading');
+	}
 	$('input:checkbox', dom).val(id);
 	
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
@@ -72,10 +78,10 @@ function getrow(row)
 	$('a.Title', dom).before(st);
 	
 	if (row['Errors_LongMessage']) {
-		err = $('<span/>').addClass('error').html('('+row['Site']+')'+row['Errors_LongMessage']);
-		$('a.Title', dom).after(err);
+		$('a.Title', dom).after('<span class="error">'+row['Errors_LongMessage']+'</span>');
 		$('a.Title', dom).after('<br>');
 	}
+	$('a.Title', dom).before('('+row['status']+')');
 	
 	return dom;
 }
@@ -176,7 +182,10 @@ function bindevents()
 {
 	$(window).resize(function() {
 		resizediv();
-		//$('#content').css('width', ($(window).width()-50)+'px');
+	});
+	
+	$('a.accountaction').live('click', function() {
+		$('ul', $(this).parent()).slideToggle('fast');
 	});
 	
     $('input:file').live('change', function() {
@@ -560,4 +569,25 @@ function updateduration(id)
 	$('select[name=ListingDuration]', '#'+id).replaceWith(sel);
 	
 	return;
+}
+
+function websockettest()
+{
+	var myWebSocket = new WebSocket("ws://localhost:81/server.php");
+	
+	myWebSocket.onopen = function(evt) {
+		alert("Connection open ...");
+	};
+	
+	myWebSocket.onmessage = function(evt) {
+		alert( "Received Message:  "  +  evt.data);
+	};
+	
+	myWebSocket.onclose = function(evt) {
+		alert("Connection closed.");
+	};
+	
+	myWebSocket.send("Hello Web Socket! Goodbye Comet!");
+	
+	myWebSocket.disconnect();
 }

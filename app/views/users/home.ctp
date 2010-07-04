@@ -18,19 +18,23 @@
 <li><a href="">All</a></li>
 </ul>
 
-<br>
-
-eBay Accounts<br>
 <ul class="accounts">
 <?
 foreach ($accounts as $accountid => $row) {
-	echo '<li><span class="more">- </span>'.$row['ebayuserid'].'</li>';
-	echo '<li><a href="/users/getsellerlist/'.$row['ebayuserid'].'" target="_blank">getsellerlist</a></li>';
+	echo '<li>';
+	echo '<a href="#" class="accountaction">▽';
+	echo '</a> <a href="#" class="accountlink">'.$row['ebayuserid'].'</a>';
+	?>
+	<ul class="accountaction">
+	<li><a href="">import from ebay</a></li>
+	<li><a href="">synchronize</a></li>
+	<li><a href="">settings</a></li>
+	</ul>
+	<?
+	echo '</li>';
 }
 ?>
 </ul>
-<br>
-
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
@@ -42,14 +46,19 @@ foreach ($accounts as $accountid => $row) {
 
 </div>
 
+
 <div id="content">
 
 <div style="float:left; margin:10px;">
-<input type="button" value="All"    onclick="chkall();">
-<input type="button" value="Reset"  onclick="unchkall();">
-<input type="button" value="(Re)List"   onclick="additems();">
+<input type="button" value="All"   onclick="chkall();">
+<input type="button" value="Reset" onclick="unchkall();">
+&nbsp;
+<input type="button" value="(Re)List" onclick="additems();">
+<input type="button" value="Revise"   onclick="">
+<input type="button" value="End"      onclick="">
+
+&nbsp;
 <input type="button" value="Copy"   onclick="copyitems();">
-<input type="button" value="Update" onclick="update();">
 <input type="button" value="Delete" onclick="delete();">
 </div>
 
@@ -99,7 +108,7 @@ foreach ($accounts as $accountid => $row) {
 <? } ?>
 </td>
 <td>
-	<input type="text" name="startprice" size="6">
+	<input type="text" name="ItemID" size="6">
 </td>
 <td></td>
 <td></td>

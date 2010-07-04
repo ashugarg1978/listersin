@@ -198,7 +198,7 @@ img.PictureDetails_PictureURL {
 	max-height: 300px;
 }
 
-input.update {
+input.save {
 	display: none;
 }
 input.cancel {
@@ -207,13 +207,28 @@ input.cancel {
 
 ul.accounts {
 	margin: 0px;
+	margin-bottom: 10px;
 	padding: 0px;
 	list-style-type: none;
+	
 }
 ul.accounts li {
 	margin: 0px;
 	padding: 2px;
 	padding-left: 5px;
+}
+
+a.accountaction {
+	font-size: 9pt;
+}
+
+ul.accountaction {
+	display: none;
+	/* position: absolute; */
+	background-color: #eaeaea;
+	border: 1px solid #999999;
+	list-style-type: none;
+	padding: 0px;
 }
 
 .tabselected {
@@ -294,8 +309,11 @@ div.picdiv img {
 }
 
 span.error {
+	background: url('/icon/01/10/50.png') no-repeat left center;
 	color: red;
-	font-size: 9pt;
+	font-size: 8pt;
+	padding-left: 15px;
+	font-weight: bold;
 }
 
 span.active {
