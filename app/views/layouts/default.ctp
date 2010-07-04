@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta>
+<meta charset="UTF-8">
 <title>ebaytool.jp</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">

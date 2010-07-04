@@ -79,6 +79,9 @@ class UsersController extends AppController {
 		if (!empty($_POST["id"]))
 			$sql_filter[] = "id = '".mysql_real_escape_string($_POST["id"])."'";
 		
+		if (!empty($_POST["ItemID"]))
+			$sql_filter[] = "ItemID = '".mysql_real_escape_string($_POST["ItemID"])."'";
+		
 		if (!empty($_POST["accountid"]))
 			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
 
@@ -118,7 +121,8 @@ class UsersController extends AppController {
 			. " items.StartPrice,"
 			. " items.Site,"
 			. " items.SellingStatus_ListingStatus,"
-			. " items.Errors_LongMessage"
+			. " items.Errors_LongMessage,"
+			. " items.status"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
@@ -555,6 +559,10 @@ class UsersController extends AppController {
 		
 		// read item data from database
 		// todo: check user account id
+		$sql = "UPDATE items SET status = 10"
+			. " WHERE id IN (".implode(",", $ids).")";
+		$res = $this->User->query($sql);
+		
 		$sql = "SELECT *"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
@@ -693,6 +701,7 @@ class UsersController extends AppController {
 				if (isset($obj->ItemID)) {
 					
 					$j = null;
+					$j['status'] = 0;
 					$j['ebayitemid'] = $obj->ItemID;
 					$j['starttime']  = $obj->StartTime;
 					$j['endtime']    = $obj->EndTime;
@@ -713,6 +722,7 @@ class UsersController extends AppController {
 					error_log(print_r($obj,1));
 					
 					$j = null;
+					$j['status'] = 0;
 					$j['Errors_LongMessage'] = $obj->Errors->LongMessage;
 					
 					$sql_u = null;
@@ -913,8 +923,7 @@ class UsersController extends AppController {
 			//$h['DetailLevel'] = 'ItemReturnDescription';
 			$h['DetailLevel'] = 'ReturnAll';
 			$h['StartTimeFrom'] = '2010-06-01 00:00:00';
-			$h['StartTimeTo']   = date('Y-m-d H:i:s');
-			//$h['StartTimeTo']   = '2010-09-01 00:00:00';
+			$h['StartTimeTo']   = date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
 			$h['Pagination']['EntriesPerPage'] = 200;
 			$h['Sort'] = 1;
 			if ($userid) {
@@ -1360,5 +1369,6 @@ class UsersController extends AppController {
 		
         return $str;
     }
+	
 }
 ?>
