@@ -26,7 +26,7 @@ foreach ($accounts as $accountid => $row) {
 	echo '</a> <a href="#" class="accountlink">'.$row['ebayuserid'].'</a>';
 	?>
 	<ul class="accountaction">
-	<li><a href="">import from ebay</a></li>
+	<li><a href="/users/getsellerlist/<?= $row['ebayuserid'] ?>" target="import">import from ebay</a></li>
 	<li><a href="">synchronize</a></li>
 	<li><a href="">settings</a></li>
 	</ul>

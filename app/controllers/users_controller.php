@@ -922,7 +922,7 @@ class UsersController extends AppController {
 			//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 			//$h['DetailLevel'] = 'ItemReturnDescription';
 			$h['DetailLevel'] = 'ReturnAll';
-			$h['StartTimeFrom'] = '2010-06-01 00:00:00';
+			$h['StartTimeFrom'] = '2010-06-21 00:00:00';
 			$h['StartTimeTo']   = date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
 			$h['Pagination']['EntriesPerPage'] = 200;
 			$h['Sort'] = 1;
