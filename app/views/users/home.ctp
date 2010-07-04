@@ -38,7 +38,7 @@ foreach ($accounts as $accountid => $row) {
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
 
-<iframe name="posttarget" width="130" height="100" src="/blank.html" style="display:none;"></iframe>
+<iframe name="posttarget" width="130" height="100" src="/blank.html"></iframe>
 <div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;">
 </div>
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
@@ -90,7 +90,7 @@ foreach ($accounts as $accountid => $row) {
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="100" size="2">
+	<input type="hidden" name="limit"  value="15" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>

@@ -132,7 +132,7 @@ class UsersController extends AppController {
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res = $this->User->query($sql);
-		error_log($sql);
+		//error_log($sql);
 		
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
@@ -163,6 +163,7 @@ class UsersController extends AppController {
 			/* StartPrice */
 			$item['StartPrice'] = number_format($item['StartPrice']);
 			
+			$item['Errors_LongMessage'] = explode("\n", $item['Errors_LongMessage']);
 			
 			/* add to rows */
 			$items[] = $item;
@@ -671,8 +672,11 @@ class UsersController extends AppController {
 			if ($r->getResponseCode() != 200) {
 				error_log('Error[ridx:'.$ridx.']'
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
-				$sql = "UPDATE items SET status = 0 WHERE id IN (".implode(",", $seqmap2[$ridx]).")";
-				error_log($sql);
+				$sql = "UPDATE items SET status = 0,"
+					. " Errors_LongMessage = 'Network error. Please try again later.'"
+					. " WHERE id IN (".implode(",", $seqmap2[$ridx]).")";
+				$this->User->query($sql);
+				
 				continue;
 			}
 			
@@ -714,9 +718,17 @@ class UsersController extends AppController {
 					
 					error_log(print_r($obj,1));
 					
+					$arrerrshort = null;
+					$arrerrlong  = null;
+					foreach ($obj->Errors as $ei => $eo) {
+						$arrerrshort[] = $eo->ShortMessage;
+						$arrerrlong[]  = $eo->LongMessage;
+					}
+					
 					$j = null;
 					$j['status'] = 0;
-					$j['Errors_LongMessage'] = $obj->Errors->LongMessage;
+					$j['Errors_ShortMessage'] = implode("\n", $arrerrshort);
+					$j['Errors_LongMessage']  = implode("\n", $arrerrlong);
 					
 					$sql_u = null;
 					foreach ($j as $f => $v) {
@@ -776,19 +788,19 @@ class UsersController extends AppController {
 	{
 		$xml = array();
 		foreach ($i as $col => $val) {
-		  // todo: delete ItemID from caller function AddItems
-			if (preg_match('/(^[a-z]|ListingDetails|CategoryName)/', $col)) {
+			// todo: delete ItemID from caller function AddItems
+			
+			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|Error)/', $col)
+				|| preg_match('/@/', $col)
+				|| $val == '') {
 				continue;
 			}
-			if (preg_match('/@/', $col)) {
-				continue;
-			}
-			if ($val == '') {
-				continue;
-			}
-			if ($col == 'PaymentMethods') {
+			
+			if ($col == 'PaymentMethods' || $col == 'PictureDetails_PictureURL') {
+				$val = preg_replace("/^\n/", "", $val);
 				$val = explode("\n", $val);
 			} 
+			
 			$depth = explode('_', $col);
 			$xml = array_merge_recursive($xml, $this->arr2xml($arr, $depth, $val));
 		}

@@ -78,8 +78,12 @@ function getrow(row)
 	$('a.Title', dom).before(st);
 	
 	if (row['Errors_LongMessage']) {
-		$('a.Title', dom).after('<span class="error">'+row['Errors_LongMessage']+'</span>');
-		$('a.Title', dom).after('<br>');
+		$.each(row['Errors_LongMessage'], function(k, v) {
+			if (v != '') {
+				$('a.Title', dom).after('<span class="error">'+v+'</span>');
+				$('a.Title', dom).after('<br>');
+			}
+		});
 	}
 	$('a.Title', dom).before('('+row['status']+')');
 	
