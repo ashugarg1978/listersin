@@ -16,7 +16,7 @@ $(document).bind({
 		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 		
-		setInterval(refresh, 5000);
+		setInterval(refresh, 2000);
 		//websockettest();
 	}
 });
@@ -481,8 +481,11 @@ function refresh()
 		   function(data) {
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
-				   dump(dom.html());
-				   $('tbody#'+row['id']).replaceWith(dom);
+				   if (row['status'] == 0) {
+					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
+					   $('input:checkbox', dom).parent().removeClass('loading');
+					   $('tbody#'+row['id']).replaceWith(dom);
+				   }
 				   rowsdata[row['id']] = row;
 			   });
 		   },
@@ -547,7 +550,7 @@ function paging(cnt)
 
 function chkall()
 {
-	$(":checkbox").attr('checked', 'checked');
+	$("input:checkbox[value!=on]").attr('checked', 'checked');
 }
 
 function unchkall()
