@@ -536,6 +536,9 @@ function paging(cnt)
 	html += ' of '+cnt+'&nbsp;';
 	
 	for (i=0; i<(cnt/limit); i++) {
+		if (offset/limit < i-5 || i+5 < offset/limit) {
+			continue;
+		}
 		if (offset == i*limit) {
 			html += '<a href="" style="background-color:#ccffcc;">'+(i+1)+'</a>';
 		} else {
