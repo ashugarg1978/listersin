@@ -1,3 +1,4 @@
+<div id="loading">Loading...</div>
 
 <div id="toolbar">
 <div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>

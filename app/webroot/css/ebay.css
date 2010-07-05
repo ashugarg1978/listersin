@@ -151,6 +151,16 @@ div.notice {
 	background-position: center center;
 }
 
+div#loading {
+	position: fixed;
+	top: 0px;
+	margin: 0px auto 0px auto;
+	text-align: center;
+	background-color: #ffffcc;
+	padding: 2px;
+	display: none;
+}
+
 div#paging {
 	margin: 5px;
 	height: 20px;

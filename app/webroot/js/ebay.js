@@ -443,8 +443,17 @@ function bindevents()
 		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
 		return false;
 	});
-}	
 	
+	
+    jQuery('div#loading').ajaxStart(function() {
+        jQuery(this).show();
+		
+    });
+    jQuery('div#loading').ajaxStop(function() {
+        jQuery(this).hide();
+    });
+}	
+
 function copyitems()
 {
 	var postdata = "";
@@ -470,9 +479,9 @@ function refresh()
 	$.post('/users/items/',
 		   loadings.serialize(),
 		   function(data) {
-			   dump(res);
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
+				   dump(dom.html());
 				   $('tbody#'+row['id']).replaceWith(dom);
 				   rowsdata[row['id']] = row;
 			   });
