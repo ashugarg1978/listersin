@@ -950,30 +950,16 @@ class UsersController extends AppController {
 			$h['UserID'] = $userid;
 		}
 		
-		//  <PaginationResult>
-		//	<TotalNumberOfPages>2</TotalNumberOfPages>
-		//	<TotalNumberOfEntries>254</TotalNumberOfEntries>
-		//  </PaginationResult>
-		//  <HasMoreItems>true</HasMoreItems>
-		
 		while (true) {
 			
 			$xmlobj = $this->callapi('GetSellerList', $h);
 			$this->getsellerlist_import($xmlobj, $account);
 			
-			echo '['.$xmlobj->HasMoreItems.']';
-			echo '['.$xmlobj->PaginationResult->TotalNumberOfPages.']';
-			echo '['.$xmlobj->ReturnedItemCountActual.']';
-			echo '['.$xmlobj->PageNumber.']<br>';
-				
 			if ($xmlobj->HasMoreItems == 'true') {
-				echo 'vvvvv HasMoreItems vvvvv<br>';
 				$h['Pagination']['PageNumber']++;
 			} else {
-				echo '----- End -----<br>';
 				break;
 			}
-			
 		}
 		
 		exit;
