@@ -935,6 +935,7 @@ class UsersController extends AppController {
 		
 		$colnames = $this->getitemcols();
 		
+		// todo: I can specify the span by EndTime
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
@@ -942,15 +943,49 @@ class UsersController extends AppController {
 		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
 		$h['StartTimeTo'] =
 			date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
-		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Pagination']['EntriesPerPage'] = 50;
+		$h['Pagination']['PageNumber'] = 1;
 		$h['Sort'] = 1;
 		if ($userid) {
 			$h['UserID'] = $userid;
 		}
 		
-		$xmlobj = $this->callapi('GetSellerList', $h);
+		//  <PaginationResult>
+		//	<TotalNumberOfPages>2</TotalNumberOfPages>
+		//	<TotalNumberOfEntries>254</TotalNumberOfEntries>
+		//  </PaginationResult>
+		//  <HasMoreItems>true</HasMoreItems>
 		
-		echo '<pre>',print_r($xmlobj,1).'</pre>';
+		while (true) {
+			
+			$xmlobj = $this->callapi('GetSellerList', $h);
+			$this->getsellerlist_import($xmlobj, $account);
+			
+			echo '['.$xmlobj->HasMoreItems.']';
+			echo '['.$xmlobj->PaginationResult->TotalNumberOfPages.']';
+			echo '['.$xmlobj->ReturnedItemCountActual.']';
+			echo '['.$xmlobj->PageNumber.']<br>';
+				
+			if ($xmlobj->HasMoreItems == 'true') {
+				echo 'vvvvv HasMoreItems vvvvv<br>';
+				$h['Pagination']['PageNumber']++;
+			} else {
+				echo '----- End -----<br>';
+				break;
+			}
+			
+		}
+		
+		exit;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	function getsellerlist_import($xmlobj, $account)
+	{
+		$colnames = $this->getitemcols();
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
@@ -1009,16 +1044,7 @@ class UsersController extends AppController {
 			}
 		}
 		
-		exit;
-	}
-	
-	
-	/**
-	 * 
-	 * /
-	function getsellerlist_import()
-	{
-	
+		return;
 	}
 	
 	
@@ -1318,7 +1344,7 @@ class UsersController extends AppController {
 		$r->setMethod(HttpRequest::METH_POST);
 		$r->setOptions(array('timeout' => '60'));
 		$r->setUrl(EBAY_SERVERURL);
-		$r->setRawPostData($postdata);
+		$r->setRawPostData($xml_request);
 		
 		return $r;
 	}
@@ -1346,6 +1372,7 @@ class UsersController extends AppController {
 		$xml_response = $r->getResponseBody();
 		$xmlobj = simplexml_load_string($xml_response);
 		
+		$date = 9999999999 - date("mdHis");
 		file_put_contents(ROOT.'/app/tmp/apilogs/'
 						  . $date.'.'.$call.'.'.$site.'.response.xml',
 						  $xml_response);
@@ -1377,8 +1404,7 @@ class UsersController extends AppController {
 			. $this->xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
-		$date = date("mdHis");
-		$date = 9999999999 - $date;
+		$date = 9999999999 - date("mdHis");
 		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.request.xml',
 						  $xml_request);
 		
