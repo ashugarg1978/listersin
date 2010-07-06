@@ -511,6 +511,27 @@ class UsersController extends AppController {
 		}
 	}
 	
+	function enditems($ids=null)
+	{
+		if (empty($ids) && isset($_POST['id'])) {
+			
+			// If called from browser, kick background process and exit
+			$cmd = 'PATH=/usr/local/php/bin'
+				. ' '.ROOT.'/cake/console/cake'
+				. ' -app '.ROOT.'/app daemon'
+				. ' enditems '.implode(',', $_POST['id'])
+				. ' > /dev/null &';
+			system($cmd);
+			exit;
+			
+		} else if (empty($ids)) {
+			return;
+		}
+		
+		
+		
+	}
+	
 	function relistitem($id)
 	{
 	  $ids[] = $id;
@@ -543,7 +564,7 @@ class UsersController extends AppController {
 	function additems($ids=null)
 	{
 		if (empty($ids) && isset($_POST['id'])) {
-			
+		  
 			// If called from browser, kick background process and exit
 			$cmd = 'PATH=/usr/local/php/bin'
 				. ' '.ROOT.'/cake/console/cake'
@@ -566,21 +587,11 @@ class UsersController extends AppController {
 			. " WHERE id IN (".implode(",", $ids).")";
 		$res = $this->User->query($sql);
 		
-		$sql = "SELECT *"
-			. " FROM items"
+		$sql = "SELECT * FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE id IN (".implode(",", $ids).")";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $arr) {
-			
-			// todo: just for debug
-			$arr['items']['Title'] = $arr['items']['Site']
-			  . ".".$arr['items']['id']
-			  . ".".$arr['items']['Title'];
-			
-			// todo: cut string in another way
-			$arr['items']['Title'] = substr($arr['items']['Title'], 0, 55);
-			
 			$accountid = $arr['items']['accountid'];
 			$site      = $arr['items']['Site'];
 			$accounts[$accountid] = $arr['accounts'];
@@ -749,6 +760,7 @@ class UsersController extends AppController {
 			}
 			
 		}
+		
 		return;
 	}
 	
@@ -1276,12 +1288,73 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	function getHttpRequest($call, $xmldata, $site='US')
+	{
+		$sites = $this->sitedetails();
+		
+		/* headers */
+		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
+		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
+		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
+		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
+		$headers['X-EBAY-API-CALL-NAME'] = $call;
+		$headers['X-EBAY-API-SITEID']    = $sites[$site];
+		
+		/* xml data */
+		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
+			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
+			. '<WarningLevel>High</WarningLevel>'."\n"
+			. $this->xml($xmldata, 1)
+			. '</'.$call.'Request>'."\n";
+		
+		$date = 9999999999 - date("mdHis");
+		file_put_contents(ROOT.'/app/tmp/apilogs/'
+						  . $date.'.'.$call.'.'.$site.'.req.xml',
+						  $xml_request);
+		
+		/* request object */
+		$r = new HttpRequest();
+		$r->setHeaders($headers);
+		$r->setMethod(HttpRequest::METH_POST);
+		$r->setOptions(array('timeout' => '60'));
+		$r->setUrl(EBAY_SERVERURL);
+		$r->setRawPostData($postdata);
+		
+		return $r;
+	}
 	
 	/**
 	 * common function to call ebay api.
 	 */
 	function callapi($call, $xmldata, $site='US')
 	{
+		$r = $this->getHttpRequest($call, $xmldata, $site);
+		
+		$trycount = 0;
+		while ($trycount < 5) {
+			try {
+				$r->send();
+			} catch (HttpException $ex) {
+				sleep(5);
+				$trycount++;
+				error_log($trycount.':'.$call);
+				continue;
+			}
+			break;
+		}
+		
+		$xml_response = $r->getResponseBody();
+		$xmlobj = simplexml_load_string($xml_response);
+		
+		file_put_contents(ROOT.'/app/tmp/apilogs/'
+						  . $date.'.'.$call.'.'.$site.'.response.xml',
+						  $xml_response);
+		
+		return $xmlobj;
+		
+		
+		/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
+		/*  old code */
 		$sites = $this->sitedetails();
 		
 		/* prepare */
