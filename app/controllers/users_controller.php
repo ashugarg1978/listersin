@@ -923,26 +923,21 @@ class UsersController extends AppController {
 		
 		$colnames = $this->getitemcols();
 		
-		if (true) {
-			$h = null;
-			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-			//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
-			//$h['DetailLevel'] = 'ItemReturnDescription';
-			$h['DetailLevel'] = 'ReturnAll';
-			$h['StartTimeFrom'] = '2010-06-21 00:00:00';
-			$h['StartTimeTo']   = date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
-			$h['Pagination']['EntriesPerPage'] = 200;
-			$h['Sort'] = 1;
-			if ($userid) {
-				$h['UserID'] = $userid;
-			}
-			
-			$xmlobj = $this->callapi('GetSellerList', $h);
-		} else {
-			$xml_response = file_get_contents
-				(ROOT.'/app/tmp/apilogs/0625224943.GetSellerList.response.xml');
-			$xmlobj = simplexml_load_string($xml_response);
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
+		$h['DetailLevel'] = 'ReturnAll'; // ItemReturnDescription, ReturnAll
+		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
+		$h['StartTimeTo'] =
+			date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
+		$h['Pagination']['EntriesPerPage'] = 200;
+		$h['Sort'] = 1;
+		if ($userid) {
+			$h['UserID'] = $userid;
 		}
+		
+		$xmlobj = $this->callapi('GetSellerList', $h);
+		
 		echo '<pre>',print_r($xmlobj,1).'</pre>';
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
@@ -971,6 +966,7 @@ class UsersController extends AppController {
 			
 			/* SELECT */
 			// todo: catch INSERT/UPDATE query result.
+			// todo: unique constraint of ItemID
 			$res = $this->User->query("SELECT id FROM items WHERE ItemID = ".$i['ItemID']);
 			if (!empty($res[0]['items']['id'])) {
 				
@@ -1002,6 +998,15 @@ class UsersController extends AppController {
 		}
 		
 		exit;
+	}
+	
+	
+	/**
+	 * 
+	 * /
+	function getsellerlist_import()
+	{
+	
 	}
 	
 	
