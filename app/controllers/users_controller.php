@@ -559,6 +559,29 @@ class UsersController extends AppController {
 		
 	}
 	
+	function addscheduleditems()
+	{
+	  $sql = "SELECT id, schedule"
+		. " FROM items"
+		. " WHERE schedule < NOW()"
+		. " ORDER BY schedule";
+	  $res = $this->User->query($sql);
+	  foreach ($res as $i => $row) {
+		$id = $row['items']['id'];
+		$rows[$id] = $row;
+		echo date('Y-m-d H:i:s').' '.$id.' '.$row['items']['schedule']."\n";
+	  }
+	  
+	  if (is_array($rows)) {
+		$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
+		  . ' -app '.ROOT.'/app daemon additems '.implode(',', array_keys($rows))
+		  . ' > /dev/null &';
+		system($cmd);
+	  }
+	  
+	  return;
+	}
+	
 	function additems($ids=null)
 	{
 		if (empty($ids)) {
@@ -654,7 +677,8 @@ class UsersController extends AppController {
 				
 				$j = null;
 				$j['status'] = 0;
-					
+				$j['schedule'] = '0000-00-00 00:00:00';
+				
 				if (isset($obj->ItemID)) {
 					
 					$j['ItemID'] = $obj->ItemID;
