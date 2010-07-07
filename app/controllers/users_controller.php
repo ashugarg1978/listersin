@@ -1,12 +1,11 @@
 <?
 /**
- *
- *
  * todo:
- * - scrollbar appear when item detail expanded, width broken.
+ * - scrollbar appear when item detail expanded, width broken. [FIXED]
  * - use html5.
  * - unify json response to one code.
  * - i18n.
+ * - scheduled additems by crontab.
  *
  */
 class UsersController extends AppController {
@@ -14,7 +13,6 @@ class UsersController extends AppController {
     var $name = 'Users';    
     var $components = array('Auth', 'Email');
 	
-	var $r;
 	var $user;
 	var $accounts;
 	
@@ -134,7 +132,7 @@ class UsersController extends AppController {
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res = $this->User->query($sql);
-		error_log($sql);
+		//error_log($sql);
 		
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
@@ -563,21 +561,16 @@ class UsersController extends AppController {
 	
 	function additems($ids=null)
 	{
-		if (empty($ids) && isset($_POST['id'])) {
-		  
-			// If called from browser, kick background process and exit
-			$cmd = 'PATH=/usr/local/php/bin'
-				. ' '.ROOT.'/cake/console/cake'
-				. ' -app '.ROOT.'/app daemon'
-				. ' additems '.implode(',', $_POST['id'])
-				. ' > /dev/null &';
-			system($cmd);
+		if (empty($ids)) {
+			// If called from browser, kick background process.
+			if (isset($_POST['id'])) {
+				$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
+					. ' -app '.ROOT.'/app daemon additems '.implode(',', $_POST['id'])
+					. ' > /dev/null &';
+				system($cmd);
+			}
 			exit;
-			
-		} else if (empty($ids)) {
-			return;
 		}
-		error_log('additems:'.implode(',', $ids));
 		
 		$sites = $this->sitedetails();
 		
@@ -665,15 +658,13 @@ class UsersController extends AppController {
 		
 		/* execute api call */
 		if (true) {
-		  
-		  try {
-			$pool->send();
-		  } catch (HttpRequestPoolException $ex) {
-			error_log("pool->send() error\n".$ex->getMessage());
-		  }
-		  
+			try {
+				$pool->send();
+			} catch (HttpRequestPoolException $ex) {
+				error_log("pool->send() error\n".$ex->getMessage());
+			}
 		} else {
-		  $pool->send();
+			$pool->send();
 		}
 		
 		$ridx = 0;
@@ -803,7 +794,7 @@ class UsersController extends AppController {
 		$xml = array();
 		foreach ($i as $col => $val) {
 			// todo: delete ItemID from caller function AddItems
-			
+			// todo: manage necessary column names in other way.
 			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|Error)/', $col)
 				|| preg_match('/@/', $col)
 				|| $val == '') {
@@ -813,7 +804,9 @@ class UsersController extends AppController {
 			if ($col == 'PaymentMethods' || $col == 'PictureDetails_PictureURL') {
 				$val = preg_replace("/^\n/", "", $val);
 				$val = explode("\n", $val);
-			} 
+			} else if ($col == 'ScheduleTime') {
+				$val = str_replace(' ', 'T', $val).'Z';
+			}
 			
 			$depth = explode('_', $col);
 			$xml = array_merge_recursive($xml, $this->arr2xml($arr, $depth, $val));
@@ -932,8 +925,6 @@ class UsersController extends AppController {
 			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
-		
-		$colnames = $this->getitemcols();
 		
 		// todo: I can specify the span by EndTime
 		$h = null;
@@ -1364,81 +1355,6 @@ class UsersController extends AppController {
 						  $xml_response);
 		
 		return $xmlobj;
-		
-		
-		/* vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv */
-		/*  old code */
-		$sites = $this->sitedetails();
-		
-		/* prepare */
-		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
-		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
-		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
-		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
-		$headers['X-EBAY-API-CALL-NAME'] = $call;
-		$headers['X-EBAY-API-SITEID']    = $sites[$site];
-		
-		$url = EBAY_SERVERURL;
-		
-		$this->r = new HttpRequest();
-		$this->r->setHeaders($headers);
-		
-		/* request */
-		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-		  . '<WarningLevel>High</WarningLevel>'."\n"
-			. $this->xml($xmldata, 1)
-			. '</'.$call.'Request>'."\n";
-		
-		$date = 9999999999 - date("mdHis");
-		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.request.xml',
-						  $xml_request);
-		
-		/* response */
-		$xml_response = $this->post($url, $xml_request);
-		$xmlobj = simplexml_load_string($xml_response);
-		
-		file_put_contents(ROOT.'/app/tmp/apilogs/'.$date.'.'.$call.'.'.$site.'.response.xml',
-						  $xml_response);
-		
-		return $xmlobj;
-	}
-	
-	function get($url)
-	{
-		$this->r->setMethod(HttpRequest::METH_GET);
-		$this->r->setUrl($url);
-		$this->r->send();
-		
-		$html = $this->r->getResponseBody();
-		
-		return $html;
-	}
-	
-	function post($url, $postdata)
-	{
-		$this->r->setMethod(HttpRequest::METH_POST);
-		$this->r->setOptions(array('timeout' => '60'));
-		$this->r->setUrl($url);
-		$this->r->setRawPostData($postdata);
-
-		$trycount = 0;
-		
-		while ($trycount < 5) {
-			try {
-				$this->r->send();
-			} catch (HttpException $ex) {
-				sleep(5);
-				$trycount++;
-				error_log($trycount.':'.$url);
-				continue;
-			}
-			break;
-		}
-		
-		$html = $this->r->getResponseBody();
-		
-		return $html;
 	}
 	
 	
