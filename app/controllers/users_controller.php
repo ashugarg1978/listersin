@@ -591,80 +591,36 @@ class UsersController extends AppController {
 			$itemdata[$accountid][$site][] = $arr['items'];
 		}
 		
-		// todo: replace with callapi method
-		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
-		$headers['X-EBAY-API-DEV-NAME']  = EBAY_DEVID;
-		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
-		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
-		$headers['X-EBAY-API-CALL-NAME'] = 'AddItems';
-		
-		$url = EBAY_SERVERURL;
-		
 		$pool = new HttpRequestPool();
-		
 		$seqidx = 0;
 		foreach ($itemdata as $accountid => $sitehash) {
-			
 			foreach ($sitehash as $site => $hash) {
-				
 				$chunked = array_chunk($hash, 5);
 				foreach ($chunked as $chunkedidx => $items) {
 					
-					/* numbering each pool entities */
 					$seqidx++;
-					
-					/* build xml */
 					$h = null;
 					$h['RequesterCredentials']['eBayAuthToken'] =
 						$accounts[$accountid]['ebaytoken'];
-					$h['Version']       = EBAY_COMPATLEVEL;
-					$h['ErrorLanguage'] = 'en_US';
-					$h['WarningLevel']  = 'High';
 					
 					foreach ($items as $i => $arr) {
 						$arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
 						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
 						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
 						
-						$seqmap2[$seqidx][($i+1)] = $arr['id'];
+						$seqmap[$seqidx][($i+1)] = $arr['id'];
 					}
 					
-					$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
-						. '<AddItemsRequest xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
-						. $this->xml($h, 1)
-						. '</AddItemsRequest>'."\n";
-					
-					file_put_contents(ROOT.'/app/tmp/apilogs/'
-									  . (9999999999-date("mdHis")).'.AddIs.req'
-									  . '.'.substr('0'.$seqidx, -2)
-									  . '.'.$accounts[$accountid]['ebayuserid']
-									  . '.'.$site
-									  . '.'.$chunkedidx.'.xml',
-									  $xml_request);
-					
-					/* attach request object to pool */
-					$r = null;
-					$r = new HttpRequest();
-					$headers['X-EBAY-API-SITEID'] = $sites[$site];
-					$r->setOptions(array('timeout' => '60')); // todo: no mean?
-					$r->setHeaders($headers);
-					$r->setMethod(HttpRequest::METH_POST);
-					$r->setUrl($url);
-					$r->setRawPostData($xml_request);
+					$r = $this->getHttpRequest('AddItems', $h, $site);
 					$pool->attach($r);
 				}
 			}
 		}
 		
-		/* execute api call */
-		if (true) {
-			try {
-				$pool->send();
-			} catch (HttpRequestPoolException $ex) {
-				error_log("pool->send() error\n".$ex->getMessage());
-			}
-		} else {
+		try {
 			$pool->send();
+		} catch (HttpRequestPoolException $ex) {
+			error_log("pool->send() error\n".$ex->getMessage());
 		}
 		
 		$ridx = 0;
@@ -678,7 +634,7 @@ class UsersController extends AppController {
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
 				$sql = "UPDATE items SET status = 0,"
 					. " Errors_LongMessage = 'Network error. Please try again later.'"
-					. " WHERE id IN (".implode(",", $seqmap2[$ridx]).")";
+					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
 				$this->User->query($sql);
 				
 				continue;
@@ -694,29 +650,17 @@ class UsersController extends AppController {
 			$xmlobj = simplexml_load_string($xml_response);
 			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
 				
-				$id = $seqmap2[$ridx][$obj->CorrelationID.''];
-				//error_log('r '.$ridx.'.'.$obj->CorrelationID
-				//		  . ':'.$seqmap2[$ridx][$obj->CorrelationID.'']);
+				$id = $seqmap[$ridx][$obj->CorrelationID.''];
 				
+				$j = null;
+				$j['status'] = 0;
+					
 				if (isset($obj->ItemID)) {
 					
-					$j = null;
-					$j['status'] = 0;
 					$j['ItemID'] = $obj->ItemID;
 					$j['SellingStatus_ListingStatus'] = 'Active'; // manually?
 					$j['ListingDetails_StartTime'] = $obj->StartTime;
 					$j['ListingDetails_EndTime']   = $obj->EndTime;
-					
-					$sql_u = null;
-					foreach ($j as $f => $v) {
-						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
-					}			  
-					
-					// todo: check userid/accountid
-					$sql = "UPDATE items"
-						. " SET ".implode(', ', $sql_u)
-						. " WHERE id = ".$id;
-					$this->User->query($sql);
 					
 				} else if (isset($obj->Errors)) {
 					
@@ -729,25 +673,19 @@ class UsersController extends AppController {
 						$arrerrlong[]  = $eo->LongMessage;
 					}
 					
-					$j = null;
-					$j['status'] = 0;
 					$j['Errors_ShortMessage'] = implode("\n", $arrerrshort);
 					$j['Errors_LongMessage']  = implode("\n", $arrerrlong);
-					
-					$sql_u = null;
-					foreach ($j as $f => $v) {
-						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
-					}			  
-					
-					// todo: save error message
-					$sql = "UPDATE items"
-						. " SET ".implode(', ', $sql_u)
-						. " WHERE id = ".$id;
-					$this->User->query($sql);
-					
-					error_log($sql);
 				}
 				
+				$sql_u = null;
+				foreach ($j as $f => $v) {
+					$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+				}			  
+				
+				// todo: check userid/accountid
+				$sql = "UPDATE items SET ".implode(', ', $sql_u)." WHERE id = ".$id;
+				$this->User->query($sql);
+				error_log($sql);
 			}
 			
 		}
