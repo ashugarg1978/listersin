@@ -1,4 +1,4 @@
-update items set schedule = date_add(now(), interval id*10-100 minute);
+update items set schedule = date_add(now(), interval id*5-100 minute);
 select id, schedule from items limit 10;
 \q
 

@@ -88,6 +88,10 @@ function getrow(row)
 	}
 	$('a.Title', dom).before('('+row['status']+')');
 	
+	if (row['schedule']) {
+		$('td.ListingDetails_EndTime', dom).html('S:'+row['schedule']);
+	}
+	
 	return dom;
 }
 
@@ -279,6 +283,7 @@ function bindevents()
 	
 	$('ul#selling li a').live('click', function() {
 		$('input[name=selling]').val($(this).text());
+		$('input[name=offset]').val(0);
 		items();
 		$('ul#selling li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');

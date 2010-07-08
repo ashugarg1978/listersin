@@ -18,7 +18,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-		Configure::write('Config.language', 'jpn');
+	  //Configure::write('Config.language', 'jpn');
 		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
@@ -89,7 +89,9 @@ class UsersController extends AppController {
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
-		$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
+		//$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
+		$sql_selling['Scheduled'] = "schedule > NOW()";
+		$sql_order['Scheduled'] = "schedule ASC,";
 		
 		$sql_selling['Active']    = "ItemID IS NOT NULL"
 			. " AND ListingDetails_EndTime > Now()";
@@ -123,12 +125,17 @@ class UsersController extends AppController {
 			. " items.Site,"
 			. " items.SellingStatus_ListingStatus,"
 			. " items.Errors_LongMessage,"
+ 		    . " items.schedule,"
 			. " items.status"
 			. " FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		$sql .= " ORDER BY ListingDetails_EndTime ASC, id DESC";
+		$sql .= " ORDER BY ";
+		if (!empty($_POST['selling']) && $_POST['selling'] != 'All') {
+		  $sql .= $sql_order[$_POST['selling']];
+		}
+		$sql .= " ListingDetails_EndTime ASC, id DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
@@ -159,6 +166,14 @@ class UsersController extends AppController {
 				}
 			} else {
 				$item['ListingDetails_EndTime'] = '-';
+			}
+			
+			if (isset($item['schedule'])) {
+				if (date('Y-m-d', strtotime($item['schedule'])) == date('Y-m-d')) {
+					$item['schedule'] = date('H:i', strtotime($item['schedule']));
+				} else {
+					$item['schedule'] = date('M j', strtotime($item['schedule']));
+				}
 			}
 			
 			/* StartPrice */
@@ -651,7 +666,7 @@ class UsersController extends AppController {
 				error_log('Error[ridx:'.$ridx.']'
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
 				$sql = "UPDATE items SET status = 0,"
-					. " Errors_LongMessage = 'Network error. Please try again later.'"
+				  . " Errors_LongMessage = '".date('m.d H:i')."Network error. Please try again later.'"
 					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
 				$this->User->query($sql);
 				
