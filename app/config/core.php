@@ -300,3 +300,9 @@
  *
  */
 	Cache::config('default', array('engine' => 'File'));
+
+define('EBAY_DEVID',  'e60361cd-e306-496f-ad7d-ba7b688e2207');
+define('EBAY_APPID',  'Yoshihir-1b29-4aad-b39f-1be3a37e06a7');
+define('EBAY_CERTID', '8118c1eb-e879-47f3-a172-2b08ca680770');
+define('EBAY_SERVERURL', 'https://api.sandbox.ebay.com/ws/api.dll');
+define('EBAY_COMPATLEVEL', 585);

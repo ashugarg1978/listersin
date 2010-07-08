@@ -1,4 +1,4 @@
-<div id="loading">Loading...</div>
+<div id="loading"><?= __('Loading...') ?></div>
 
 <div id="toolbar">
 <div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>
@@ -11,12 +11,12 @@
 <br>
 
 <ul id="selling" class="accounts">
-<li><a href="">Scheduled</a></li>
-<li><a href="">Active</a></li>
-<li><a href="">Sold</a></li>
-<li><a href="">Unsold</a></li>
-<li><a href="">Other</a></li>
-<li><a href="">All</a></li>
+<li><a href=""><?= __('Scheduled') ?></a></li>
+<li><a href=""><?= __('Active') ?></a></li>
+<li><a href=""><?= __('Sold') ?></a></li>
+<li><a href=""><?= __('Unsold') ?></a></li>
+<li><a href=""><?= __('Other') ?></a></li>
+<li><a href=""><?= __('All') ?></a></li>
 </ul>
 
 <ul class="accounts">
@@ -37,7 +37,7 @@ foreach ($accounts as $accountid => $row) {
 ?>
 </ul>
 
-<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc">add new account</a>
+<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
 
 <iframe name="posttarget" width="130" height="100" src="/blank.html"></iframe>
 <div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;">
@@ -51,16 +51,15 @@ foreach ($accounts as $accountid => $row) {
 <div id="content">
 
 <div style="float:left; margin:10px;">
-<input type="button" value="All"   onclick="chkall();">
-<input type="button" value="Reset" onclick="unchkall();">
+<input type="button" value="<?= __('All') ?>"      onclick="chkall();">
+<input type="button" value="<?= __('Reset') ?>"    onclick="unchkall();">
 &nbsp;
-<input type="button" value="(Re)List" onclick="additems();">
-<input type="button" value="Revise"   onclick="">
-<input type="button" value="End"      onclick="">
-
+<input type="button" value="<?= __('(Re)List') ?>" onclick="additems();">
+<input type="button" value="<?= __('Revise') ?>"   onclick="">
+<input type="button" value="<?= __('End') ?>"      onclick="">
 &nbsp;
-<input type="button" value="Copy"   onclick="copyitems();">
-<input type="button" value="Delete" onclick="delete();">
+<input type="button" value="<?= __('Copy') ?>"     onclick="copyitems();">
+<input type="button" value="<?= __('Delete') ?>"   onclick="delete();">
 </div>
 
 <div id="paging"></div>
@@ -134,7 +133,7 @@ foreach ($accounts as $accountid => $row) {
 <tbody>
 <tr>
 	<td colspan="8" align="center" style="height:200px;">
-		Loading Item Data ...
+		<?= __('Loading Item Data ...') ?>
 	</td>
 </tr>
 </tbody>
@@ -150,9 +149,9 @@ foreach ($accounts as $accountid => $row) {
 <div class="detail">
 	
 <ul class="tabNav">
-<li><a href="#">Detail</a></li>
-<li><a href="#">Description</a></li>
-<li><a href="#">Pictures</a></li>
+<li><a href="#"><?= __('Detail') ?></a></li>
+<li><a href="#"><?= __('Description') ?></a></li>
+<li><a href="#"><?= __('Pictures') ?></a></li>
 </ul>
 	 
 <div class="tabContainer">
@@ -160,15 +159,15 @@ foreach ($accounts as $accountid => $row) {
 <table class="detail">
   <tbody>
 	<tr>
-	  <td>Title</td>
+	  <td><?= __('Title') ?></td>
 	  <td><input name="Title" type="text" size="60"></td>
 	</tr>
 	<tr>
-	  <td>SubTitle</td>
+	  <td><?= __('SubTitle') ?></td>
 	  <td><input name="SubTitle" type="text" size="60"></td>
 	</tr>
 	<tr>
-	  <td>Site</td>
+	  <td><?= __('Site') ?></td>
 	  <td>
 		<select name="Site"><?
 		foreach ($site as $sitestr => $siteid) {
@@ -178,19 +177,19 @@ foreach ($accounts as $accountid => $row) {
 	  </td>
 	</tr>
 	<tr>
-	  <td>Category</td>
+	  <td><?= __('Category') ?></td>
 	  <td class="category"></td>
 	</tr>
 	<tr>
-	  <td>Start Price</td>
+	  <td><?= __('Start Price') ?></td>
 	  <td><input name="StartPrice" type="text" size="10"></td>
 	</tr>
 	<tr>
-	  <td>Quantity</td>
+	  <td><?= __('Quantity') ?></td>
 	  <td><input name="Quantity" type="text" size="5"></td>
 	</tr>
 	<tr>
-	  <td>Listing Type</td>
+	  <td><?= __('Listing Type') ?></td>
 	  <td>
 		<select name="ListingType">
 		<option value="Chinese">Online Auction</option>  
@@ -200,15 +199,15 @@ foreach ($accounts as $accountid => $row) {
 	  </td>
 	</tr>
 	<tr>
-	  <td>Listing Duration</td>
+	  <td><?= __('Listing Duration') ?></td>
 	  <td class="duration"></td>
 	</tr>
 	<tr>
-	  <td>Payment Methods</td>
+	  <td><?= __('Payment Methods') ?></td>
 	  <td class="paymentmethod"></td>
 	</tr>
 	<tr>
-	  <td>Shipping Service</td>
+	  <td><?= __('Shipping Service') ?></td>
 	  <td class="shippingservice"></td>
 	</tr>
   </tbody>

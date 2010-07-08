@@ -18,6 +18,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
+		Configure::write('Config.language', 'jpn');
 		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
