@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.model
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -51,17 +51,20 @@ class ModelReadTest extends BaseModelTest {
 				'updated' => '2007-03-18 10:41:31'
 			)
 		);
+
 		$Something->JoinThing->create($joinThingData);
 		$Something->JoinThing->save();
 
 		$result = $Something->JoinThing->find('all', array('conditions' => array('something_else_id' => 2)));
-		$this->assertEqual($result[0]['JoinThing']['doomed'], 1);
-		$this->assertEqual($result[1]['JoinThing']['doomed'], 0);
+		$this->assertEqual($result[0]['JoinThing']['doomed'], true);
+		$this->assertEqual($result[1]['JoinThing']['doomed'], false);
 
 		$result = $Something->find('first');
 		$this->assertEqual(count($result['SomethingElse']), 2);
-		$this->assertEqual($result['SomethingElse'][0]['JoinThing']['doomed'], 1);
-		$this->assertEqual($result['SomethingElse'][1]['JoinThing']['doomed'], 0);
+
+		$doomed = Set::extract('/JoinThing/doomed', $result['SomethingElse']);
+		$this->assertTrue(in_array(true, $doomed));
+		$this->assertTrue(in_array(false, $doomed));
 	}
 
 /**
@@ -76,7 +79,7 @@ class ModelReadTest extends BaseModelTest {
 	function testGroupBy() {
 		$db = ConnectionManager::getDataSource('test_suite');
 		$isStrictGroupBy = in_array($db->config['driver'], array('postgres', 'oracle'));
-		$message = '%s Postgresql and Oracle have strict GROUP BY and are incompatible with this test.';
+		$message = '%s Postgres and Oracle have strict GROUP BY and are incompatible with this test.';
 
 		if ($this->skipIf($isStrictGroupBy, $message )) {
 			return;
@@ -3945,20 +3948,6 @@ class ModelReadTest extends BaseModelTest {
 		$expected = $TestModel->save($data);
 		$this->assertFalse($expected);
 	}
-	// function testBasicValidation() {
-	// 	$TestModel =& new ValidationTest1();
-	// 	$TestModel->testing = true;
-	// 	$TestModel->set(array('title' => '', 'published' => 1));
-	// 	$this->assertEqual($TestModel->invalidFields(), array('title' => 'This field cannot be left blank'));
-	//
-	// 	$TestModel->create();
-	// 	$TestModel->set(array('title' => 'Hello', 'published' => 0));
-	// 	$this->assertEqual($TestModel->invalidFields(), array('published' => 'This field cannot be left blank'));
-	//
-	// 	$TestModel->create();
-	// 	$TestModel->set(array('title' => 'Hello', 'published' => 1, 'body' => ''));
-	// 	$this->assertEqual($TestModel->invalidFields(), array('body' => 'This field cannot be left blank'));
-	// }
 
 /**
  * testFindAllWithConditionInChildQuery
@@ -4044,6 +4033,9 @@ class ModelReadTest extends BaseModelTest {
 		$result = $TestModel->find('all', compact('conditions', 'recursive', 'order'));
 		$this->assertEqual($result, $expected);
 
+		if ($this->skipIf($this->db->config['driver'] == 'postgres', 'The rest of testFindAllWithConditionsHavingMixedDataTypes test is not compatible with Postgres')) {
+			return;
+		}
 		$conditions = array('id' => array('1', 2, '3.0'));
 		$order = 'Article.id ASC';
 		$result = $TestModel->find('all', compact('recursive', 'conditions', 'order'));
@@ -4871,6 +4863,7 @@ class ModelReadTest extends BaseModelTest {
  * Tests that the database configuration assigned to the model can be changed using
  * (before|after)Find callbacks
  *
+ * @access public
  * @return void
  */
 	function testCallbackSourceChange() {
@@ -4879,9 +4872,6 @@ class ModelReadTest extends BaseModelTest {
 		$this->assertEqual(3, count($TestModel->find('all')));
 
 		$this->expectError(new PatternExpectation('/Non-existent data source foo/i'));
-		if (defined('PHP_VERSION_ID') && PHP_VERSION_ID >= 50300) {
-			$this->expectError(new PatternExpectation('/Only variable references/i'));
-		}
 		$this->assertFalse($TestModel->find('all', array('connection' => 'foo')));
 	}
 
@@ -6395,6 +6385,21 @@ class ModelReadTest extends BaseModelTest {
 	}
 
 /**
+ * Test that find('first') does not use the id set to the object.
+ *
+ * @return void
+ */
+	function testFindFirstNoIdUsed() {
+		$this->loadFixtures('Project');
+
+		$Project =& new Project();
+		$Project->id = 3;
+		$result = $Project->find('first');
+
+		$this->assertEqual($result['Project']['name'], 'Project 1', 'Wrong record retrieved');
+	}
+
+/**
  * test find with COUNT(DISTINCT field)
  *
  * @return void
@@ -7150,8 +7155,8 @@ class ModelReadTest extends BaseModelTest {
 	}
 /**
  * Testing availability of $this->findQueryType in Model callbacks
- * 
- * @return void 
+ *
+ * @return void
  */
 	function testFindQueryTypeInCallbacks() {
 		$this->loadFixtures('Comment');
@@ -7172,7 +7177,7 @@ class ModelReadTest extends BaseModelTest {
  * @return void
  */
 	function testVirtualFields() {
-		$this->loadFixtures('Post','Author');
+		$this->loadFixtures('Post', 'Author');
 		$Post =& ClassRegistry::init('Post');
 		$Post->virtualFields = array('two' => "1 + 1");
 		$result = $Post->find('first');
@@ -7218,15 +7223,15 @@ class ModelReadTest extends BaseModelTest {
 
 		$dbo =& $Post->getDataSource();
 		$Post->virtualFields = array('other_field' => 'Post.id + 1');
-		$result = $Post->find('first',array(
+		$result = $Post->find('first', array(
 			'conditions' => array('other_field' => 3),
 			'limit' => 1
 		));
 		$this->assertEqual($result['Post']['id'], 2);
 
 		$Post->virtualFields = array('other_field' => 'Post.id + 1');
-		$result = $Post->find('all',array(
-			'fields' => array($dbo->calculate($Post, 'max',array('other_field')))
+		$result = $Post->find('all', array(
+			'fields' => array($dbo->calculate($Post, 'max', array('other_field')))
 		));
 		$this->assertEqual($result[0][0]['other_field'], 4);
 
@@ -7235,12 +7240,15 @@ class ModelReadTest extends BaseModelTest {
 		$Writing->virtualFields = array('two' => "1 + 1");
 		$result = $Writing->find('first');
 		$this->assertEqual($result['Writing']['two'], 2);
-		
+
 		$Post->create();
 		$Post->virtualFields = array('other_field' => 'COUNT(Post.id) + 1');
 		$result = $Post->field('other_field');
 		$this->assertEqual($result, 4);
 
+		if ($this->skipIf($this->db->config['driver'] == 'postgres', 'The rest of virtualFieds test is not compatible with Postgres')) {
+			return;
+		}
 		ClassRegistry::flush();
 		$Post =& ClassRegistry::init('Post');
 
@@ -7263,6 +7271,71 @@ class ModelReadTest extends BaseModelTest {
 		));
 
 		$this->assertEqual($result, $expectation);
+
+
+		$Author =& ClassRegistry::init('Author');
+		$Author->virtualFields = array(
+			'full_name' => 'CONCAT(Author.user, " ", Author.id)'
+		);
+
+		$result = $Author->find('first', array(
+			'conditions' => array('Author.user' => 'mariano'),
+			'fields' => array('Author.password', 'Author.full_name'),
+			'recursive' => -1
+		));
+		$this->assertTrue(isset($result['Author']['full_name']));
+
+		$result = $Author->find('first', array(
+			'conditions' => array('Author.user' => 'mariano'),
+			'fields' => array('Author.full_name', 'Author.password'),
+			'recursive' => -1
+		));
+		$this->assertTrue(isset($result['Author']['full_name']));
+	}
+
+/**
+ * test that virtual fields work when they don't contain functions.
+ *
+ * @return void
+ */
+	function testVirtualFieldAsAString() {
+		$this->loadFixtures('Post', 'Author');
+		$Post =& new Post();
+		$Post->virtualFields = array(
+		    'writer' => 'Author.user'
+		);
+		$result = $Post->find('first');
+		$this->assertTrue(isset($result['Post']['writer']), 'virtual field not fetched %s');
+	}
+
+/**
+ * test that isVirtualField will accept both aliased and non aliased fieldnames
+ *
+ * @return void
+ */
+	function testIsVirtualField() {
+		$this->loadFixtures('Post');
+		$Post =& ClassRegistry::init('Post');
+		$Post->virtualFields = array('other_field' => 'COUNT(Post.id) + 1');
+
+		$this->assertTrue($Post->isVirtualField('other_field'));
+		$this->assertTrue($Post->isVirtualField('Post.other_field'));
+		$this->assertFalse($Post->isVirtualField('id'));
+		$this->assertFalse($Post->isVirtualField('Post.id'));
+		$this->assertFalse($Post->isVirtualField(array()));
+	}
+
+/**
+ * test that getting virtual fields works with and without model alias attached
+ *
+ * @return void
+ */
+	function testGetVirtualField() {
+		$this->loadFixtures('Post');
+		$Post =& ClassRegistry::init('Post');
+		$Post->virtualFields = array('other_field' => 'COUNT(Post.id) + 1');
+
+		$this->assertEqual($Post->getVirtualField('other_field'), $Post->virtualFields['other_field']);
+		$this->assertEqual($Post->getVirtualField('Post.other_field'), $Post->virtualFields['other_field']);
 	}
 }
-?>

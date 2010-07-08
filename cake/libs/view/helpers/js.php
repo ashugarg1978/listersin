@@ -4,13 +4,13 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP : Rapid Development Framework (http://cakephp.org)
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * CakePHP :  Rapid Development Framework (http://cakephp.org)
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
  * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.cake.libs.view.helpers
@@ -57,6 +57,7 @@ class JsHelper extends AppHelper {
  * Scripts that are queued for output
  *
  * @var array
+ * @see JsHelper::buffer()
  * @access private
  */
 	var $__bufferedScripts = array();
@@ -184,9 +185,10 @@ class JsHelper extends AppHelper {
 /**
  * Writes all Javascript generated so far to a code block or
  * caches them to a file and returns a linked script.  If no scripts have been
- * buffered this method will return null
+ * buffered this method will return null.  If the request is an XHR(ajax) request
+ * onDomReady will be set to false. As the dom is already 'ready'.
  *
- * Options
+ * ### Options
  *
  * - `inline` - Set to true to have scripts output as a script block inline
  *   if `cache` is also true, a script link tag will be generated. (default true)
@@ -198,9 +200,14 @@ class JsHelper extends AppHelper {
  * @param array $options options for the code block
  * @return mixed Completed javascript tag if there are scripts, if there are no buffered
  *   scripts null will be returned.
+ * @access public
  */
 	function writeBuffer($options = array()) {
-		$defaults = array('onDomReady' => true, 'inline' => true, 'cache' => false, 'clear' => true, 'safe' => true);
+		$domReady = isset($this->params['isAjax']) ? !$this->params['isAjax'] : true;
+		$defaults = array(
+			'onDomReady' => $domReady, 'inline' => true, 
+			'cache' => false, 'clear' => true, 'safe' => true
+		);
 		$options = array_merge($defaults, $options);
 		$script = implode("\n", $this->getBuffer($options['clear']));
 
@@ -230,7 +237,7 @@ class JsHelper extends AppHelper {
 	}
 
 /**
- * Write a script to the cached scripts.
+ * Write a script to the buffered scripts.
  *
  * @param string $script Script string to add to the buffer.
  * @param boolean $top If true the script will be added to the top of the 
@@ -247,7 +254,7 @@ class JsHelper extends AppHelper {
 	}
 
 /**
- * Get all the cached scripts
+ * Get all the buffered scripts
  *
  * @param boolean $clear Whether or not to clear the script caches (default true)
  * @return array Array of scripts added to the request.
@@ -266,8 +273,8 @@ class JsHelper extends AppHelper {
 /**
  * Generates the object string for variables passed to javascript.
  *
- * @return string
- * @access public
+ * @return string Generated JSON object of all set vars
+ * @access protected
  */
 	function _createVars() {
 		if (!empty($this->__jsVars)) {
@@ -302,20 +309,22 @@ class JsHelper extends AppHelper {
 		list($options, $htmlOptions) = $this->_getHtmlOptions($options);
 		$out = $this->Html->link($title, $url, $htmlOptions);
 		$this->get('#' . $htmlOptions['id']);
-		$requestString = '';
+		$requestString = $event = '';
 		if (isset($options['confirm'])) {
 			$requestString = $this->confirmReturn($options['confirm']);
 			unset($options['confirm']);
 		}
+		$buffer = isset($options['buffer']) ? $options['buffer'] : null;
+		$safe = isset($options['safe']) ? $options['safe'] : true;
+		unset($options['buffer'], $options['safe']);
+
 		$requestString .= $this->request($url, $options);
+
 		if (!empty($requestString)) {
-			$event = $this->event('click', $requestString, $options);
+			$event = $this->event('click', $requestString, $options + array('buffer' => $buffer));
 		}
-		if (isset($options['buffer']) && $options['buffer'] == false) {
-			$opts = array();
-			if (isset($options['safe'])) {
-				$opts['safe'] = $options['safe'];
-			}
+		if (isset($buffer) && !$buffer) {
+			$opts = array('safe' => $safe);
 			$out .= $this->Html->scriptBlock($event, $opts);
 		}
 		return $out;
@@ -354,10 +363,18 @@ class JsHelper extends AppHelper {
  * both those for FormHelper::submit() and JsBaseEngine::request(), JsBaseEngine::event();
  *
  * Forms submitting with this method, cannot send files. Files do not transfer over XmlHttpRequest
- * and require an iframe.
+ * and require an iframe or flash.
+ *
+ * ### Options
+ * 
+ * - `url` The url you wish the XHR request to submit to.
+ * - `confirm` A string to use for a confirm() message prior to submitting the request.
+ * - `method` The method you wish the form to send by, defaults to POST
+ * - `buffer` Whether or not you wish the script code to be buffered, defaults to true.
+ * - Also see options for JsHelper::request() and JsHelper::event()
  *
  * @param string $title The display text of the submit button.
- * @param array $options Array of options to use.
+ * @param array $options Array of options to use. See the options for the above mentioned methods.
  * @return string Completed submit button.
  * @access public
  */
@@ -385,12 +402,18 @@ class JsHelper extends AppHelper {
 			$options['method'] = 'post';
 		}
 		$options['dataExpression'] = true;
+
+		$buffer = isset($options['buffer']) ? $options['buffer'] : null;
+		$safe = isset($options['safe']) ? $options['safe'] : true;
+		unset($options['buffer'], $options['safe']);
+
 		$requestString .= $this->request($url, $options);
 		if (!empty($requestString)) {
-			$event = $this->event('click', $requestString, $options);
+			$event = $this->event('click', $requestString, $options + array('buffer' => $buffer));
 		}
-		if (isset($options['buffer']) && $options['buffer'] == false) {
-			$out .= $this->Html->scriptBlock($event, $options);
+		if (isset($buffer) && !$buffer) {
+			$opts = array('safe' => $safe);
+			$out .= $this->Html->scriptBlock($event, $opts);
 		}
 		return $out;
 	}
@@ -402,7 +425,7 @@ class JsHelper extends AppHelper {
  * @param array $options Options to filter.
  * @param array $additional Array of additional keys to extract and include in the return options array.
  * @return array Array of js options and Htmloptions
- * @access public
+ * @access protected
  */
 	function _getHtmlOptions($options, $additional = array()) {
 		$htmlKeys = array_merge(array('class', 'id', 'escape', 'onblur', 'onfocus', 'rel', 'title'), $additional);
@@ -482,7 +505,7 @@ class JsBaseEngineHelper extends AppHelper {
 	}
 
 /**
- * Create an alert message in Javascript
+ * Create an `alert()` message in Javascript
  *
  * @param string $message Message you want to alter.
  * @return string completed alert()
@@ -493,10 +516,11 @@ class JsBaseEngineHelper extends AppHelper {
 	}
 
 /**
- * Redirects to a URL
+ * Redirects to a URL.  Creates a window.location modification snippet
+ * that can be used to trigger 'redirects' from Javascript.
  *
- * @param  mixed $url
- * @param  array  $options
+ * @param mixed $url
+ * @param array  $options
  * @return string completed redirect in javascript
  * @access public
  */
@@ -505,7 +529,7 @@ class JsBaseEngineHelper extends AppHelper {
 	}
 
 /**
- * Create a confirm() message
+ * Create a `confirm()` message
  *
  * @param string $message Message you want confirmed.
  * @return string completed confirm()
@@ -530,7 +554,7 @@ class JsBaseEngineHelper extends AppHelper {
 	}
 
 /**
- * Create a prompt() Javascript function
+ * Create a `prompt()` Javascript function
  *
  * @param string $message Message you want to prompt.
  * @param string $default Default message
@@ -545,7 +569,7 @@ class JsBaseEngineHelper extends AppHelper {
  * Generates a JavaScript object in JavaScript Object Notation (JSON)
  * from an array.  Will use native JSON encode method if available, and $useNative == true
  *
- * Options:
+ * ### Options:
  *
  * - `prefix` - String prepended to the returned data.
  * - `postfix` - String appended to the returned data.
@@ -587,7 +611,7 @@ class JsBaseEngineHelper extends AppHelper {
 
 			foreach ($data as $key => $val) {
 				if (is_array($val) || is_object($val)) {
-					$val = $this->object($val, $options);
+					$val = $this->object($val);
 				} else {
 					$val = $this->value($val);
 				}
@@ -647,9 +671,9 @@ class JsBaseEngineHelper extends AppHelper {
  *
  * List of escaped elements:
  *
- *	+ "\r" => '\n'
- *	+ "\n" => '\n'
- *	+ '"' => '\"'
+ * - "\r" => '\n'
+ * - "\n" => '\n'
+ * - '"' => '\"'
  *
  * @param  string $script String that needs to get escaped.
  * @return string Escaped string.
@@ -812,7 +836,7 @@ class JsBaseEngineHelper extends AppHelper {
  *
  * ### Supported Effects
  *
- * The following effects are supported by all JsEngines
+ * The following effects are supported by all core JsEngines
  *
  * - `show` - reveal an element.
  * - `hide` - hide an element.
@@ -867,7 +891,7 @@ class JsBaseEngineHelper extends AppHelper {
 
 /**
  * Create a draggable element.  Works on the currently selected element.
- * Additional options may be supported by your library.
+ * Additional options may be supported by the library implementation.
  *
  * ### Options
  *
@@ -891,7 +915,7 @@ class JsBaseEngineHelper extends AppHelper {
 
 /**
  * Create a droppable element. Allows for draggable elements to be dropped on it.
- * Additional options may be supported by your library.
+ * Additional options may be supported by the library implementation.
  *
  * ### Options
  *
@@ -913,6 +937,7 @@ class JsBaseEngineHelper extends AppHelper {
 
 /**
  * Create a sortable element.
+ * Additional options may be supported by the library implementation.
  *
  * ### Options
  *
@@ -937,7 +962,8 @@ class JsBaseEngineHelper extends AppHelper {
 	}
 
 /**
- * Create a slider UI widget.  Comprised of a track and knob
+ * Create a slider UI widget.  Comprised of a track and knob.
+ * Additional options may be supported by the library implementation.
  *
  * ### Options
  *
@@ -984,11 +1010,11 @@ class JsBaseEngineHelper extends AppHelper {
 /**
  * Parse an options assoc array into an Javascript object literal.
  * Similar to object() but treats any non-integer value as a string,
- * does not include { }
+ * does not include `{ }`
  *
  * @param array $options Options to be converted
  * @param array $safeKeys Keys that should not be escaped.
- * @return string
+ * @return string Parsed JSON options without enclosing { }.
  * @access protected
  */
 	function _parseOptions($options, $safeKeys = array()) {
@@ -1100,4 +1126,3 @@ class JsBaseEngineHelper extends AppHelper {
 		return $out;
 	}
 }
-?>

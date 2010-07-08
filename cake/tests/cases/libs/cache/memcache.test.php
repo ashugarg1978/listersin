@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.cache
  * @since         CakePHP(tm) v 1.2.0.5434
@@ -52,7 +52,11 @@ class MemcacheEngineTest extends CakeTestCase {
 	function setUp() {
 		$this->_cacheDisable = Configure::read('Cache.disable');
 		Configure::write('Cache.disable', false);
-		Cache::config('memcache', array('engine' => 'Memcache', 'prefix' => 'cake_'));
+		Cache::config('memcache', array(
+			'engine' => 'Memcache',
+			'prefix' => 'cake_',
+			'duration' => 3600
+		));
 	}
 
 /**
@@ -100,7 +104,7 @@ class MemcacheEngineTest extends CakeTestCase {
 
 		foreach($servers as $server) {
 			list($host, $port) = explode(':', $server);
-			if (!$Memcache->addServer($host, $port)) {
+			if (!@$Memcache->connect($host, $port)) {
 				$available = false;
 			}
 		}
@@ -220,5 +224,86 @@ class MemcacheEngineTest extends CakeTestCase {
 		$result = Cache::delete('delete_test');
 		$this->assertTrue($result);
 	}
+
+/**
+ * testDecrement method
+ *
+ * @access public
+ * @return void
+ */
+	function testDecrement() {
+		$result = Cache::write('test_decrement', 5);
+		$this->assertTrue($result);
+
+		$result = Cache::decrement('test_decrement');
+		$this->assertEqual(4, $result);
+
+		$result = Cache::read('test_decrement');
+		$this->assertEqual(4, $result);
+
+		$result = Cache::decrement('test_decrement', 2);
+		$this->assertEqual(2, $result);
+
+		$result = Cache::read('test_decrement');
+		$this->assertEqual(2, $result);
+	}
+
+/**
+ * testIncrement method
+ *
+ * @access public
+ * @return void
+ */
+	function testIncrement() {
+		$result = Cache::write('test_increment', 5);
+		$this->assertTrue($result);
+
+		$result = Cache::increment('test_increment');
+		$this->assertEqual(6, $result);
+
+		$result = Cache::read('test_increment');
+		$this->assertEqual(6, $result);
+
+		$result = Cache::increment('test_increment', 2);
+		$this->assertEqual(8, $result);
+
+		$result = Cache::read('test_increment');
+		$this->assertEqual(8, $result);
+	}
+
+/**
+ * test that configurations don't conflict, when a file engine is declared after a memcache one.
+ *
+ * @return void
+ */
+	function testConfigurationConflict() {
+		Cache::config('long_memcache', array(
+		  'engine' => 'Memcache',
+		  'duration'=> '+2 seconds',
+		  'servers' => array('127.0.0.1:11211'),
+		));
+		Cache::config('short_memcache', array(
+		  'engine' => 'Memcache',
+		  'duration'=> '+1 seconds',
+		  'servers' => array('127.0.0.1:11211'),
+		));
+		Cache::config('some_file', array('engine' => 'File'));
+
+		$this->assertTrue(Cache::write('duration_test', 'yay', 'long_memcache'));
+		$this->assertTrue(Cache::write('short_duration_test', 'boo', 'short_memcache'));
+
+		$this->assertEqual(Cache::read('duration_test', 'long_memcache'), 'yay', 'Value was not read %s');
+		$this->assertEqual(Cache::read('short_duration_test', 'short_memcache'), 'boo', 'Value was not read %s');
+
+		sleep(1);
+		$this->assertEqual(Cache::read('duration_test', 'long_memcache'), 'yay', 'Value was not read %s');
+
+		sleep(2);
+		$this->assertFalse(Cache::read('short_duration_test', 'short_memcache'), 'Cache was not invalidated %s');
+		$this->assertFalse(Cache::read('duration_test', 'long_memcache'), 'Value did not expire %s');
+
+		Cache::delete('duration_test', 'long_memcache');
+		Cache::delete('short_duration_test', 'short_memcache');
+	}
+
 }
-?>

@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.controller.components
  * @since         CakePHP(tm) v 1.2.0.5435
@@ -21,6 +21,7 @@ App::import('Controller', 'Controller', false);
 App::import('Component', array('RequestHandler'));
 
 Mock::generatePartial('RequestHandlerComponent', 'NoStopRequestHandler', array('_stop'));
+Mock::generatePartial('Controller', 'RequestHandlerMockController', array('header'));
 
 /**
  * RequestHandlerTestController class
@@ -68,6 +69,15 @@ class RequestHandlerTestController extends Controller {
 	function destination() {
 		$this->viewPath = 'posts';
 		$this->render('index');
+	}
+/**
+ * test method for ajax redirection + parameter parsing
+ *
+ * @return void
+ */
+	function param_method($one = null, $two = null) {
+		echo "one: $one two: $two";
+		$this->autoRender = false;
 	}
 }
 
@@ -418,8 +428,14 @@ class RequestHandlerComponentTest extends CakeTestCase {
  */
 	function testMobileDeviceDetection() {
 		$this->assertFalse($this->RequestHandler->isMobile());
+
 		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3';
 		$this->assertTrue($this->RequestHandler->isMobile());
+
+		$_SERVER['HTTP_USER_AGENT'] = 'Some imaginary UA';
+		$this->RequestHandler->mobileUA []= 'imaginary';
+		$this->assertTrue($this->RequestHandler->isMobile());
+		array_pop($this->RequestHandler->mobileUA);
 	}
 
 /**
@@ -576,5 +592,48 @@ class RequestHandlerComponentTest extends CakeTestCase {
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 		App::build();
 	}
+
+/**
+ * test that the beforeRedirect callback properly converts
+ * array urls into their correct string ones, and adds base => false so
+ * the correct urls are generated.
+ *
+ * @link http://cakephp.lighthouseapp.com/projects/42648-cakephp-1x/tickets/276
+ * @return void
+ */
+	function testBeforeRedirectCallbackWithArrayUrl() {
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+
+		Router::setRequestInfo(array(
+			array('plugin' => null, 'controller' => 'accounts', 'action' => 'index', 'pass' => array(), 'named' => array(), 'form' => array(), 'url' => array('url' => 'accounts/'), 'bare' => 0),
+			array('base' => '/officespace', 'here' => '/officespace/accounts/', 'webroot' => '/officespace/')
+		));
+
+		$RequestHandler =& new NoStopRequestHandler();
+
+		ob_start();
+		$RequestHandler->beforeRedirect(
+			$this->Controller,
+			array('controller' => 'request_handler_test', 'action' => 'param_method', 'first', 'second')
+		);
+		$result = ob_get_clean();
+		$this->assertEqual($result, 'one: first two: second');
+	}
+
+/**
+ * assure that beforeRedirect with a status code will correctly set the status header 
+ *
+ * @return void
+ */
+	function testBeforeRedirectCallingHeader() {
+		$controller =& new RequestHandlerMockController();
+		$RequestHandler =& new NoStopRequestHandler();
+
+		$controller->expectOnce('header', array('HTTP/1.1 403 Forbidden'));
+
+		ob_start();
+		$RequestHandler->beforeRedirect($controller, 'request_handler_test/param_method/first/second', 403);
+		$result = ob_get_clean();
+	}
+
 }
-?>

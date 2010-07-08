@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -385,6 +385,19 @@ class HelperTest extends CakeTestCase {
 		$this->Helper->setEntity('HelperTestTag.HelperTestTag');
 		$result = $this->Helper->value('HelperTestTag.HelperTestTag');
 		$this->assertEqual($result, array(3 => 3, 5 => 5));
+
+		$this->Helper->data = array('zero' => 0);
+		$this->Helper->setEntity('zero');
+		$result = $this->Helper->value(array('default' => 'something'), 'zero');
+		$this->assertEqual($result, array('value' => 0));
+
+		$this->Helper->data = array('zero' => '0');
+		$result = $this->Helper->value(array('default' => 'something'), 'zero');
+		$this->assertEqual($result, array('value' => '0'));
+
+		$this->Helper->setEntity('inexistent');
+		$result = $this->Helper->value(array('default' => 'something'), 'inexistent');
+		$this->assertEqual($result, array('value' => 'something'));
 	}
 
 /**
@@ -453,6 +466,10 @@ class HelperTest extends CakeTestCase {
 
 		$result = $this->Helper->assetTimestamp(CSS_URL . 'cake.generic.css?someparam');
 		$this->assertEqual($result, CSS_URL . 'cake.generic.css?someparam');
+
+		$this->Helper->webroot = '/some/dir/';
+		$result = $this->Helper->assetTimestamp('/some/dir/' . CSS_URL . 'cake.generic.css');
+		$this->assertPattern('/' . preg_quote(CSS_URL . 'cake.generic.css?', '/') . '[0-9]+/', $result);
 
 		Configure::write('debug', $_debug);
 		Configure::write('Asset.timestamp', $_timestamp);
@@ -661,44 +678,46 @@ class HelperTest extends CakeTestCase {
 		$result = $this->Helper->value('My.title');
 		$this->assertEqual($result,'My Title');
 	}
-	
+
 	function testWebrootPaths() {
 		$this->Helper->webroot = '/';
 		$result = $this->Helper->webroot('/img/cake.power.gif');
 		$expected = '/img/cake.power.gif';
 		$this->assertEqual($result, $expected);
-		
+
 		$this->Helper->theme = 'test_theme';
-		
+
 		App::build(array(
 			'views' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'views'. DS)
 		));
-	
+
 		$result = $this->Helper->webroot('/img/cake.power.gif');
 		$expected = '/theme/test_theme/img/cake.power.gif';
 		$this->assertEqual($result, $expected);
-		
+
 		$result = $this->Helper->webroot('/img/test.jpg');
 		$expected = '/theme/test_theme/img/test.jpg';
 		$this->assertEqual($result, $expected);
 
 		$webRoot = Configure::read('App.www_root');
 		Configure::write('App.www_root', TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'webroot' . DS);
-		
+
 		$result = $this->Helper->webroot('/img/cake.power.gif');
 		$expected = '/theme/test_theme/img/cake.power.gif';
 		$this->assertEqual($result, $expected);
-		
+
 		$result = $this->Helper->webroot('/img/test.jpg');
 		$expected = '/theme/test_theme/img/test.jpg';
 		$this->assertEqual($result, $expected);
-		
+
 		$result = $this->Helper->webroot('/img/cake.icon.gif');
 		$expected = '/img/cake.icon.gif';
 		$this->assertEqual($result, $expected);
-		
+
+		$result = $this->Helper->webroot('/img/cake.icon.gif?some=param');
+		$expected = '/img/cake.icon.gif?some=param';
+		$this->assertEqual($result, $expected);
+
 		Configure::write('App.www_root', $webRoot);
 	}
-
 }
-?>

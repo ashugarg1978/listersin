@@ -7,13 +7,13 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.controller
  * @since         Cake v 0.10.0.1076
@@ -163,7 +163,7 @@ class Scaffold extends Object {
 			$this->{$var} = $controller->{$var};
 		}
 
-		$this->redirect = array('action'=> 'index');
+		$this->redirect = array('action' => 'index');
 
 		$this->modelClass = $controller->modelClass;
 		$this->modelKey = $controller->modelKey;
@@ -177,8 +177,7 @@ class Scaffold extends Object {
 		$this->ScaffoldModel =& $this->controller->{$this->modelClass};
 		$this->scaffoldTitle = Inflector::humanize($this->viewPath);
 		$this->scaffoldActions = $controller->scaffold;
-		$this->controller->pageTitle = __('Scaffold :: ', true)
-			. Inflector::humanize($this->action) . ' :: ' . $this->scaffoldTitle;
+		$title_for_layout = __('Scaffold :: ', true) . Inflector::humanize($this->action) . ' :: ' . $this->scaffoldTitle;
 		$modelClass = $this->controller->modelClass;
 		$primaryKey = $this->ScaffoldModel->primaryKey;
 		$displayField = $this->ScaffoldModel->displayField;
@@ -190,7 +189,7 @@ class Scaffold extends Object {
 		$associations = $this->__associations();
 
 		$this->controller->set(compact(
-			'modelClass', 'primaryKey', 'displayField', 'singularVar', 'pluralVar',
+			'title_for_layout', 'modelClass', 'primaryKey', 'displayField', 'singularVar', 'pluralVar',
 			'singularHumanName', 'pluralHumanName', 'scaffoldFields', 'associations'
 		));
 
@@ -223,8 +222,8 @@ class Scaffold extends Object {
  */
 	function __scaffoldView($params) {
 		if ($this->controller->_beforeScaffold('view')) {
-			
-			$message = sprintf(__("No id set for %s::view()", true), Inflector::humanize($this->modelKey));
+
+			$message = __(sprintf("No id set for %s::view()", Inflector::humanize($this->modelKey), true));
 			if (isset($params['pass'][0])) {
 				$this->ScaffoldModel->id = $params['pass'][0];
 			} elseif ($this->_validSession) {
@@ -304,7 +303,7 @@ class Scaffold extends Object {
 				}
 
 				if (!$this->ScaffoldModel->exists()) {
-					$message = sprintf(__("Invalid id for %s::edit()", true), Inflector::humanize($this->modelKey));
+					$message = __(sprintf("Invalid id for %s::edit()", Inflector::humanize($this->modelKey), true));
 					if ($this->_validSession) {
 						$this->controller->Session->setFlash($message);
 						$this->controller->redirect($this->redirect);
@@ -322,9 +321,9 @@ class Scaffold extends Object {
 
 				if ($this->ScaffoldModel->save($this->controller->data)) {
 					if ($this->controller->_afterScaffoldSave($action)) {
-						$message = sprintf(__('The %1$s has been %2$s', true),
-							Inflector::humanize($this->modelKey),
-							$success
+						$message = __(
+							sprintf('The %1$s has been %2$s', Inflector::humanize($this->modelKey), $success),
+							true
 						);
 						if ($this->_validSession) {
 							$this->controller->Session->setFlash($message);
@@ -338,9 +337,7 @@ class Scaffold extends Object {
 					}
 				} else {
 					if ($this->_validSession) {
-						$this->controller->Session->setFlash(
-							__('Please correct errors below.', true
-						));
+						$this->controller->Session->setFlash(__('Please correct errors below.', true));
 					}
 				}
 			}
@@ -379,7 +376,9 @@ class Scaffold extends Object {
  */
 	function __scaffoldDelete($params = array()) {
 		if ($this->controller->_beforeScaffold('delete')) {
-			$message = sprintf(__("No id set for %s::delete()", true), Inflector::humanize($this->modelKey));
+			$message = __(
+				sprintf("No id set for %s::delete()", Inflector::humanize($this->modelKey)), true
+			);
 			if (isset($params['pass'][0])) {
 				$id = $params['pass'][0];
 			} elseif ($this->_validSession) {
@@ -391,9 +390,9 @@ class Scaffold extends Object {
 			}
 
 			if ($this->ScaffoldModel->delete($id)) {
-				$message = sprintf(
-					__('The %1$s with id: %2$d has been deleted.', true),
-					Inflector::humanize($this->modelClass), $id
+				$message = __(
+					sprintf('The %1$s with id: %2$d has been deleted.', Inflector::humanize($this->modelClass), $id),
+					true
 				);
 				if ($this->_validSession) {
 					$this->controller->Session->setFlash($message);
@@ -403,10 +402,10 @@ class Scaffold extends Object {
 					return $this->_output();
 				}
 			} else {
-				$message = sprintf(
-					__('There was an error deleting the %1$s with id: %2$d', true),
+				$message = __(sprintf(
+					'There was an error deleting the %1$s with id: %2$d',
 					Inflector::humanize($this->modelClass), $id
-				);
+				), true);
 				if ($this->_validSession) {
 					$this->controller->Session->setFlash($message);
 					$this->controller->redirect($this->redirect);
@@ -444,7 +443,7 @@ class Scaffold extends Object {
 		$db = &ConnectionManager::getDataSource($this->ScaffoldModel->useDbConfig);
 		$prefixes = Configure::read('Routing.prefixes');
 		$scaffoldPrefix = $this->scaffoldActions;
-	
+
 		if (isset($db)) {
 			if (empty($this->scaffoldActions)) {
 				$this->scaffoldActions = array(
@@ -452,7 +451,7 @@ class Scaffold extends Object {
 				);
 			} elseif (!empty($prefixes) && in_array($scaffoldPrefix, $prefixes)) {
 				$this->scaffoldActions = array(
-					$scaffoldPrefix . '_index', 
+					$scaffoldPrefix . '_index',
 					$scaffoldPrefix . '_list',
 					$scaffoldPrefix . '_view',
 					$scaffoldPrefix . '_add',
@@ -525,6 +524,10 @@ class Scaffold extends Object {
 
 				$associations[$type][$assocKey]['controller'] =
 					Inflector::pluralize(Inflector::underscore($assocData['className']));
+
+				if ($type == 'hasAndBelongsToMany') {
+					$associations[$type][$assocKey]['with'] = $assocData['with'];
+				}
 			}
 		}
 		return $associations;
@@ -581,11 +584,13 @@ class ScaffoldView extends ThemeView {
 		$names[] = 'scaffolds' . DS . $subDir . $name;
 
 		$paths = $this->_paths($this->plugin);
-
-		$exts = array($this->ext, '.ctp', '.thtml');
-		foreach ($paths as $path) {
-			foreach ($names as $name) {
-				foreach ($exts as $ext) {
+		$exts = array($this->ext);
+		if ($this->ext !== '.ctp') {
+			array_push($exts, '.ctp');
+		}
+		foreach ($exts as $ext) {
+			foreach ($paths as $path) {
+				foreach ($names as $name) {
 					if (file_exists($path . $name . $ext)) {
 						return $path . $name . $ext;
 					}
@@ -600,4 +605,3 @@ class ScaffoldView extends ThemeView {
 		return $this->_missingView($paths[0] . $name . $this->ext, 'missingView');
 	}
 }
-?>

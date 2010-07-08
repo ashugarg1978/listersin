@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -19,6 +19,10 @@
  */
 App::import('Core', array('Helper', 'AppHelper', 'ClassRegistry', 'Controller', 'Model'));
 App::import('Helper', array('Html', 'Form'));
+
+if (!defined('FULL_BASE_URL')) {
+	define('FULL_BASE_URL', 'http://cakephp.org');
+}
 
 /**
  * TheHtmlTestController class
@@ -155,6 +159,10 @@ class HtmlHelperTest extends CakeTestCase {
 	function testLink() {
 		$result = $this->Html->link('/home');
 		$expected = array('a' => array('href' => '/home'), 'preg:/\/home/', '/a');
+		$this->assertTags($result, $expected);
+
+		$result = $this->Html->link('Posts', array('controller' => 'posts', 'action' => 'index', 'full_base' => true));
+		$expected = array('a' => array('href' => FULL_BASE_URL . '/posts'), 'Posts', '/a');
 		$this->assertTags($result, $expected);
 
 		$result = $this->Html->link('Home', '/home', array('confirm' => 'Are you sure you want to do this?'));
@@ -304,14 +312,15 @@ class HtmlHelperTest extends CakeTestCase {
 	function testImageWithTimestampping() {
 		Configure::write('Asset.timestamp', 'force');
 
+		$this->Html->webroot = '/';
 		$result = $this->Html->image('cake.icon.png');
-		$this->assertTags($result, array('img' => array('src' => 'preg:/img\/cake\.icon\.png\?\d+/', 'alt' => '')));
+		$this->assertTags($result, array('img' => array('src' => 'preg:/\/img\/cake\.icon\.png\?\d+/', 'alt' => '')));
 
 		Configure::write('debug', 0);
 		Configure::write('Asset.timestamp', 'force');
 
 		$result = $this->Html->image('cake.icon.png');
-		$this->assertTags($result, array('img' => array('src' => 'preg:/img\/cake\.icon\.png\?\d+/', 'alt' => '')));
+		$this->assertTags($result, array('img' => array('src' => 'preg:/\/img\/cake\.icon\.png\?\d+/', 'alt' => '')));
 
 		$webroot = $this->Html->webroot;
 		$this->Html->webroot = '/testing/longer/';
@@ -331,32 +340,44 @@ class HtmlHelperTest extends CakeTestCase {
  * @link https://trac.cakephp.org/ticket/6490
  */
 	function testImageTagWithTheme() {
+		if ($this->skipIf(!is_writable(WWW_ROOT . 'theme'), 'Cannot write to webroot/theme')) {
+			return;
+		}
+		App::import('Core', 'File');
+
+		$testfile = WWW_ROOT . 'theme' . DS . 'test_theme' . DS . 'img' . DS . '__cake_test_image.gif';
+		$file =& new File($testfile, true);
+
 		App::build(array(
 			'views' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'views'. DS)
 		));
 		Configure::write('Asset.timestamp', true);
 		Configure::write('debug', 1);
-		
+
+		$this->Html->webroot = '/';
 		$this->Html->theme = 'test_theme';
-		$result = $this->Html->image('cake.power.gif');
+		$result = $this->Html->image('__cake_test_image.gif');
 		$this->assertTags($result, array(
 			'img' => array(
-				'src' => 'preg:/theme\/test_theme\/img\/cake\.power\.gif\?\d+/',
+				'src' => 'preg:/\/theme\/test_theme\/img\/__cake_test_image\.gif\?\d+/',
 				'alt' => ''
 		)));
 
 		$webroot = $this->Html->webroot;
 		$this->Html->webroot = '/testing/';
-		$result = $this->Html->image('cake.power.gif');
-		
+		$result = $this->Html->image('__cake_test_image.gif');
+
 		$this->assertTags($result, array(
 			'img' => array(
-				'src' => 'preg:/\/testing\/theme\/test_theme\/img\/cake\.power\.gif\?\d+/',
+				'src' => 'preg:/\/testing\/theme\/test_theme\/img\/__cake_test_image\.gif\?\d+/',
 				'alt' => ''
 		)));
 		$this->Html->webroot = $webroot;
+
+		$dir =& new Folder(WWW_ROOT . 'theme' . DS . 'test_theme');
+		$dir->delete();
 	}
-	
+
 /**
  * test theme assets in main webroot path
  *
@@ -364,12 +385,13 @@ class HtmlHelperTest extends CakeTestCase {
  * @return void
  */
 	function testThemeAssetsInMainWebrootPath() {
+		Configure::write('Asset.timestamp', false);
 		App::build(array(
 			'views' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'views'. DS)
 		));
 		$webRoot = Configure::read('App.www_root');
 		Configure::write('App.www_root', TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'webroot' . DS);
-		
+
 		$webroot = $this->Html->webroot;
 		$this->Html->theme = 'test_theme';
 		$result = $this->Html->css('webroot_test');
@@ -385,7 +407,7 @@ class HtmlHelperTest extends CakeTestCase {
 			'link' => array('rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*theme\/test_theme\/css\/theme_webroot\.css/')
 		);
 		$this->assertTags($result, $expected);
-		
+
 		Configure::write('App.www_root', $webRoot);
 	}
 
@@ -542,6 +564,7 @@ class HtmlHelperTest extends CakeTestCase {
  * @return void
  */
 	function testScript() {
+		Configure::write('Asset.timestamp', false);
 		$result = $this->Html->script('foo');
 		$expected = array(
 			'script' => array('type' => 'text/javascript', 'src' => 'js/foo.js')
@@ -1089,6 +1112,8 @@ class HtmlHelperTest extends CakeTestCase {
 
 		$result = $this->Html->meta('keywords', 'these, are, some, meta, keywords');
 		$this->assertTags($result, array('meta' => array('name' => 'keywords', 'content' => 'these, are, some, meta, keywords')));
+		$this->assertPattern('/\s+\/>$/', $result);
+
 
 		$result = $this->Html->meta('description', 'this is the meta description');
 		$this->assertTags($result, array('meta' => array('name' => 'description', 'content' => 'this is the meta description')));
@@ -1242,4 +1267,3 @@ class HtmlHelperTest extends CakeTestCase {
 		$this->assertTags($result, array('p' => array('class' => 'class-name'), '&lt;text&gt;', '/p'));
 	}
 }
-?>

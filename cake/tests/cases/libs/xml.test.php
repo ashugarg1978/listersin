@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5432
@@ -932,7 +932,7 @@ class XmlTest extends CakeTestCase {
 
 		$expects = '<a:container xmlns:a="http://example.com/a" xmlns:b="http://example.com/b" xmlns:c="http://example.com/c" xmlns:d="http://example.com/d" xmlns:e="http://example.com/e" xmlns:f="http://example.com/f"><b:rule test=""><c:result>value</c:result></b:rule><d:rule test=""><e:result>value</e:result></d:rule></a:container>';
 
-		$_xml = XmlManager::getInstance();
+		$_xml =& XmlManager::getInstance();
 		$xml->addNamespace('f', 'http://example.com/f');
 		$result = $xml->toString(array('cdata' => false));
 		$this->assertEqual($expects, $result);
@@ -1266,6 +1266,43 @@ class XmlTest extends CakeTestCase {
 			)
 		);
 		$this->assertEqual($result, $expected);
+
+		$text = '<main><first label="first type node 1" /><first label="first type node 2" /><second label="second type node" /></main>';
+		$xml =  new Xml($text);
+		$result = $xml->toArray();
+		$expected = array(
+		    'Main' => array(
+		        'First' => array(
+		            array('label' => 'first type node 1'),
+		            array('label' => 'first type node 2')
+		        ),
+		        'Second' => array('label'=>'second type node')
+		    )
+		);
+		$this->assertIdentical($result,$expected);
+
+		$text = '<main><first label="first type node 1" /><first label="first type node 2" /><second label="second type node" /><collection><fifth label="fifth type node"/><third label="third type node 1"/><third label="third type node 2"/><third label="third type node 3"/><fourth label="fourth type node"/></collection></main>';
+		$xml =  new Xml($text);
+		$result = $xml->toArray();
+		$expected = array(
+		    'Main' => array(
+		        'First' => array(
+		            array('label' => 'first type node 1'),
+		            array('label' => 'first type node 2')
+		        ),
+		        'Second' => array('label'=>'second type node'),
+				'Collection' => array(
+					'Fifth' => array('label' => 'fifth type node'),
+					'Third' => array(
+						array('label' => 'third type node 1'),
+						array('label' => 'third type node 2'),
+						array('label' => 'third type node 3'),
+					),
+					'Fourth' => array('label' => 'fourth type node'),
+				)
+		    )
+		);
+		$this->assertIdentical($result,$expected);
 	}
 
 /**
@@ -1359,5 +1396,24 @@ class XmlTest extends CakeTestCase {
 		$result = $result[0]->first();
 		$this->assertEqual($result->value, '012345');
 	}
+
+/**
+ * test that creating an xml object does not leak memory
+ *
+ * @return void
+ */
+	function testMemoryLeakInConstructor() {
+		if ($this->skipIf(!function_exists('memory_get_usage'), 'Cannot test memory leaks without memory_get_usage')) {
+			return;
+		}
+		$data = '<?xml version="1.0" encoding="UTF-8"?><content>TEST</content>';
+		$start = memory_get_usage();
+		for ($i = 0; $i <= 300; $i++) {
+			$test =& new XML($data);
+			$test->__destruct();
+			unset($test);
+		}
+		$end = memory_get_usage();
+		$this->assertWithinMargin($start, $end, 3600, 'Memory leaked %s');
+	}
 }
-?>

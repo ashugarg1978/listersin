@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
@@ -424,7 +424,7 @@ class DboMysqlBase extends DboSource {
 	function listDetailedSources($name = null) {
 		$condition = '';
 		if (is_string($name)) {
-			$condition = ' WHERE Name = ' . $this->value($name);
+			$condition = ' LIKE ' . $this->value($name);
 		}
 		$result = $this->query('SHOW TABLE STATUS FROM ' . $this->name($this->config['database']) . $condition . ';');
 		if (!$result) {
@@ -507,9 +507,9 @@ class DboMysqlBase extends DboSource {
 class DboMysql extends DboMysqlBase {
 
 /**
- * Enter description here...
+ * Datasource description
  *
- * @var unknown_type
+ * @var string
  */
 	var $description = "MySQL DBO Driver";
 
@@ -605,7 +605,7 @@ class DboMysql extends DboMysqlBase {
 		} else {
 			$tables = array();
 
-			while ($line = mysql_fetch_array($result)) {
+			while ($line = mysql_fetch_row($result)) {
 				$tables[] = $line[0];
 			}
 			parent::listSources($tables);
@@ -727,9 +727,8 @@ class DboMysql extends DboMysqlBase {
 		$j = 0;
 
 		while ($j < $numFields) {
-
-			$column = mysql_fetch_field($results,$j);
-			if (!empty($column->table)) {
+			$column = mysql_fetch_field($results, $j);
+			if (!empty($column->table) && strpos($column->name, $this->virtualFieldSeparator) === false) {
 				$this->map[$index++] = array($column->table, $column->name);
 			} else {
 				$this->map[$index++] = array(0, $column->name);
@@ -783,4 +782,3 @@ class DboMysql extends DboMysqlBase {
 		return false;
 	}
 }
-?>

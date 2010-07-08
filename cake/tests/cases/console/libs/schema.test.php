@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP : Rapid Development Framework (http://cakephp.org)
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
  * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.Shells
@@ -121,7 +121,9 @@ class SchemaShellTest extends CakeTestCase {
  * @var array
  * @access public
  */
-	var $fixtures = array('core.article', 'core.user', 'core.post', 'core.auth_user');
+	var $fixtures = array('core.article', 'core.user', 'core.post', 'core.auth_user', 'core.author', 
+		'core.comment', 'core.test_plugin_comment'
+	);
 
 /**
  * startTest method
@@ -368,6 +370,8 @@ class SchemaShellTest extends CakeTestCase {
 
 		$this->assertPattern('/var \$posts/', $contents);
 		$this->assertPattern('/var \$auth_users/', $contents);
+		$this->assertPattern('/var \$authors/', $contents);
+		$this->assertPattern('/var \$test_plugin_comments/', $contents);
 		$this->assertNoPattern('/var \$users/', $contents);
 		$this->assertNoPattern('/var \$articles/', $contents);
 
@@ -496,4 +500,3 @@ class SchemaShellTest extends CakeTestCase {
 		App::build();
 	}
 }
-?>

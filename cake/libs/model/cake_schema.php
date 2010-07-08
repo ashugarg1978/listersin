@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model
@@ -238,21 +238,20 @@ class CakeSchema extends Object {
 					$model = $this->plugin . '.' . $model;
 				}
 				if (PHP5) {
-					$Object = ClassRegistry::init(array('class' => $model, 'ds' => $connection));
+					$Object = ClassRegistry::init(array('class' => $model, 'ds' => null));
 				} else {
-					$Object =& ClassRegistry::init(array('class' => $model, 'ds' => $connection));
+					$Object =& ClassRegistry::init(array('class' => $model, 'ds' => null));
 				}
 
 				if (is_object($Object) && $Object->useTable !== false) {
 					$Object->setDataSource($connection);
 					$table = $db->fullTableName($Object, false);
-
 					if (in_array($table, $currentTables)) {
 						$key = array_search($table, $currentTables);
-						if (empty($tables[$Object->table])) {
-							$tables[$Object->table] = $this->__columns($Object);
-							$tables[$Object->table]['indexes'] = $db->index($Object);
-							$tables[$Object->table]['tableParameters'] = $db->readTableParameters($table);
+						if (empty($tables[$table])) {
+							$tables[$table] = $this->__columns($Object);
+							$tables[$table]['indexes'] = $db->index($Object);
+							$tables[$table]['tableParameters'] = $db->readTableParameters($table);
 							unset($currentTables[$key]);
 						}
 						if (!empty($Object->hasAndBelongsToMany)) {
@@ -261,12 +260,12 @@ class CakeSchema extends Object {
 									$class = $assocData['with'];
 								}
 								if (is_object($Object->$class)) {
-									$table = $db->fullTableName($Object->$class, false);
-									if (in_array($table, $currentTables)) {
-										$key = array_search($table, $currentTables);
-										$tables[$Object->$class->table] = $this->__columns($Object->$class);
-										$tables[$Object->$class->table]['indexes'] = $db->index($Object->$class);
-										$tables[$Object->$class->table]['tableParameters'] = $db->readTableParameters($table);
+									$withTable = $db->fullTableName($Object->$class, false);
+									if (in_array($withTable, $currentTables)) {
+										$key = array_search($withTable, $currentTables);
+										$tables[$withTable] = $this->__columns($Object->$class);
+										$tables[$withTable]['indexes'] = $db->index($Object->$class);
+										$tables[$withTable]['tableParameters'] = $db->readTableParameters($withTable);
 										unset($currentTables[$key]);
 									}
 								}
@@ -451,7 +450,7 @@ class CakeSchema extends Object {
 		$tables = array();
 		foreach ($new as $table => $fields) {
 			if ($table == 'missing') {
-				break;
+				continue;
 			}
 			if (!array_key_exists($table, $old)) {
 				$tables[$table]['add'] = $fields;
@@ -465,6 +464,7 @@ class CakeSchema extends Object {
 					$tables[$table]['drop'] = $diff;
 				}
 			}
+
 			foreach ($fields as $field => $value) {
 				if (isset($old[$table][$field])) {
 					$diff = array_diff_assoc($value, $old[$table][$field]);
@@ -545,7 +545,7 @@ class CakeSchema extends Object {
 				$value['key'] = 'primary';
 			}
 			if (!isset($db->columns[$value['type']])) {
-				trigger_error('Schema generation error: invalid column type ' . $value['type'] . ' does not exist in DBO', E_USER_NOTICE);
+				trigger_error(sprintf(__('Schema generation error: invalid column type %s does not exist in DBO', true), $value['type']), E_USER_NOTICE);
 				continue;
 			} else {
 				$defaultCol = $db->columns[$value['type']];
@@ -638,4 +638,3 @@ class CakeSchema extends Object {
 		return array_filter(compact('add', 'drop'));
 	}
 }
-?>

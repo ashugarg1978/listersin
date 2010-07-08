@@ -4,13 +4,13 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP : Rapid Development Framework (http://cakephp.org)
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * CakePHP :  Rapid Development Framework (http://cakephp.org)
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
  * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.tasks
@@ -36,7 +36,7 @@ if (!class_exists('AclShell')) {
 
 Mock::generatePartial(
 	'ShellDispatcher', 'TestAclShellMockShellDispatcher',
-	array('getInput', 'stdout', 'stderr', '_stop', '_initEnvironment')
+	array('getInput', 'stdout', 'stderr', '_stop', '_initEnvironment', 'dispatch')
 );
 Mock::generatePartial(
 	'AclShell', 'MockAclShell',
@@ -331,5 +331,16 @@ class AclShellTest extends CakeTestCase {
 		$this->Task->expectAt(3, 'out', array('    [4] Elrond'));
 		$this->Task->getPath();
 	}
+
+/**
+ * test that initdb makes the correct call.
+ *
+ * @return void
+ */
+	function testInitDb() {
+		$this->Task->Dispatch->expectOnce('dispatch');
+		$this->Task->initdb();
+
+		$this->assertEqual($this->Task->Dispatch->args, array('schema', 'create', 'DbAcl'));
+	}
 }
-?>

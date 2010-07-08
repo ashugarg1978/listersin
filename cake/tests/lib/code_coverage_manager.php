@@ -6,14 +6,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.cake.tests.lib
  * @since         CakePHP(tm) v 1.2.0.4433
@@ -101,7 +101,7 @@ class CodeCoverageManager {
 		$thisFile = str_replace('.php', '.test.php', basename(__FILE__));
 
 		if (strpos($testCaseFile, $thisFile) !== false) {
-			trigger_error('Xdebug supports no parallel coverage analysis - so this is not possible.', E_USER_ERROR);
+			trigger_error(__('Xdebug supports no parallel coverage analysis - so this is not possible.', true), E_USER_ERROR);
 		}
 		$manager->setParams($reporter);
 		$manager->testCaseFile = $testCaseFile;
@@ -118,7 +118,7 @@ class CodeCoverageManager {
 	}
 
 /**
- * Stops/pauses code coverage collection. Does not clean the 
+ * Stops/pauses code coverage collection. Does not clean the
  * code coverage memory. Use clean() to clear code coverage memory
  *
  * @return void
@@ -159,7 +159,7 @@ class CodeCoverageManager {
 	}
 
 /**
- * Stops the current code coverage analyzation and dumps a nice report 
+ * Stops the current code coverage analyzation and dumps a nice report
  * depending on the reporter that was passed to start()
  *
  * @return void
@@ -223,7 +223,7 @@ class CodeCoverageManager {
 			$testObjectFile = $this->__testObjectFilesFromGroupFile($this->testCaseFile, $this->appTest);
 			foreach ($testObjectFile as $file) {
 				if (!file_exists($file)) {
-					trigger_error('This test object file is invalid: ' . $file);
+					trigger_error(sprintf(__('This test object file is invalid: %s', true), $file));
 					return ;
 				}
 			}
@@ -236,7 +236,7 @@ class CodeCoverageManager {
 			$testObjectFile = $this->__testObjectFileFromCaseFile($this->testCaseFile, $this->appTest);
 
 			if (!file_exists($testObjectFile)) {
-				trigger_error('This test object file is invalid: ' . $testObjectFile);
+				trigger_error(sprintf(__('This test object file is invalid: %s', true), $testObjectFile));
 				return ;
 			}
 
@@ -530,49 +530,50 @@ class CodeCoverageManager {
 		$manager = CodeCoverageManager::getInstance();
 		$testManager =& new TestManager();
 
-		$path = TESTS . 'groups';
-
+		$path = TESTS;
 		if (!$isApp) {
-			$path = ROOT . DS . 'cake' . DS . 'tests' . DS . 'groups';
+			$path = ROOT . DS . 'cake' . DS . 'tests';
 		}
-
 		if (!!$manager->pluginTest) {
-			$path = APP . 'plugins' . DS . $manager->pluginTest . DS . 'tests' . DS . 'groups';
-
-			$pluginPaths = App::path('plugins');
-			foreach ($pluginPaths as $pluginPath) {
-				$tmpPath = $pluginPath . $manager->pluginTest . DS . 'tests' . DS. 'groups';
-				if (file_exists($tmpPath)) {
-					$path = $tmpPath;
-					break;
-				}
-			}
-		}
-		$path .= DS . $groupFile . $testManager->_groupExtension;
-
-		if (!file_exists($path)) {
-			trigger_error('This group file does not exist!');
-			return array();
+			$path = App::pluginPath($manager->pluginTest) . DS . 'tests';
 		}
 
 		$result = array();
-		$groupContent = file_get_contents($path);
-		$ds = '\s*\.\s*DS\s*\.\s*';
-		$pluginTest = 'APP\.\'plugins\'' . $ds . '\'' . $manager->pluginTest . '\'' . $ds . '\'tests\'' . $ds . '\'cases\'';
-		$pattern = '/\s*TestManager::addTestFile\(\s*\$this,\s*(' . $pluginTest . '|APP_TEST_CASES|CORE_TEST_CASES)' . $ds . '(.*?)\)/i';
-		preg_match_all($pattern, $groupContent, $matches);
+		if ($groupFile == 'all') {
+			$files = array_keys($testManager->getTestCaseList());
+			foreach ($files as $file) {
+				$file = str_replace(DS . 'tests' . DS . 'cases' . DS, DS, $file);
+				$file = str_replace('.test.php', '.php', $file);
+				$file = str_replace(DS . DS, DS, $file);
+				$result[] = $file;
+			}
+		} else {
+			$path .= DS . 'groups' . DS . $groupFile . $testManager->_groupExtension;
+			if (!file_exists($path)) {
+				trigger_error(__('This group file does not exist!', true));
+				return array();
+			}
 
-		foreach ($matches[2] as $file) {
-			$patterns = array(
-				'/\s*\.\s*DS\s*\.\s*/',
-				'/\s*APP_TEST_CASES\s*/',
-				'/\s*CORE_TEST_CASES\s*/',
-			);
+			$result = array();
+			$groupContent = file_get_contents($path);
+			$ds = '\s*\.\s*DS\s*\.\s*';
+			$pluginTest = 'APP\.\'plugins\'' . $ds . '\'' . $manager->pluginTest . '\'' . $ds . '\'tests\'' . $ds . '\'cases\'';
+			$pluginTest .= '|App::pluginPath\(\'' . $manager->pluginTest . '\'\)' . $ds . '\'tests\'' . $ds . '\'cases\'';
+			$pattern = '/\s*TestManager::addTestFile\(\s*\$this,\s*(' . $pluginTest . '|APP_TEST_CASES|CORE_TEST_CASES)' . $ds . '(.*?)\)/i';
+			preg_match_all($pattern, $groupContent, $matches);
 
-			$replacements = array(DS, '', '');
-			$file = preg_replace($patterns, $replacements, $file);
-			$file = str_replace("'", '', $file);
-			$result[] = $manager->__testObjectFileFromCaseFile($file, $isApp) . '.php';
+			foreach ($matches[2] as $file) {
+				$patterns = array(
+					'/\s*\.\s*DS\s*\.\s*/',
+					'/\s*APP_TEST_CASES\s*/',
+					'/\s*CORE_TEST_CASES\s*/',
+				);
+
+				$replacements = array(DS, '', '');
+				$file = preg_replace($patterns, $replacements, $file);
+				$file = str_replace("'", '', $file);
+				$result[] = $manager->__testObjectFileFromCaseFile($file, $isApp) . '.php';
+			}
 		}
 		return $result;
 	}
@@ -587,7 +588,7 @@ class CodeCoverageManager {
  */
 	function __getExecutableLines($content) {
 		if (is_array($content)) {
-			$manager = CodeCoverageManager::getInstance();
+			$manager =& CodeCoverageManager::getInstance();
 			$result = array();
 			foreach ($content as $file) {
 				$result[$file] = $manager->__getExecutableLines(file_get_contents($file));
@@ -736,7 +737,7 @@ class CodeCoverageManager {
  */
 	function __calcCoverage($lineCount, $coveredCount) {
 		if ($coveredCount > $lineCount) {
-			trigger_error('Sorry, you cannot have more covered lines than total lines!');
+			trigger_error(__('Sorry, you cannot have more covered lines than total lines!', true));
 		}
 		return ($lineCount != 0)
 				? round(100 * $coveredCount / $lineCount, 2)
@@ -801,4 +802,3 @@ class CodeCoverageManager {
 		return false;
 	}
 }
-?>

@@ -6,13 +6,13 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP : Rapid Development Framework (http://cakephp.org)
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * CakePHP :  Rapid Development Framework (http://cakephp.org)
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
  * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.tasks
@@ -265,6 +265,7 @@ class TestTaskTest extends CakeTestCase {
 		$this->Dispatcher =& new TestTestTaskMockShellDispatcher();
 		$this->Dispatcher->shellPaths = App::path('shells');
 		$this->Task =& new MockTestTask($this->Dispatcher);
+		$this->Task->name = 'TestTask';
 		$this->Task->Dispatch =& $this->Dispatcher;
 		$this->Task->Template =& new TemplateTask($this->Dispatcher);
 	}
@@ -520,7 +521,7 @@ class TestTaskTest extends CakeTestCase {
  * @return void
  * @access public
  */
-	function testGenerateContsructor() {
+	function testGenerateConstructor() {
 		$result = $this->Task->generateConstructor('controller', 'PostsController');
 		$expected = "new TestPostsController();\n\t\t\$this->Posts->constructClasses();\n";
 		$this->assertEqual($result, $expected);
@@ -530,7 +531,7 @@ class TestTaskTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 
 		$result = $this->Task->generateConstructor('helper', 'FormHelper');
-		$expected = "new FormHelper()\n";
+		$expected = "new FormHelper();\n";
 		$this->assertEqual($result, $expected);
 	}
 
@@ -622,4 +623,3 @@ class TestTaskTest extends CakeTestCase {
 		$this->Task->execute();
 	}
 }
-?>

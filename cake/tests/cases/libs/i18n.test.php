@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5432
@@ -2604,6 +2604,23 @@ class I18nTest extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 
+	function testTimeDefinitionJapanese(){
+		Configure::write('Config.language', 'ja_jp');
+		$result = __c('d_fmt', 5, true);
+		
+		$expected = "%Y年%m月%d日";
+		
+		$this->assertEqual($result, $expected);
+
+		$result = __c('am_pm', 5, true);
+		$expected = array("午前", "午後");
+		$this->assertEqual($result, $expected);
+
+		$result = __c('abmon', 5, true);
+		$expected = array(" 1月", " 2月", " 3月", " 4月", " 5月", " 6月", " 7月", " 8月", " 9月", "10月", "11月", "12月");
+		$this->assertEqual($result, $expected);
+	}
+
 /**
  * Singular method
  *
@@ -2715,4 +2732,3 @@ class I18nTest extends CakeTestCase {
 		return $plurals;
 	}
 }
-?>

@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5432
@@ -69,11 +69,28 @@ class CacheTest extends CakeTestCase {
 	}
 
 /**
+ * Check that no fatal errors are issued doing normal things when Cache.disable is true.
+ *
+ * @return void
+ */
+	function testNonFatalErrorsWithCachedisable() {
+		Configure::write('Cache.disable', true);
+		Cache::config('test', array('engine' => 'File', 'path' => TMP, 'prefix' => 'error_test_'));
+
+		Cache::write('no_save', 'Noooo!', 'test');
+		Cache::read('no_save', 'test');
+		Cache::delete('no_save', 'test');
+		Cache::set('duration', '+10 minutes');
+
+		Configure::write('Cache.disable', false);
+	}
+
+/**
  * test configuring CacheEngines in App/libs
  *
  * @return void
  */
-	function XXtestConfigWithLibAndPluginEngines() {
+	function testConfigWithLibAndPluginEngines() {
 		App::build(array(
 			'libs' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'libs' . DS),
 			'plugins' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'plugins' . DS)
@@ -102,6 +119,7 @@ class CacheTest extends CakeTestCase {
  * @return void
  */
 	function testInvaidConfig() {
+		$this->expectError();
 		Cache::config('Invalid', array(
 			'engine' => 'File',
 			'duration' => '+1 year',
@@ -157,7 +175,7 @@ class CacheTest extends CakeTestCase {
 		Cache::config('test_name');
 		$result = Cache::read('value_one');
 		$this->assertEqual($result, 'I am cached');
-		
+
 		Cache::delete('value_one');
 		Cache::config('default');
 		Cache::delete('value_one');
@@ -190,7 +208,7 @@ class CacheTest extends CakeTestCase {
 	}
 
 /**
- * test that configured returns an array of the currently configured cache 
+ * test that configured returns an array of the currently configured cache
  * settings
  *
  * @return void
@@ -225,7 +243,7 @@ class CacheTest extends CakeTestCase {
 	}
 
 /**
- * test that drop removes cache configs, and that further attempts to use that config 
+ * test that drop removes cache configs, and that further attempts to use that config
  * do not work.
  *
  * @return void
@@ -242,7 +260,7 @@ class CacheTest extends CakeTestCase {
 		$_testsConfig = Cache::config('tests');
 		$result = Cache::drop('tests');
 		$this->assertTrue($result);
-		
+
 		Cache::config('unconfigTest', array(
 			'engine' => 'TestAppCache'
 		));
@@ -351,4 +369,3 @@ class CacheTest extends CakeTestCase {
 	}
 
 }
-?>

@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.console.libs
@@ -293,12 +293,16 @@ class Shell extends Object {
 					}
 				}
 			}
-			if (ClassRegistry::isKeySet($taskClass)) {
+			$taskClassCheck = $taskClass;
+			if (!PHP5) {
+				$taskClassCheck = strtolower($taskClass);
+			}
+			if (ClassRegistry::isKeySet($taskClassCheck)) {
 				$this->taskNames[] = $taskName;
 				if (!PHP5) {
-					$this->{$taskName} =& ClassRegistry::getObject($taskClass);
+					$this->{$taskName} =& ClassRegistry::getObject($taskClassCheck);
 				} else {
-					$this->{$taskName} = ClassRegistry::getObject($taskClass);
+					$this->{$taskName} = ClassRegistry::getObject($taskClassCheck);
 				}
 			} else {
 				$this->taskNames[] = $taskName;
@@ -566,14 +570,14 @@ class Shell extends Object {
 	}
 
 /**
- * Creates the proper singular model key for associations
+ * Creates the proper underscored model key for associations
  *
- * @param string $name Controller class name
+ * @param string $name Model class name
  * @return string Singular model key
  * @access protected
  */
 	function _modelKey($name) {
-		return Inflector::underscore(Inflector::singularize($name)) . '_id';
+		return Inflector::underscore($name) . '_id';
 	}
 
 /**
@@ -628,7 +632,7 @@ class Shell extends Object {
  * @access protected
  */
 	function _pluralHumanName($name) {
-		return Inflector::humanize(Inflector::underscore(Inflector::pluralize($name)));
+		return Inflector::humanize(Inflector::underscore($name));
 	}
 
 /**
@@ -641,4 +645,3 @@ class Shell extends Object {
 		return App::pluginPath($pluginName);
 	}
 }
-?>

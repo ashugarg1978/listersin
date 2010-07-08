@@ -5,13 +5,13 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.tests.cases.libs.controller
  * @since         CakePHP(tm) v 1.2.0.5436
@@ -366,6 +366,31 @@ class TestComponent extends Object {
  */
 	function beforeRedirect() {
 	}
+/**
+ * initialize method
+ *
+ * @access public
+ * @return void
+ */
+	function initialize(&$controller) {
+	}
+
+/**
+ * startup method
+ *
+ * @access public
+ * @return void
+ */
+	function startup(&$controller) {
+	}
+/**
+ * shutdown method
+ *
+ * @access public
+ * @return void
+ */
+	function shutdown(&$controller) {
+	}
 }
 
 /**
@@ -382,7 +407,6 @@ class AnotherTestController extends AppController {
  * @access public
  */
 	var $name = 'AnotherTest';
-
 /**
  * uses property
  *
@@ -416,6 +440,26 @@ class ControllerTest extends CakeTestCase {
  */
 	function endTest() {
 		App::build();
+	}
+
+/**
+ * testLoadModel method
+ *
+ * @access public
+ * @return void
+ */
+	function testLoadModel() {
+		$Controller =& new Controller();
+
+		$this->assertFalse(isset($Controller->ControllerPost));
+
+		$result = $Controller->loadModel('ControllerPost');
+		$this->assertTrue($result);
+		$this->assertTrue(is_a($Controller->ControllerPost, 'ControllerPost'));
+		$this->assertTrue(in_array('ControllerPost', $Controller->modelNames));
+
+		ClassRegistry::flush();
+		unset($Controller);
 	}
 
 /**
@@ -566,6 +610,14 @@ class ControllerTest extends CakeTestCase {
 
 		$Controller->passedArgs = array();
 		$Controller->paginate = array('limit' => 'garbage!');
+		$Controller->paginate('ControllerPost');
+		$this->assertIdentical($Controller->params['paging']['ControllerPost']['page'], 1);
+		$this->assertIdentical($Controller->params['paging']['ControllerPost']['pageCount'], 3);
+		$this->assertIdentical($Controller->params['paging']['ControllerPost']['prevPage'], false);
+		$this->assertIdentical($Controller->params['paging']['ControllerPost']['nextPage'], true);
+
+		$Controller->passedArgs = array();
+		$Controller->paginate = array('limit' => '-1');
 		$Controller->paginate('ControllerPost');
 		$this->assertIdentical($Controller->params['paging']['ControllerPost']['page'], 1);
 		$this->assertIdentical($Controller->params['paging']['ControllerPost']['pageCount'], 3);
@@ -797,7 +849,7 @@ class ControllerTest extends CakeTestCase {
 
 		$Controller->set('title', 'someTitle');
 		$this->assertIdentical($Controller->viewVars['title'], 'someTitle');
-		$this->assertNotEqual($Controller->pageTitle, 'someTitle');
+		$this->assertTrue(empty($Controller->pageTitle));
 
 		$Controller->viewVars = array();
 		$expected = array('ModelName' => 'name', 'ModelName2' => 'name2');
@@ -1307,5 +1359,39 @@ class ControllerTest extends CakeTestCase {
 		$expected = array(404 => 'Sorry Bro');
 		$this->assertEqual($result, $expected);
 	}
+
+/**
+ * Tests that the startup process calls the correct functions
+ *
+ * @access public
+ * @return void
+ */
+	function testStartupProcess() {
+		Mock::generatePartial('AnotherTestController','MockedController', array('beforeFilter', 'afterFilter'));
+		Mock::generate('TestComponent', 'MockTestComponent', array('startup', 'initialize'));
+		$MockedController =& new MockedController();
+		$MockedController->components = array('MockTest');
+		$MockedController->Component =& new Component();
+		$MockedController->Component->init($MockedController);
+		$MockedController->expectCallCount('beforeFilter', 1);
+		$MockedController->MockTest->expectCallCount('initialize', 1);
+		$MockedController->MockTest->expectCallCount('startup', 1);
+		$MockedController->startupProcess();
+	}
+/**
+ * Tests that the shutdown process calls the correct functions
+ *
+ * @access public
+ * @return void
+ */
+	function testShutdownProcess() {
+		Mock::generate('TestComponent', 'MockTestComponent', array('shutdown'));
+		$MockedController =& new MockedController();
+		$MockedController->components = array('MockTest');
+		$MockedController->Component =& new Component();
+		$MockedController->Component->init($MockedController);
+		$MockedController->expectCallCount('afterFilter', 1);
+		$MockedController->MockTest->expectCallCount('shutdown', 1);
+		$MockedController->shutdownProcess();
+	}
 }
-?>

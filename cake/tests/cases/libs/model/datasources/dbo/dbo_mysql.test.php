@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs
@@ -759,5 +759,22 @@ class DboMysqlTest extends CakeTestCase {
 		$this->assertEqual($result, 'cp1250');
 	}
 
+/**
+ * test that changing the virtualFieldSeparator allows for __ fields.
+ *
+ * @return void
+ */
+	function testVirtualFieldSeparators() {
+		$model =& new CakeTestModel(array('table' => 'binary_tests', 'ds' => 'test_suite', 'name' => 'BinaryTest'));
+		$model->virtualFields = array(
+			'other__field' => 'SUM(id)'
+		);
+		
+		$this->db->virtualFieldSeparator = '_$_';
+		$result = $this->db->fields($model, null, array('data', 'other__field'));
+		$expected = array('`BinaryTest`.`data`', '(SUM(id)) AS  BinaryTest_$_other__field');
+		$this->assertEqual($result, $expected);
+		
+	}
+
 }
-?>

@@ -8,12 +8,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.app.config
@@ -48,12 +48,3 @@
  * Inflector::rules('plural', array('rules' => array(), 'irregular' => array(), 'uninflected' => array()));
  *
  */
-
-
-define('EBAY_DEVID',  'e60361cd-e306-496f-ad7d-ba7b688e2207');
-define('EBAY_APPID',  'Yoshihir-1b29-4aad-b39f-1be3a37e06a7');
-define('EBAY_CERTID', '8118c1eb-e879-47f3-a172-2b08ca680770');
-define('EBAY_SERVERURL', 'https://api.sandbox.ebay.com/ws/api.dll');
-define('EBAY_COMPATLEVEL', 585);
-
-?>

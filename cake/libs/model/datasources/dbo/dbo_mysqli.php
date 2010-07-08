@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources.dbo
@@ -30,9 +30,9 @@ App::import('Datasource', 'DboMysql');
 class DboMysqli extends DboMysqlBase {
 
 /**
- * Enter description here...
+ * Datasource Description
  *
- * @var unknown_type
+ * @var string
  */
 	var $description = "Mysqli DBO Driver";
 
@@ -140,7 +140,7 @@ class DboMysqli extends DboMysqlBase {
  */
 	function listSources() {
 		$cache = parent::listSources();
-		if ($cache != null) {
+		if ($cache !== null) {
 			return $cache;
 		}
 		$result = $this->_execute('SHOW TABLES FROM ' . $this->name($this->config['database']) . ';');
@@ -151,7 +151,7 @@ class DboMysqli extends DboMysqlBase {
 
 		$tables = array();
 
-		while ($line = mysqli_fetch_array($result)) {
+		while ($line = mysqli_fetch_row($result)) {
 			$tables[] = $line[0];
 		}
 		parent::listSources($tables);
@@ -290,14 +290,12 @@ class DboMysqli extends DboMysqlBase {
 	function fetchResult() {
 		if ($row = mysqli_fetch_row($this->results)) {
 			$resultRow = array();
-			$i = 0;
 			foreach ($row as $index => $field) {
 				$table = $column = null;
-				if (count($this->map[$index]) == 2) {
+				if (count($this->map[$index]) === 2) {
 					list($table, $column) = $this->map[$index];
 				}
 				$resultRow[$table][$column] = $row[$index];
-				$i++;
 			}
 			return $resultRow;
 		}
@@ -338,4 +336,3 @@ class DboMysqli extends DboMysqlBase {
 		return is_object($this->_result);
 	}
 }
-?>

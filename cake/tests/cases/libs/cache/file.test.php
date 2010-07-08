@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.cache
  * @since         CakePHP(tm) v 1.2.0.5434
@@ -274,6 +274,34 @@ class FileEngineTest extends CakeTestCase {
 	}
 
 /**
+ * test that clear() doesn't wipe files not in the current engine's prefix.
+ *
+ * @return void
+ */
+	function testClearWithPrefixes() {
+		$FileOne =& new FileEngine();
+		$FileOne->init(array(
+			'prefix' => 'prefix_one_',
+			'duration' => DAY
+		));
+		$FileTwo =& new FileEngine();
+		$FileTwo->init(array(
+			'prefix' => 'prefix_two_',
+			'duration' => DAY
+		));
+
+		$data1 = $data2 = $expected = 'content to cache';
+		$FileOne->write('key_one', $data1, DAY);
+		$FileTwo->write('key_two', $data2, DAY);
+
+		$this->assertEqual($FileOne->read('key_one'), $expected);
+		$this->assertEqual($FileTwo->read('key_two'), $expected);
+
+		$FileOne->clear(false);
+		$this->assertEqual($FileTwo->read('key_two'), $expected, 'secondary config was cleared by accident.');
+	}
+
+/**
  * testKeyPath method
  *
  * @access public
@@ -355,5 +383,22 @@ class FileEngineTest extends CakeTestCase {
 		Cache::write('App.singleQuoteTest', "'this is a quoted string'");
 		$this->assertIdentical(Cache::read('App.singleQuoteTest'), "'this is a quoted string'");
 	}
+
+/**
+ * check that FileEngine generates an error when a configured Path does not exist.
+ *
+ * @return void
+ */
+	function testErrorWhenPathDoesNotExist() {
+		if ($this->skipIf(is_dir(TMP . 'tests' . DS . 'file_failure'), 'Cannot run test directory exists. %s')) {
+			return;
+		}
+		$this->expectError();
+		Cache::config('failure', array(
+			'engine' => 'File',
+			'path' => TMP . 'tests' . DS . 'file_failure'
+		));
+
+		Cache::drop('failure');
+	}
 }
-?>

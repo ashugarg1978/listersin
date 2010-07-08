@@ -11,7 +11,7 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.tasks
  * @since         CakePHP(tm) v 1.3
@@ -101,6 +101,7 @@ class ControllerTaskTest extends CakeTestCase {
 	function startTest() {
 		$this->Dispatcher =& new TestControllerTaskMockShellDispatcher();
 		$this->Task =& new MockControllerTask($this->Dispatcher);
+		$this->Task->name = 'ControllerTask';
 		$this->Task->Dispatch =& $this->Dispatcher;
 		$this->Task->Dispatch->shellPaths = App::path('shells');
 		$this->Task->Template =& new TemplateTask($this->Task->Dispatch);
@@ -158,6 +159,7 @@ class ControllerTaskTest extends CakeTestCase {
  * @access public
  */
 	function testGetName() {
+		$this->Task->interactive = true;
 		$this->Task->setReturnValue('in', 1);
 
 		$this->Task->setReturnValueAt(0, 'in', 'q');
@@ -318,21 +320,20 @@ class ControllerTaskTest extends CakeTestCase {
 		$this->assertTrue(strpos($result, "\$this->set('articles', \$this->paginate());") !== false);
 
 		$this->assertTrue(strpos($result, 'function view($id = null)') !== false);
-		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('Invalid article', true))") !== false);
+		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('Invalid article', true));") !== false);
 		$this->assertTrue(strpos($result, "\$this->set('article', \$this->Article->read(null, \$id)") !== false);
 
 		$this->assertTrue(strpos($result, 'function add()') !== false);
 		$this->assertTrue(strpos($result, 'if (!empty($this->data))') !== false);
 		$this->assertTrue(strpos($result, 'if ($this->Article->save($this->data))') !== false);
-		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('The article has been saved', true))") !== false);
+		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('The article has been saved', true));") !== false);
 
 		$this->assertTrue(strpos($result, 'function edit($id = null)') !== false);
 		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('The article could not be saved. Please, try again.', true));") !== false);
 
 		$this->assertTrue(strpos($result, 'function delete($id = null)') !== false);
 		$this->assertTrue(strpos($result, 'if ($this->Article->delete($id))') !== false);
-		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('Article deleted', true))") !== false);
-
+		$this->assertTrue(strpos($result, "\$this->Session->setFlash(__('Article deleted', true));") !== false);
 
 		$result = $this->Task->bakeActions('Articles', 'admin_', true);
 
@@ -388,12 +389,14 @@ class ControllerTaskTest extends CakeTestCase {
 	function testBakeTest() {
 		$this->Task->plugin = 'ControllerTest';
 		$this->Task->connection = 'test_suite';
+		$this->Task->interactive = false;
 
 		$this->Task->Test->expectOnce('bake', array('Controller', 'Articles'));
 		$this->Task->bakeTest('Articles');
 
 		$this->assertEqual($this->Task->plugin, $this->Task->Test->plugin);
 		$this->assertEqual($this->Task->connection, $this->Task->Test->connection);
+		$this->assertEqual($this->Task->interactive, $this->Task->Test->interactive);
 	}
 
 /**
@@ -416,6 +419,35 @@ class ControllerTaskTest extends CakeTestCase {
 		$this->Task->setReturnValueAt(8, 'in', 'y'); // looks good
 
 		$this->Task->execute();
+
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(0, 'createFile', array($filename, new PatternExpectation('/class ArticlesController/')));
+	}
+
+/**
+ * test Interactive mode.
+ *
+ * @return void
+ * @access public
+ */
+	function testInteractiveAdminMethodsNotInteractive() {
+		$this->Task->connection = 'test_suite';
+		$this->Task->interactive = true;
+		$this->Task->path = '/my/path';
+		$this->Task->setReturnValue('in', '1');
+		$this->Task->setReturnValueAt(1, 'in', 'y'); // build interactive
+		$this->Task->setReturnValueAt(2, 'in', 'n'); // build no scaffolds
+		$this->Task->setReturnValueAt(3, 'in', 'y'); // build normal methods
+		$this->Task->setReturnValueAt(4, 'in', 'y'); // build admin methods
+		$this->Task->setReturnValueAt(5, 'in', 'n'); // helpers?
+		$this->Task->setReturnValueAt(6, 'in', 'n'); // components?
+		$this->Task->setReturnValueAt(7, 'in', 'y'); // use sessions
+		$this->Task->setReturnValueAt(8, 'in', 'y'); // looks good
+		$this->Task->setReturnValue('createFile', true);
+		$this->Task->Project->setReturnValue('getPrefix', 'admin_');
+
+		$result = $this->Task->execute();
+		$this->assertPattern('/admin_index/', $result);
 
 		$filename = '/my/path/articles_controller.php';
 		$this->Task->expectAt(0, 'createFile', array($filename, new PatternExpectation('/class ArticlesController/')));
@@ -468,6 +500,58 @@ class ControllerTaskTest extends CakeTestCase {
 			$filename, new PatternExpectation('/\$scaffold/')
 		));
 
+		$this->Task->execute();
+	}
+
+/**
+ * test that both plural and singular forms work for controller baking.
+ *
+ * @return void
+ * @access public
+ */
+	function testExecuteWithControllerNameVariations() {
+		$skip = $this->skipIf(!defined('ARTICLE_MODEL_CREATED'),
+			'Execute with scaffold param requires no Article, Tag or Comment model to be defined. %s');
+		if ($skip) {
+			return;
+		}
+		$this->Task->connection = 'test_suite';
+		$this->Task->path = '/my/path/';
+		$this->Task->args = array('Articles');
+
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(0, 'createFile', array(
+			$filename, new PatternExpectation('/\$scaffold/')
+		));
+
+		$this->Task->execute();
+
+		$this->Task->args = array('Article');
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(1, 'createFile', array(
+			$filename, new PatternExpectation('/class ArticlesController/')
+		));
+		$this->Task->execute();
+
+		$this->Task->args = array('article');
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(2, 'createFile', array(
+			$filename, new PatternExpectation('/class ArticlesController/')
+		));
+
+		$this->Task->args = array('articles');
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(3, 'createFile', array(
+			$filename, new PatternExpectation('/class ArticlesController/')
+		));
+		$this->Task->execute();
+
+		$this->Task->args = array('Articles');
+		$filename = '/my/path/articles_controller.php';
+		$this->Task->expectAt(4, 'createFile', array(
+			$filename, new PatternExpectation('/class ArticlesController/')
+		));
+		$this->Task->execute();
 		$this->Task->execute();
 	}
 
@@ -545,4 +629,3 @@ class ControllerTaskTest extends CakeTestCase {
 		$this->Task->execute();
 	}
 }
-?>

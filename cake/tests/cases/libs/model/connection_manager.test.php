@@ -5,13 +5,13 @@
  *
  * PHP versions 4 and 5
  *
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.5550
@@ -34,7 +34,7 @@ class ConnectionManagerTest extends CakeTestCase {
  * @return void
  */
 	function setUp() {
-		$this->ConnectionManager = ConnectionManager::getInstance();
+		$this->ConnectionManager =& ConnectionManager::getInstance();
 	}
 
 /**
@@ -110,6 +110,77 @@ class ConnectionManagerTest extends CakeTestCase {
 		$this->assertEqual($connection->configKeyName, $name);
 		$this->assertEqual($connection->config, $config);
 
+		App::build();
+	}
+
+/**
+ * testGetPluginDataSourceAndPluginDriver method
+ *
+ * @access public
+ * @return void
+ */
+	function testGetPluginDataSourceAndPluginDriver() {
+		App::build(array(
+			'plugins' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'plugins' . DS)
+		));
+
+		$name = 'test_plugin_source_and_driver';
+		$config = array('datasource' => 'TestPlugin.TestSource', 'driver' => 'TestPlugin.TestDriver');
+
+		$connection = ConnectionManager::create($name, $config);
+
+		$this->assertTrue(class_exists('TestSource'));
+		$this->assertTrue(class_exists('TestDriver'));
+		$this->assertEqual($connection->configKeyName, $name);
+		$this->assertEqual($connection->config, $config);
+
+		App::build();
+	}
+
+/**
+ * testGetLocalDataSourceAndPluginDriver method
+ *
+ * @access public
+ * @return void
+ */
+	function testGetLocalDataSourceAndPluginDriver() {
+		App::build(array(
+			'plugins' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'plugins' . DS)
+		));
+
+		$name = 'test_local_source_and_plugin_driver';
+		$config = array('datasource' => 'dbo', 'driver' => 'TestPlugin.DboDummy');
+
+		$connection = ConnectionManager::create($name, $config);
+
+		$this->assertTrue(class_exists('DboSource'));
+		$this->assertTrue(class_exists('DboDummy'));
+		$this->assertEqual($connection->configKeyName, $name);
+
+		App::build();
+	}
+
+/**
+ * testGetPluginDataSourceAndLocalDriver method
+ *
+ * @access public
+ * @return void
+ */
+	function testGetPluginDataSourceAndLocalDriver() {
+		App::build(array(
+			'plugins' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'plugins' . DS),
+			'datasources' => array(TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'models' . DS . 'datasources' . DS)
+		));
+
+		$name = 'test_plugin_source_and_local_driver';
+		$config = array('datasource' => 'TestPlugin.TestSource', 'driver' => 'local_driver');
+
+		$connection = ConnectionManager::create($name, $config);
+
+		$this->assertTrue(class_exists('TestSource'));
+		$this->assertTrue(class_exists('TestLocalDriver'));
+		$this->assertEqual($connection->configKeyName, $name);
+		$this->assertEqual($connection->config, $config);
 		App::build();
 	}
 
@@ -206,4 +277,3 @@ class ConnectionManagerTest extends CakeTestCase {
 		$this->assertEqual($source, null);
 	}
 }
-?>

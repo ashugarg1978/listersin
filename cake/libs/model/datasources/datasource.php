@@ -5,12 +5,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model.datasources
@@ -91,7 +91,7 @@ class DataSource extends Object {
 	var $endQuote = null;
 
 /**
- * Enter description here...
+ * Result
  *
  * @var array
  * @access protected
@@ -436,11 +436,11 @@ class DataSource extends Object {
  * @access public
  */
 	function isInterfaceSupported($interface) {
-		$methods = get_class_methods(get_class($this));
-		$methods = strtolower(implode('|', $methods));
-		$methods = explode('|', $methods);
-		$return = in_array(strtolower($interface), $methods);
-		return $return;
+		static $methods = false;
+		if ($methods === false) {
+			$methods = array_map('strtolower', get_class_methods($this));
+		}
+		return in_array(strtolower($interface), $methods);
 	}
 
 /**
@@ -594,4 +594,3 @@ class DataSource extends Object {
 		}
 	}
 }
-?>

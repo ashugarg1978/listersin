@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.controller
  * @since         CakePHP(tm) v 1.2.0.5436
@@ -290,6 +290,8 @@ class SomethingWithEmailComponent extends Object {
 	var $components = array('Email');
 }
 
+Mock::generate('Object', 'ComponentMockComponent', array('startup', 'beforeFilter', 'beforeRender', 'other'));
+
 /**
  * ComponentTest class
  *
@@ -414,6 +416,25 @@ class ComponentTest extends CakeTestCase {
 		$expected = !(defined('APP_CONTROLLER_EXISTS') && APP_CONTROLLER_EXISTS);
 		$this->assertEqual(isset($Controller->foo), $expected);
 		$this->assertFalse(isset($Controller->bar));
+	}
+
+/**
+ * test that triggerCallbacks fires methods on all the components, and can trigger any method.
+ *
+ * @return void
+ */
+	function testTriggerCallback() {
+		$Controller =& new ComponentTestController();
+		$Controller->components = array('ComponentMock');
+		$Controller->uses = null;
+		$Controller->constructClasses();
+
+		$Controller->ComponentMock->expectOnce('beforeRender');
+		$Controller->Component->triggerCallback('beforeRender', $Controller);
+
+		$Controller->ComponentMock->expectNever('beforeFilter');
+		$Controller->ComponentMock->enabled = false;
+		$Controller->Component->triggerCallback('beforeFilter', $Controller);
 	}
 
 /**
@@ -564,4 +585,3 @@ class ComponentTest extends CakeTestCase {
 	}
 
 }
-?>

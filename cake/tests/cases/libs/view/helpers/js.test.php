@@ -6,14 +6,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  * @since         CakePHP(tm) v 1.3
@@ -256,6 +256,20 @@ class JsHelperTestCase extends CakeTestCase {
 	}
 
 /**
+ * test that writeBuffer() sets domReady = false when the request is done by XHR.
+ * Including a domReady() when in XHR can cause issues as events aren't triggered by some libraries
+ *
+ * @return void
+ */
+	function testWriteBufferAndXhr() {
+		$this->_useMock();
+		$this->Js->params['isAjax'] = true;
+		$this->Js->buffer('alert("test");');
+		$this->Js->TestJsEngine->expectCallCount('dispatchMethod', 0);
+		$result = $this->Js->writeBuffer();
+	}
+
+/**
  * test that writeScripts makes files, and puts the events into them.
  *
  * @return void
@@ -295,7 +309,7 @@ class JsHelperTestCase extends CakeTestCase {
 			'request', array('/posts/view/1', $options)
 		));
 		$this->Js->TestJsEngine->expectAt(2, 'dispatchMethod', array(
-			'event', array('click', 'ajax code', $options)
+			'event', array('click', 'ajax code', $options + array('buffer' => null))
 		));
 
 		$result = $this->Js->link('test link', '/posts/view/1', $options);
@@ -348,7 +362,9 @@ CODE;
  */
 	function testLinkWithNoBuffering() {
 		$this->_useMock();
-		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'ajax code', array('request', '*'));
+		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'ajax code', array(
+			'request', array('/posts/view/1', array('update' => '#content'))
+		));
 		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', '-event handler-', array('event', '*'));
 
 		$options = array('update' => '#content', 'buffer' => false);
@@ -397,7 +413,7 @@ CODE;
 
 		$params = array(
 			'update' => $options['update'], 'data' => 'serialize-code',
-			'method' => 'post', 'dataExpression' => true
+			'method' => 'post', 'dataExpression' => true, 'buffer' => null
 		);
 		$this->Js->TestJsEngine->expectAt(3, 'dispatchMethod', array(
 			'event', array('click', "ajax-code", $params)
@@ -426,7 +442,7 @@ CODE;
 
 		$params = array(
 			'update' => '#content', 'data' => 'serialize-code',
-			'method' => 'post', 'dataExpression' => true
+			'method' => 'post', 'dataExpression' => true, 'buffer' => null
 		);
 		$this->Js->TestJsEngine->expectAt(7, 'dispatchMethod', array(
 			'event', array('click', "ajax-code", $params)
@@ -438,6 +454,45 @@ CODE;
 			'div' => array('class' => 'submit'),
 			'input' => array('type' => 'submit', 'id' => $options['id'], 'value' => 'Save'),
 			'/div'
+		);
+		$this->assertTags($result, $expected);
+	}
+
+/**
+ * test that no buffer works with submit() and that parameters are leaking into the script tag.
+ *
+ * @return void
+ */
+	function testSubmitWithNoBuffer() {
+		$this->_useMock();
+		$options = array('update' => '#content', 'id' => 'test-submit', 'buffer' => false, 'safe' => false);
+		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'serialize-code', array('serializeform', '*'));
+		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'serialize-code', array('serializeForm', '*'));
+		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'ajax-code', array('request', '*'));
+		$this->Js->TestJsEngine->setReturnValue('dispatchMethod', 'event-handler', array('event', '*'));
+
+		$this->Js->TestJsEngine->expectAt(0, 'dispatchMethod', array('get', '*'));
+		$this->Js->TestJsEngine->expectAt(1, 'dispatchMethod', array(new PatternExpectation('/serializeForm/i'), '*'));
+		$this->Js->TestJsEngine->expectAt(2, 'dispatchMethod', array('request', array(
+			'', array('update' => $options['update'], 'data' => 'serialize-code', 'method' => 'post', 'dataExpression' => true)
+		)));
+
+		$params = array(
+			'update' => $options['update'], 'data' => 'serialize-code',
+			'method' => 'post', 'dataExpression' => true, 'buffer' => false
+		);
+		$this->Js->TestJsEngine->expectAt(3, 'dispatchMethod', array(
+			'event', array('click', "ajax-code", $params)
+		));
+
+		$result = $this->Js->submit('Save', $options);
+		$expected = array(
+			'div' => array('class' => 'submit'),
+			'input' => array('type' => 'submit', 'id' => $options['id'], 'value' => 'Save'),
+			'/div',
+			'script' => array('type' => 'text/javascript'),
+			'event-handler',
+			'/script'
 		);
 		$this->assertTags($result, $expected);
 	}
@@ -502,7 +557,7 @@ CODE;
 		$this->Js->alert('hey you!', array('buffer' => true));
 		$this->Js->confirm('Are you sure?', array('buffer' => true));
 		$result = $this->Js->getBuffer(false);
-		
+
 		$expected = 'window.app = {"height":"tall","color":"purple"};';
 		$this->assertEqual($result[0], $expected);
 		$this->assertEqual($result[1], 'alert("hey you!");');
@@ -665,6 +720,13 @@ class JsBaseEngineTestCase extends CakeTestCase {
 			$result = $this->JsEngine->object($data);
 			$this->assertEqual($result, $expected);
 		}
+
+		$object = array('title' => 'New thing', 'indexes' => array(5, 6, 7, 8), 'object' => array('inner' => array('value' => 1)));
+		$result = $this->JsEngine->object($object, array('prefix' => 'PREFIX', 'postfix' => 'POSTFIX'));
+		$this->assertPattern('/^PREFIX/', $result);
+		$this->assertPattern('/POSTFIX$/', $result);
+		$this->assertNoPattern('/.PREFIX./', $result);
+		$this->assertNoPattern('/.POSTFIX./', $result);
 	}
 
 /**
@@ -769,4 +831,3 @@ class JsBaseEngineTestCase extends CakeTestCase {
 	}
 
 }
-?>

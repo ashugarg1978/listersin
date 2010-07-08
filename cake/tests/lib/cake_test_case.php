@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.cake.tests.libs
  * @since         CakePHP(tm) v 1.2.0.4667
@@ -533,7 +533,7 @@ class CakeTestCase extends UnitTestCase {
 				$fixture->truncate($this->db);
 				$fixture->insert($this->db);
 			} else {
-				trigger_error("Referenced fixture class {$class} not found", E_USER_WARNING);
+				trigger_error(sprintf(__('Referenced fixture class %s not found', true), $class), E_USER_WARNING);
 			}
 		}
 	}
@@ -631,30 +631,33 @@ class CakeTestCase extends UnitTestCase {
 				}
 				$attrs = array();
 				$explanations = array();
+				$i = 1;
 				foreach ($attributes as $attr => $val) {
 					if (is_numeric($attr) && preg_match('/^preg\:\/(.+)\/$/i', $val, $matches)) {
 						$attrs[] = $matches[1];
 						$explanations[] = sprintf('Regex "%s" matches', $matches[1]);
 						continue;
 					} else {
-						$quotes = '"';
+						$quotes = '["\']';
 						if (is_numeric($attr)) {
 							$attr = $val;
 							$val = '.+?';
 							$explanations[] = sprintf('Attribute "%s" present', $attr);
 						} elseif (!empty($val) && preg_match('/^preg\:\/(.+)\/$/i', $val, $matches)) {
-							$quotes = '"?';
+							$quotes = '["\']?';
 							$val = $matches[1];
 							$explanations[] = sprintf('Attribute "%s" matches "%s"', $attr, $val);
 						} else {
 							$explanations[] = sprintf('Attribute "%s" == "%s"', $attr, $val);
 							$val = preg_quote($val, '/');
 						}
-						$attrs[] = '[\s]+'.preg_quote($attr, '/').'='.$quotes.$val.$quotes;
+						$attrs[] = '[\s]+' . preg_quote($attr, '/') . '=' . $quotes . $val . $quotes;
 					}
+					$i++;
 				}
 				if ($attrs) {
 					$permutations = $this->__array_permute($attrs);
+
 					$permutationTokens = array();
 					foreach ($permutations as $permutation) {
 						$permutationTokens[] = implode('', $permutation);
@@ -826,4 +829,3 @@ class CakeTestCase extends UnitTestCase {
 		}
 	}
 }
-?>

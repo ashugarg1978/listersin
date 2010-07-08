@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *	Licensed under The Open Group Test Suite License
  *	Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.model.datasources
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -2234,6 +2234,30 @@ class DboSourceTest extends CakeTestCase {
 	}
 
 /**
+ * test that booleans and null make logical condition strings.
+ *
+ * @return void
+ */
+	function testBooleanNullConditionsParsing() {
+		$result = $this->testDb->conditions(true);
+		$this->assertEqual($result, ' WHERE 1 = 1', 'true conditions failed %s');
+
+		$result = $this->testDb->conditions(false);
+		$this->assertEqual($result, ' WHERE 0 = 1', 'false conditions failed %s');
+
+		$result = $this->testDb->conditions(null);
+		$this->assertEqual($result, ' WHERE 1 = 1', 'null conditions failed %s');
+
+		$result = $this->testDb->conditions(array());
+		$this->assertEqual($result, ' WHERE 1 = 1', 'array() conditions failed %s');
+
+		$result = $this->testDb->conditions('');
+		$this->assertEqual($result, ' WHERE 1 = 1', '"" conditions failed %s');
+
+		$result = $this->testDb->conditions(' ', '"  " conditions failed %s');
+		$this->assertEqual($result, ' WHERE 1 = 1');
+	}
+/**
  * testStringConditionsParsing method
  *
  * @access public
@@ -2942,6 +2966,19 @@ class DboSourceTest extends CakeTestCase {
 		);
 		$this->assertEqual($result, $expected);
 	}
+
+/**
+ * test that order() will accept objects made from DboSource::expression
+ *
+ * @return void
+ */
+	function testOrderWithExpression() {
+		$expression = $this->testDb->expression("CASE Sample.id WHEN 1 THEN 'Id One' ELSE 'Other Id' END AS case_col");
+		$result = $this->testDb->order($expression);
+		$expected = " ORDER BY CASE Sample.id WHEN 1 THEN 'Id One' ELSE 'Other Id' END AS case_col";
+		$this->assertEqual($result, $expected);
+	}
+
 /**
  * testMergeAssociations method
  *
@@ -3615,6 +3652,8 @@ class DboSourceTest extends CakeTestCase {
 			'default' => '',
 			'null' => false,
 		);
+		$restore = $this->testDb->columns;
+
 		$this->testDb->columns = array('integer' => array('name' => 'int', 'limit' => '11', 'formatter' => 'intval'), );
 		$result = $this->testDb->buildColumn($data);
 		$expected = '`int_field` int(11) NOT NULL';
@@ -3648,6 +3687,47 @@ class DboSourceTest extends CakeTestCase {
 		);
 		$result = $this->testDb->buildColumn($data);
 		$expected = '`int_field` int(11) COLLATE GOOD NOT NULL';
+		$this->assertEqual($result, $expected);
+
+		$this->testDb->columns = $restore;
+
+		$data = array(
+			'name' => 'created',
+			'type' => 'timestamp',
+			'default' => 'current_timestamp',
+			'null' => false,
+ 		);
+		$result = $this->db->buildColumn($data);
+		$expected = '`created` timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL';
+		$this->assertEqual($result, $expected);
+
+		$data = array(
+			'name' => 'created',
+			'type' => 'timestamp',
+			'default' => 'CURRENT_TIMESTAMP',
+			'null' => true,
+		);
+		$result = $this->db->buildColumn($data);
+		$expected = '`created` timestamp DEFAULT CURRENT_TIMESTAMP';
+		$this->assertEqual($result, $expected);
+
+		$data = array(
+			'name' => 'modified',
+			'type' => 'timestamp',
+			'null' => true,
+		);
+		$result = $this->db->buildColumn($data);
+		$expected = '`modified` timestamp NULL';
+		$this->assertEqual($result, $expected);
+
+		$data = array(
+			'name' => 'modified',
+			'type' => 'timestamp',
+			'default' => null,
+			'null' => true,
+		);
+		$result = $this->db->buildColumn($data);
+		$expected = '`modified` timestamp NULL';
 		$this->assertEqual($result, $expected);
 	}
 
@@ -3947,9 +4027,60 @@ class DboSourceTest extends CakeTestCase {
 		$expected = '(sm)';
 		$this->assertEqual($result, $expected);
 
+		$result = $this->testDb->name('name AS x');
+		$expected = '`name` AS `x`';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->testDb->name('Model.name AS x');
+		$expected = '`Model`.`name` AS `x`';
+		$this->assertEqual($result, $expected);
+
 		$result = $this->testDb->name('Function(Something.foo)');
 		$expected = 'Function(`Something`.`foo`)';
 		$this->assertEqual($result, $expected);
+
+		$result = $this->testDb->name('Function(SubFunction(Something.foo))');
+		$expected = 'Function(SubFunction(`Something`.`foo`))';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->testDb->name('Function(Something.foo) AS x');
+		$expected = 'Function(`Something`.`foo`) AS `x`';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->testDb->name('name-with-minus');
+		$expected = '`name-with-minus`';
+		$this->assertEqual($result, $expected);
+
+		$result = $this->testDb->name(array('my-name', 'Foo-Model.*'));
+		$expected = array('`my-name`', '`Foo-Model`.*');
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * test that cacheMethod works as exepected
+ *
+ * @return void
+ */
+	function testCacheMethod() {
+		$this->testDb->cacheMethods = true;
+		$result = $this->testDb->cacheMethod('name', 'some-key', 'stuff');
+		$this->assertEqual($result, 'stuff');
+
+		$result = $this->testDb->cacheMethod('name', 'some-key');
+		$this->assertEqual($result, 'stuff');
+
+		$result = $this->testDb->cacheMethod('conditions', 'some-key');
+		$this->assertNull($result);
+
+		$result = $this->testDb->cacheMethod('name', 'other-key');
+		$this->assertNull($result);
+
+		$this->testDb->cacheMethods = false;
+		$result = $this->testDb->cacheMethod('name', 'some-key', 'stuff');
+		$this->assertEqual($result, 'stuff');
+
+		$result = $this->testDb->cacheMethod('name', 'some-key');
+		$this->assertNull($result);
 	}
 
 /**
@@ -4127,14 +4258,46 @@ class DboSourceTest extends CakeTestCase {
 			'(1 + 1) AS  `Article__two`',
 			'(SELECT COUNT(*) FROM comments WHERE `Article`.`id` = `comments`.`article_id`) AS  `Article__comment_count`'
 		);
-		$this->assertEqual($expected,$result);
+		$this->assertEqual($expected, $result);
 
-		$result = $this->db->fields($Article, null, array('this_moment','title'));
+		$result = $this->db->fields($Article, null, array('this_moment', 'title'));
 		$expected = array(
 			'`Article`.`title`',
 			'(NOW()) AS  `Article__this_moment`',
 		);
-		$this->assertEqual($expected,$result);
+		$this->assertEqual($expected, $result);
+
+		$result = $this->db->fields($Article, null, array('Article.title', 'Article.this_moment'));
+		$expected = array(
+			'`Article`.`title`',
+			'(NOW()) AS  `Article__this_moment`',
+		);
+		$this->assertEqual($expected, $result);
+
+		$result = $this->db->fields($Article, null, array('Article.this_moment', 'Article.title'));
+		$expected = array(
+			'`Article`.`title`',
+			'(NOW()) AS  `Article__this_moment`',
+		);
+		$this->assertEqual($expected, $result);
+
+		$result = $this->db->fields($Article, null, array('Article.*'));
+		$expected = array(
+			'`Article`.*',
+			'(NOW()) AS  `Article__this_moment`',
+			'(1 + 1) AS  `Article__two`',
+			'(SELECT COUNT(*) FROM comments WHERE `Article`.`id` = `comments`.`article_id`) AS  `Article__comment_count`'
+		);
+		$this->assertEqual($expected, $result);
+
+		$result = $this->db->fields($Article, null, array('*'));
+		$expected = array(
+			'*',
+			'(NOW()) AS  `Article__this_moment`',
+			'(1 + 1) AS  `Article__two`',
+			'(SELECT COUNT(*) FROM comments WHERE `Article`.`id` = `comments`.`article_id`) AS  `Article__comment_count`'
+		);
+		$this->assertEqual($expected, $result);
 	}
 
 /**
@@ -4153,7 +4316,7 @@ class DboSourceTest extends CakeTestCase {
 				' WHERE Article.id = ' . $this->db->fullTableName('comments') . '.article_id'
 		);
 		$conditions = array('two' => 2);
-		$result = $this->db->conditions($conditions,true,false,$Article);
+		$result = $this->db->conditions($conditions, true, false, $Article);
 		$expected = '(1 + 1) = 2';
 		$this->assertEqual($expected, $result);
 
@@ -4187,6 +4350,11 @@ class DboSourceTest extends CakeTestCase {
 			'two' => '1 + 1',
 		);
 		$order = array('two', 'this_moment');
+		$result = $this->db->order($order, 'ASC', $Article);
+		$expected = ' ORDER BY (1 + 1) ASC, (NOW()) ASC';
+		$this->assertEqual($expected, $result);
+
+		$order = array('Article.two', 'Article.this_moment');
 		$result = $this->db->order($order, 'ASC', $Article);
 		$expected = ' ORDER BY (1 + 1) ASC, (NOW()) ASC';
 		$this->assertEqual($expected, $result);
@@ -4259,4 +4427,3 @@ class DboSourceTest extends CakeTestCase {
 		$this->assertEqual($expected, $result);
 	}
 }
-?>

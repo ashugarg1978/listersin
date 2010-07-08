@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -80,6 +80,64 @@ class FolderTest extends CakeTestCase {
 		$this->assertFalse($result);
 	}
 
+/**
+ * test creation of single and mulitple paths.
+ *
+ * @return void
+ */
+	function testCreation() {
+		$folder =& new Folder(TMP . 'tests');
+		$result = $folder->create(TMP . 'tests' . DS . 'first' . DS . 'second' . DS . 'third');
+		$this->assertTrue($result);
+
+		rmdir(TMP . 'tests' . DS . 'first' . DS . 'second' . DS . 'third');
+		rmdir(TMP . 'tests' . DS . 'first' . DS . 'second');
+		rmdir(TMP . 'tests' . DS . 'first');
+
+		$folder =& new Folder(TMP . 'tests');
+		$result = $folder->create(TMP . 'tests' . DS . 'first');
+		$this->assertTrue($result);
+		rmdir(TMP . 'tests' . DS . 'first');
+	}
+
+/**
+ * test that creation of folders with trailing ds works
+ *
+ * @return void
+ */
+	function testCreateWithTrailingDs() {
+		$folder =& new Folder(TMP);
+		$path = TMP . 'tests' . DS . 'trailing' . DS . 'dir' . DS;
+		$folder->create($path);
+
+		$this->assertTrue(is_dir($path), 'Folder was not made');
+
+		$folder =& new Folder(TMP . 'tests' . DS . 'trailing');
+		$this->assertTrue($folder->delete());
+	}
+
+/**
+ * test recurisve directory create failure.
+ *
+ * @return void
+ */
+	function testRecursiveCreateFailure() {
+		if ($this->skipIf(DS == '\\', 'Cant perform operations using permissions on windows. %s')) {
+			return;
+		}
+		$path = TMP . 'tests' . DS . 'one';
+		mkdir($path);
+		chmod($path, '0444');
+
+		$this->expectError();
+
+		$folder =& new Folder($path);
+		$result = $folder->create($path . DS . 'two' . DS . 'three');
+		$this->assertFalse($result);
+
+		chmod($path, '0777');
+		rmdir($path);
+	}
 /**
  * testOperations method
  *
@@ -731,4 +789,3 @@ class FolderTest extends CakeTestCase {
 		$Folder->delete();
 	}
 }
-?>

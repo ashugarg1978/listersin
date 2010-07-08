@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.view.helpers
  * @since         CakePHP(tm) v 1.2.0.4206
@@ -62,7 +62,6 @@ class TextHelperTest extends CakeTestCase {
  * @return void
  */
 	function testTruncate() {
-		$m = 'truncate';
 		$text1 = 'The quick brown fox jumps over the lazy dog';
 		$text2 = 'Heiz&ouml;lr&uuml;cksto&szlig;abd&auml;mpfung';
 		$text3 = '<b>&copy; 2005-2007, Cake Software Foundation, Inc.</b><br />written by Alexander Wegener';
@@ -97,7 +96,6 @@ class TextHelperTest extends CakeTestCase {
 		$this->assertIdentical($this->Text->truncate($text8, 15), 'Vive la R'.chr(195).chr(169).'pu...');
 		$this->assertIdentical($this->Text->truncate($text9, 10), 'НОПРСТУ...');
 	}
-
 /**
  * testHighlight method
  *
@@ -209,6 +207,36 @@ class TextHelperTest extends CakeTestCase {
 		$result = $this->Text->autoLink($text);
 		$expected = 'Text with a partial <a href="http://www.cakephp.org">www.cakephp.org</a> URL and <a href="mailto:test@cakephp\.org">test@cakephp\.org</a> email address';
 		$this->assertPattern('#^' . $expected . '$#', $result);
+
+		$text = 'This is a test text with URL http://www.cakephp.org';
+		$expected = 'This is a test text with URL <a href="http://www.cakephp.org">http://www.cakephp.org</a>';
+		$result = $this->Text->autoLink($text);
+		$this->assertEqual($result, $expected);
+
+		$text = 'This is a test text with URL http://www.cakephp.org and some more text';
+		$expected = 'This is a test text with URL <a href="http://www.cakephp.org">http://www.cakephp.org</a> and some more text';
+		$result = $this->Text->autoLink($text);
+		$this->assertEqual($result, $expected);
+
+		$text = "This is a test text with URL http://www.cakephp.org\tand some more text";
+		$expected = "This is a test text with URL <a href=\"http://www.cakephp.org\">http://www.cakephp.org</a>\tand some more text";
+		$result = $this->Text->autoLink($text);
+		$this->assertEqual($result, $expected);
+
+		$text = 'This is a test text with URL http://www.cakephp.org(and some more text)';
+		$expected = 'This is a test text with URL <a href="http://www.cakephp.org">http://www.cakephp.org</a>(and some more text)';
+		$result = $this->Text->autoLink($text);
+		$this->assertEqual($result, $expected);
+
+		$text = 'This is a test text with URL http://www.cakephp.org';
+		$expected = 'This is a test text with URL <a href="http://www.cakephp.org" class="link">http://www.cakephp.org</a>';
+		$result = $this->Text->autoLink($text, array('class'=>'link'));
+		$this->assertEqual($result, $expected);
+
+		$text = 'This is a test text with URL http://www.cakephp.org';
+		$expected = 'This is a test text with URL <a href="http://www.cakephp.org" class="link" id="MyLink">http://www.cakephp.org</a>';
+		$result = $this->Text->autoLink($text, array('class'=>'link', 'id'=>'MyLink'));
+		$this->assertEqual($result, $expected);
 	}
 
 /**
@@ -355,6 +383,12 @@ class TextHelperTest extends CakeTestCase {
  * @return void
  */
 	function testListGeneration() {
+		$result = $this->Text->toList(array());
+		$this->assertEqual($result, '');
+
+		$result = $this->Text->toList(array('One'));
+		$this->assertEqual($result, 'One');
+
 		$result = $this->Text->toList(array('Larry', 'Curly', 'Moe'));
 		$this->assertEqual($result, 'Larry, Curly and Moe');
 
@@ -371,4 +405,3 @@ class TextHelperTest extends CakeTestCase {
         $this->assertEqual($result, 'Dusty and Lucky');
 	}
 }
-?>

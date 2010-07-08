@@ -7,12 +7,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.app.config
@@ -158,6 +158,11 @@
 
 /**
  * The name of CakePHP's session cookie.
+ *
+ * Note the guidelines for Session names states: "The session name references
+ * the session id in cookies and URLs. It should contain only alphanumeric
+ * characters."
+ * @link http://php.net/session_name
  */
 	Configure::write('Session.cookie', 'CAKEPHP');
 
@@ -184,13 +189,13 @@
  * Valid values:
  *
  * 'high'	Session timeout in 'Session.timeout' x 10
- * 'medium'	Session timeout in 'Session.timeout' x 100
- * 'low'		Session timeout in 'Session.timeout' x 300
+ * 'medium'	Session timeout in 'Session.timeout' x 5040
+ * 'low'		Session timeout in 'Session.timeout' x 2628000
  *
  * CakePHP session IDs are also regenerated between requests if
  * 'Security.level' is set to 'high'.
  */
-	Configure::write('Security.level', 'low');
+	Configure::write('Security.level', 'medium');
 
 /**
  * A random string used in security hashing methods.
@@ -200,7 +205,7 @@
 /**
  * A random numeric string (digits only) used to encrypt/decrypt strings.
  */
-	Configure::write('Security.cipher_seed', '7685930965745354249674968364z');
+	Configure::write('Security.cipherSeed', '7685930965745354249674968364z');
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
@@ -295,4 +300,3 @@
  *
  */
 	Cache::config('default', array('engine' => 'File'));
-?>

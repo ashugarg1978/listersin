@@ -6,13 +6,13 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP : Rapid Development Framework (http://cakephp.org)
- * Copyright 2006-2009, Cake Software Foundation, Inc.
+ * CakePHP :  Rapid Development Framework (http://cakephp.org)
+ * Copyright 2006-2010, Cake Software Foundation, Inc.
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2006-2009, Cake Software Foundation, Inc.
+ * @copyright     Copyright 2006-2010, Cake Software Foundation, Inc.
  * @link          http://cakephp.org CakePHP Project
  * @package       cake
  * @subpackage    cake.tests.cases.console.libs.tasks
@@ -126,9 +126,17 @@ class ExtractTaskTest extends CakeTestCase {
 		$this->assertPattern($pattern, $result);
 
 		// extract.ctp
-		$pattern = '/msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
+		$pattern = '/\#: (\\\\|\/)extract\.ctp:6\n';
+		$pattern .= 'msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
 		$this->assertPattern($pattern, $result);
-		$pattern = '/msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
+
+		$pattern = '/\#: (\\\\|\/)extract\.ctp:7\n';
+		$pattern .= 'msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
+		$this->assertPattern($pattern, $result);
+
+		$pattern = '/\#: (\\\\|\/)extract\.ctp:14\n';
+		$pattern .= '\#: (\\\\|\/)home\.ctp:74\n';
+		$pattern .= 'msgid "Editing this Page"\nmsgstr ""/';
 		$this->assertPattern($pattern, $result);
 
 		// extract.ctp - reading the domain.pot
@@ -144,9 +152,7 @@ class ExtractTaskTest extends CakeTestCase {
 		$pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
 		$this->assertPattern($pattern, $result);
 
-
 		$Folder = new Folder($path);
 		$Folder->delete();
 	}
 }
-?>

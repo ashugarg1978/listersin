@@ -113,7 +113,7 @@ class ViewTaskArticle extends Model {
 }
 
 /**
- * Test View Task Comments Controller 
+ * Test View Task Comments Controller
  *
  * @package cake
  * @subpackage cake.tests.cases.console.libs.tasks
@@ -255,12 +255,15 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Dispatcher =& new TestViewTaskMockShellDispatcher();
 		$this->Dispatcher->shellPaths = App::path('shells');
 		$this->Task =& new MockViewTask($this->Dispatcher);
+		$this->Task->name = 'ViewTask';
 		$this->Task->Dispatch =& $this->Dispatcher;
 		$this->Task->Template =& new TemplateTask($this->Dispatcher);
 		$this->Task->Controller =& new ViewTaskMockControllerTask();
 		$this->Task->Project =& new ViewTaskMockProjectTask();
 		$this->Task->path = TMP;
 		$this->Task->Template->params['theme'] = 'default';
+		
+		$this->_routing = Configure::read('Routing');
 	}
 
 /**
@@ -271,6 +274,7 @@ class ViewTaskTest extends CakeTestCase {
  */
 	function endTest() {
 		ClassRegistry::flush();
+		Configure::write('Routing', $this->_routing);
 	}
 
 /**
@@ -294,10 +298,10 @@ class ViewTaskTest extends CakeTestCase {
 		);
 		$result = $this->Task->getContent('view', $vars);
 
-		$this->assertPattern('/Delete .+Test View Model/', $result);
-		$this->assertPattern('/Edit .+Test View Model/', $result);
-		$this->assertPattern('/List .+Test View Models/', $result);
-		$this->assertPattern('/New .+Test View Model/', $result);
+		$this->assertPattern('/Delete Test View Model/', $result);
+		$this->assertPattern('/Edit Test View Model/', $result);
+		$this->assertPattern('/List Test View Models/', $result);
+		$this->assertPattern('/New Test View Model/', $result);
 
 		$this->assertPattern('/testViewModel\[\'TestViewModel\'\]\[\'id\'\]/', $result);
 		$this->assertPattern('/testViewModel\[\'TestViewModel\'\]\[\'name\'\]/', $result);
@@ -327,10 +331,10 @@ class ViewTaskTest extends CakeTestCase {
 		);
 		$result = $this->Task->getContent('admin_view', $vars);
 
-		$this->assertPattern('/Delete .+Test View Model/', $result);
-		$this->assertPattern('/Edit .+Test View Model/', $result);
-		$this->assertPattern('/List .+Test View Models/', $result);
-		$this->assertPattern('/New .+Test View Model/', $result);
+		$this->assertPattern('/Delete Test View Model/', $result);
+		$this->assertPattern('/Edit Test View Model/', $result);
+		$this->assertPattern('/List Test View Models/', $result);
+		$this->assertPattern('/New Test View Model/', $result);
 
 		$this->assertPattern('/testViewModel\[\'TestViewModel\'\]\[\'id\'\]/', $result);
 		$this->assertPattern('/testViewModel\[\'TestViewModel\'\]\[\'name\'\]/', $result);
@@ -339,7 +343,7 @@ class ViewTaskTest extends CakeTestCase {
 		$result = $this->Task->getContent('admin_add', $vars);
 		$this->assertPattern("/input\('name'\)/", $result);
 		$this->assertPattern("/input\('body'\)/", $result);
-		$this->assertPattern('/List .+Test View Models/', $result);
+		$this->assertPattern('/List Test View Models/', $result);
 
 		Configure::write('Routing', $_back);
 	}
@@ -402,7 +406,7 @@ class ViewTaskTest extends CakeTestCase {
 		));
 		$this->Task->expectAt(1, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'edit.ctp',
-			new PatternExpectation('/Edit .+View Task Comment/')
+			new PatternExpectation('/Edit View Task Comment/')
 		));
 		$this->Task->expectAt(2, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'index.ctp',
@@ -451,6 +455,24 @@ class ViewTaskTest extends CakeTestCase {
 	}
 
 /**
+ * Test all() with action parameter
+ *
+ * @return void
+ * @access public
+ */
+	function testExecuteIntoAllWithActionName() {
+		$this->Task->args = array('all', 'index');
+
+		$this->Task->Controller->setReturnValue('listAll', array('view_task_comments'));
+		$this->Task->Controller->expectOnce('listAll');
+
+		$this->Task->expectCallCount('createFile', 1);
+		$this->Task->expectAt(0, 'createFile', array(TMP . 'view_task_comments' . DS . 'index.ctp', '*'));
+
+		$this->Task->execute();
+	}
+
+/**
  * test `cake bake view $controller view`
  *
  * @return void
@@ -479,6 +501,26 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->expectAt(0, 'createFile', array(TMP . 'view_task_comments' . DS . 'index.ctp', '*'));
 		$this->Task->expectAt(1, 'createFile', array(TMP . 'view_task_comments' . DS . 'add.ctp', '*'));
 
+		$this->Task->execute();
+	}
+
+/**
+ * test that both plural and singular forms can be used for baking views.
+ *
+ * @return void
+ * @access public
+ */
+	function testExecuteWithControllerVariations() {
+		$this->Task->args = array('ViewTaskComments');
+
+		$this->Task->expectAt(0, 'createFile', array(TMP . 'view_task_comments' . DS . 'index.ctp', '*'));
+		$this->Task->expectAt(1, 'createFile', array(TMP . 'view_task_comments' . DS . 'add.ctp', '*'));
+		$this->Task->execute();
+		
+		$this->Task->args = array('ViewTaskComment');
+
+		$this->Task->expectAt(0, 'createFile', array(TMP . 'view_task_comments' . DS . 'index.ctp', '*'));
+		$this->Task->expectAt(1, 'createFile', array(TMP . 'view_task_comments' . DS . 'add.ctp', '*'));
 		$this->Task->execute();
 	}
 
@@ -534,11 +576,11 @@ class ViewTaskTest extends CakeTestCase {
 		));
 		$this->Task->expectAt(2, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'add.ctp',
-			new PatternExpectation('/Add .+View Task Comment/')
+			new PatternExpectation('/Add View Task Comment/')
 		));
 		$this->Task->expectAt(3, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'edit.ctp',
-			new PatternExpectation('/Edit .+View Task Comment/')
+			new PatternExpectation('/Edit View Task Comment/')
 		));
 
 		$this->Task->execute();
@@ -554,7 +596,7 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->connection = 'test_suite';
 		$this->Task->args = array('ViewTaskComments', 'index', 'list');
 		$this->Task->params = array();
-		
+
 		$this->Task->expectCallCount('createFile', 1);
 		$this->Task->expectAt(0, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'list.ctp',
@@ -591,14 +633,32 @@ class ViewTaskTest extends CakeTestCase {
 		));
 		$this->Task->expectAt(2, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'admin_add.ctp',
-			new PatternExpectation('/Add .+View Task Comment/')
+			new PatternExpectation('/Add View Task Comment/')
 		));
 		$this->Task->expectAt(3, 'createFile', array(
 			TMP . 'view_task_comments' . DS . 'admin_edit.ctp',
-			new PatternExpectation('/Edit .+View Task Comment/')
+			new PatternExpectation('/Edit View Task Comment/')
 		));
 
 		$this->Task->execute();
 	}
+
+/**
+ * test getting templates, make sure noTemplateActions works
+ *
+ * @return void
+ */
+	function testGetTemplate() {
+		$result = $this->Task->getTemplate('delete');
+		$this->assertFalse($result);
+
+		$result = $this->Task->getTemplate('add');
+		$this->assertEqual($result, 'form');
+
+		Configure::write('Routing.prefixes', array('admin'));
+
+		$result = $this->Task->getTemplate('admin_add');
+		$this->assertEqual($result, 'form');
+	}
+
 }
-?>

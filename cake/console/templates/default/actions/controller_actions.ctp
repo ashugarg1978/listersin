@@ -11,7 +11,7 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org
+ * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.console.libs.template.objects
  * @since         CakePHP(tm) v 1.3
@@ -77,7 +77,7 @@
 			$this->Session->setFlash(__('Invalid <?php echo strtolower($singularHumanName); ?>', true));
 			$this->redirect(array('action' => 'index'));
 <?php else: ?>
-			$this->flash(__('Invalid <?php echo strtolower($singularHumanName); ?>', true), array('action' => 'index'));
+			$this->flash(sprintf(__('Invalid <?php echo strtolower($singularHumanName); ?>', true)), array('action' => 'index'));
 <?php endif; ?>
 		}
 		if (!empty($this->data)) {
@@ -120,7 +120,7 @@
 			$this->Session->setFlash(__('Invalid id for <?php echo strtolower($singularHumanName); ?>', true));
 			$this->redirect(array('action'=>'index'));
 <?php else: ?>
-			$this->flash(__('Invalid <?php echo strtolower($singularHumanName); ?>', true), array('action' => 'index'));
+			$this->flash(sprintf(__('Invalid <?php echo strtolower($singularHumanName); ?>', true)), array('action' => 'index'));
 <?php endif; ?>
 		}
 		if ($this-><?php echo $currentModelName; ?>->delete($id)) {

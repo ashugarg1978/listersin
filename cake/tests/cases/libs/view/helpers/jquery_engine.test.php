@@ -89,7 +89,7 @@ class JqueryEngineHelperTestCase extends CakeTestCase {
  */
 	function testDomReady() {
 		$result = $this->Jquery->domReady('foo.name = "bar";');
-		$expected = '$(document).bind("ready", function (event) {foo.name = "bar";});';
+		$expected = '$(document).ready(function () {foo.name = "bar";});';
 		$this->assertEqual($result, $expected);
 	}
 
@@ -206,6 +206,26 @@ class JqueryEngineHelperTestCase extends CakeTestCase {
 			'data' => '$("#someId").serialize()',
 		));
 		$expected = '$.ajax({beforeSend:function (XMLHttpRequest) {doBefore}, data:$("#someId").serialize(), success:function (data, textStatus) {doFoo}, type:"post", url:"\\/people\\/edit\\/1"});';
+		$this->assertEqual($result, $expected);
+	}
+
+/**
+ * test that alternate jQuery object values work for request()
+ *
+ * @return void
+ */
+	function testRequestWithAlternateJqueryObject() {
+		$this->Jquery->jQueryObject = '$j';
+
+		$result = $this->Jquery->request('/people/edit/1', array(
+			'update' => '#updated',
+			'success' => 'doFoo',
+			'method' => 'post',
+			'dataExpression' => true,
+			'data' => '$j("#someId").serialize()',
+			'wrapCallbacks' => false
+		));
+		$expected = '$j.ajax({data:$j("#someId").serialize(), dataType:"html", success:function (data, textStatus) {$j("#updated").html(data);}, type:"post", url:"\\/people\\/edit\\/1"});';
 		$this->assertEqual($result, $expected);
 	}
 
@@ -345,4 +365,3 @@ class JqueryEngineHelperTestCase extends CakeTestCase {
 		$this->assertEqual($result, $expected);
 	}
 }
-?>

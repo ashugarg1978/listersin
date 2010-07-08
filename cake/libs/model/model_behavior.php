@@ -7,12 +7,12 @@
  * PHP versions 4 and 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       cake
  * @subpackage    cake.cake.libs.model
@@ -176,7 +176,7 @@ class ModelBehavior extends Object {
 			case 5:
 				return $this->{$method}($model, $params[0], $params[1], $params[2], $params[3], $params[4]);
 			default:
-				array_unshift($params, $model);
+				$params = array_merge(array(&$model), $params);
 				return call_user_func_array(array(&$this, $method), $params);
 			break;
 		}
@@ -315,6 +315,9 @@ class BehaviorCollection extends Object {
 					$this->{$name} =& new $class;
 				}
 				ClassRegistry::addObject($class, $this->{$name});
+				if (!empty($plugin)) {
+					ClassRegistry::addObject($plugin.'.'.$class, $this->{$name});
+				}
 			}
 		} elseif (isset($this->{$name}->settings) && isset($this->{$name}->settings[$this->modelName])) {
 			if ($config !== null && $config !== false) {
@@ -369,6 +372,7 @@ class BehaviorCollection extends Object {
  * @access public
  */
 	function detach($name) {
+		list($plugin, $name) = pluginSplit($name);
 		if (isset($this->{$name})) {
 			$this->{$name}->cleanup(ClassRegistry::getObject($this->modelName));
 			unset($this->{$name});
@@ -441,7 +445,7 @@ class BehaviorCollection extends Object {
 		$call = null;
 
 		if ($strict && !$found) {
-			trigger_error("BehaviorCollection::dispatchMethod() - Method {$method} not found in any attached behavior", E_USER_WARNING);
+			trigger_error(sprintf(__("BehaviorCollection::dispatchMethod() - Method %s not found in any attached behavior", true), $method), E_USER_WARNING);
 			return null;
 		} elseif ($found) {
 			$methods = array_combine($methods, array_values($this->__methods));
@@ -528,4 +532,3 @@ class BehaviorCollection extends Object {
 		return $this->_attached;
 	}
 }
-?>

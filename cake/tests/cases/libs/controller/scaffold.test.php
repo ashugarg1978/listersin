@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.tests.cases.libs.controller
  * @since         CakePHP(tm) v 1.2.0.5436
@@ -155,9 +155,9 @@ class ScaffoldMock extends CakeTestModel {
 	var $hasAndBelongsToMany = array(
 		'ScaffoldTag' => array(
 			'className' => 'ScaffoldTag',
-			'foreignKey' => 'post_id',
-			'associationForeignKey' => 'tag_id',
-			'joinTable' => 'posts_tags'
+			'foreignKey' => 'something_id',
+			'associationForeignKey' => 'something_else_id',
+			'joinTable' => 'join_things'
 		)
 	);
 }
@@ -271,7 +271,7 @@ class ScaffoldViewTest extends CakeTestCase {
  * @var array
  * @access public
  */
-	var $fixtures = array('core.article', 'core.user', 'core.comment', 'core.posts_tag', 'core.tag');
+	var $fixtures = array('core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag');
 
 /**
  * startTest method
@@ -381,6 +381,23 @@ class ScaffoldViewTest extends CakeTestCase {
 	}
 
 /**
+ * test getting the view file name for themed scaffolds.
+ *
+ * @return void
+ */
+	function testGetViewFileNameWithTheme() {
+		$this->Controller->action = 'index';
+		$this->Controller->viewPath = 'posts';
+		$this->Controller->theme = 'test_theme';
+		$ScaffoldView =& new TestScaffoldView($this->Controller);
+
+		$result = $ScaffoldView->testGetFilename('index');
+		$expected = TEST_CAKE_CORE_INCLUDE_PATH . 'tests' . DS . 'test_app' . DS . 'views' . DS 
+			. 'themed' . DS . 'test_theme' . DS . 'posts' . DS . 'scaffold.index.ctp';
+		$this->assertEqual($result, $expected);
+	}
+
+/**
  * test default index scaffold generation
  *
  * @access public
@@ -459,6 +476,7 @@ class ScaffoldViewTest extends CakeTestCase {
 		//check related table
 		$this->assertPattern('/<div class="related">\s*<h3>Related Scaffold Comments<\/h3>\s*<table cellpadding="0" cellspacing="0">/', $result);
 		$this->assertPattern('/<li><a href="\/scaffold_comments\/add">New Comment<\/a><\/li>/', $result);
+		$this->assertNoPattern('/<th>JoinThing<\/th>/', $result);
 	}
 
 /**
@@ -659,7 +677,7 @@ class ScaffoldTest extends CakeTestCase {
  * @var array
  * @access public
  */
-	var $fixtures = array('core.article', 'core.user', 'core.comment', 'core.posts_tag', 'core.tag');
+	var $fixtures = array('core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag');
 /**
  * startTest method
  *
@@ -741,6 +759,7 @@ class ScaffoldTest extends CakeTestCase {
 		$Scaffold =& new TestScaffoldMock($this->Controller, $params);
 		$result = $Scaffold->controller->viewVars;
 
+		$this->assertEqual($result['title_for_layout'], 'Scaffold :: Admin Edit :: Scaffold Mock');
 		$this->assertEqual($result['singularHumanName'], 'Scaffold Mock');
 		$this->assertEqual($result['pluralHumanName'], 'Scaffold Mock');
 		$this->assertEqual($result['modelClass'], 'ScaffoldMock');
@@ -857,4 +876,3 @@ class ScaffoldTest extends CakeTestCase {
 		$this->assertNoPattern('/textarea name="data\[ScaffoldMock\]\[body\]" cols="30" rows="6" id="ScaffoldMockBody"/', $result);
 	}
 }
-?>

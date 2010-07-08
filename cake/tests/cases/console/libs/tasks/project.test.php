@@ -173,6 +173,24 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->assertNoPattern('/DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi/', $contents, 'Default Salt left behind. %s');
 	}
 
+	/**
+	 * test generation of Security.cipherSeed
+	 *
+	 * @return void
+	 * @access public
+	 */
+		function testSecurityCipherSeedGeneration() {
+			$this->_setupTestProject();
+
+			$path = $this->Task->path . 'bake_test_app' . DS;
+			$result = $this->Task->securityCipherSeed($path);
+			$this->assertTrue($result);
+
+			$file =& new File($path . 'config' . DS . 'core.php');
+			$contents = $file->read();
+			$this->assertNoPattern('/76859309657453542496749683645/', $contents, 'Default CipherSeed left behind. %s');
+		}
+
 /**
  * Test that index.php is generated correctly.
  *
@@ -281,4 +299,3 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->assertTrue(is_dir($path . DS . 'tests' . DS . 'fixtures'), 'No fixtures dir %s');
 	}
 }
-?>

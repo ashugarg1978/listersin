@@ -4,14 +4,14 @@
  *
  * PHP versions 4 and 5
  *
- * CakePHP(tm) Tests <https://trac.cakephp.org/wiki/Developement/TestSuite>
- * Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) Tests <http://book.cakephp.org/view/1196/Testing>
+ * Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  *  Licensed under The Open Group Test Suite License
  *  Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2009, Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          https://trac.cakephp.org/wiki/Developement/TestSuite CakePHP(tm) Tests
+ * @copyright     Copyright 2005-2010, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://book.cakephp.org/view/1196/Testing CakePHP(tm) Tests
  * @package       cake
  * @subpackage    cake.cake.tests.lib
  * @since         CakePHP(tm) v 1.2.0.4433
@@ -23,7 +23,7 @@ define('APP_TEST_CASES', TESTS . 'cases');
 define('APP_TEST_GROUPS', TESTS . 'groups');
 
 /**
- * TestManager is the base class that handles loading and initiating the running 
+ * TestManager is the base class that handles loading and initiating the running
  * of TestCase and TestSuite classes that the user has selected.
  *
  * @package       cake
@@ -70,7 +70,7 @@ class TestManager {
 			$this->appTest = true;
 		}
 		if (isset($_GET['plugin'])) {
-			$this->pluginTest = $_GET['plugin'];
+			$this->pluginTest = htmlentities($_GET['plugin']);
 		}
 	}
 
@@ -101,11 +101,11 @@ class TestManager {
 	function runAllTests(&$reporter, $testing = false) {
 		$testCases =& $this->_getTestFileList($this->_getTestsPath());
 		if ($this->appTest) {
-			$test =& new TestSuite('All App Tests');
+			$test =& new TestSuite(__('All App Tests', true));
 		} else if ($this->pluginTest) {
-			$test =& new TestSuite('All ' . Inflector::humanize($this->pluginTest) . ' Plugin Tests');
+			$test =& new TestSuite(sprintf(__('All %s Plugin Tests', true), Inflector::humanize($this->pluginTest)));
 		} else {
-			$test =& new TestSuite('All Core Tests');
+			$test =& new TestSuite(__('All Core Tests', true));
 		}
 
 		if ($testing) {
@@ -131,8 +131,11 @@ class TestManager {
 	function runTestCase($testCaseFile, &$reporter, $testing = false) {
 		$testCaseFileWithPath = $this->_getTestsPath() . DS . $testCaseFile;
 
-		if (!file_exists($testCaseFileWithPath)) {
-			trigger_error("Test case {$testCaseFile} cannot be found", E_USER_ERROR);
+		if (!file_exists($testCaseFileWithPath) || strpos($testCaseFileWithPath, '..')) {
+			trigger_error(
+				sprintf(__("Test case %s cannot be found", true), htmlentities($testCaseFile)),
+				E_USER_ERROR
+			);
 			return false;
 		}
 
@@ -140,7 +143,7 @@ class TestManager {
 			return true;
 		}
 
-		$test =& new TestSuite("Individual test case: " . $testCaseFile);
+		$test =& new TestSuite(sprintf(__('Individual test case: %s', true), $testCaseFile));
 		$test->addTestFile($testCaseFileWithPath);
 		return $test->run($reporter);
 	}
@@ -156,12 +159,18 @@ class TestManager {
 	function runGroupTest($groupTestName, &$reporter) {
 		$filePath = $this->_getTestsPath('groups') . DS . strtolower($groupTestName) . $this->_groupExtension;
 
-		if (!file_exists($filePath)) {
-			trigger_error("Group test {$groupTestName} cannot be found at {$filePath}", E_USER_ERROR);
+		if (!file_exists($filePath) || strpos($filePath, '..')) {
+			trigger_error(sprintf(
+					__("Group test %s cannot be found at %s", true), 
+					htmlentities($groupTestName), 
+					htmlentities($filePath)
+				),
+				E_USER_ERROR
+			);
 		}
 
 		require_once $filePath;
-		$test =& new TestSuite($groupTestName . ' group test');
+		$test =& new TestSuite(sprintf(__('%s group test', true), $groupTestName));
 		foreach ($this->_getGroupTestClassNames($filePath) as $groupTest) {
 			$testCase = new $groupTest();
 			$test->addTestCase($testCase);
@@ -410,5 +419,3 @@ class TestManager {
 		return $this->_groupExtension;
 	}
 }
-
-?>
