@@ -9,7 +9,9 @@ class DaemonShell extends Shell {
 	function main()
 	{
 		$funcname = $this->args[0];
-		$arg = explode(',', $this->args[1]);
+
+		$arg = null;
+		if (isset($this->args[1])) $arg = explode(',', $this->args[1]);
 		
 		$users = new UsersController();
 		$users->constructClasses();

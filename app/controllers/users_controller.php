@@ -353,19 +353,7 @@ class UsersController extends AppController {
 			. " SELECT ".implode(',', $colnames).", NOW(), NOW() FROM items"
 			. " WHERE id IN (".implode(",", $_POST['id']).")"
 			. " ORDER BY id";
-		error_log($sql_copy);
 		$res = $this->User->query($sql_copy);
-		
-		/*
-		$sql = "SELECT id, ebayuserid, title"
-			. " FROM items"
-			. " JOIN accounts USING (accountid)"
-			. " ORDER BY itemid DESC"
-			. " LIMIT ".count($_POST['item']);
-		$res = $this->User->query($sql);
-		
-		echo json_encode($res);
-		*/
 		
 		exit;
 	}
@@ -561,25 +549,28 @@ class UsersController extends AppController {
 	
 	function addscheduleditems()
 	{
-	  $sql = "SELECT id, schedule"
-		. " FROM items"
-		. " WHERE schedule < NOW()"
-		. " ORDER BY schedule";
-	  $res = $this->User->query($sql);
-	  foreach ($res as $i => $row) {
-		$id = $row['items']['id'];
-		$rows[$id] = $row;
-		echo date('Y-m-d H:i:s').' '.$id.' '.$row['items']['schedule']."\n";
-	  }
-	  
-	  if (is_array($rows)) {
-		$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
-		  . ' -app '.ROOT.'/app daemon additems '.implode(',', array_keys($rows))
-		  . ' > /dev/null &';
-		system($cmd);
-	  }
-	  
-	  return;
+		$sql = "SELECT id, schedule"
+			. " FROM items"
+			. " WHERE schedule < NOW()"
+			. " AND schedule != '0000-00-00 00:00:00'"
+			. " AND ItemID IS NULL"
+			. " ORDER BY schedule";
+		$res = $this->User->query($sql);
+		$rows = null;
+		foreach ($res as $i => $row) {
+			$id = $row['items']['id'];
+			$rows[$id] = $row;
+			error_log($id.' '.$row['items']['schedule']);
+		}
+		
+		if (is_array($rows)) {
+			$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
+				. ' -app '.ROOT.'/app daemon additems '.implode(',', array_keys($rows))
+				. ' > /dev/null &';
+			system($cmd);
+		}
+		
+		return;
 	}
 	
 	function additems($ids=null)
@@ -599,13 +590,16 @@ class UsersController extends AppController {
 		
 		// read item data from database
 		// todo: check user account id
+		// todo: avoid duplicate listing submit
 		$sql = "UPDATE items SET status = 10"
-			. " WHERE id IN (".implode(",", $ids).")";
+			. " WHERE id IN (".implode(",", $ids).")"
+			. " AND ItemID IS NULL";
 		$res = $this->User->query($sql);
 		
 		$sql = "SELECT * FROM items"
 			. " JOIN accounts USING (accountid)"
-			. " WHERE id IN (".implode(",", $ids).")";
+			. " WHERE id IN (".implode(",", $ids).")"
+			. " AND ItemID IS NULL";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $arr) {
 			$accountid = $arr['items']['accountid'];
@@ -709,7 +703,7 @@ class UsersController extends AppController {
 				// todo: check userid/accountid
 				$sql = "UPDATE items SET ".implode(', ', $sql_u)." WHERE id = ".$id;
 				$this->User->query($sql);
-				error_log($sql);
+				//error_log($sql);
 			}
 			
 		}
