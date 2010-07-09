@@ -515,7 +515,25 @@ function additems()
 			   $('#debug').html('<pre>'+data+'</pre>');
 		   });
 	
-	//setTimeout(function(){update();}, 2000);
+	return;
+}
+
+// todo: merge with additems
+function enditems()
+{
+	var postdata = "";
+	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
+	
+	$("input[name='id[]']:checked").each(function() {
+		$(this).css('visibility', 'hidden');
+		$(this).parent().addClass('loading');
+	});
+	
+	$.post('/users/enditems/',
+		   postdata,
+		   function(data) {
+			   $('#debug').html('<pre>'+data+'</pre>');
+		   });
 	
 	return;
 }

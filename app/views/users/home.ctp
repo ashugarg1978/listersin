@@ -56,7 +56,7 @@ foreach ($accounts as $accountid => $row) {
 &nbsp;
 <input type="button" value="<?= __('(Re)List') ?>" onclick="additems();">
 <input type="button" value="<?= __('Revise') ?>"   onclick="">
-<input type="button" value="<?= __('End') ?>"      onclick="">
+<input type="button" value="<?= __('End') ?>"      onclick="enditems();">
 &nbsp;
 <input type="button" value="<?= __('Copy') ?>"     onclick="copyitems();">
 <input type="button" value="<?= __('Delete') ?>"   onclick="delete();">
