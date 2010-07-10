@@ -519,22 +519,137 @@ class UsersController extends AppController {
 	
 	function enditems($ids=null)
 	{
-		if (empty($ids) && isset($_POST['id'])) {
-			
-			// If called from browser, kick background process and exit
-			$cmd = 'PATH=/usr/local/php/bin'
-				. ' '.ROOT.'/cake/console/cake'
-				. ' -app '.ROOT.'/app daemon'
-				. ' enditems '.implode(',', $_POST['id'])
-				. ' > /dev/null &';
-			system($cmd);
+		if (empty($ids)) {
+			// If called from browser, kick background process.
+			if (isset($_POST['id'])) {
+				$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
+					. ' -app '.ROOT.'/app daemon enditems '.implode(',', $_POST['id'])
+					. ' > /dev/null &';
+				system($cmd);
+			}
 			exit;
-			
-		} else if (empty($ids)) {
-			return;
 		}
 		
+		$sites = $this->sitedetails();
 		
+		// read item data from database
+		// todo: check user account id
+		// todo: avoid duplicate listing submit
+		$sql = "UPDATE items SET status = 10"
+			. " WHERE id IN (".implode(",", $ids).")"
+			. " AND ItemID IS NOT NULL";
+		$res = $this->User->query($sql);
+		
+		$sql = "SELECT * FROM items"
+			. " JOIN accounts USING (accountid)"
+			. " WHERE id IN (".implode(",", $ids).")"
+			. " AND ItemID IS NOT NULL";
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $arr) {
+			$accountid = $arr['items']['accountid'];
+			$site      = $arr['items']['Site'];
+			$accounts[$accountid] = $arr['accounts'];
+			$itemdata[$accountid][$site][] = $arr['items'];
+		}
+		
+		$pool = new HttpRequestPool();
+		$seqidx = 0;
+		foreach ($itemdata as $accountid => $sitehash) {
+			foreach ($sitehash as $site => $hash) {
+				$chunked = array_chunk($hash, 10);
+				foreach ($chunked as $chunkedidx => $items) {
+					
+					$seqidx++;
+					$h = null;
+					$h['RequesterCredentials']['eBayAuthToken'] =
+						$accounts[$accountid]['ebaytoken'];
+					
+					foreach ($items as $i => $arr) {
+						$h['EndItemRequestContainer'][$i]['MessageID'] = ($i+1);
+						$h['EndItemRequestContainer'][$i]['EndingReason'] = 'NotAvailable';
+						$h['EndItemRequestContainer'][$i]['ItemID'] = $arr['ItemID'];
+						$seqmap[$seqidx][($i+1)] = $arr['id'];
+					}
+					
+					$r = $this->getHttpRequest('EndItems', $h, $site);
+					$pool->attach($r);
+				}
+			}
+		}
+		
+		try {
+			$pool->send();
+		} catch (HttpRequestPoolException $ex) {
+			error_log("pool->send() error\n".$ex->getMessage());
+		}
+		
+		$ridx = 0;
+		foreach ($pool as $r) {
+			
+			$ridx++;
+			
+			/* HTTP error */
+			if ($r->getResponseCode() != 200) {
+				error_log('Error[ridx:'.$ridx.']'
+						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
+				$sql = "UPDATE items SET status = 0, Errors_LongMessage ="
+					. " '".date('m.d H:i')." Network error. Please try again later.'"
+					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
+				$this->User->query($sql);
+				
+				continue;
+			}
+			
+			$xml_response = $r->getResponseBody();
+			
+			$resfile = ROOT.'/app/tmp/apilogs/'
+				. (9999999999-date("mdHis")).'.EndIs.res.'.substr('0'.$ridx, -2).'.xml';
+			file_put_contents($resfile, $xml_response);
+			chmod($resfile, 0777);
+			
+			$xmlobj = simplexml_load_string($xml_response);
+			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
+				
+				$id = $seqmap[$ridx][$obj->CorrelationID.''];
+				
+				$j = null;
+				$j['status'] = 0;
+				$j['schedule'] = '0000-00-00 00:00:00';
+				
+				if (isset($obj->ItemID)) {
+					
+					$j['ItemID'] = $obj->ItemID;
+					$j['SellingStatus_ListingStatus'] = ''; // manually?
+					$j['ListingDetails_StartTime'] = $obj->StartTime;
+					$j['ListingDetails_EndTime']   = $obj->EndTime;
+					
+				} else if (isset($obj->Errors)) {
+					
+					$arrerrshort = null;
+					$arrerrlong  = null;
+					foreach ($obj->Errors as $ei => $eo) {
+						$arrerrshort[] = $eo->ShortMessage;
+						$arrerrlong[]  = $eo->LongMessage;
+					}
+					
+					$j['Errors_ShortMessage'] = implode("\n", $arrerrshort);
+					$j['Errors_LongMessage']  = implode("\n", $arrerrlong);
+				}
+				
+				$sql_u = null;
+				foreach ($j as $f => $v) {
+					$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+				}			  
+				
+				// todo: check userid/accountid
+				$sql = "UPDATE items SET ".implode(', ', $sql_u)." WHERE id = ".$id;
+				$this->User->query($sql);
+				//error_log($sql);
+			}
+			
+		}
+		
+		return;
 		
 	}
 	
@@ -701,8 +816,6 @@ class UsersController extends AppController {
 					$j['ListingDetails_EndTime']   = $obj->EndTime;
 					
 				} else if (isset($obj->Errors)) {
-					
-					error_log(print_r($obj,1));
 					
 					$arrerrshort = null;
 					$arrerrlong  = null;
@@ -907,7 +1020,7 @@ class UsersController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ReturnAll'; // ItemReturnDescription, ReturnAll
-		$h['StartTimeFrom'] = '2010-04-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-06-01 00:00:00';
 		$h['StartTimeTo'] =
 			date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
 		$h['Pagination']['EntriesPerPage'] = 50;
