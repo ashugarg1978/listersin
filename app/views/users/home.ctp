@@ -81,11 +81,8 @@ foreach ($accounts as $accountid => $row) {
 </thead>
 
 <tr id="filter">
-<td>
-</td>
-<td>
-	<input type="text" name="id" size="4">
-</td>
+<td></td>
+<td><input type="text" name="id" size="4"></td>
 <td></td>
 <td>
 	<input type="text" name="title" size="10">
@@ -94,9 +91,6 @@ foreach ($accounts as $accountid => $row) {
 	<input type="hidden" name="selling" size="10" value="active">
 </td>
 <td>
-<? if (false) { ?>
-	<input type="text" name="ebayuserid" size="10">
-<? } else { ?>
 	<select name="accountid" onchange="filter();">
 	<option value=""></option>
 	<?
@@ -105,11 +99,8 @@ foreach ($accounts as $accountid => $row) {
 	}	
 	?>
 	</select>
-<? } ?>
 </td>
-<td>
-	<input type="text" name="ItemID" size="6">
-</td>
+<td><input type="text" name="ItemID" size="6"></td>
 <td></td>
 <td></td>
 </tr>
@@ -125,18 +116,17 @@ foreach ($accounts as $accountid => $row) {
 	<td class="StartPrice"></td>
 	<td class="ListingDetails_EndTime"></td>
 </tr>
-<tr class="row2">
-	<td colspan="8">
-	</td>
-</tr>
+<tr class="row2"><td colspan="8"></td></tr>
 </tbody>
-<tbody>
+
+<tbody id="rowloading">
 <tr>
 	<td colspan="8" align="center" style="height:200px;">
 		<?= __('Loading Item Data ...') ?>
 	</td>
 </tr>
 </tbody>
+
 </table>
 
 </div>

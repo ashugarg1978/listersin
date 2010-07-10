@@ -30,14 +30,21 @@ function items()
 			   
 			   paging(data.cnt);
 			   
-			   $('tbody:gt(1)', 'table#items').remove();
+			   $('tbody:gt(2)', 'table#items').remove();
+			   
+			   if (data.cnt == 0) {
+				   $('tbody#rowloading > tr > td').html('No item data found.');
+				   $('tbody#rowloading').show();
+				   return;
+			   }
+			   $('tbody#rowloading').hide();
+			   
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
 				   $('#items').append(dom);
 				   rowsdata[row['id']] = row;
 			   });
 			   
-			   resizediv();
 		   },
 		   'json');
 }
