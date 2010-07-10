@@ -1,3 +1,7 @@
+alter table items modify status varchar(20);
+
+\q
+
 alter table users add language char(3) default 'eng';
 
 \q

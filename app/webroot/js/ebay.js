@@ -202,6 +202,36 @@ function bindevents()
 		resizediv();
 	});
 	
+	$('div#bulkbuttons > input').live('click', function() {
+		action = $(this).attr('class');
+		
+		if (action == 'checkall') {
+			$("input[name='id[]'][value!=on]").attr('checked', 'checked');
+			return;
+		} else if (action == 'checkallpage') {
+			$("input[name='id[]'][value!=on]").attr('checked', 'checked');
+			return;
+		} else if (action == 'uncheckall') {
+			$("input[name='id[]'][value!=on]").attr('checked', '');
+			return;
+		}
+		var postdata = "";
+		postdata = $("input[name='id[]'][value!=on]:checked").serialize();
+		
+		$("input[name='id[]']:checked").each(function() {
+			$(this).css('visibility', 'hidden');
+			$(this).parent().addClass('loading');
+		});
+		
+		$.post('/users/'+action+'/',
+			   postdata,
+			   function(data) {
+				   dump(data);
+			   });
+		
+		return;
+	});
+	
 	$('a.accountaction').live('click', function() {
 		$('ul', $(this).parent()).slideToggle('fast');
 	});

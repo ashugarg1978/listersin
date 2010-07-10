@@ -53,16 +53,15 @@ foreach ($accounts as $accountid => $row) {
 
 <div id="content">
 
-<div style="float:left; margin:10px;">
-<input type="button" value="<?= __('All') ?>"      onclick="chkall();"
-><input type="button" value="<?= __('Reset') ?>"    onclick="unchkall();">
-&nbsp;
-<input type="button" value="<?= __('(Re)List') ?>" onclick="additems();"
-><input type="button" value="<?= __('Revise') ?>"   onclick=""
-><input type="button" value="<?= __('End') ?>"      onclick="enditems();">
-&nbsp;
-<input type="button" value="<?= __('Copy') ?>"     onclick="copyitems();"
-><input type="button" value="<?= __('Delete') ?>"   onclick="delete();">
+<div id="bulkbuttons" style="float:left; margin:10px;">
+<input  type="button" class="checkall"     value="<?= __('Select all') ?>"
+><input type="button" class="checkallpage" value="<?= __('Select all pages') ?>"
+><input type="button" class="uncheckall"   value="<?= __('Clear selection') ?>">&nbsp;
+<input  type="button" class="relist" value="<?= __('(Re)List') ?>"
+><input type="button" class="revise" value="<?= __('Revise') ?>"
+><input type="button" class="end"    value="<?= __('End') ?>">&nbsp;
+<input  type="button" class="copy"   value="<?= __('Copy') ?>"
+><input type="button" class="delete" value="<?= __('Delete') ?>">
 </div>
 
 <div id="paging"></div>
