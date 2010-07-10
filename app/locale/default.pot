@@ -1,13 +1,14 @@
 # LANGUAGE translation of CakePHP Application
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 #
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2010-07-08 06:57+0000\n"
-"PO-Revision-Date: 2010-07-08 18:36+0900\n"
-"Last-Translator: test author <dummy@dummy.dummy>\n"
-"Language-Team: testlang <test@test.test>\n"
+"POT-Creation-Date: 2010-07-10 22:30+0900\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,91 +22,95 @@ msgstr ""
 msgid "Sign out"
 msgstr ""
 
-#: /views/users/home.ctp:14
+#: /views/users/home.ctp:14;29
+msgid "All Selling"
+msgstr ""
+
+#: /views/users/home.ctp:15;30
 msgid "Scheduled"
 msgstr ""
 
-#: /views/users/home.ctp:15
+#: /views/users/home.ctp:16;31
 msgid "Active"
 msgstr ""
 
-#: /views/users/home.ctp:16
+#: /views/users/home.ctp:17;32
 msgid "Sold"
 msgstr ""
 
-#: /views/users/home.ctp:17
+#: /views/users/home.ctp:18;33
 msgid "Unsold"
 msgstr ""
 
-#: /views/users/home.ctp:18
-msgid "Other"
+#: /views/users/home.ctp:19;34
+msgid "Saved"
 msgstr ""
 
-#: /views/users/home.ctp:19;54
-msgid "All"
-msgstr ""
-
-#: /views/users/home.ctp:40
+#: /views/users/home.ctp:43
 msgid "add new account"
 msgstr ""
 
-#: /views/users/home.ctp:55
-msgid "Reset"
-msgstr ""
-
 #: /views/users/home.ctp:57
-msgid "(Re)List"
+msgid "All"
 msgstr ""
 
 #: /views/users/home.ctp:58
-msgid "Revise"
+msgid "Reset"
 msgstr ""
 
-#: /views/users/home.ctp:59;79
-msgid "End"
+#: /views/users/home.ctp:60
+msgid "(Re)List"
 msgstr ""
 
 #: /views/users/home.ctp:61
+msgid "Revise"
+msgstr ""
+
+#: /views/users/home.ctp:62;82
+msgid "End"
+msgstr ""
+
+#: /views/users/home.ctp:64
 msgid "Copy"
 msgstr ""
 
-#: /views/users/home.ctp:62
+#: /views/users/home.ctp:65
 msgid "Delete"
 msgstr ""
 
-#: /views/users/home.ctp:74
+#: /views/users/home.ctp:77
 msgid "Pict"
 msgstr ""
 
-#: /views/users/home.ctp:75;162
+#: /views/users/home.ctp:78;162
 msgid "Title"
 msgstr ""
 
-#: /views/users/home.ctp:76
+#: /views/users/home.ctp:79
 msgid "Account"
 msgstr ""
 
-#: /views/users/home.ctp:77
+#: /views/users/home.ctp:80
 msgid "eBay Item ID"
 msgstr ""
 
-#: /views/users/home.ctp:78
+#: /views/users/home.ctp:81
 msgid "Price"
 msgstr ""
 
-#: /views/users/home.ctp:136
+#: /views/users/home.ctp:129
 msgid "Loading Item Data ..."
 msgstr ""
 
-#: /views/users/home.ctp:152
+#: /views/users/home.ctp:146
 msgid "Detail"
 msgstr ""
 
-#: /views/users/home.ctp:153
+#: /views/users/home.ctp:147
 msgid "Description"
 msgstr ""
 
-#: /views/users/home.ctp:154
+#: /views/users/home.ctp:148
 msgid "Pictures"
 msgstr ""
 
@@ -143,6 +148,10 @@ msgstr ""
 
 #: /views/users/home.ctp:210
 msgid "Shipping Service"
+msgstr ""
+
+#: /views/users/home.ctp:214
+msgid "schedule"
 msgstr ""
 
 #: /webroot/test.php:88

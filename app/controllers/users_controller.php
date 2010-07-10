@@ -18,7 +18,6 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-		//Configure::write('Config.language', 'jpn');
 		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
@@ -29,6 +28,7 @@ class UsersController extends AppController {
 		
 		if (isset($this->user['User']['userid'])) {
 			$this->accounts = $this->getAccounts($this->user['User']['userid']);
+			Configure::write('Config.language', $this->user['User']['language']);
 		}
 		$this->set('accounts', $this->accounts);
     }	
@@ -89,23 +89,23 @@ class UsersController extends AppController {
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
 		
-		//$sql_selling['Scheduled'] = "ListingDetails_StartTime > NOW()";
-		$sql_selling['Scheduled'] = "schedule > NOW()";
-		$sql_order['Scheduled'] = "schedule ASC,";
+		//$sql_selling['scheduled'] = "ListingDetails_StartTime > NOW()";
+		$sql_selling['scheduled'] = "schedule > NOW()";
 		
-		$sql_selling['Active']    = "ItemID IS NOT NULL"
-			. " AND ListingDetails_EndTime > Now()";
+		$sql_selling['active']
+			= "ItemID IS NOT NULL AND ListingDetails_EndTime > Now()";
 		
-		$sql_selling['Sold']      = "ItemID IS NOT NULL"
-			. " AND SellingStatus_QuantitySold > 0";
+		$sql_selling['sold']
+			= "ItemID IS NOT NULL AND SellingStatus_QuantitySold > 0";
 		
-		$sql_selling['Unsold']    = "ListingDetails_EndTime < Now()"
-			. " AND SellingStatus_QuantitySold = 0";
+		$sql_selling['unsold']
+			= "ListingDetails_EndTime < Now() AND SellingStatus_QuantitySold = 0";
 		
-		$sql_selling['Other']     = "ItemID IS NULL";
+		$sql_selling['saved']
+			= "ItemID IS NULL";
 		
 		if (!empty($_POST['selling']) && $_POST['selling'] != 'All') {
-		  $sql_filter[] = $sql_selling[$_POST['selling']];
+			$sql_filter[] = $sql_selling[$_POST['selling']];
 		}
 		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
@@ -131,14 +131,11 @@ class UsersController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		$sql .= " ORDER BY ";
-		if (!empty($_POST['selling'])
-			&& $_POST['selling'] != 'All'
-			&& isset($sql_order[$_POST['selling']])) {
-			$sql .= $sql_order[$_POST['selling']];
+		if (isset($_POST['sort'])) {
+			$sort[] = mysql_real_escape_string($_POST['sort']);
 		}
-		$sql .= " ListingDetails_EndTime ASC, id DESC";
-		
+		$sort[] = "id DESC";
+		$sql .= " ORDER BY ".implode(',', $sort);
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res = $this->User->query($sql);
@@ -146,7 +143,6 @@ class UsersController extends AppController {
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
 		$cnt = $res_cnt[0][0]['cnt'];
-		error_log('cnt:'.$cnt);
 		
 		/* modify result records */
 		foreach ($res as $idx => $row) {
@@ -168,6 +164,11 @@ class UsersController extends AppController {
 				}
 			} else {
 				$item['ListingDetails_EndTime'] = '-';
+			}
+			
+			$tmppct = explode("\n", $item['PictureDetails_PictureURL']);
+			if (is_array($tmppct)) {
+				$item['PictureDetails_PictureURL'] = $tmppct[0];
 			}
 			
 			if (isset($item['schedule'])) {
@@ -193,6 +194,7 @@ class UsersController extends AppController {
 		}
 		
 		echo json_encode($data);
+		//error_log(print_r($data,1));
 		//error_log(json_encode($data));
 		
 		exit;
@@ -653,9 +655,9 @@ class UsersController extends AppController {
 		
 	}
 	
-	function relistitem($id)
+	function relistitems($id)
 	{
-	  $ids[] = $id;
+		$ids[] = $id;
 	  
 		$sites = $this->sitedetails();
 		
@@ -785,7 +787,8 @@ class UsersController extends AppController {
 				error_log('Error[ridx:'.$ridx.']'
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
 				$sql = "UPDATE items SET status = 0,"
-				  . " Errors_LongMessage = '".date('m.d H:i')."Network error. Please try again later.'"
+					. " Errors_LongMessage ="
+					. " '".date('m.d H:i')." Network error. Please try again later.'"
 					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
 				$this->User->query($sql);
 				
@@ -1065,10 +1068,12 @@ class UsersController extends AppController {
 					
 					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
 					
-					if ($c == 'PictureDetails.PictureURL' && is_array($v)) {
+					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
 						$v = implode("\n", $v);
 					} else if ($c == 'PaymentMethods' && is_array($v)) {
 						$v = implode("\n", $v);
+					} else if (is_array($v)) {
+						error_log('arr? '.$c);
 					}
 					
 					if (preg_match('/@/', $c)) $c = '`'.$c.'`';

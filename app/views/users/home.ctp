@@ -11,25 +11,28 @@
 <br>
 
 <ul id="selling" class="accounts">
-<li><a href=""><?= __('Scheduled') ?></a></li>
-<li><a href=""><?= __('Active') ?></a></li>
-<li><a href=""><?= __('Sold') ?></a></li>
-<li><a href=""><?= __('Unsold') ?></a></li>
-<li><a href=""><?= __('Other') ?></a></li>
-<li><a href=""><?= __('All') ?></a></li>
+<li><a href="" class="all"      ><?= __('All Selling') ?></a></li>
+<li><a href="" class="scheduled"><?= __('Scheduled')   ?></a></li>
+<li><a href="" class="active"   ><?= __('Active')      ?></a></li>
+<li><a href="" class="sold"     ><?= __('Sold')        ?></a></li>
+<li><a href="" class="unsold"   ><?= __('Unsold')      ?></a></li>
+<li><a href="" class="saved"    ><?= __('Saved')       ?></a></li>
 </ul>
 
 <ul class="accounts">
 <?
 foreach ($accounts as $accountid => $row) {
 	echo '<li>';
-	echo '<a href="#" class="accountaction">▽';
-	echo '</a> <a href="#" class="accountlink">'.$row['ebayuserid'].'</a>';
+	echo '<a href="#" class="accountaction">'.$row['ebayuserid'].'</a>';
 	?>
 	<ul class="accountaction">
+	<li><a href=""><?= __('All Selling') ?></a></li>
+	<li><a href=""><?= __('Scheduled') ?></a></li>
+	<li><a href=""><?= __('Active') ?></a></li>
+	<li><a href=""><?= __('Sold') ?></a></li>
+	<li><a href=""><?= __('Unsold') ?></a></li>
+	<li><a href=""><?= __('Saved') ?></a></li>
 	<li><a href="/users/getsellerlist/<?= $row['ebayuserid'] ?>" target="import">import from ebay</a></li>
-	<li><a href="">synchronize</a></li>
-	<li><a href="">settings</a></li>
 	</ul>
 	<?
 	echo '</li>';
@@ -70,11 +73,11 @@ foreach ($accounts as $accountid => $row) {
 <thead>
 <tr>
 	<th></th>
-	<th>ID</th>
-	<th><?= __('Pict') ?></th>
-	<th><?= __('Title') ?></th>
-	<th><?= __('Account') ?></th>
-	<th><?= __('eBay Item ID') ?></th>
+	<th align="left">ID</th>
+	<th align="left"><?= __('Pict') ?></th>
+	<th align="left"><?= __('Title') ?></th>
+	<th align="left"><?= __('Account') ?></th>
+	<th align="left"><?= __('eBay Item ID') ?></th>
 	<th align="right"><?= __('Price') ?></th>
 	<th align="right"><?= __('End') ?></th>
 </tr>
@@ -87,8 +90,9 @@ foreach ($accounts as $accountid => $row) {
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="15" size="2">
+	<input type="hidden" name="limit"  value="100" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
+	<input type="text" name="sort" size="10" value="ListingDetails_EndTime">
 </td>
 <td>
 	<select name="accountid" onchange="filter();">
@@ -109,7 +113,7 @@ foreach ($accounts as $accountid => $row) {
 <tr class="row1">
 	<td><input type="checkbox" name="id[]"></td>
 	<td class="id"></td>
-	<td><img class="PictureDetails_PictureURL" height="20"></td>
+	<td align="center" valign="middle"><img class="PictureDetails_PictureURL" height="20"></td>
 	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="ebayuserid"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
@@ -143,7 +147,13 @@ foreach ($accounts as $accountid => $row) {
 <li><a href="#"><?= __('Description') ?></a></li>
 <li><a href="#"><?= __('Pictures') ?></a></li>
 </ul>
-	 
+
+<ul class="editbuttons">
+<li><a href="" class="edit">Edit this item</a></li>
+<li><a href="" class="save">Save</a></li>
+<li><a href="" class="cancel">Cancel</a></li>
+</ul>
+ 
 <div class="tabContainer">
 <div class="tab">
 <table class="detail">
@@ -208,10 +218,9 @@ foreach ($accounts as $accountid => $row) {
 </table>
 </div>
 <div class="tab">
-  <div class="description">
-	<textarea name="description" cols="100" rows="10"></textarea>
-	<a class="wysiwyg">RTE</a>
-  </div>
+	<div class="description">
+		<textarea name="description" cols="100" rows="10"></textarea>
+	</div>
 </div>
 <div class="tab">
   <div class="pictures">
@@ -226,7 +235,6 @@ foreach ($accounts as $accountid => $row) {
 		 echo '</div>';
 		 echo '<input type="file" name="PD_PURL_'.$i.'" size="5">';
 		 echo '</td>';
-		 
 		 if ($i == 6) echo '</tr><tr>';
 	}
 	?></tr>
@@ -235,15 +243,6 @@ foreach ($accounts as $accountid => $row) {
 	
   </div>
 </div>
-</div>
-	 
-<div style="clear:both;"></div>
-<div style="text-align:center;">
-	<input type="button" class="edit"   value="Edit">
-	<input type="button" class="copy"   value="Copy">
-	<input type="button" class="delete" value="Delete">
-	<input type="button" class="save"   value="Save">
-	<input type="button" class="cancel" value="Cancel">
 </div>
 
 </div>

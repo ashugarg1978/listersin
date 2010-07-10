@@ -6,7 +6,7 @@ $(document).bind({
 	ready: function(event) {
 		resizediv();
 		bindevents();
-		$('ul#selling li a:contains("Active")').click();
+		$('ul#selling > li > a.active').click();
 		
 		/* auto click for debug */
 		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
@@ -71,6 +71,8 @@ function getrow(row)
 	
 	if (row['PictureDetails_PictureURL']) {
 		$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
+		$('img.PictureDetails_PictureURL', dom).css('max-width', '20px');
+		$('img.PictureDetails_PictureURL', dom).css('max-height','20px');
 	} else {
 		$('img.PictureDetails_PictureURL', dom).remove();
 	}
@@ -90,7 +92,6 @@ function getrow(row)
 			}
 		});
 	}
-	$('a.Title', dom).before('('+row['status']+')');
 	
 	if (row['schedule']) {
 		$('td.ListingDetails_EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row['schedule']);
@@ -183,10 +184,14 @@ function descriptionframe(id)
 function resizediv()
 {
 	w = $('div#container').width()-179;
+	h = $('body').height() - 10;
+	
 	$('div#content').width(w);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
+	
+	//$('table#items').css('min-height', h+'px');
 	
 	return;
 }
@@ -285,8 +290,8 @@ function bindevents()
 	});
 	
 	
-	$('ul#selling li a').live('click', function() {
-		$('input[name=selling]').val($(this).text());
+	$('ul#selling > li > a').live('click', function() {
+		$('input[name=selling]').val($(this).attr('class'));
 		$('input[name=offset]').val(0);
 		items();
 		$('ul#selling li').removeClass('tabselected');
@@ -335,7 +340,8 @@ function bindevents()
 		return false;
 	});
 	
-	$('input:button.edit', 'div.detail').live('click', function() {
+	//$('input:button.edit', 'div.detail').live('click', function() {
+	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
@@ -598,11 +604,9 @@ function unchkall()
 
 function showbuttons(detail, buttons)
 {
-	$('input:button', detail).hide();
-
-	buttons = 'input:button.'+buttons.replace(/,/g, ',input:button.');
+	buttons = 'li > a.'+buttons.replace(/,/g, ',li > a.');
 	
-	$('input:button', detail).hide();
+	$('ul.editbuttons > li', detail).hide();
 	$(buttons, detail).show();
 	
 	return;
