@@ -1,9 +1,10 @@
+alter table items add schedule datetime;
+alter table items add ScheduleTime datetime;
+
 update items set schedule = date_add(now(), interval id*5-100 minute);
 select id, schedule from items limit 10;
 \q
 
-alter table items add schedule datetime;
-alter table items add ScheduleTime datetime;
 
 \q
 

@@ -18,7 +18,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-	  //Configure::write('Config.language', 'jpn');
+		//Configure::write('Config.language', 'jpn');
 		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
@@ -132,19 +132,21 @@ class UsersController extends AppController {
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
 		$sql .= " ORDER BY ";
-		if (!empty($_POST['selling']) && $_POST['selling'] != 'All') {
-		  $sql .= $sql_order[$_POST['selling']];
+		if (!empty($_POST['selling'])
+			&& $_POST['selling'] != 'All'
+			&& isset($sql_order[$_POST['selling']])) {
+			$sql .= $sql_order[$_POST['selling']];
 		}
 		$sql .= " ListingDetails_EndTime ASC, id DESC";
 		
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
 		$res = $this->User->query($sql);
-		//error_log($sql);
 		
 		/* count total records */
 		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
 		$cnt = $res_cnt[0][0]['cnt'];
+		error_log('cnt:'.$cnt);
 		
 		/* modify result records */
 		foreach ($res as $idx => $row) {
@@ -186,7 +188,9 @@ class UsersController extends AppController {
 		}
 		
 		$data['cnt'] = $cnt;
-		$data['res'] = $items;
+		if (isset($items)) {
+			$data['res'] = $items;
+		}
 		
 		echo json_encode($data);
 		error_log(json_encode($data));
