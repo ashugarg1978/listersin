@@ -193,7 +193,7 @@ class UsersController extends AppController {
 		}
 		
 		echo json_encode($data);
-		error_log(json_encode($data));
+		//error_log(json_encode($data));
 		
 		exit;
 	}

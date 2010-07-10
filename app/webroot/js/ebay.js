@@ -93,7 +93,7 @@ function getrow(row)
 	$('a.Title', dom).before('('+row['status']+')');
 	
 	if (row['schedule']) {
-		$('td.ListingDetails_EndTime', dom).html('S:'+row['schedule']);
+		$('td.ListingDetails_EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row['schedule']);
 	}
 	
 	return dom;

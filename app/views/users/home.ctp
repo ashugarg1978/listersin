@@ -200,6 +200,10 @@ foreach ($accounts as $accountid => $row) {
 	  <td><?= __('Shipping Service') ?></td>
 	  <td class="shippingservice"></td>
 	</tr>
+	<tr>
+	  <td><?= __('schedule') ?></td>
+	  <td><input name="schedule" type="" size="15"></td>
+	</tr>
   </tbody>
 </table>
 </div>
