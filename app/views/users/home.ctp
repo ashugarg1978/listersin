@@ -51,15 +51,15 @@ foreach ($accounts as $accountid => $row) {
 <div id="content">
 
 <div style="float:left; margin:10px;">
-<input type="button" value="<?= __('All') ?>"      onclick="chkall();">
-<input type="button" value="<?= __('Reset') ?>"    onclick="unchkall();">
+<input type="button" value="<?= __('All') ?>"      onclick="chkall();"
+><input type="button" value="<?= __('Reset') ?>"    onclick="unchkall();">
 &nbsp;
-<input type="button" value="<?= __('(Re)List') ?>" onclick="additems();">
-<input type="button" value="<?= __('Revise') ?>"   onclick="">
-<input type="button" value="<?= __('End') ?>"      onclick="enditems();">
+<input type="button" value="<?= __('(Re)List') ?>" onclick="additems();"
+><input type="button" value="<?= __('Revise') ?>"   onclick=""
+><input type="button" value="<?= __('End') ?>"      onclick="enditems();">
 &nbsp;
-<input type="button" value="<?= __('Copy') ?>"     onclick="copyitems();">
-<input type="button" value="<?= __('Delete') ?>"   onclick="delete();">
+<input type="button" value="<?= __('Copy') ?>"     onclick="copyitems();"
+><input type="button" value="<?= __('Delete') ?>"   onclick="delete();">
 </div>
 
 <div id="paging"></div>

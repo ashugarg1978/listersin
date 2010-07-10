@@ -1,6 +1,5 @@
 /* store rows data */
 var rowsdata = new Array();
-var hash = new Array();
 
 /* initialize */
 $(document).bind({
@@ -8,8 +7,6 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		$('ul#selling li a:contains("Active")').click();
-		
-		//$.post('/users/inithash', null, function(data) {hash = data;}, 'json');
 		
 		/* auto click for debug */
 		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
@@ -327,7 +324,12 @@ function bindevents()
 	});
 	
 	$('#paging > a').live('click', function() {
-		offset = ($(this).html() - 1) * limit;
+		if ($(this).html() == '＞') {
+			offset = ($('input[name=offset]').val() + 1) * limit;
+			alert(offset);
+		} else {
+			offset = ($(this).html() - 1) * limit;
+		}
 		$('input[name=offset]').val(offset);
 		items();
 		return false;
@@ -574,6 +576,9 @@ function paging(cnt)
 		} else {
 			html += '<a href="">'+(i+1)+'</a>';
 		}
+	}
+	if (offset+limit<cnt) {
+		html += '<a href="">＞</a>';
 	}
 	
 	$('#paging').html(html);
