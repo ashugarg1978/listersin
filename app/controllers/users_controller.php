@@ -189,7 +189,7 @@ class UsersController extends AppController {
 		$data['res'] = $items;
 		
 		echo json_encode($data);
-		//error_log(print_r($data,1));
+		error_log(json_encode($data));
 		
 		exit;
 	}
