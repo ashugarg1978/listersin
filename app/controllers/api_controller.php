@@ -230,18 +230,16 @@ class ApiController extends AppController {
 		
 	}
 	
-	function relistitems($id)
+	function relistitems($opid)
 	{
-		$ids[] = $id;
-	  
 		$sites = $this->Util->sitedetails();
 		
 		// read item data from database
 		// todo: check user account id
-		$sql = "SELECT *"
-			. " FROM items"
+		$sql = "SELECT * FROM items"
 			. " JOIN accounts USING (accountid)"
-			. " WHERE id IN (".implode(",", $ids).")";
+			. " WHERE status = 'relist.".$opid."'"
+			. " AND ItemID IS NOT NULL";
 		$res = $this->User->query($sql);
 	  
 		foreach ($res as $i => $arr) {
@@ -344,7 +342,7 @@ class ApiController extends AppController {
 				$id = $seqmap[$ridx][$obj->CorrelationID.''];
 				
 				$j = null;
-				$j['status'] = 0;
+				$j['status'] = 'NULL';
 				$j['schedule'] = '0000-00-00 00:00:00';
 				
 				if (isset($obj->ItemID)) {
@@ -369,7 +367,11 @@ class ApiController extends AppController {
 				
 				$sql_u = null;
 				foreach ($j as $f => $v) {
-					$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+					if ($v == 'NULL') {
+						$sql_u[] = $f." = NULL";
+					} else {
+						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
+					}
 				}			  
 				
 				// todo: check userid/accountid

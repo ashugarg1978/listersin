@@ -12,11 +12,10 @@ class DaemonShell extends Shell {
 		error_log('daemon.php : funcname = '.$funcname);
 		
 		$arg = null;
-		if (isset($this->args[1])) $arg = explode(',', $this->args[1]);
+		if (isset($this->args[1])) $arg = $this->args[1];
 		
 		$api = new ApiController();
 		$api->constructClasses();
-		print_r($api);exit;
 		$api->$funcname($arg);
 		
 		return;

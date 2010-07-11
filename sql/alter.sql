@@ -1,12 +1,8 @@
 alter table items modify status varchar(20);
-
-\q
-
 alter table users add language char(3) default 'eng';
+alter table items modify Title varchar(200);
 
 \q
-
-alter table items modify Title varchar(200);
 
 alter table items add schedule datetime;
 alter table items add ScheduleTime datetime;
