@@ -6,10 +6,11 @@
  */
 class ApiController extends AppController {
 	
-    var $name = 'Users';    
+	//var $uses = array('Users');
+    //var $name = 'Users';    
     var $components = array('Auth', 'Email', 'Util');
-	var $user;
-	var $accounts;
+	//var $user;
+	//var $accounts;
 	
 	//var $uses = array('Db');
     //var $components = array('Util');

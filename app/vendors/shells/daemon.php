@@ -4,7 +4,9 @@ App::import('Controller', 'Api');
 
 class DaemonShell extends Shell {
 	
-	var $uses = null;
+	//var $uses = null;
+	//var $uses = array('Db');
+	//var $name = 'Db';
 	
 	function main()
 	{
