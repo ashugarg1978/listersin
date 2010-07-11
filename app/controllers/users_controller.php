@@ -11,14 +11,14 @@
 class UsersController extends AppController {
 	
     var $name = 'Users';    
-    var $components = array('Auth', 'Email');
+    var $components = array('Auth', 'Email', 'Util');
 	
 	var $user;
 	var $accounts;
 	
 	function beforeFilter() {
 		
-		error_log($this->action.' POST:'.print_r($_POST,1));
+		//error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
@@ -36,7 +36,7 @@ class UsersController extends AppController {
 	function index()
 	{
 		if (isset($this->user['User']['userid'])) {
-			$this->set('site', $this->sitedetails());
+			$this->set('site', $this->Util->sitedetails());
 			$this->render('home');
 		}
 	}
@@ -59,7 +59,7 @@ class UsersController extends AppController {
 	
 	function home()
 	{
-		
+        $this->redirect('/');
 	}
 	
 	
@@ -134,7 +134,7 @@ class UsersController extends AppController {
 		$sql .= " ORDER BY ".implode(',', $sort);
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
-		error_log($sql);
+		//error_log($sql);
 		$res = $this->User->query($sql);
 		
 		/* count total records */
@@ -219,7 +219,7 @@ class UsersController extends AppController {
 				$this->categoryfeatures($data['Site'], $data['PrimaryCategory_CategoryID']);
 		}
 		
-		$data['other']['site'] = $this->sitedetails();
+		$data['other']['site'] = $this->Util->sitedetails();
 		
 		//error_log(print_r($data,1));
 		//error_log(json_encode($data));
@@ -465,10 +465,8 @@ class UsersController extends AppController {
 			. " AND ListingDetails_EndTime < NOW()";
 		$res = $this->User->query($sql);
 		
-		$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
-			. ' -app '.ROOT.'/app daemon additems '.implode(',', $_POST['id'])
-			. ' > /dev/null &';
-		system($cmd);
+		system(ROOT.'/app/vendors/shells/kickdaemon.sh additems '.$opid);
+		system(ROOT.'/app/vendors/shells/kickdaemon.sh relistitems '.$opid);
 		
 		return;
 	}
@@ -596,7 +594,7 @@ class UsersController extends AppController {
 	function categoryfeatures($site, $categoryid=null)
 	{
 		/* load xml */
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/CategoryFeatures.xml');
+		$xml = file_get_contents(ROOT.'/data/apixml/CategoryFeatures.xml');
 		$xmlobj = simplexml_load_string($xml);
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
@@ -686,23 +684,6 @@ class UsersController extends AppController {
 		
 		$data['PaymentMethod'] = $arrpm;
 		//error_log(print_r($data,1));
-		
-		return $data;
-	}
-	
-	function sitedetails()
-	{
-		/* load xml */
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/SiteDetails.xml');
-		$xmlobj = simplexml_load_string($xml);
-		$ns = $xmlobj->getDocNamespaces();
-		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		
-		foreach ($xmlobj->SiteDetails as $o) {
-			$site = $o->Site.'';
-			$siteid = $o->SiteID.'';
-			$data[$site] = $siteid;
-		}
 		
 		return $data;
 	}

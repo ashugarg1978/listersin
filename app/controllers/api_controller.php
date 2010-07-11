@@ -7,8 +7,17 @@
 class ApiController extends AppController {
 	
     var $name = 'Users';    
+    var $components = array('Auth', 'Email', 'Util');
 	var $user;
 	var $accounts;
+	
+	//var $uses = array('Db');
+    //var $components = array('Util');
+	
+	function beforeFilter()
+	{
+		error_log('api:'.$this->action);
+	}
 	
 	function getitem($accountid, $ebayitemid)
 	{
@@ -98,7 +107,7 @@ class ApiController extends AppController {
 			exit;
 		}
 		
-		$sites = $this->sitedetails();
+		$sites = $this->Util->sitedetails();
 		
 		// read item data from database
 		// todo: check user account id
@@ -225,7 +234,7 @@ class ApiController extends AppController {
 	{
 		$ids[] = $id;
 	  
-		$sites = $this->sitedetails();
+		$sites = $this->Util->sitedetails();
 		
 		// read item data from database
 		// todo: check user account id
@@ -250,33 +259,20 @@ class ApiController extends AppController {
 		
 	}
 	
-	function additems($ids=null)
+	function additems($opid)
 	{
-		if (empty($ids)) {
-			// If called from browser, kick background process.
-			if (isset($_POST['id'])) {
-				$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
-					. ' -app '.ROOT.'/app daemon additems '.implode(',', $_POST['id'])
-					. ' > /dev/null &';
-				system($cmd);
-			}
-			exit;
-		}
+		//print 'hoge';
+		//print_r($this);exit;
+		$sites = $this->Util->sitedetails();
 		
-		$sites = $this->sitedetails();
-		
-		// read item data from database
+		/* read item data from database */
 		// todo: check user account id
 		// todo: avoid duplicate listing submit
-		$sql = "UPDATE items SET status = 10"
-			. " WHERE id IN (".implode(",", $ids).")"
-			. " AND ItemID IS NULL";
-		$res = $this->User->query($sql);
-		
 		$sql = "SELECT * FROM items"
 			. " JOIN accounts USING (accountid)"
-			. " WHERE id IN (".implode(",", $ids).")"
+			. " WHERE status = 'add.".$opid."'"
 			. " AND ItemID IS NULL";
+		error_log($sql);
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $arr) {
 			$accountid = $arr['items']['accountid'];
@@ -326,7 +322,7 @@ class ApiController extends AppController {
 			if ($r->getResponseCode() != 200) {
 				error_log('Error[ridx:'.$ridx.']'
 						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
-				$sql = "UPDATE items SET status = 0,"
+				$sql = "UPDATE items SET status = NULL,"
 					. " Errors_LongMessage ="
 					. " '".date('m.d H:i')." Network error. Please try again later.'"
 					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
@@ -668,7 +664,7 @@ class ApiController extends AppController {
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
-		$sites = $this->sitedetails();
+		$sites = $this->Util->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			
 			if ($siteid != 77) continue;
@@ -722,7 +718,7 @@ class ApiController extends AppController {
 	
 	function getHttpRequest($call, $xmldata, $site='US')
 	{
-		$sites = $this->sitedetails();
+		$sites = $this->Util->sitedetails();
 		
 		/* headers */
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
