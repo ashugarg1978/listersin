@@ -465,8 +465,8 @@ class UsersController extends AppController {
 			. " AND ListingDetails_EndTime < NOW()";
 		$res = $this->User->query($sql);
 		
-		system(ROOT.'/app/vendors/shells/kickdaemon.sh additems '.$opid);
-		system(ROOT.'/app/vendors/shells/kickdaemon.sh relistitems '.$opid);
+		system(ROOT.'/shells/kickdaemon.sh additems '.$opid);
+		system(ROOT.'/shells/kickdaemon.sh relistitems '.$opid);
 		
 		return;
 	}
