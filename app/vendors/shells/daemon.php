@@ -4,17 +4,16 @@ App::import('Controller', 'Api');
 
 class DaemonShell extends Shell {
 	
-	//var $uses = null;
-	//var $uses = array('Db');
-	//var $name = 'Db';
-	
 	function main()
 	{
+		if (empty($this->args[0])) return;
+		
 		$funcname = $this->args[0];
-		error_log('daemon.php : funcname = '.$funcname);
 		
 		$arg = null;
 		if (isset($this->args[1])) $arg = $this->args[1];
+		
+		error_log('daemon.php : '.$funcname.' ['.$arg.']');
 		
 		$api = new ApiController();
 		$api->constructClasses();

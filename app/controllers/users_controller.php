@@ -471,34 +471,6 @@ class UsersController extends AppController {
 		return;
 	}
 	
-	function addscheduleditems()
-	{
-		$sql = "SELECT id, schedule"
-			. " FROM items"
-			. " WHERE schedule < NOW()"
-			. " AND schedule != '0000-00-00 00:00:00'"
-			. " AND ItemID IS NULL"
-			. " ORDER BY schedule";
-		$res = $this->User->query($sql);
-		$rows = null;
-		foreach ($res as $i => $row) {
-			$id = $row['items']['id'];
-			$rows[$id] = $row;
-			error_log($id.' '.$row['items']['schedule']);
-		}
-		
-		if (is_array($rows)) {
-			$cmd = 'PATH=/usr/local/php/bin '.ROOT.'/cake/console/cake'
-				. ' -app '.ROOT.'/app daemon additems '.implode(',', array_keys($rows))
-				. ' > /dev/null &';
-			system($cmd);
-		}
-		
-		return;
-	}
-	
-	
-	
 	
 	/**
 	 * get hierarchical path data of specific category and its parents.

@@ -6,7 +6,7 @@
  */
 class ApiController extends AppController {
 	
-	//var $uses = array('Users');
+	var $uses = array('User');
     //var $name = 'Users';    
     var $components = array('Auth', 'Email', 'Util');
 	//var $user;
@@ -258,10 +258,26 @@ class ApiController extends AppController {
 		
 	}
 	
+	function addscheduleditems()
+	{
+		$opid = '000'.date('YmdHis');
+		$opid = base_convert($opid, 10, 32);
+		
+		$sql = "UPDATE items"
+			. " SET status = 'add.".$opid."'"
+			. " WHERE status IS NULL"
+			. " AND schedule != '0000-00-00 00:00:00'"
+			. " AND schedule < NOW()"
+			. " AND ItemID IS NULL";
+		$res = $this->User->query($sql);
+		
+		$this->additems($opid);
+		
+		return;
+	}
+	
 	function additems($opid)
 	{
-		//print 'hoge';
-		//print_r($this);exit;
 		$sites = $this->Util->sitedetails();
 		
 		/* read item data from database */
@@ -271,8 +287,10 @@ class ApiController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE status = 'add.".$opid."'"
 			. " AND ItemID IS NULL";
-		error_log($sql);
 		$res = $this->User->query($sql);
+		error_log('add.'.$opid.' : '.count($res).' items.');
+		if (empty($res)) return;
+		
 		foreach ($res as $i => $arr) {
 			$accountid = $arr['items']['accountid'];
 			$site      = $arr['items']['Site'];
