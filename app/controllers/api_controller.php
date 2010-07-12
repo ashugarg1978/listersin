@@ -476,24 +476,6 @@ class ApiController extends AppController {
 	}
 	
 	
-	/**
-	 * get column name of items table.
-	 */
-	function getitemcols()
-	{
-		$sql = "DESC items;";
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $row) {
-			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
-				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
-			} else {
-				$f[$row['COLUMNS']['Field']] = $row;
-			}
-		}
-		
-		return $f;
-	}
-	
 	function getebaydetails()
 	{
 		$h = null;
@@ -632,7 +614,7 @@ class ApiController extends AppController {
 	 */
 	function getsellerlist_import($xmlobj, $account)
 	{
-		$colnames = $this->getitemcols();
+		$colnames = $this->Util->getitemcols();
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
@@ -824,5 +806,22 @@ class ApiController extends AppController {
 		return $xmlobj;
 	}
 	
+	/**
+	 * get column name of items table.
+	 * todo: merge users/api controller
+	 */
+	function getitemcols()
+	{
+		$res = $this->User->query("DESC items;");
+		foreach ($res as $i => $row) {
+			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
+				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
+			} else {
+				$f[$row['COLUMNS']['Field']] = $row;
+			}
+		}
+		
+		return $f;
+	}
 }
 ?>

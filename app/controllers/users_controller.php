@@ -18,7 +18,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter() {
 		
-		//error_log($this->action.' POST:'.print_r($_POST,1));
+		error_log($this->action.' POST:'.print_r($_POST,1));
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
@@ -374,6 +374,12 @@ class UsersController extends AppController {
 			. " ORDER BY id";
 		$res = $this->User->query($sql_copy);
 		
+		$copycount = count($_POST['id']);
+		
+		$_POST = null;
+		$_POST['limit'] = $copycount;
+		$this->items();
+		
 		exit;
 	}
 	
@@ -660,6 +666,24 @@ class UsersController extends AppController {
 		return $data;
 	}
 	
+	
+	/**
+	 * get column name of items table.
+	 * todo: merge users/api controller
+	 */
+	function getitemcols()
+	{
+		$res = $this->User->query("DESC items;");
+		foreach ($res as $i => $row) {
+			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
+				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
+			} else {
+				$f[$row['COLUMNS']['Field']] = $row;
+			}
+		}
+		
+		return $f;
+	}
 	
 	
 	/**

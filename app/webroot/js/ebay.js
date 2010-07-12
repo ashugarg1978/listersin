@@ -226,6 +226,10 @@ function bindevents()
 		$.post('/users/'+action+'/',
 			   postdata,
 			   function(data) {
+				   if (action == 'copy') {
+					   $("td.loading").removeClass('loading');
+					   $("input[name='id[]'][value!=on]:checked").css('visibility', '').attr('checked', '');
+				   }
 				   dump(data);
 			   });
 		
@@ -512,7 +516,9 @@ function copyitems()
 	$.post('/users/copy/',
 		   postdata,
 		   function(data) {
-			   var a;
+			   $("td.loading").removeClass('loading');
+			   $("input[name='id[]'][value!=on]:checked").css('visibility', '').attr('checked', '');
+			   dump(data);
 		   },
 		   'json');
 	

@@ -1,5 +1,9 @@
 <?php
+App::import('Models', 'Db');
+
 class UtilComponent extends Object {
+	
+    var $uses = array('Users');
 	
 	function sitedetails()
 	{
@@ -18,6 +22,23 @@ class UtilComponent extends Object {
 		return $data;
 	}
 	
+	
+	/**
+	 * get column name of items table.
+	 */
+	function getitemcols()
+	{
+		$res = $this->Db->query("DESC items;");
+		foreach ($res as $i => $row) {
+			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
+				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
+			} else {
+				$f[$row['COLUMNS']['Field']] = $row;
+			}
+		}
+		
+		return $f;
+	}
 	
 }
 ?>
