@@ -614,7 +614,7 @@ class ApiController extends AppController {
 	 */
 	function getsellerlist_import($xmlobj, $account)
 	{
-		$colnames = $this->Util->getitemcols();
+		$colnames = $this->getitemcols();
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			

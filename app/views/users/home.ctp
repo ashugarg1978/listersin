@@ -149,8 +149,13 @@ foreach ($accounts as $accountid => $row) {
 
 <ul class="editbuttons">
 <li><a href="" class="edit">Edit this item</a></li>
-<li><a href="" class="save">Save</a></li>
-<li><a href="" class="cancel">Cancel</a></li>
+<li><a href="" class="edit">Copy</a></li>
+<li><a href="" class="edit">Delete</a></li>
+<li><a href="" class="edit">(Re)List</a></li>
+<li><a href="" class="edit">Revise</a></li>
+<li><a href="" class="edit">End</a></li>
+<li style="display:none;"><a href="" class="save">Save</a></li>
+<li style="display:none;"><a href="" class="cancel">Cancel</a></li>
 </ul>
  
 <div class="tabContainer">

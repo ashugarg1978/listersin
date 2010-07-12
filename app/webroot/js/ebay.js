@@ -312,13 +312,14 @@ function bindevents()
 	});
 	
 	$('ul.tabNav a').live('click', function() {
+		id = $(this).closest('tbody').attr('id');
 		var curIdx = $(this).parent().prevAll().length + 1;
 		$(this).parent().parent().children('.current').removeClass('current');
 		$(this).parent().addClass('current');
-		$(this).parent().parent().next('.tabContainer').children('.current').hide();
-		$(this).parent().parent().next('.tabContainer').children('.current').removeClass('current');
-		$(this).parent().parent().next('.tabContainer').children('div:nth-child('+curIdx+')').show();
-		$(this).parent().parent().next('.tabContainer').children('div:nth-child('+curIdx+')').addClass('current');
+		$('div.tabContainer', 'tbody#'+id).children('.current').hide();
+		$('div.tabContainer', 'tbody#'+id).children('.current').removeClass('current');
+		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').show();
+		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').addClass('current');
 		
 		return false;
 	});
@@ -409,7 +410,8 @@ function bindevents()
 		$.each(pathdata['level'], function(idx, val) {
 		    sel = $('<select class="category"/>');
 		    $.each(pathdata['nodes'][idx], function(id, row) {
-				str = row['CategoryName']+'('+row['CategoryID']+')';
+				str = row['CategoryName'];
+				//str += '('+row['CategoryID']+')';
 				if (row['LeafCategory'] == 0) str += ' &gt;';
 				opt = $('<option/>').val(row['CategoryID']).html(str);
 				if (row['CategoryID'] == val) opt.attr('selected', 'selected');
@@ -450,10 +452,10 @@ function bindevents()
 		
 	    $('input[name=Title]', 'tbody#'+id).focus();
 	    
-		return;
+		return false;
 	});
 	
-	$('input:button.save', 'div.detail').live('click', function() {
+	$('ul.editbuttons > li > a.save', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
@@ -465,7 +467,7 @@ function bindevents()
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
 		
-		$.post('/users/update/',
+		$.post('/users/save/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
@@ -477,9 +479,12 @@ function bindevents()
 				   $('tbody#'+id).replaceWith(dom);
 			   },
 			   'json');
+		
+		return false;
 	});
 	
-	$('input:button.cancel', 'div.detail').live('click', function() {
+	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', function() {
+		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
 		detail = getdetail(rowsdata[id]);
@@ -487,6 +492,7 @@ function bindevents()
 		showbuttons(detail, 'edit,copy,delete');
 		$('div.detail', 'tbody#'+id).replaceWith(detail);
 		
+		return false;
 	});
 	
 	$('#delete').live('click', function() {
@@ -640,10 +646,11 @@ function unchkall()
 
 function showbuttons(detail, buttons)
 {
-	buttons = 'li > a.'+buttons.replace(/,/g, ',li > a.');
+	buttons = 'a.'+buttons.replace(/,/g, ',a.');
 	
+	ulbtn = $('ul.editbuttons', detail);
 	$('ul.editbuttons > li', detail).hide();
-	$(buttons, detail).show();
+	$(buttons, ulbtn).parent().show();
 	
 	return;
 }

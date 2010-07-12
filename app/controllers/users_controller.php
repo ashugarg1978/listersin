@@ -95,7 +95,8 @@ class UsersController extends AppController {
 		
 		$sql_selling['sold'] = "ItemID IS NOT NULL AND SellingStatus_QuantitySold > 0";
 		
-		$sql_selling['unsold'] = "ListingDetails_EndTime < Now()"
+		$sql_selling['unsold'] = "ItemID IS NOT NULL"
+			. " AND ListingDetails_EndTime < Now()"
 			. " AND SellingStatus_QuantitySold = 0";
 		
 		$sql_selling['saved'] = "ItemID IS NULL";
@@ -373,6 +374,7 @@ class UsersController extends AppController {
 			. " WHERE id IN (".implode(",", $_POST['id']).")"
 			. " ORDER BY id";
 		$res = $this->User->query($sql_copy);
+		error_log(print_r($res,1));
 		
 		$copycount = count($_POST['id']);
 		
@@ -384,7 +386,7 @@ class UsersController extends AppController {
 	}
 	
 	
-	function update()
+	function save()
 	{
 		if (empty($_POST['id'])) return;
 		
