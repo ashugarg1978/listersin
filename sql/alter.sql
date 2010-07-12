@@ -1,3 +1,7 @@
+alter table items add relist tinyint;
+
+\q
+
 alter table items modify status varchar(20);
 alter table users add language char(3) default 'eng';
 alter table items modify Title varchar(200);

@@ -240,22 +240,25 @@ class ApiController extends AppController {
 		$sql = "SELECT * FROM items"
 			. " JOIN accounts USING (accountid)"
 			. " WHERE status = 'relist.".$opid."'"
-			. " AND ItemID IS NOT NULL";
+			. " AND ItemID IS NOT NULL"
+			. " AND ListingDetails_EndTime < NOW()";
 		$res = $this->User->query($sql);
-	  
+		if (empty($res)) return;
+		error_log('relist.'.$opid.' : '.count($res).' items.');
+		
 		foreach ($res as $i => $arr) {
-
-		  $accounts = $arr['accounts'];
-		  $items    = $arr['items'];
-		  
-		  $h = null;
-		  $h['RequesterCredentials']['eBayAuthToken'] = $accounts['ebaytoken'];
-		  $h['Item'] = $this->xml_item($items);
-		  
-		  $rsp = $this->callapi('RelistItem', $h);
-		  
+			
+			$accounts = $arr['accounts'];
+			$items    = $arr['items'];
+			
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $accounts['ebaytoken'];
+			$h['Item'] = $this->xml_item($items);
+			
+			$rsp = $this->callapi('RelistItem', $h);
 		}
 		
+		return;
 	}
 	
 	function addscheduleditems()
@@ -270,8 +273,16 @@ class ApiController extends AppController {
 			. " AND schedule < NOW()"
 			. " AND ItemID IS NULL";
 		$res = $this->User->query($sql);
-		
 		$this->additems($opid);
+		
+		$sql = "UPDATE items"
+			. " SET status = 'relist.".$opid."'"
+			. " WHERE status IS NULL"
+			. " AND relist = 1"
+			. " AND ListingDetails_EndTime < NOW()"
+			. " AND ItemID IS NOT NULL";
+		$res = $this->User->query($sql);
+		$this->relistitems($opid);
 		
 		return;
 	}
@@ -288,8 +299,8 @@ class ApiController extends AppController {
 			. " WHERE status = 'add.".$opid."'"
 			. " AND ItemID IS NULL";
 		$res = $this->User->query($sql);
-		error_log('add.'.$opid.' : '.count($res).' items.');
 		if (empty($res)) return;
+		error_log('add.'.$opid.' : '.count($res).' items.');
 		
 		foreach ($res as $i => $arr) {
 			$accountid = $arr['items']['accountid'];
@@ -567,6 +578,19 @@ class ApiController extends AppController {
 	}
 	
 	
+	function getsellerlists()
+	{
+		$sql = "SELECT ebayuserid FROM accounts";
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $row) {
+			$euid = $row['accounts']['ebayuserid'];
+			$this->getsellerlist($euid);
+		}
+		
+		return;
+	}
+	
+	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)
 	{
@@ -586,12 +610,9 @@ class ApiController extends AppController {
 		$h['Pagination']['EntriesPerPage'] = 50;
 		$h['Pagination']['PageNumber'] = 1;
 		$h['Sort'] = 1;
-		if ($userid) {
-			$h['UserID'] = $userid;
-		}
+		if ($userid) $h['UserID'] = $userid;
 		
 		while (true) {
-			
 			$xmlobj = $this->callapi('GetSellerList', $h);
 			$this->getsellerlist_import($xmlobj, $account);
 			
@@ -602,7 +623,7 @@ class ApiController extends AppController {
 			}
 		}
 		
-		exit;
+		return;
 	}
 	
 	
