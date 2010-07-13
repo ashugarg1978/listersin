@@ -573,11 +573,20 @@ class UsersController extends AppController {
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
+		$xmlobjo = $xmlobj->xpath
+			('/ns:GeteBayDetailsResponse'
+			 . '/ns:ShippingServiceDetails'
+			 . "[ns:ServiceType='Flat']"
+			 . "[ns:ShippingServiceID<50000]"
+			 . "[ns:ValidForSellingFlow='true']");
+		
+		echo '<pre>'.print_r($xmlobjo,1).'</pre>';
 		$arr = null;
-		foreach ($xmlobj->ShippingServiceDetails as $o) {
-		  $arr[] = $o->ShippingService.'';
+		foreach ($xmlobjo as $o) {
+		  $arr[] = $o->Description.'';
 		}
 		
+		echo '<pre>'.print_r($arr,1).'</pre>';exit;
 		return $arr;
 	}
 	
