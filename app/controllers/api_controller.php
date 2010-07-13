@@ -479,18 +479,20 @@ class ApiController extends AppController {
 	
 	function getebaydetails()
 	{
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
+		$res = $this->User->query($sql);
+		$account = $res[0]['accounts'];
+		
 		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $this->accounts[8]['ebaytoken'];
+		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		$h['DetailName'] = 'ShippingServiceDetails';
-		$xmlobj = $this->callapi('GeteBayDetails', $h);
-
-		foreach ($xmlobj->ShippingServiceDetails as $idx => $o) {
-			$arr = null;
-			$this->xml2arr($o, $arr, '');
-			pr($arr);
+		  
+		$sites = $this->Util->sitedetails();
+		foreach ($sites as $sitename => $siteid) {
+		  $xmlobj = $this->callapi('GeteBayDetails', $h, $sitename);
 		}
 		
-		exit;
+		return;
 	}
 	
 	function getcategoryfeatures($site, $categoryid=null)

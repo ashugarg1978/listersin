@@ -209,15 +209,13 @@ class UsersController extends AppController {
 		$res = $this->User->query($sql);
 		$data = $res[0]['items'];
 		
-		// 
 		$data['PictureDetails_PictureURL'] = explode("\n", $data['PictureDetails_PictureURL']);
 		
 		// todo: avoid infinite loop
-		if ($data['PrimaryCategory_CategoryID'] > 0) {
-			$data['categorypath'] =
-				$this->categorypath($data['Site'], $data['PrimaryCategory_CategoryID']);
-			$data['categoryfeatures']  =
-				$this->categoryfeatures($data['Site'], $data['PrimaryCategory_CategoryID']);
+		$cid = $data['PrimaryCategory_CategoryID'];
+		if ($cid > 0) {
+			$data['categorypath']     = $this->categorypath($data['Site'], $cid);
+			$data['categoryfeatures'] = $this->categoryfeatures($data['Site'], $cid);
 		}
 		
 		$data['other']['site'] = $this->Util->sitedetails();
@@ -566,6 +564,22 @@ class UsersController extends AppController {
 		exit;
 	}
 	
+	
+	function getshippingservice($sitename)
+	{
+		/* load xml */
+		$xml = file_get_contents(ROOT.'/data/apixml/eBayDetails.'.$sitename.'.xml');
+		$xmlobj = simplexml_load_string($xml);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		$arr = null;
+		foreach ($xmlobj->ShippingServiceDetails as $o) {
+		  $arr[] = $o->ShippingService.'';
+		}
+		
+		return $arr;
+	}
 	
 	/**
 	 *
