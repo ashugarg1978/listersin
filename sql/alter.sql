@@ -1,3 +1,7 @@
+alter table items add ApplicationData varchar(20);
+
+\q
+
 alter table items add relist tinyint;
 
 \q

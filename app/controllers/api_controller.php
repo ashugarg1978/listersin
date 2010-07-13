@@ -280,7 +280,8 @@ class ApiController extends AppController {
 			. " WHERE status IS NULL"
 			. " AND relist = 1"
 			. " AND ListingDetails_EndTime < NOW()"
-			. " AND ItemID IS NOT NULL";
+			. " AND ItemID IS NOT NULL"
+			. " LIMIT 1";
 		$res = $this->User->query($sql);
 		$this->relistitems($opid);
 		
@@ -560,13 +561,17 @@ class ApiController extends AppController {
 	}
 	
 	
+	/**
+	 *   - getsellerlists
+	 *   - getsellerlist
+	 *   - getsellerlist_import
+	 */
 	function getsellerlists()
 	{
 		$sql = "SELECT ebayuserid FROM accounts";
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $row) {
-			$euid = $row['accounts']['ebayuserid'];
-			$this->getsellerlist($euid);
+			$this->getsellerlist($row['accounts']['ebayuserid']);
 		}
 		
 		return;
@@ -597,6 +602,12 @@ class ApiController extends AppController {
 		while (true) {
 			$xmlobj = $this->callapi('GetSellerList', $h);
 			$this->getsellerlist_import($xmlobj, $account);
+			
+			$tnop = $xmlobj->PaginationResult->TotalNumberOfPages;
+			$tnoe = $xmlobj->PaginationResult->TotalNumberOfEntries;
+			
+			error_log('getsellerlist : '.$ebayuserid.' ('.$tnoe.')'
+					  . ' '.$h['Pagination']['PageNumber'].'/'.$tnop);
 			
 			if ($xmlobj->HasMoreItems == 'true') {
 				$h['Pagination']['PageNumber']++;
