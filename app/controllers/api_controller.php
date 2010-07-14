@@ -20,6 +20,26 @@ class ApiController extends AppController {
 		error_log('api:'.$this->action);
 	}
 	
+	function test()
+	{
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284938747.GetSellerList.US.response.xml');
+		$xmlobj = simplexml_load_string($xml);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		$o = $xmlobj->xpath('/ns:GetSellerListResponse'
+							. '/ns:ItemArray'
+							. '/ns:Item[ns:ItemID=110049111272]');
+		
+		echo '<pre>'.print_r($o,1).'</pre>';
+		
+		$this->xml2arr($o, $arr, '');
+		
+		echo '<pre>'.print_r($arr,1).'</pre>';
+		
+		exit;
+	}
+	
 	function getitem($accountid, $ebayitemid)
 	{
 		$h = null;
@@ -641,6 +661,9 @@ class ApiController extends AppController {
 					
 					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
 					
+				  if ($c == 'ShippingDetails') {
+					
+				  }
 					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
 						$v = implode("\n", $v);
 					} else if ($c == 'PaymentMethods' && is_array($v)) {
@@ -653,6 +676,7 @@ class ApiController extends AppController {
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
+			exit;
 			//echo error_log(print_r($arr,1));
 			
 			/* SELECT */

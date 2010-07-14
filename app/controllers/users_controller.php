@@ -219,6 +219,7 @@ class UsersController extends AppController {
 		}
 		
 		$data['other']['site'] = $this->Util->sitedetails();
+		$data['other']['shipping'] = $this->getshippingservice($data['Site']);
 		
 		//error_log(print_r($data,1));
 		//error_log(json_encode($data));
@@ -576,14 +577,14 @@ class UsersController extends AppController {
 		$xmlobjo = $xmlobj->xpath
 			('/ns:GeteBayDetailsResponse'
 			 . '/ns:ShippingServiceDetails'
-			 . "[ns:ServiceType='Flat']"
+			 . "[ns:ServiceType='Calculated']"
 			 . "[ns:ShippingServiceID<50000]"
 			 . "[ns:ValidForSellingFlow='true']");
 		
 		echo '<pre>'.print_r($xmlobjo,1).'</pre>';
 		$arr = null;
 		foreach ($xmlobjo as $o) {
-		  $arr[] = $o->Description.'';
+			$arr[] = $o->Description.'';
 		}
 		
 		echo '<pre>'.print_r($arr,1).'</pre>';exit;
