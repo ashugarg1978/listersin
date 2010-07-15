@@ -22,7 +22,14 @@ class ApiController extends AppController {
 	
 	function test()
 	{
-		//$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284938747.GetSellerList.US.response.xml');
+		$xml = file_get_contents(ROOT.'/data/apixml/eBayDetails.US.xml');
+		$xmlobj = simplexml_load_string($xml);
+		$p = $this->xml2array($xmlobj);
+		
+		echo '<pre>'.print_r($p, 1).'</pre>';
+		//print json_encode($p['ShippingServiceDetails']);
+		exit;
+		
 		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284906866.GetSellerList.US.response.xml');
 		$xmlobj = simplexml_load_string($xml);
 		$ns = $xmlobj->getDocNamespaces();
@@ -40,20 +47,6 @@ class ApiController extends AppController {
 			echo '<pre>'.print_r($p, 1).'</pre>';
 			echo '</td></tr></table>';
 		}
-		
-		exit;
-		
-		
-		
-		$o = $xmlobj->xpath('/ns:GetSellerListResponse'
-							. '/ns:ItemArray'
-							. '/ns:Item[ns:ItemID=110049111272]');
-		
-		echo '<pre>'.print_r($o,1).'</pre>';
-		
-		$this->xml2arr($o, $arr, '');
-		
-		echo '<pre>'.print_r($arr,1).'</pre>';
 		
 		exit;
 	}
@@ -715,8 +708,10 @@ class ApiController extends AppController {
 			}
 			
 			$tmpo = $this->xml2array($o->ShippingDetails);
-			$i['ShippingDetails_ShippingServiceOptions'] =
-				"'".mysql_real_escape_string(serialize($tmpo['ShippingServiceOptions']))."'";
+			if (isset($tmpo['ShippingServiceOptions'])) {
+				$i['ShippingDetails_ShippingServiceOptions'] =
+					"'".mysql_real_escape_string(serialize($tmpo['ShippingServiceOptions']))."'";
+			}
 			
 			//echo error_log(print_r($arr,1));
 			

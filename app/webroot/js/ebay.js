@@ -155,7 +155,11 @@ function getdetail(row)
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	// shippingservice
-	$('td.shippingservice', detail).html(row['ShippingDetails_ShippingServiceOptions_ShippingService']);
+	ssstr = '';
+	$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
+		ssstr += o['ShippingService'] + '<br>';
+	});
+	$('td.shippingservice', detail).html(ssstr);
 	
 	
 	$.each(row, function(colname, colval) {

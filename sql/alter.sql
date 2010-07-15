@@ -1,3 +1,7 @@
+/*
+colname | copy | add | revise | serialize | relist
+*/		
+
 alter table items add ShippingDetails_ShippingServiceOptions text;
 
 \q
