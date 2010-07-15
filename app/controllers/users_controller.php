@@ -210,8 +210,10 @@ class UsersController extends AppController {
 		$data = $res[0]['items'];
 		
 		$data['PictureDetails_PictureURL'] = explode("\n", $data['PictureDetails_PictureURL']);
-		$data['ShippingDetails_ShippingServiceOptions']
-			= unserialize($data['ShippingDetails_ShippingServiceOptions']);
+		if (isset($data['ShippingDetails_ShippingServiceOptions'])) {
+			$data['ShippingDetails_ShippingServiceOptions']
+				= unserialize($data['ShippingDetails_ShippingServiceOptions']);
+		}
 		
 		// todo: avoid infinite loop
 		$cid = $data['PrimaryCategory_CategoryID'];
@@ -223,7 +225,7 @@ class UsersController extends AppController {
 		$data['other']['site'] = $this->Util->sitedetails();
 		//$data['other']['shipping'] = $this->getshippingservice($data['Site']);
 		
-		//error_log(print_r($data,1));
+		error_log(print_r($data,1));
 		//error_log(json_encode($data));
 		
 		echo json_encode($data);
