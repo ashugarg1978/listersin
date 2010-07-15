@@ -1,5 +1,6 @@
 /* store rows data */
 var rowsdata = new Array();
+var cache = new Array();
 
 /* initialize */
 $(document).bind({
@@ -14,7 +15,6 @@ $(document).bind({
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
 		
 		setInterval(refresh, 2000);
-		//websockettest();
 	}
 });
 
@@ -680,23 +680,7 @@ function updateduration(id)
 	return;
 }
 
-function websockettest()
+function read(key)
 {
-	var myWebSocket = new WebSocket("ws://localhost:81/server.php");
 	
-	myWebSocket.onopen = function(evt) {
-		alert("Connection open ...");
-	};
-	
-	myWebSocket.onmessage = function(evt) {
-		alert( "Received Message:  "  +  evt.data);
-	};
-	
-	myWebSocket.onclose = function(evt) {
-		alert("Connection closed.");
-	};
-	
-	myWebSocket.send("Hello Web Socket! Goodbye Comet!");
-	
-	myWebSocket.disconnect();
 }

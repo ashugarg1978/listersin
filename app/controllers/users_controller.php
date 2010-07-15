@@ -222,7 +222,7 @@ class UsersController extends AppController {
 			$data['categoryfeatures'] = $this->categoryfeatures($data['Site'], $cid);
 		}
 		
-		$data['other']['site'] = $this->Util->sitedetails();
+		//$data['other']['site'] = $this->Util->sitedetails();
 		//$data['other']['shipping'] = $this->getshippingservice($data['Site']);
 		
 		error_log(print_r($data,1));
@@ -276,6 +276,12 @@ class UsersController extends AppController {
 		
 	}
 	
+	// todo: check accountid
+	function getsellerlist($ebayuserid)
+	{
+		system(ROOT.'/shells/kickdaemon.sh getsellerlist '.$ebayuserid);
+		exit;
+	}
 	
 	function description($id)
 	{
