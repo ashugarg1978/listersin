@@ -22,10 +22,28 @@ class ApiController extends AppController {
 	
 	function test()
 	{
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284938747.GetSellerList.US.response.xml');
+		//$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284938747.GetSellerList.US.response.xml');
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284906866.GetSellerList.US.response.xml');
 		$xmlobj = simplexml_load_string($xml);
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		//$this->getsellerlist_import($xmlobj);exit;
+		
+		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
+			//if ($o->ItemID != '110049111272') continue;
+			
+			$p = $this->xml2array($o->ShippingDetails);
+			echo '<table><tr><td valign="top">';
+			echo '<pre>'.print_r($o->ShippingDetails, 1).'</pre>';
+			echo '</td><td valign="top">';
+			echo '<pre>'.print_r($p, 1).'</pre>';
+			echo '</td></tr></table>';
+		}
+		
+		exit;
+		
+		
 		
 		$o = $xmlobj->xpath('/ns:GetSellerListResponse'
 							. '/ns:ItemArray'
@@ -79,6 +97,27 @@ class ApiController extends AppController {
 				$res[$here] = htmlspecialchars($val);
 			}
 			return $res;
+		}
+	}
+	
+	function xml2array($xml)
+	{
+		if (count($xml->children())) {
+			foreach ($xml->children() as $child) {
+				$childname = $child->getName();
+				if (isset($array[$childname])) {
+					if (empty($dup[$childname])) {
+						$dup[$childname] = true;
+						$array[$childname] = array($array[$childname]);
+					}
+					$array[$childname][] = $this->xml2array($child);
+				} else {
+					$array[$childname] = $this->xml2array($child);
+				}
+			}
+			return $array;
+		} else {
+			return $xml.'';
 		}
 	}
 	
@@ -661,22 +700,24 @@ class ApiController extends AppController {
 					
 					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
 					
-				  if ($c == 'ShippingDetails') {
-					
-				  }
 					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
 						$v = implode("\n", $v);
 					} else if ($c == 'PaymentMethods' && is_array($v)) {
 						$v = implode("\n", $v);
 					} else if (is_array($v)) {
 						error_log('arr? '.$c);
+						continue;
 					}
 					
 					if (preg_match('/@/', $c)) $c = '`'.$c.'`';
 					$i[$c] = "'".mysql_real_escape_string($v)."'";
 				}
 			}
-			exit;
+			
+			$tmpo = $this->xml2array($o->ShippingDetails);
+			$i['ShippingDetails_ShippingServiceOptions'] =
+				"'".mysql_real_escape_string(serialize($tmpo['ShippingServiceOptions']))."'";
+			
 			//echo error_log(print_r($arr,1));
 			
 			/* SELECT */
