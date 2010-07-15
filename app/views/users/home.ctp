@@ -251,3 +251,8 @@ foreach ($accounts as $accountid => $row) {
 
 </div>
 </div>
+
+<? // todo: check script tag trends, no need <!-- --> ??? ?>
+<script>
+var hash = <?= json_encode($hash) ?>;
+</script>

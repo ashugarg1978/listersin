@@ -1,6 +1,5 @@
 /* store rows data */
 var rowsdata = new Array();
-var cache = new Array();
 
 /* initialize */
 $(document).bind({

@@ -37,6 +37,10 @@ class UsersController extends AppController {
 	{
 		if (isset($this->user['User']['userid'])) {
 			$this->set('site', $this->Util->sitedetails());
+			
+			$hash['shipping'] = $this->getshippingservice();
+			$this->set('hash', $hash);
+			
 			$this->render('home');
 		}
 	}
