@@ -44,9 +44,9 @@ class UsersController extends AppController {
 	function index()
 	{
 		if (isset($this->user['User']['userid'])) {
-			$this->set('site', $this->Util->sitedetails());
+			$this->set('site', $this->sitedetails());
 			
-			$hash['shipping'] = $this->getshippingservice();
+			$hash['shipping'] = $this->getshippingservice('US');
 			$this->set('hash', $hash);
 			
 			$this->render('home');
@@ -605,7 +605,6 @@ class UsersController extends AppController {
 			 . "[ns:ShippingServiceID<50000]"
 			 . "[ns:ValidForSellingFlow='true']");
 		
-		echo '<pre>'.print_r($xmlobjo,1).'</pre>';
 		$arr = null;
 		foreach ($xmlobjo as $o) {
 			$arr[] = $o->Description.'';
