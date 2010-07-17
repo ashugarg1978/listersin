@@ -1,9 +1,8 @@
 <?php
-App::import('Models', 'Db');
 
-class UtilComponent extends Object {
+class AppController extends Controller {
 	
-    var $uses = array('Users');
+	var $uses = array('User');
 	
 	function sitedetails()
 	{
@@ -40,5 +39,13 @@ class UtilComponent extends Object {
 		return $f;
 	}
 	
+	/**
+	 * shorthand function of mysql_real_escape_string()
+	 */
+	function mres($string)
+	{
+		return mysql_real_escape_string($string);
+	}
 }
+
 ?>

@@ -6,9 +6,9 @@
  */
 class ApiController extends AppController {
 	
-	var $uses = array('User');
-    //var $name = 'Users';    
-    var $components = array('Auth', 'Email', 'Util');
+	//var $uses = array('User');
+    var $name = 'Users';    
+    var $components = array('Auth', 'Email');
 	//var $user;
 	//var $accounts;
 	
@@ -160,7 +160,7 @@ class ApiController extends AppController {
 			exit;
 		}
 		
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		
 		// read item data from database
 		// todo: check user account id
@@ -285,7 +285,7 @@ class ApiController extends AppController {
 	
 	function relistitems($opid)
 	{
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		
 		// read item data from database
 		// todo: check user account id
@@ -342,7 +342,7 @@ class ApiController extends AppController {
 	
 	function additems($opid)
 	{
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		
 		/* read item data from database */
 		// todo: check user account id
@@ -539,7 +539,7 @@ class ApiController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		$h['DetailName'] = 'ShippingServiceDetails';
 		  
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 		  $xmlobj = $this->callapi('GeteBayDetails', $h, $sitename);
 		}
@@ -761,7 +761,7 @@ class ApiController extends AppController {
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			
 			if ($siteid != 77) continue;
@@ -815,7 +815,7 @@ class ApiController extends AppController {
 	
 	function getHttpRequest($call, $xmldata, $site='US')
 	{
-		$sites = $this->Util->sitedetails();
+		$sites = $this->sitedetails();
 		
 		/* headers */
 		$headers['X-EBAY-API-COMPATIBILITY-LEVEL'] = EBAY_COMPATLEVEL;
@@ -879,22 +879,5 @@ class ApiController extends AppController {
 		return $xmlobj;
 	}
 	
-	/**
-	 * get column name of items table.
-	 * todo: merge users/api controller
-	 */
-	function getitemcols()
-	{
-		$res = $this->User->query("DESC items;");
-		foreach ($res as $i => $row) {
-			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
-				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
-			} else {
-				$f[$row['COLUMNS']['Field']] = $row;
-			}
-		}
-		
-		return $f;
-	}
 }
 ?>

@@ -11,10 +11,16 @@
 class UsersController extends AppController {
 	
     var $name = 'Users';    
-    var $components = array('Auth', 'Email', 'Util');
+    var $components = array('Auth', 'Email');
 	
 	var $user;
 	var $accounts;
+	var $filter;
+	
+	function test()
+	{
+		$sql = "SELECT accountid, ";
+	}
 	
 	function beforeFilter() {
 		
@@ -31,6 +37,8 @@ class UsersController extends AppController {
 			Configure::write('Config.language', $this->user['User']['language']);
 		}
 		$this->set('accounts', $this->accounts);
+
+		//$this->filter[''];
     }	
 	
 	function index()
@@ -69,6 +77,7 @@ class UsersController extends AppController {
 	
 	/**
 	 * get summary data of items.
+	 * todo: deleted items and empty trash function
 	 */
 	function items()
 	{
@@ -84,13 +93,13 @@ class UsersController extends AppController {
 		}
 		
 		if (!empty($_POST["ItemID"]))
-			$sql_filter[] = "ItemID = '".mysql_real_escape_string($_POST["ItemID"])."'";
+			$sql_filter[] = "ItemID = '".$this->mres($_POST["ItemID"])."'";
 		
 		if (!empty($_POST["accountid"]))
-			$sql_filter[] = "accountid = '".mysql_real_escape_string($_POST["accountid"])."'";
+			$sql_filter[] = "accountid = '".$this->mres($_POST["accountid"])."'";
 		
 		if (!empty($_POST["Title"]))
-			$sql_filter[] = "Title LIKE '%".mysql_real_escape_string($_POST["Title"])."%'";
+			$sql_filter[] = "Title LIKE '%".$this->mres($_POST["Title"])."%'";
 		
 		//$sql_selling['scheduled'] = "ListingDetails_StartTime > NOW()";
 		$sql_selling['scheduled'] = "schedule > NOW()";
@@ -133,7 +142,7 @@ class UsersController extends AppController {
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
 		if (isset($_POST['sort'])) {
-			$sort[] = mysql_real_escape_string($_POST['sort']);
+			$sort[] = $this->mres($_POST['sort']);
 		}
 		$sort[] = "id DESC";
 		$sql .= " ORDER BY ".implode(',', $sort);
@@ -226,7 +235,7 @@ class UsersController extends AppController {
 			$data['categoryfeatures'] = $this->categoryfeatures($data['Site'], $cid);
 		}
 		
-		//$data['other']['site'] = $this->Util->sitedetails();
+		//$data['other']['site'] = $this->sitedetails();
 		//$data['other']['shipping'] = $this->getshippingservice($data['Site']);
 		
 		error_log(print_r($data,1));
@@ -264,7 +273,7 @@ class UsersController extends AppController {
 				$arrurl[$num-1] = 'http://localhost/itemimg/'.$savename;
 				$sql = "UPDATE items"
 					. " SET PictureDetails_PictureURL"
-					. " = '".mysql_real_escape_string(implode("\n", $arrurl))."'"
+					. " = '".$this->mres(implode("\n", $arrurl))."'"
 					. " WHERE id = ".$id;
 				$res = $this->User->query($sql);
 				
@@ -352,9 +361,9 @@ class UsersController extends AppController {
 				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
 				. " VALUES ("
 				. " ".$user['User']['userid'].","
-				. " '".mysql_real_escape_string($_GET["username"])."',"
-				. " '".mysql_real_escape_string($_GET["ebaytkn"])."',"
-				. " '".mysql_real_escape_string($_GET["tknexp"])."',"
+				. " '".$this->mres($_GET["username"])."',"
+				. " '".$this->mres($_GET["ebaytkn"])."',"
+				. " '".$this->mres($_GET["tknexp"])."',"
 				. " NOW())";
 			$res = $this->User->query($sql_insert);
 		}
@@ -409,9 +418,9 @@ class UsersController extends AppController {
 		$sqlcol = null;
 		foreach ($_POST as $k => $v) {
 			if (is_array($v)) {
-				$sqlcol[] = $k." = '".mysql_real_escape_string(implode("\n", $v))."'";
+				$sqlcol[] = $k." = '".$this->mres(implode("\n", $v))."'";
 			} else {
-				$sqlcol[] = $k." = '".mysql_real_escape_string($v)."'";
+				$sqlcol[] = $k." = '".$this->mres($v)."'";
 			}
 		}
 		
@@ -434,7 +443,7 @@ class UsersController extends AppController {
 		
 		$arr = null;
 		foreach ($_POST as $k => $v) {
-			$arr[] = $k." = '".mysql_real_escape_string($v)."'";
+			$arr[] = $k." = '".$this->mres($v)."'";
 		}
 		if (is_array($arr)) {
 			$sql_update = "UPDATE items"
@@ -705,25 +714,6 @@ class UsersController extends AppController {
 		//error_log(print_r($data,1));
 		
 		return $data;
-	}
-	
-	
-	/**
-	 * get column name of items table.
-	 * todo: merge users/api controller
-	 */
-	function getitemcols()
-	{
-		$res = $this->User->query("DESC items;");
-		foreach ($res as $i => $row) {
-			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
-				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
-			} else {
-				$f[$row['COLUMNS']['Field']] = $row;
-			}
-		}
-		
-		return $f;
 	}
 	
 	
