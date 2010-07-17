@@ -12,6 +12,7 @@ $(document).bind({
 		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
 		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
+		dump(hash);
 		
 		setInterval(refresh, 2000);
 	}
@@ -357,13 +358,14 @@ function bindevents()
 					   detail = getdetail(data);
 					   $('tr.row2 td', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
+					   
+					   $.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
 				   },
 				   'json');
 		} else {
 			$('div.detail', '#'+id).slideToggle('fast');
 		}
 		
-		//$.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
 		
 		return false;
 	});

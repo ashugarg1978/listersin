@@ -46,6 +46,7 @@ class UsersController extends AppController {
 		if (isset($this->user['User']['userid'])) {
 			$this->set('site', $this->sitedetails());
 			
+			$hash['site'] = $this->sitedetails();
 			$hash['shipping'] = $this->getshippingservice('US');
 			$this->set('hash', $hash);
 			
@@ -555,11 +556,11 @@ class UsersController extends AppController {
 	 */
 	function category()
 	{
-	  $site = $_POST['site'];
-	  $categoryid = null;
-	  if (isset($_POST['categoryid'])) {
-		$categoryid = $_POST['categoryid'];
-	  }
+		$site = $_POST['site'];
+		$categoryid = null;
+		if (isset($_POST['categoryid'])) {
+			$categoryid = $_POST['categoryid'];
+		}
 		
 		$data = array();
 		
