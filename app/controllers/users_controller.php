@@ -10,8 +10,8 @@
  */
 class UsersController extends AppController {
 	
-    var $name = 'Users';    
-    var $components = array('Auth', 'Email');
+	var $name = 'Users';    
+	var $components = array('Auth', 'Email');
 	
 	var $user;
 	var $accounts;
@@ -47,6 +47,10 @@ class UsersController extends AppController {
 			
 			$hash['site'] = $this->sitedetails();
 			$hash['shipping'] = $this->getshippingservice('US');
+
+			foreach ($hash['site'] as $sitename => $siteid) {
+			  
+			}
 			$hash['category'] = array(0 => 'dummy');
 			
 			$this->set('hash', $hash);
@@ -555,13 +559,10 @@ class UsersController extends AppController {
 	/**
 	 * 
 	 */
-	function category()
+	function category($site='US', $categoryid=null)
 	{
-		$site = $_POST['site'];
-		$categoryid = null;
-		if (isset($_POST['categoryid'])) {
-			$categoryid = $_POST['categoryid'];
-		}
+		if (isset($_POST['site'])      ) $site       = $_POST['site'];
+		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
 		
 		$data = array();
 		
@@ -678,29 +679,29 @@ class UsersController extends AppController {
 		  $path = $this->categorypath($site, $categoryid);
 		}
 		if (is_array($path['level'])) {
-		  foreach ($path['level'] as $level => $cid) {
-			
-			$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
-			
-			$ld = $xmlobj->xpath($cns."/ns:ListingDuration");
-			if ($ld) {
-				foreach ($ld as $i => $o) {
-					$attr = $o->attributes();
-					$type = $attr['type'].'';
-					$typedefault[$type] = $o.'';
+			foreach ($path['level'] as $level => $cid) {
+				
+				$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
+				
+				$ld = $xmlobj->xpath($cns."/ns:ListingDuration");
+				if ($ld) {
+					foreach ($ld as $i => $o) {
+						$attr = $o->attributes();
+						$type = $attr['type'].'';
+						$typedefault[$type] = $o.'';
+					}
+				}
+				
+				$pm = $xmlobj->xpath($cns."/ns:PaymentMethod");
+				if ($pm) {
+					$tmppm = null;
+					foreach ($pm as $i => $o) {
+						if ($o.'' == 'CustomCode') continue;
+						$tmppm[] = $o.'';
+					}
+					$arrpm = $tmppm;
 				}
 			}
-			
-			$pm = $xmlobj->xpath($cns."/ns:PaymentMethod");
-			if ($pm) {
-				$tmppm = null;
-				foreach ($pm as $i => $o) {
-					if ($o.'' == 'CustomCode') continue;
-					$tmppm[] = $o.'';
-				}
-				$arrpm = $tmppm;
-			}
-		  }
 		}
 		
 		/* result  */
