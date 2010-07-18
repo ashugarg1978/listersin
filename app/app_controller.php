@@ -4,6 +4,10 @@ class AppController extends Controller {
 	
 	var $uses = array('User');
 	
+	
+	/**
+	 * return array of Site => ID
+	 */
 	function sitedetails()
 	{
 		/* load xml */
@@ -15,6 +19,7 @@ class AppController extends Controller {
 		foreach ($xmlobj->SiteDetails as $o) {
 			$site = $o->Site.'';
 			$siteid = $o->SiteID.'';
+			
 			$data[$site] = $siteid;
 		}
 		

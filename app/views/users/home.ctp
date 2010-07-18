@@ -174,7 +174,7 @@ foreach ($accounts as $accountid => $row) {
 	  <td><?= __('Site') ?></td>
 	  <td>
 		<select name="Site"><?
-		foreach ($site as $sitestr => $siteid) {
+		foreach ($hash['site'] as $sitestr => $siteid) {
 			echo '<option value="'.$sitestr.'">'.$sitestr.'</option>';
 	 	}
 	 	?></select>

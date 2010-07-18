@@ -44,10 +44,11 @@ class UsersController extends AppController {
 	function index()
 	{
 		if (isset($this->user['User']['userid'])) {
-			$this->set('site', $this->sitedetails());
 			
 			$hash['site'] = $this->sitedetails();
 			$hash['shipping'] = $this->getshippingservice('US');
+			$hash['category'] = array(0 => 'dummy');
+			
 			$this->set('hash', $hash);
 			
 			$this->render('home');

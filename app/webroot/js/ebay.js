@@ -281,24 +281,23 @@ function bindevents()
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
+		if (hash['category'][id]) {
+			alert('already loaded');
+		}
+		
+		categoryid = $(this).val();
 		curelm = this;
 		$.post('/users/category/',
-			   'site='+$('select[name=Site]', '#'+id).val()+'&categoryid='+$(this).val(),
+			   'site='+$('select[name=Site]', '#'+id).val()+'&categoryid='+categoryid,
 			   function(data) {
 				   
-				   $(curelm).nextAll('select').remove();
 				   if ($.isEmptyObject(data['categories'])) {
 					   // do nothing
 				   } else {
-					   sel = $('<select class="category"/>');
-					   opt = $('<option/>').val('').text('');
-					   sel.append(opt);
-					   $.each(data['categories'], function(id, row) {
-						   str = row['CategoryName']+'('+row['CategoryID']+')';
-						   if (row['LeafCategory'] == 0) str += ' &gt;';
-						   opt = $('<option/>').val(row['CategoryID']).html(str);
-						   sel.append(opt);
-					   });
+					   
+					   dump(data);
+					   hash['category'][categoryid] = data['categories'];
+					   sel = getcategorypulldown(categoryid);
 					   $(curelm).after(sel);
 				   }
 				   $('select.category', $(curelm).parent()).attr('name', '');
@@ -520,6 +519,22 @@ function bindevents()
         jQuery(this).hide();
     });
 }	
+
+function getcategorypulldown(categoryid)
+{
+	sel = $('<select class="category"/>');
+	opt = $('<option/>').val('').text('');
+	sel.append(opt);
+	$.each(hash['category'][categoryid], function(id, row) {
+		str = row['CategoryName'];
+		if (row['LeafCategory'] == 0) str += ' &gt;';
+		opt = $('<option/>').val(row['CategoryID']).html(str);
+		sel.append(opt);
+	});
+	
+	return sel;
+}
+
 
 function copyitems()
 {
