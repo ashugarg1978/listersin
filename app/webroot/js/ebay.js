@@ -9,11 +9,9 @@ $(document).bind({
 		$('ul#selling > li > a.active').click();
 		
 		/* auto click for debug */
-		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
-		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
-		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
-		
-		dump(hash);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
 	}
@@ -459,6 +457,8 @@ function bindevents()
 		
 	    $('input[name=Title]', 'tbody#'+id).focus();
 	    
+		$('td.shippingservice', '#'+id).append(getshippingservice(id));
+		
 		return false;
 	});
 	
@@ -511,6 +511,13 @@ function bindevents()
 		return false;
 	});
 	
+	$('select[name=ShippingType]').live('change', function() {
+		id = $(this).closest('tbody.itemrow').attr('id');
+		sel = getshippingservice(id);
+		$('td.shippingservice', '#'+id).html(sel);
+		
+		return;
+	});
 	
     jQuery('div#loading').ajaxStart(function() {
         jQuery(this).show();
@@ -697,7 +704,36 @@ function updateduration(id)
 	return;
 }
 
-function read(key)
+function getshippingservice(id)
 {
+	site = $('select[name=Site]', '#'+id).val();
+	type = $('select[name=ShippingType]', '#'+id).val();
 	
+	if (type == 'Calculated') {
+		sel = $('<select class="ShippingPackage"/>');
+		$.each(hash['ShippingPackageDetails'][site], function(i, o) {
+			opt = $('<option/>').val(o['ShippingPackage']).html(o['Description']);
+			sel.append(opt);
+		});
+		$('td.shippingpackage', '#'+id).html(sel);
+	} else {
+		$('td.shippingpackage', '#'+id).html('-');
+	}
+	
+	
+	sel = $('<select class="ShippingService"/>');
+	$.each(hash['ShippingServiceDetails'][site], function(i, o) {
+		if (o['ValidForSellingFlow'] != 'true') return;
+		if (o['ShippingServiceID'] >= 50000) return;
+		
+		if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
+			opt = $('<option/>').val(o['ShippingService']).html(o['Description']);
+			
+			sel.append(opt);
+		}
+	});
+	$('select[name=ShippingService]', '#'+id).html(sel.html());
+	//$('td.shippingservice', '#'+id).html(sel);
+	
+	return;
 }

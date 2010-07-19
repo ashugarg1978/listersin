@@ -20,11 +20,6 @@ class UsersController extends AppController {
 	var $accounts;
 	var $filter;
 	
-	function test()
-	{
-		$sql = "SELECT accountid, ";
-	}
-	
 	function beforeFilter() {
 		
 		error_log($this->action.' POST:'.print_r($_POST,1));
@@ -50,8 +45,16 @@ class UsersController extends AppController {
 			
 			$hash['site'] = $this->sitedetails();
 			foreach ($hash['site'] as $sitename => $siteid) {
-				$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
+				if ($sitename != 'US') continue;
+				//$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
 				//$category[$sitename] = $this->childcategories($sitename);
+				
+				/* ShippingServiceDetails */
+				$hash['ShippingServiceDetails'][$sitename] =
+					$this->getShippingServiceDetails($sitename);
+				
+				$hash['ShippingPackageDetails'][$sitename] =
+					$this->getShippingPackageDetails($sitename);
 			}
 			
 			/*
@@ -577,7 +580,7 @@ class UsersController extends AppController {
 		if ($data !== false) return $data;
 		
 		
-		$xmlobj = $this->readbz2xml(ROOT.'/data/apixml/CategoryFeatures.'.$site.'.xml.bz2');
+		$xmlobj = $this->readbz2xml(ROOT.'/data/apixml/CategoryFeatures/'.$site.'.xml.bz2');
 		
 		/* DuationSet */
 		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
@@ -683,6 +686,30 @@ class UsersController extends AppController {
 	}
 	
 	
+	function getShippingServiceDetails($sitename)
+	{
+		$xml = $this->readbz2xml(ROOT.'/data/apixml/ShippingServiceDetails/'.$sitename.'.xml.bz2');
+		
+		// todo: include only ValidForSellingFlow is true.
+		// xml2array can't handle top level array.
+		/*
+		$xmlo = $xml->xpath("/ns:GeteBayDetailsResponse"
+							. "/ns:ShippingServiceDetails"
+							. "[ns:ValidForSellingFlow='true']");
+		echo '<pre>'.print_r($xmlo,1).'</pre>'; exit;
+		*/
+		
+		$arr = $this->xml2array($xml);
+		return $arr['ShippingServiceDetails'];
+	}
+	
+	function getShippingPackageDetails($sitename)
+	{
+		$xml = $this->readbz2xml(ROOT.'/data/apixml/ShippingPackageDetails/'.$sitename.'.xml.bz2');
+		$arr = $this->xml2array($xml);
+		return $arr['ShippingPackageDetails'];
+	}
+
 	function getshippingservice($sitename)
 	{
 		/* load xml */
@@ -692,8 +719,8 @@ class UsersController extends AppController {
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
 		$xmlobjo = $xmlobj->xpath
-			('/ns:GeteBayDetailsResponse'
-			 . '/ns:ShippingServiceDetails'
+			("/ns:GeteBayDetailsResponse"
+			 . "/ns:ShippingServiceDetails"
 			 . "[ns:ServiceType='Calculated']"
 			 . "[ns:ShippingServiceID<50000]"
 			 . "[ns:ValidForSellingFlow='true']");
@@ -713,17 +740,14 @@ class UsersController extends AppController {
 	 */
 	function categoryfeatures($site, $categoryid=null)
 	{
-		/* load xml */
-		$xml = file_get_contents(ROOT.'/data/apixml/CategoryFeatures.xml');
-		$xmlobj = simplexml_load_string($xml);
-		$ns = $xmlobj->getDocNamespaces();
-		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		$xml = $this->readbz2xml(ROOT.'/data/apixml/CategoryFeatures/'.$site.'.xml.bz2');
+		$ns = $xml->getDocNamespaces();
 		
 		/* DuationSet */
-		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
-									. '/ns:FeatureDefinitions'
-									. '/ns:ListingDurations'
-									. '/ns:ListingDuration');
+		$xmlobj_ld = $xml->xpath('/ns:GetCategoryFeaturesResponse'
+								 . '/ns:FeatureDefinitions'
+								 . '/ns:ListingDurations'
+								 . '/ns:ListingDuration');
 		foreach ($xmlobj_ld as $i => $o) {
 			
 			$o->registerXPathNamespace('ns', $ns['']);
@@ -750,14 +774,14 @@ class UsersController extends AppController {
 		/* SiteDefaults */
 		$sdns = '/ns:GetCategoryFeaturesResponse/ns:SiteDefaults';
 		
-		$xmlobj_sd = $xmlobj->xpath($sdns.'/ns:ListingDuration');
+		$xmlobj_sd = $xml->xpath($sdns.'/ns:ListingDuration');
 		foreach ($xmlobj_sd as $i => $o) {
 			$attr = $o->attributes();
 			$type = $attr['type'].'';
 			$typedefault[$type] = $o.'';
 		}
 		
-		$xmlobj_pm = $xmlobj->xpath($sdns.'/ns:PaymentMethod');
+		$xmlobj_pm = $xml->xpath($sdns.'/ns:PaymentMethod');
 		foreach ($xmlobj_pm as $i => $o) {
 			if ($o.'' == 'CustomCode') continue;
 			$arrpm[] = $o.'';
@@ -773,7 +797,7 @@ class UsersController extends AppController {
 				
 				$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
 				
-				$ld = $xmlobj->xpath($cns."/ns:ListingDuration");
+				$ld = $xml->xpath($cns."/ns:ListingDuration");
 				if ($ld) {
 					foreach ($ld as $i => $o) {
 						$attr = $o->attributes();
@@ -782,7 +806,7 @@ class UsersController extends AppController {
 					}
 				}
 				
-				$pm = $xmlobj->xpath($cns."/ns:PaymentMethod");
+				$pm = $xml->xpath($cns."/ns:PaymentMethod");
 				if ($pm) {
 					$tmppm = null;
 					foreach ($pm as $i => $o) {
@@ -834,5 +858,11 @@ class UsersController extends AppController {
         return $str;
     }
 	
+	function apixml($dir, $site)
+	{
+		$xml = $this->readbz2xml(ROOT.'/data/apixml/'.$dir.'/'.$site.'.xml.bz2');
+		echo '<pre>'.print_r($xml,1).'</pre>';
+		exit;
+	}
 }
 ?>

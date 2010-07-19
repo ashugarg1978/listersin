@@ -43,10 +43,11 @@ foreach ($accounts as $accountid => $row) {
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
 
 <iframe name="posttarget" width="130" height="100" src="/blank.html"></iframe>
-<div id="debug" style="background-color:#ffffcc; margin-right:10px; margin-top:10px; border:1px solid #9999aa;">
-</div>
+
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
+<br><br><br>
+
 
 </div>
 
@@ -145,15 +146,16 @@ foreach ($accounts as $accountid => $row) {
 <li><a href="#"><?= __('Detail') ?></a></li>
 <li><a href="#"><?= __('Description') ?></a></li>
 <li><a href="#"><?= __('Pictures') ?></a></li>
+<li><a href="#"><?= __('Shipping') ?></a></li>
 </ul>
 
 <ul class="editbuttons">
-<li><a href="" class="edit">Edit</a></li>
-<li><a href="" class="edit">Copy</a></li>
-<li><a href="" class="edit">Delete</a></li>
-<li><a href="" class="edit">(Re)List</a></li>
-<li><a href="" class="edit">Revise</a></li>
-<li><a href="" class="edit">End</a></li>
+<li><a href="" class="edit"  >Edit</a></li>
+<li><a href="" class="copy"  >Copy</a></li>
+<li><a href="" class="delete">Delete</a></li>
+<li><a href="" class="relist">(Re)List</a></li>
+<li><a href="" class="revise">Revise</a></li>
+<li><a href="" class="end"   >End</a></li>
 <li style="display:none;"><a href="" class="save">Save</a></li>
 <li style="display:none;"><a href="" class="cancel">Cancel</a></li>
 </ul>
@@ -211,19 +213,6 @@ foreach ($accounts as $accountid => $row) {
 	  <td class="paymentmethod"></td>
 	</tr>
 	<tr>
-	  <td><?= __('Shipping Service') ?></td>
-	  <td class="shippingservice">
-		
-		<select name="">
-		  <option value="Flat">Flat: same cost to all buyers</option>
-		  <option value="Calculated">Calculated: Cost varies by buyer location</option>
-		  <option value="Freight">Freight: large items over 150 lbs.</option>
-		  <option value="NoShipping">No shipping: Local pickup only</option>
-		</select>
-
-	  </td>
-	</tr>
-	<tr>
 	  <td><?= __('schedule') ?></td>
 	  <td><input name="schedule" type="" size="15"></td>
 	</tr>
@@ -256,6 +245,41 @@ foreach ($accounts as $accountid => $row) {
 	
   </div>
 </div>
+<div class="tab">
+  <div class="shipping">
+	<table class="detail">
+	  <tbody>
+		<tr>
+		  <td><?= __('Shipping Type') ?></td>
+		  <td class="shippingtype">
+	  		
+			<select name="ShippingType">
+			  <option value="Flat">Flat: same cost to all buyers</option>
+			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+			  <option value="Freight">Freight: large items over 150 lbs.</option>
+			  <option value="NoShipping">No shipping: Local pickup only</option>
+			</select>
+			
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Package Type') ?></td>
+		  <td class="shippingpackage">
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Services') ?></td>
+		  <td class="shippingservice">
+			<select name="ShippingService"></select>
+			<b><?= __('Cost') ?></b>
+			<input name="" type="text" size="5">
+			<input name="" type="checkbox">Free shipping
+		  </td>
+		</tr>
+	  </tbody>
+	</table>
+  </div>
+</div>
 </div>
 
 </div>
@@ -265,3 +289,5 @@ foreach ($accounts as $accountid => $row) {
 <script>
 var hash = <?= json_encode($hash) ?>;
 </script>
+
+<div id="debug"></div>

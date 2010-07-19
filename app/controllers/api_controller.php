@@ -538,15 +538,16 @@ class ApiController extends AppController {
 			
 			/* ShippingServiceDetails */
 			if (true) {
+				//$tmp = 'ShippingServiceDetails';
+				$tmp = 'ShippingPackageDetails';
 				$h = null;
 				$h['RequesterCredentials']['eBayAuthToken'] = $token;
-				$h['DetailName'] = 'ShippingServiceDetails';
+				$h['DetailName'] = $tmp;
 				$r = $this->getHttpRequest('GeteBayDetails', $h, $sitename);
 				$r->send();
 				$xml = $r->getResponseBody();
 				
-				file_put_contents
-					(ROOT.'/data/apixml/ShippingServiceDetails.'.$sitename.'.xml', $xml);
+				file_put_contents(ROOT.'/data/apixml/'.$tmp.'/'.$sitename.'.xml', $xml);
 			}
 			
 			/* GetCategoryFeatures */

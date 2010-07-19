@@ -336,3 +336,10 @@ span.error {
 span.active {
 	color: green;
 }
+
+div#debug {
+	background-color: #ffffcc;
+	padding: 5px;
+	border: 2px solid #cccc99;
+    border-radius:5px;
+}
