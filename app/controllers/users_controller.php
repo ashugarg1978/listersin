@@ -49,13 +49,13 @@ class UsersController extends AppController {
 		if (isset($this->user['User']['userid'])) {
 			
 			$hash['site'] = $this->sitedetails();
-			$hash['shipping'] = $this->getshippingservice('US');
-
-			/*
 			foreach ($hash['site'] as $sitename => $siteid) {
-				$category[$sitename] = $this->childcategories($sitename);
+				$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
+				//$category[$sitename] = $this->childcategories($sitename);
 			}
-			$hash['category'] = $category;
+			
+			/*
+			  $hash['category'] = $category;
 			*/
 			
 			$this->set('hash', $hash);

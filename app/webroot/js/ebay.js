@@ -12,6 +12,7 @@ $(document).bind({
 		//setTimeout("$('a.Title:lt(10):last').click()", 1000);
 		//setTimeout("$('input:button.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Pictures)').click()", 3000);
+		
 		dump(hash);
 		
 		setInterval(refresh, 2000);
@@ -156,7 +157,6 @@ function getdetail(row)
 	
 	// shippingservice
 	if (row['ShippingDetails_ShippingServiceOptions']) {
-		alert('ba');
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
 			ssstr += o['ShippingService'] + '<br>';
@@ -358,7 +358,7 @@ function bindevents()
 					   $('tr.row2 td', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
 					   
-					   $.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
+					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
 		} else {
@@ -454,6 +454,7 @@ function bindevents()
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 		
+		// todo: compare with CKEditor
 		$('textarea[name=description]', '#'+id).wysiwyg();
 		
 	    $('input[name=Title]', 'tbody#'+id).focus();

@@ -25,8 +25,6 @@ create index ind_pid on categories_switzerland     (CategoryParentID);
 create index ind_pid on categories_uk              (CategoryParentID);
 create index ind_pid on categories_us              (CategoryParentID);
 
-\q
-
 alter table items add ShippingDetails_ShippingServiceOptions text;
 
 \q

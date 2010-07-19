@@ -32,7 +32,7 @@ class AppController extends Controller {
 	 */
 	function getitemcols()
 	{
-		$res = $this->Db->query("DESC items;");
+		$res = $this->User->query("DESC items;");
 		foreach ($res as $i => $row) {
 			if (preg_match('/@/', $row['COLUMNS']['Field'])) {
 				$f['`'.$row['COLUMNS']['Field'].'`'] = $row;
@@ -50,6 +50,28 @@ class AppController extends Controller {
 	function mres($string)
 	{
 		return mysql_real_escape_string($string);
+	}
+	
+	
+	function xml2array($xml)
+	{
+		if (count($xml->children())) {
+			foreach ($xml->children() as $child) {
+				$childname = $child->getName();
+				if (isset($array[$childname])) {
+					if (empty($dup[$childname])) {
+						$dup[$childname] = true;
+						$array[$childname] = array($array[$childname]);
+					}
+					$array[$childname][] = $this->xml2array($child);
+				} else {
+					$array[$childname] = $this->xml2array($child);
+				}
+			}
+			return $array;
+		} else {
+			return $xml.'';
+		}
 	}
 	
 	

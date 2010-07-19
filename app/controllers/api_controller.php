@@ -93,27 +93,6 @@ class ApiController extends AppController {
 		}
 	}
 	
-	function xml2array($xml)
-	{
-		if (count($xml->children())) {
-			foreach ($xml->children() as $child) {
-				$childname = $child->getName();
-				if (isset($array[$childname])) {
-					if (empty($dup[$childname])) {
-						$dup[$childname] = true;
-						$array[$childname] = array($array[$childname]);
-					}
-					$array[$childname][] = $this->xml2array($child);
-				} else {
-					$array[$childname] = $this->xml2array($child);
-				}
-			}
-			return $array;
-		} else {
-			return $xml.'';
-		}
-	}
-	
 	function xml2arr($xml, &$arr, $path)
 	{
 		foreach ($xml->children() as $child) {
@@ -557,20 +536,31 @@ class ApiController extends AppController {
 		foreach ($sites as $sitename => $siteid) {
 			echo $sitename."\n";
 			
+			/* ShippingServiceDetails */
+			if (true) {
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] = $token;
+				$h['DetailName'] = 'ShippingServiceDetails';
+				$r = $this->getHttpRequest('GeteBayDetails', $h, $sitename);
+				$r->send();
+				$xml = $r->getResponseBody();
+				
+				file_put_contents
+					(ROOT.'/data/apixml/ShippingServiceDetails.'.$sitename.'.xml', $xml);
+			}
+			
 			/* GetCategoryFeatures */
-			$h = null;
-			$h['RequesterCredentials']['eBayAuthToken'] = $token;
-			$h['DetailLevel'] = 'ReturnAll';
-			$h['ViewAllNodes'] = 'true';
+			if (false) {
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] = $token;
+				$h['DetailLevel'] = 'ReturnAll';
+				$h['ViewAllNodes'] = 'true';
+				$r = $this->getHttpRequest('GetCategoryFeatures', $h, $sitename);
+				$r->send();
+				$xml = $r->getResponseBody();
+				file_put_contents(ROOT.'/data/apixml/CategoryFeatures.'.$sitename.'.xml', $xml);
+			}
 			
-			$r = null;
-			$r = $this->getHttpRequest('GetCategoryFeatures', $h, $sitename);
-			$r->send();
-			
-			$xml = Null;
-			$xml = $r->getResponseBody();
-			
-			file_put_contents(ROOT.'/data/apixml/CategoryFeatures.'.$sitename.'.xml', $xml);
 		}
 		
 		return;

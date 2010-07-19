@@ -148,7 +148,7 @@ foreach ($accounts as $accountid => $row) {
 </ul>
 
 <ul class="editbuttons">
-<li><a href="" class="edit">Edit this item</a></li>
+<li><a href="" class="edit">Edit</a></li>
 <li><a href="" class="edit">Copy</a></li>
 <li><a href="" class="edit">Delete</a></li>
 <li><a href="" class="edit">(Re)List</a></li>
@@ -212,7 +212,16 @@ foreach ($accounts as $accountid => $row) {
 	</tr>
 	<tr>
 	  <td><?= __('Shipping Service') ?></td>
-	  <td class="shippingservice"></td>
+	  <td class="shippingservice">
+		
+		<select name="">
+		  <option value="Flat">Flat: same cost to all buyers</option>
+		  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+		  <option value="Freight">Freight: large items over 150 lbs.</option>
+		  <option value="NoShipping">No shipping: Local pickup only</option>
+		</select>
+
+	  </td>
 	</tr>
 	<tr>
 	  <td><?= __('schedule') ?></td>
