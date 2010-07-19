@@ -265,15 +265,49 @@ foreach ($accounts as $accountid => $row) {
 		<tr>
 		  <td><?= __('Package Type') ?></td>
 		  <td class="shippingpackage">
+			<div class="ShippingPackage">
+			  <select name="ShippingPackage"></select><br>
+			  <input name="" type="checkbox">Irregular package
+			</div>
+			<div class="Dimensions">
+			  <b><?= __('Dimensions') ?></b>
+			  <input name="" type="text" size="3">in. x
+			  <input name="" type="text" size="3">in. x
+			  <input name="" type="text" size="3">in.<br>
+			</div>
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Weight') ?></td>
+		  <td class="weight">
+			
 		  </td>
 		</tr>
 		<tr>
 		  <td><?= __('Services') ?></td>
 		  <td class="shippingservice">
-			<select name="ShippingService"></select>
+			
+			<div class="ShippingService">
+			<select name="ShippingService[1]" class="ShippingService"></select>
 			<b><?= __('Cost') ?></b>
-			<input name="" type="text" size="5">
-			<input name="" type="checkbox">Free shipping
+			<input name="ShippingCost[1]" type="text" size="5">
+			<input name="ShippingFree" value="1" type="checkbox">Free shipping
+			</div>
+			
+			<div class="ShippingService">
+			<select name="ShippingService[2]" class="ShippingService"></select>
+			<b><?= __('Cost') ?></b>
+			<input name="ShippingCost[2]" type="text" size="5">
+			<a href="" class="ShippingService2">Remove service</a>
+			</div>
+			
+			<div class="ShippingService">
+			<select name="ShippingService[2]" class="ShippingService"></select>
+			<b><?= __('Cost') ?></b>
+			<input name="ShippingCost[2]" type="text" size="5">
+			<a href="" class="ShippingService3">Remove service</a>
+			</div>
+			
 		  </td>
 		</tr>
 	  </tbody>

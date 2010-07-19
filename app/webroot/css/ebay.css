@@ -343,3 +343,11 @@ div#debug {
 	border: 2px solid #cccc99;
     border-radius:5px;
 }
+
+div.ShippingPackage {
+	float: left;
+}
+
+div.Dimensions {
+	float: left;
+}

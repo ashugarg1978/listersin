@@ -11,7 +11,7 @@ $(document).bind({
 		/* auto click for debug */
 		setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
-		setTimeout("$('li > a:contains(Shipping)').click()", 3000);
+		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
 	}
@@ -715,9 +715,9 @@ function getshippingservice(id)
 			opt = $('<option/>').val(o['ShippingPackage']).html(o['Description']);
 			sel.append(opt);
 		});
-		$('td.shippingpackage', '#'+id).html(sel);
+		$('select[name=ShippingPackage]', '#'+id).html(sel.html());
 	} else {
-		$('td.shippingpackage', '#'+id).html('-');
+		//$('td.shippingpackage', '#'+id).html('-');
 	}
 	
 	
@@ -732,7 +732,7 @@ function getshippingservice(id)
 			sel.append(opt);
 		}
 	});
-	$('select[name=ShippingService]', '#'+id).html(sel.html());
+	$('select.ShippingService', '#'+id).html(sel.html());
 	//$('td.shippingservice', '#'+id).html(sel);
 	
 	return;
