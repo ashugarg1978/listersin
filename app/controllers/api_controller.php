@@ -547,6 +547,35 @@ class ApiController extends AppController {
 		return;
 	}
 	
+	function updatexml()
+	{
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
+		$res = $this->User->query($sql);
+		$token = $res[0]['accounts']['ebaytoken'];
+		
+		$sites = $this->sitedetails();
+		foreach ($sites as $sitename => $siteid) {
+			echo $sitename."\n";
+			
+			/* GetCategoryFeatures */
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $token;
+			$h['DetailLevel'] = 'ReturnAll';
+			$h['ViewAllNodes'] = 'true';
+			
+			$r = null;
+			$r = $this->getHttpRequest('GetCategoryFeatures', $h, $sitename);
+			$r->send();
+			
+			$xml = Null;
+			$xml = $r->getResponseBody();
+			
+			file_put_contents(ROOT.'/data/apixml/CategoryFeatures.'.$sitename.'.xml', $xml);
+		}
+		
+		return;
+	}
+	
 	function getcategoryfeatures($site, $categoryid=null)
 	{
 		if (true) {
@@ -841,7 +870,7 @@ class ApiController extends AppController {
 		$r = new HttpRequest();
 		$r->setHeaders($headers);
 		$r->setMethod(HttpRequest::METH_POST);
-		$r->setOptions(array('timeout' => '60'));
+		$r->setOptions(array('timeout' => '120'));
 		$r->setUrl(EBAY_SERVERURL);
 		$r->setRawPostData($xml_request);
 		

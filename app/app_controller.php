@@ -51,6 +51,31 @@ class AppController extends Controller {
 	{
 		return mysql_real_escape_string($string);
 	}
+	
+	
+	function readbz2xml($file)
+	{
+		$xml = $this->bzread($file);
+		$xmlobj = simplexml_load_string($xml);
+		$ns = $xmlobj->getDocNamespaces();
+		$xmlobj->registerXPathNamespace('ns', $ns['']);
+		
+		return $xmlobj;
+	}
+	
+	
+	function bzread($file)
+	{
+		$bz = bzopen($file, "r") or die("Couldn't open $file");
+		
+		$decompressed_file = '';
+		while (!feof($bz)) {
+			$decompressed_file .= bzread($bz, 4096);
+		}
+		bzclose($bz);
+		
+		return $decompressed_file;		
+	}
 }
 
 ?>

@@ -6,12 +6,15 @@
  * - unify json response to one code.
  * - i18n.
  * - scheduled additems by crontab.
+ * - compress response body
  *
  */
 class UsersController extends AppController {
 	
 	var $name = 'Users';    
 	var $components = array('Auth', 'Email');
+	//var $helpers = array('Cache');
+	//var $cacheAction = null;
 	
 	var $user;
 	var $accounts;
@@ -48,10 +51,12 @@ class UsersController extends AppController {
 			$hash['site'] = $this->sitedetails();
 			$hash['shipping'] = $this->getshippingservice('US');
 
+			/*
 			foreach ($hash['site'] as $sitename => $siteid) {
-			  
+				$category[$sitename] = $this->childcategories($sitename);
 			}
-			$hash['category'] = array(0 => 'dummy');
+			$hash['category'] = $category;
+			*/
 			
 			$this->set('hash', $hash);
 			
@@ -557,6 +562,91 @@ class UsersController extends AppController {
 	
 	
 	/**
+	 * get child and grandchild categories
+	 */
+	function childcategories($site='US', $categoryid=null)
+	{
+		//$this->cacheAction = '1 hour';
+		
+		if (isset($_POST['site'])      ) $site       = $_POST['site'];
+		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
+
+		/* read chache */
+		$cachename = 'child_'.$site.'_'.$categoryid;
+		$data = Cache::read($cachename);
+		if ($data !== false) return $data;
+		
+		
+		$xmlobj = $this->readbz2xml(ROOT.'/data/apixml/CategoryFeatures.'.$site.'.xml.bz2');
+		
+		/* DuationSet */
+		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
+									. '/ns:FeatureDefinitions'
+									. '/ns:ListingDurations'
+									. '/ns:ListingDuration');
+		foreach ($xmlobj_ld as $i => $o) {
+			$attr = $o->attributes();
+			$setid = $attr['durationSetID'].'';
+			$dur = $o->children();
+			
+			$a = null;
+			foreach ($dur as $j => $v) {
+				$v = $v.''; // todo: cast string
+				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
+					$a[$v] = $matches[1].' Days';
+				} else if ($v == 'GTC') {
+					$a[$v] = "Good 'Til Cancelled";
+				}
+			}
+			$durationset[$setid] = $a;
+		}
+		//echo '<pre>'.print_r($durationset,1).'</pre>';exit;
+		
+		
+		$data = array();
+		$table = "categories_".strtolower($site);
+		$filter = null;
+		if (empty($categoryid)) {
+			$filter[] = "CategoryLevel = 1";
+		} else {
+			$filter[] = "CategoryParentID = ".$categoryid;
+			$filter[] = "CategoryID != ".$categoryid;
+		}
+		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
+			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
+		$res = $this->User->query($sql);
+		if (count($res) > 0) {
+			foreach ($res as $i => $row) {
+				$childid = $row[$table]['CategoryID'];
+				
+				/* grandchildren */
+				$grandchildren = null;
+				$sqlgc = "SELECT CategoryID, CategoryName, LeafCategory"
+					. " FROM ".$table
+					. " WHERE CategoryParentID = ".$childid
+					. " AND CategoryID != ".$childid;
+				$resgc = $this->User->query($sqlgc);
+				if (count($resgc) > 0) {
+					foreach ($resgc as $j => $rowgc) {
+						$grandchildren[] = $rowgc[$table];
+					}
+					
+					$row[$table]['children'] = $grandchildren;
+				}
+				
+				$children[] = $row[$table];
+			}
+			
+			$data['categories'] = $children;
+		}
+		
+		//echo '<pre>'.print_r($data,1).'</pre>'; exit;
+		//echo json_encode($data);exit;
+		Cache::write($cachename, $data);
+		return $data;
+	}
+	
+	/**
 	 * 
 	 */
 	function category($site='US', $categoryid=null)
@@ -629,7 +719,7 @@ class UsersController extends AppController {
 		$ns = $xmlobj->getDocNamespaces();
 		$xmlobj->registerXPathNamespace('ns', $ns['']);
 		
-		/* DurationSet */
+		/* DuationSet */
 		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
 									. '/ns:FeatureDefinitions'
 									. '/ns:ListingDurations'

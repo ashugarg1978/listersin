@@ -4,8 +4,11 @@ action=$1
 opid=$2
 
 ROOT=/var/www/dev.xboo.st
-PATH=$PATH:/usr/local/php/bin 
 
-$ROOT/cake/console/cake -app $ROOT/app daemon $action $opid \
-	>> $ROOT/app/tmp/apilogs/daemon.log
+# if mysql error occures, check duplicate php installation.
+# below PATH order is important (/usr/local/php/bin/php is first)
+PATH=/usr/local/php/bin:$PATH
+
+$ROOT/cake/console/cake -app $ROOT/app daemon $action $opid
+#	>> $ROOT/app/tmp/apilogs/daemon.log
 

@@ -358,7 +358,7 @@ function bindevents()
 					   $('tr.row2 td', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
 					   
-					   $.scrollTo('tbody#'+id, {duration:200, axis:'y', offset:0});
+					   $.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
 		} else {

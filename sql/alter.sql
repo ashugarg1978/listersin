@@ -2,6 +2,31 @@
 colname | copy | add | revise | serialize | relist
 */		
 
+create index ind_pid on categories_australia       (CategoryParentID);
+create index ind_pid on categories_austria         (CategoryParentID);
+create index ind_pid on categories_belgium_dutch   (CategoryParentID);
+create index ind_pid on categories_belgium_french  (CategoryParentID);
+create index ind_pid on categories_canada          (CategoryParentID);
+create index ind_pid on categories_canadafrench    (CategoryParentID);
+create index ind_pid on categories_ebaymotors      (CategoryParentID);
+create index ind_pid on categories_france          (CategoryParentID);
+create index ind_pid on categories_germany         (CategoryParentID);
+create index ind_pid on categories_hongkong        (CategoryParentID);
+create index ind_pid on categories_india           (CategoryParentID);
+create index ind_pid on categories_ireland         (CategoryParentID);
+create index ind_pid on categories_italy           (CategoryParentID);
+create index ind_pid on categories_malaysia        (CategoryParentID);
+create index ind_pid on categories_netherlands     (CategoryParentID);
+create index ind_pid on categories_philippines     (CategoryParentID);
+create index ind_pid on categories_poland          (CategoryParentID);
+create index ind_pid on categories_singapore       (CategoryParentID);
+create index ind_pid on categories_spain           (CategoryParentID);
+create index ind_pid on categories_switzerland     (CategoryParentID);
+create index ind_pid on categories_uk              (CategoryParentID);
+create index ind_pid on categories_us              (CategoryParentID);
+
+\q
+
 alter table items add ShippingDetails_ShippingServiceOptions text;
 
 \q
