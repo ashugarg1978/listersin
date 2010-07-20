@@ -18,11 +18,14 @@ class ApiController extends AppController {
 	function beforeFilter()
 	{
 		error_log('api:'.$this->action);
+		parent::beforeFilter();
 	}
 	
 	function test()
 	{
-		$xml = file_get_contents(ROOT.'/data/apixml/eBayDetails.US.xml');
+		exit;
+		
+		$xml = file_get_contents(ROOT.'/data/apixml/eBayDetails/US.xml.bz2');
 		$xmlobj = simplexml_load_string($xml);
 		$p = $this->xml2array($xmlobj);
 		

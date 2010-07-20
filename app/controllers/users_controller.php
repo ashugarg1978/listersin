@@ -23,6 +23,7 @@ class UsersController extends AppController {
 	function beforeFilter() {
 		
 		error_log($this->action.' POST:'.print_r($_POST,1));
+		parent::beforeFilter();
 		
         $this->Auth->allow('index', 'register');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
@@ -102,9 +103,8 @@ class UsersController extends AppController {
 		$sql_filter[] = "userid = ".$userid;
 		
 		// todo: avoid sql injection
-		if (!empty($_POST["id"])) {
+		if (!empty($_POST["id"]))
 			$sql_filter[] = "id IN (".implode(",", $_POST['id']).")";
-		}
 		
 		if (!empty($_POST["ItemID"]))
 			$sql_filter[] = "ItemID = '".$this->mres($_POST["ItemID"])."'";
@@ -115,22 +115,8 @@ class UsersController extends AppController {
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".$this->mres($_POST["Title"])."%'";
 		
-		//$sql_selling['scheduled'] = "ListingDetails_StartTime > NOW()";
-		$sql_selling['scheduled'] = "schedule > NOW()";
-		
-		$sql_selling['active'] = "ItemID IS NOT NULL AND ListingDetails_EndTime > Now()";
-		
-		$sql_selling['sold'] = "ItemID IS NOT NULL AND SellingStatus_QuantitySold > 0";
-		
-		$sql_selling['unsold'] = "ItemID IS NOT NULL"
-			. " AND ListingDetails_EndTime < Now()"
-			. " AND SellingStatus_QuantitySold = 0";
-		
-		$sql_selling['saved'] = "ItemID IS NULL";
-		
-		if (!empty($_POST['selling']) && $_POST['selling'] != 'all') {
-			$sql_filter[] = $sql_selling[$_POST['selling']];
-		}
+		if (!empty($_POST['selling']) && isset($this->filter[$_POST['selling']]))
+			$sql_filter[] = $this->filter[$_POST['selling']];
 		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];

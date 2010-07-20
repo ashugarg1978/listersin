@@ -107,24 +107,21 @@ class AppController extends Controller {
 	{
 		$filter['all'] = "deleted = 0";
 		
-		$filter['scheduled'] = "ItemID IS NULL"
-			. " AND schedule > NOW()";
+		// todo: mix local and ebay scheduling items
+		$filter['scheduled'] = "deleted = 0 AND ItemID IS NULL AND schedule > NOW()";
 		
-		$filter['active'] = "ItemID IS NOT NULL"
-			. " AND ListingDetails_EndTime > NOW()";
+		$filter['active'] = "deleted = 0 AND ItemID IS NOT NULL AND ListingDetails_EndTime > NOW()";
 		
-		$filter['sold'] = "ItemID IS NOT NULL"
-			. " AND SellingStatus_QuantitySold > 0";
+		$filter['sold'] = "deleted = 0 AND ItemID IS NOT NULL AND SellingStatus_QuantitySold > 0";
 		
-		$filter['unsold'] = "ItemID IS NOT NULL"
+		$filter['unsold'] = "deleted = 0 AND ItemID IS NOT NULL"
 			. " AND ListingDetails_EndTime < Now()"
 			. " AND SellingStatus_QuantitySold = 0";
 		
-		$filter['saved'] = "ItemID IS NULL";
+		$filter['saved'] = "deleted = 0 AND ItemID IS NULL";
 		
 		$filter['deleted'] = "deleted = 1";
 		
-		print_r($filter);exit;
 		return $filter;
 	}
 }

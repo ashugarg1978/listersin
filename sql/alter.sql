@@ -1,3 +1,7 @@
+alter table items add deleted tinyint default 0;
+
+\q
+
 /*
 colname | copy | add | revise | serialize | relist
 */		
