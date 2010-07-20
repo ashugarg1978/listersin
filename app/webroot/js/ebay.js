@@ -251,79 +251,32 @@ function bindevents()
     
 	$('select[name=Site]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
-		
 		site = $(this).val();
 		
-		$('select.category:gt(2)', 'tbody#'+id).remove();
-		sel = $('<select class="category"/>');
-		opt = $('<option/>').val('').text('');
-		sel.append(opt);
-		$.each(hash['category'][site]['categories'], function(id, row) {
-			str = row['CategoryName'];
-			if (row['LeafCategory'] == 0) str += ' &gt;';
-			opt = $('<option/>').val(row['CategoryID']).html(str);
-			sel.append(opt);
-		});
-		
+		sel = getcategorypulldown(site, 0);
+		$('select:gt(1)', 'tbody#'+id).remove();
 		$('select.category', '#'+id).html(sel.html());
 		
-		return;
-		
-		$.post('/users/category/',
-			   'site='+$('select[name=Site]', '#'+id).val(),
-			   function(data) {
-				   
-				   $('select.category', 'tbody#'+id).remove();
-				   sel = $('<select class="category"/>');
-				   opt = $('<option/>').val('').text('');
-				   sel.append(opt);
-				   $.each(data['categories'], function(id, row) {
-					   str = row['CategoryName']+'('+row['CategoryID']+')';
-					   if (row['LeafCategory'] == 0) str += ' &gt;';
-					   opt = $('<option/>').val(row['CategoryID']).html(str);
-					   sel.append(opt);
-				   });
-				   $('td.category', 'tbody#'+id).append(sel);
-				   
-			   },
-			   'json');
+		preloadcategory(site, 0);
 		
 		return;
 	});
-							  
-	// todo: simalteniously modification causes broken
+	
 	$('select.category').live('change', function() {
-		
 		id = $(this).closest('tbody.itemrow').attr('id');
-		
-		if (hash['category'][id]) {
-			alert('already loaded');
-		}
-		
+		site = $('select[name=Site]', '#'+id).val();
 		categoryid = $(this).val();
-		curelm = this;
-		$.post('/users/category/',
-			   'site='+$('select[name=Site]', '#'+id).val()+'&categoryid='+categoryid,
-			   function(data) {
-				   
-				   if ($.isEmptyObject(data['categories'])) {
-					   // do nothing
-				   } else {
-					   
-					   dump(data);
-					   hash['category'][categoryid] = data['categories'];
-					   sel = getcategorypulldown(categoryid);
-					   $(curelm).after(sel);
-				   }
-				   $('select.category', $(curelm).parent()).attr('name', '');
-				   $('select.category:last', $(curelm).parent()).attr('name', 'PrimaryCategory_CategoryID');
-			       
-				   // duration
-				   //rowsdata[id]['duration'] = data['duration'];
-				   //updateduration(id);
-			   },
-			   'json');
 		
+		sel = getcategorypulldown(site, categoryid);
+		$(this).nextAll().remove();
+		$('td.category', '#'+id).append(sel);
+		
+		$('select.category',      '#'+id).attr('name', '');
+		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
+		
+		preloadcategory(site, categoryid);
+		
+		return;
 	});
 	
 	$('select[name=ListingType]').live('change', function() {
@@ -536,21 +489,16 @@ function bindevents()
 		return;
 	});
 	
-    jQuery('div#loading').ajaxStart(function() {
-        jQuery(this).show();
-		
-    });
-    jQuery('div#loading').ajaxStop(function() {
-        jQuery(this).hide();
-    });
+    //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
+    //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
 
-function getcategorypulldown(categoryid)
+function getcategorypulldown(site, categoryid)
 {
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
 	sel.append(opt);
-	$.each(hash['category'][categoryid], function(id, row) {
+	$.each(hash['category'][site][categoryid], function(id, row) {
 		str = row['CategoryName'];
 		if (row['LeafCategory'] == 0) str += ' &gt;';
 		opt = $('<option/>').val(row['CategoryID']).html(str);
@@ -560,6 +508,19 @@ function getcategorypulldown(categoryid)
 	return sel;
 }
 
+function preloadcategory(site, categoryid)
+{
+	$.post('/users/grandchildren/',
+		   'site='+site+'&categoryid='+categoryid,
+		   function(data) {
+			   $.each(data['categories'], function(i, arr) {
+				   hash['category'][site][arr['CategoryID']] = arr['children'];
+			   });
+		   },
+		   'json');
+	
+	return;
+}
 
 function copyitems()
 {

@@ -36,8 +36,8 @@ class UsersController extends AppController {
 			Configure::write('Config.language', $this->user['User']['language']);
 		}
 		$this->set('accounts', $this->accounts);
-
-		//$this->filter[''];
+		
+		return;
     }	
 	
 	function index()
@@ -47,10 +47,10 @@ class UsersController extends AppController {
 			$hash['site'] = $this->sitedetails();
 			foreach ($hash['site'] as $sitename => $siteid) {
 				
+				$category[$sitename][0] = $this->category($sitename);
+				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
-				//$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
-				$category[$sitename] = $this->category($sitename);
 				
 				/* ShippingServiceDetails */
 				$hash['ShippingServiceDetails'][$sitename] =
@@ -59,11 +59,9 @@ class UsersController extends AppController {
 				$hash['ShippingPackageDetails'][$sitename] =
 					$this->getShippingPackageDetails($sitename);
 			}
-			
 			$hash['category'] = $category;
 			
 			$this->set('hash', $hash);
-			
 			$this->render('home');
 		}
 	}
@@ -550,6 +548,53 @@ class UsersController extends AppController {
 	}
 	
 	
+	function grandchildren($site='US', $categoryid=null)
+	{
+		if (isset($_POST['site'])      ) $site       = $_POST['site'];
+		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
+		
+		$data = array();
+		$table = "categories_".strtolower($site);
+		$filter = null;
+		if (empty($categoryid)) {
+			$filter[] = "CategoryLevel = 1";
+		} else {
+			$filter[] = "CategoryParentID = ".$categoryid;
+			$filter[] = "CategoryID != ".$categoryid;
+		}
+		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
+			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
+		$res = $this->User->query($sql);
+		if (count($res) > 0) {
+			foreach ($res as $i => $row) {
+				$childid = $row[$table]['CategoryID'];
+				
+				/* grandchildren */
+				$grandchildren = null;
+				$sqlgc = "SELECT CategoryID, CategoryName, LeafCategory"
+					. " FROM ".$table
+					. " WHERE CategoryParentID = ".$childid
+					. " AND CategoryID != ".$childid;
+				$resgc = $this->User->query($sqlgc);
+				if (count($resgc) > 0) {
+					foreach ($resgc as $j => $rowgc) {
+						$grandchildren[] = $rowgc[$table];
+					}
+					
+					$row[$table]['children'] = $grandchildren;
+				}
+				
+				$children[] = $row[$table];
+			}
+			
+			$data['categories'] = $children;
+		}
+		
+		echo json_encode($data);
+		
+		exit;
+	}
+	
 	/**
 	 * get child and grandchild categories
 	 */
@@ -643,11 +688,11 @@ class UsersController extends AppController {
 		if (isset($_POST['site'])      ) $site       = $_POST['site'];
 		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
 		
-		$data = array();
+		$rows = array();
 		
-		/* child categories */
 		$table = "categories_".strtolower($site);
-		$sql = "SELECT * FROM ".$table;
+		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
+			. " FROM ".$table;
 		if (empty($categoryid)) {
 		  $sql .= " WHERE CategoryLevel = 1";
 		} else {
@@ -659,18 +704,9 @@ class UsersController extends AppController {
 			foreach ($res as $i => $row) {
 				$rows[] = $row[$table];
 			}
-			$data['categories'] = $rows;
 		}
 		
-		$data['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
-		
-		return $data;
-		
-		/* response */
-		//error_log(print_r($data,1));
-		error_log(json_encode($data));
-		echo json_encode($data);
-		exit;
+		return $rows;
 	}
 	
 	
