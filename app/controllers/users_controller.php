@@ -50,7 +50,7 @@ class UsersController extends AppController {
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
 				//$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
-				//$category[$sitename] = $this->childcategories($sitename);
+				$category[$sitename] = $this->category($sitename);
 				
 				/* ShippingServiceDetails */
 				$hash['ShippingServiceDetails'][$sitename] =
@@ -60,9 +60,7 @@ class UsersController extends AppController {
 					$this->getShippingPackageDetails($sitename);
 			}
 			
-			/*
-			  $hash['category'] = $category;
-			*/
+			$hash['category'] = $category;
 			
 			$this->set('hash', $hash);
 			
@@ -665,6 +663,8 @@ class UsersController extends AppController {
 		}
 		
 		$data['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
+		
+		return $data;
 		
 		/* response */
 		//error_log(print_r($data,1));

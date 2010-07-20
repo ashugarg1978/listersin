@@ -252,6 +252,23 @@ function bindevents()
 	$('select[name=Site]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		
+		site = $(this).val();
+		
+		$('select.category:gt(2)', 'tbody#'+id).remove();
+		sel = $('<select class="category"/>');
+		opt = $('<option/>').val('').text('');
+		sel.append(opt);
+		$.each(hash['category'][site]['categories'], function(id, row) {
+			str = row['CategoryName'];
+			if (row['LeafCategory'] == 0) str += ' &gt;';
+			opt = $('<option/>').val(row['CategoryID']).html(str);
+			sel.append(opt);
+		});
+		
+		$('select.category', '#'+id).html(sel.html());
+		
+		return;
+		
 		$.post('/users/category/',
 			   'site='+$('select[name=Site]', '#'+id).val(),
 			   function(data) {
@@ -716,8 +733,11 @@ function getshippingservice(id)
 			sel.append(opt);
 		});
 		$('select[name=ShippingPackage]', '#'+id).html(sel.html());
+		$('div.ShippingPackage', '#'+id).show();
+		$('div.Dimensions',      '#'+id).show();
 	} else {
-		//$('td.shippingpackage', '#'+id).html('-');
+		$('div.ShippingPackage', '#'+id).hide();
+		$('div.Dimensions',      '#'+id).hide();
 	}
 	
 	

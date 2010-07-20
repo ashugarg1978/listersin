@@ -105,7 +105,7 @@ class AppController extends Controller {
 	
 	function getsqlfilter()
 	{
-		$filter['all'] = "deleted = 0";
+		$filter['allitems'] = "deleted = 0";
 		
 		// todo: mix local and ebay scheduling items
 		$filter['scheduled'] = "deleted = 0 AND ItemID IS NULL AND schedule > NOW()";
@@ -120,7 +120,7 @@ class AppController extends Controller {
 		
 		$filter['saved'] = "deleted = 0 AND ItemID IS NULL";
 		
-		$filter['deleted'] = "deleted = 1";
+		$filter['trash'] = "deleted = 1";
 		
 		return $filter;
 	}

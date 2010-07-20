@@ -183,7 +183,9 @@
 	</tr>
 	<tr>
 	  <td><?= __('Category') ?></td>
-	  <td class="category"></td>
+	  <td class="category">
+		<select class="category"></select>
+	  </td>
 	</tr>
 	<tr>
 	  <td><?= __('Start Price') ?></td>
@@ -265,14 +267,14 @@
 		  <td><?= __('Package Type') ?></td>
 		  <td class="shippingpackage">
 			<div class="ShippingPackage">
-			  <select name="ShippingPackage"></select><br>
+			  <select name="ShippingPackage"></select>
 			  <input name="" type="checkbox">Irregular package
 			</div>
 			<div class="Dimensions">
 			  <b><?= __('Dimensions') ?></b>
 			  <input name="" type="text" size="3">in. x
 			  <input name="" type="text" size="3">in. x
-			  <input name="" type="text" size="3">in.<br>
+			  <input name="" type="text" size="3">in.
 			</div>
 		  </td>
 		</tr>
