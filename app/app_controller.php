@@ -3,7 +3,11 @@
 class AppController extends Controller {
 	
 	var $uses = array('User');
+	var $filter;
 	
+	function beforeFilter() {
+		$this->filter = $this->getsqlfilter();
+	}
 	
 	/**
 	 * return array of Site => ID
@@ -97,6 +101,31 @@ class AppController extends Controller {
 		bzclose($bz);
 		
 		return $decompressed_file;		
+	}
+	
+	function getsqlfilter()
+	{
+		$filter['all'] = "deleted = 0";
+		
+		$filter['scheduled'] = "ItemID IS NULL"
+			. " AND schedule > NOW()";
+		
+		$filter['active'] = "ItemID IS NOT NULL"
+			. " AND ListingDetails_EndTime > NOW()";
+		
+		$filter['sold'] = "ItemID IS NOT NULL"
+			. " AND SellingStatus_QuantitySold > 0";
+		
+		$filter['unsold'] = "ItemID IS NOT NULL"
+			. " AND ListingDetails_EndTime < Now()"
+			. " AND SellingStatus_QuantitySold = 0";
+		
+		$filter['saved'] = "ItemID IS NULL";
+		
+		$filter['deleted'] = "deleted = 1";
+		
+		print_r($filter);exit;
+		return $filter;
 	}
 }
 
