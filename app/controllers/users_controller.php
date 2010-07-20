@@ -47,7 +47,7 @@ class UsersController extends AppController {
 			$hash['site'] = $this->sitedetails();
 			foreach ($hash['site'] as $sitename => $siteid) {
 				
-				$category[$sitename][0] = $this->category($sitename);
+				$category[$sitename][0] = $this->children($sitename, 0);
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
@@ -218,29 +218,32 @@ class UsersController extends AppController {
 		// todo: check userid and accountid
 		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
 		$res = $this->User->query($sql);
-		$data = $res[0]['items'];
+		$row = $res[0]['items'];
 		
-		$data['PictureDetails_PictureURL'] = explode("\n", $data['PictureDetails_PictureURL']);
-		if (isset($data['ShippingDetails_ShippingServiceOptions'])) {
-			$data['ShippingDetails_ShippingServiceOptions']
-				= unserialize($data['ShippingDetails_ShippingServiceOptions']);
+		$site = $row['Site'];
+		
+		$row['PictureDetails_PictureURL'] = explode("\n", $row['PictureDetails_PictureURL']);
+		if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
+			$row['ShippingDetails_ShippingServiceOptions']
+				= unserialize($row['ShippingDetails_ShippingServiceOptions']);
 		}
 		
 		// todo: avoid infinite loop
-		$cid = $data['PrimaryCategory_CategoryID'];
-		if ($cid > 0) {
-			$data['categorypath']     = $this->categorypath($data['Site'], $cid);
-			$data['categoryfeatures'] = $this->categoryfeatures($data['Site'], $cid);
+		$categoryid = $row['PrimaryCategory_CategoryID'];
+		if ($categoryid > 0) {
+			$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
+			$row['categorypath'] = $this->categorypath($site, $categoryid);
+			foreach ($row['categorypath'] as $level => $cid) {
+				$row['category'][$site][$cid] = $this->children($site, $cid);
+			}
 		}
 		
-		//$data['other']['site'] = $this->sitedetails();
-		//$data['other']['shipping'] = $this->getshippingservice($data['Site']);
+		//$row['other']['site'] = $this->sitedetails();
+		//$row['other']['shipping'] = $this->getshippingservice($row['Site']);
 		
-		error_log(print_r($data,1));
-		//error_log(json_encode($data));
-		
-		echo json_encode($data);
-		
+		error_log(print_r($row,1));
+		//error_log(json_encode($row));
+		echo json_encode($row);
 		exit;
 	}
 	
@@ -503,202 +506,73 @@ class UsersController extends AppController {
 	
 	/**
 	 * get hierarchical path data of specific category and its parents.
+	 * not return category itself.
 	 */
 	function categorypath($site, $categoryid)
 	{
 		$table = "categories_".strtolower($site);
-		$data = null;
+		$path = null;
 		
+		$parentid = $categoryid;
 		while (true) {
 			
 			/* myself */
 			$res = $this->User->query
-				("SELECT * FROM ".$table." WHERE CategoryID = ".$categoryid);
+				("SELECT CategoryID, CategoryLevel, CategoryParentID"
+				 . " FROM ".$table
+				 . " WHERE CategoryID = ".$parentid);
 			if (empty($res[0][$table])) break;
 			$row = $res[0][$table];
-			$data['level'][$row['CategoryLevel']] = $row['CategoryID'];
-			$parentid = $row['CategoryParentID'];
-			
-			/* siblings */
-			$sibs = null;
-			if ($row['CategoryLevel'] == 1) {
-				$sql2 = "SELECT * FROM ".$table
-					. " WHERE CategoryLevel = ".$row['CategoryLevel'];
-			} else {
-				$sql2 = "SELECT * FROM ".$table
-					. " WHERE CategoryParentID = ".$row['CategoryParentID']
-					. " AND CategoryLevel = ".$row['CategoryLevel'];
+			if ($parentid != $categoryid) {
+				$path[$row['CategoryLevel']] = $row['CategoryID'];
 			}
-			$res2 = $this->User->query($sql2);
-			foreach ($res2 as $i => $row2) {
-				// todo: show > for indicate whether have children.
-				$sibs[] = $row2[$table];
-			}
-			$data['nodes'][$row['CategoryLevel']] = $sibs;
 			
 			/* next loop for upper depth */
 			if ($row['CategoryLevel'] == 1) break;
-			$categoryid = $row['CategoryParentID'];
+			$parentid = $row['CategoryParentID'];
 		}
-		if (is_array($data['level'])) {
-			ksort($data['level']);
+		if (is_array($path)) {
+			ksort($path);
 		}
 		
-		return $data;
+		return $path;
 	}
-	
 	
 	function grandchildren($site='US', $categoryid=null)
 	{
 		if (isset($_POST['site'])      ) $site       = $_POST['site'];
 		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
 		
-		$data = array();
-		$table = "categories_".strtolower($site);
-		$filter = null;
-		if (empty($categoryid)) {
-			$filter[] = "CategoryLevel = 1";
+		$children = $this->children($site, $categoryid);
+		foreach ($children as $i => $child) {
+			$children[$i]['children'] = $this->children($site, $child['CategoryID']);
+		}
+		
+		error_log(print_r($children,1));
+		if (isset($_POST)) {
+			echo json_encode($children);
+			exit;
 		} else {
-			$filter[] = "CategoryParentID = ".$categoryid;
-			$filter[] = "CategoryID != ".$categoryid;
-		}
-		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
-			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
-		$res = $this->User->query($sql);
-		if (count($res) > 0) {
-			foreach ($res as $i => $row) {
-				$childid = $row[$table]['CategoryID'];
-				
-				/* grandchildren */
-				$grandchildren = null;
-				$sqlgc = "SELECT CategoryID, CategoryName, LeafCategory"
-					. " FROM ".$table
-					. " WHERE CategoryParentID = ".$childid
-					. " AND CategoryID != ".$childid;
-				$resgc = $this->User->query($sqlgc);
-				if (count($resgc) > 0) {
-					foreach ($resgc as $j => $rowgc) {
-						$grandchildren[] = $rowgc[$table];
-					}
-					
-					$row[$table]['children'] = $grandchildren;
-				}
-				
-				$children[] = $row[$table];
-			}
-			
-			$data['categories'] = $children;
-		}
-		
-		echo json_encode($data);
-		
-		exit;
+			return $children;
+		}		
 	}
 	
-	/**
-	 * get child and grandchild categories
-	 */
-	function childcategories($site='US', $categoryid=null)
-	{
-		//$this->cacheAction = '1 hour';
-		
-		if (isset($_POST['site'])      ) $site       = $_POST['site'];
-		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
-
-		/* read chache */
-		$cachename = 'child_'.$site.'_'.$categoryid;
-		$data = Cache::read($cachename);
-		if ($data !== false) return $data;
-		
-		
-		$xmlobj = $this->readbz2xml(ROOT.'/data/apixml/CategoryFeatures/'.$site.'.xml.bz2');
-		
-		/* DuationSet */
-		$xmlobj_ld = $xmlobj->xpath('/ns:GetCategoryFeaturesResponse'
-									. '/ns:FeatureDefinitions'
-									. '/ns:ListingDurations'
-									. '/ns:ListingDuration');
-		foreach ($xmlobj_ld as $i => $o) {
-			$attr = $o->attributes();
-			$setid = $attr['durationSetID'].'';
-			$dur = $o->children();
-			
-			$a = null;
-			foreach ($dur as $j => $v) {
-				$v = $v.''; // todo: cast string
-				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
-					$a[$v] = $matches[1].' Days';
-				} else if ($v == 'GTC') {
-					$a[$v] = "Good 'Til Cancelled";
-				}
-			}
-			$durationset[$setid] = $a;
-		}
-		//echo '<pre>'.print_r($durationset,1).'</pre>';exit;
-		
-		
-		$data = array();
-		$table = "categories_".strtolower($site);
-		$filter = null;
-		if (empty($categoryid)) {
-			$filter[] = "CategoryLevel = 1";
-		} else {
-			$filter[] = "CategoryParentID = ".$categoryid;
-			$filter[] = "CategoryID != ".$categoryid;
-		}
-		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
-			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
-		$res = $this->User->query($sql);
-		if (count($res) > 0) {
-			foreach ($res as $i => $row) {
-				$childid = $row[$table]['CategoryID'];
-				
-				/* grandchildren */
-				$grandchildren = null;
-				$sqlgc = "SELECT CategoryID, CategoryName, LeafCategory"
-					. " FROM ".$table
-					. " WHERE CategoryParentID = ".$childid
-					. " AND CategoryID != ".$childid;
-				$resgc = $this->User->query($sqlgc);
-				if (count($resgc) > 0) {
-					foreach ($resgc as $j => $rowgc) {
-						$grandchildren[] = $rowgc[$table];
-					}
-					
-					$row[$table]['children'] = $grandchildren;
-				}
-				
-				$children[] = $row[$table];
-			}
-			
-			$data['categories'] = $children;
-		}
-		
-		//echo '<pre>'.print_r($data,1).'</pre>'; exit;
-		//echo json_encode($data);exit;
-		Cache::write($cachename, $data);
-		return $data;
-	}
-	
-	/**
-	 * 
-	 */
-	function category($site='US', $categoryid=null)
+	function children($site='US', $categoryid=null)
 	{
 		if (isset($_POST['site'])      ) $site       = $_POST['site'];
 		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
 		
 		$rows = array();
-		
 		$table = "categories_".strtolower($site);
-		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
-			. " FROM ".$table;
+		$filter = null;
 		if (empty($categoryid)) {
-		  $sql .= " WHERE CategoryLevel = 1";
+			$filter[] = "CategoryLevel = 1";
 		} else {
-		  $sql .= " WHERE CategoryParentID = ".$categoryid
-			. " AND CategoryID != ".$categoryid;
+			$filter[] = "CategoryParentID = ".$categoryid;
+			$filter[] = "CategoryID != ".$categoryid;
 		}
+		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
+			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {

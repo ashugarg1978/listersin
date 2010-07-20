@@ -130,7 +130,7 @@ function getdetail(row)
 	var catstr = '';
 	pathdata = row['categorypath'];
 	if (pathdata) {
-		$.each(pathdata['level'], function(idx, val) {
+		$.each(pathdata, function(idx, val) {
 			$.each(pathdata['nodes'][idx], function(catid, catrow) {
 				if (catrow['CategoryID'] == val) {
 					if (idx > 1) catstr += ' &gt; ';
@@ -513,7 +513,7 @@ function preloadcategory(site, categoryid)
 	$.post('/users/grandchildren/',
 		   'site='+site+'&categoryid='+categoryid,
 		   function(data) {
-			   $.each(data['categories'], function(i, arr) {
+			   $.each(data, function(i, arr) {
 				   hash['category'][site][arr['CategoryID']] = arr['children'];
 			   });
 		   },
