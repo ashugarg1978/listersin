@@ -46,6 +46,8 @@ class UsersController extends AppController {
 			
 			$hash['site'] = $this->sitedetails();
 			foreach ($hash['site'] as $sitename => $siteid) {
+				
+				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
 				//$hash['shipping'][$sitename] = $this->getshippingservice($sitename);
 				//$category[$sitename] = $this->childcategories($sitename);
@@ -848,6 +850,27 @@ class UsersController extends AppController {
 	{
 		$xml = $this->readbz2xml(ROOT.'/data/apixml/'.$dir.'/'.$site.'.xml.bz2');
 		echo '<pre>'.print_r($xml,1).'</pre>';
+		exit;
+	}
+
+	function getsummary()
+	{
+		$sql = "SELECT accountid,";
+		foreach ($this->filter as $name => $filter) {
+			$sql .= " (".$filter.") AS ".$name.",";
+		}
+		$sql .= " COUNT(*) AS cnt"
+			. " FROM items"
+			. " GROUP BY accountid, ".implode(", ", array_keys($this->filter));
+		echo $sql;
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $row) {
+			$accountid = $row['items']['accountid'];
+			
+		}
+		
+		echo '<pre>'.print_r($res,1).'</pre>';
+		
 		exit;
 	}
 }

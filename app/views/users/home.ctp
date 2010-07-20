@@ -17,27 +17,25 @@
 <li><a href="" class="sold"     ><?= __('Sold')        ?></a></li>
 <li><a href="" class="unsold"   ><?= __('Unsold')      ?></a></li>
 <li><a href="" class="saved"    ><?= __('Saved')       ?></a></li>
+<li><a href="" class="deleted"  ><?= __('Trash')       ?></a></li>
 </ul>
 
 <ul class="accounts">
-<?
-foreach ($accounts as $accountid => $row) {
-	echo '<li>';
-	echo '<a href="#" class="accountaction">'.$row['ebayuserid'].'</a>';
-	?>
-	<ul class="accountaction">
+<? foreach ($accounts as $accountid => $row) { ?>
+<li>
+<a href="#" class="accountaction"><?= $row['ebayuserid'] ?></a>
+<ul class="accountaction">
 	<li><a href=""><?= __('All Selling') ?></a></li>
-	<li><a href=""><?= __('Scheduled') ?></a></li>
-	<li><a href=""><?= __('Active') ?></a></li>
-	<li><a href=""><?= __('Sold') ?></a></li>
-	<li><a href=""><?= __('Unsold') ?></a></li>
-	<li><a href=""><?= __('Saved') ?></a></li>
-	<li><a href="/users/getsellerlist/<?= $row['ebayuserid'] ?>" target="import">import from ebay</a></li>
-	</ul>
-	<?
-	echo '</li>';
-}
-?>
+	<li><a href=""><?= __('Scheduled')   ?></a></li>
+	<li><a href=""><?= __('Active')      ?></a></li>
+	<li><a href=""><?= __('Sold')        ?></a></li>
+	<li><a href=""><?= __('Unsold')      ?></a></li>
+	<li><a href=""><?= __('Saved')       ?></a></li>
+	<li><a href=""><?= __('Trash')       ?></a></li>
+	<li><a href="/users/getsellerlist/<?= $row['ebayuserid'] ?>" target="import">import</a></li>
+</ul>
+</li>
+<? } ?>
 </ul>
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
@@ -61,7 +59,8 @@ foreach ($accounts as $accountid => $row) {
 <input  type="button" class="relist" value="<?= __('(Re)List') ?>"
 ><input type="button" class="revise" value="<?= __('Revise') ?>"
 ><input type="button" class="end"    value="<?= __('End') ?>">&nbsp;
-<input  type="button" class="copy"   value="<?= __('Copy') ?>"
+<input  type="button" class="edit"   value="<?= __('Edit') ?>"
+><input type="button" class="copy"   value="<?= __('Copy') ?>"
 ><input type="button" class="delete" value="<?= __('Delete') ?>">
 </div>
 
