@@ -368,9 +368,8 @@ function bindevents()
 		return false;
 	});
 	
-	//$('input:button.edit', 'div.detail').live('click', function() {
+	/* Edit */
 	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
-		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
@@ -398,21 +397,26 @@ function bindevents()
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
+		// todo: more elegant way not using many loops
 		/* category selector */
 		pathdata = rowsdata[id]['categorypath'];
-		$.each(pathdata['level'], function(idx, val) {
-		    sel = $('<select class="category"/>');
-		    $.each(pathdata['nodes'][idx], function(id, row) {
-				str = row['CategoryName'];
-				//str += '('+row['CategoryID']+')';
-				if (row['LeafCategory'] == 0) str += ' &gt;';
-				opt = $('<option/>').val(row['CategoryID']).html(str);
-				if (row['CategoryID'] == val) opt.attr('selected', 'selected');
-				sel.append(opt);
-		    });
-			//if (idx > 1) $('td.category', dom).append(' &gt; ');
+		sel = getcategorypulldown(rowsdata[id]['Site'], 0);
+		sel.val(pathdata[1]);
+		$('td.category', dom).html(sel);
+		tmplastcid = pathdata[1];
+		
+		$.each(pathdata, function(level, categoryid) {
+			if (level == 1) return;
+			sel = getcategorypulldown(rowsdata[id]['Site'], pathdata[level-1]);
+			sel.val(pathdata[level]);
 			$('td.category', dom).append(sel);
+			tmplastcid = pathdata[level];
 		});
+		
+		sel = getcategorypulldown(rowsdata[id]['Site'], tmplastcid);
+		sel.val(rowsdata[id]['PrimaryCategory_CategoryID']);
+		$('td.category', dom).append(sel);
+		
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
 		
 		/* listing duration */
@@ -451,6 +455,8 @@ function bindevents()
 		return false;
 	});
 	
+	
+	/* Save */
 	$('ul.editbuttons > li > a.save', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
@@ -479,6 +485,8 @@ function bindevents()
 		return false;
 	});
 	
+	
+	/* Cancel */
 	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
@@ -491,7 +499,9 @@ function bindevents()
 		return false;
 	});
 	
-	$('#delete').live('click', function() {
+	
+	/* Delete */
+	$('#Delete').live('click', function() {
 		$.post();
 	});
 
