@@ -776,10 +776,18 @@ class UsersController extends AppController {
 		$res = $this->User->query($sql);
 		foreach ($res as $i => $row) {
 			$accountid = $row['items']['accountid'];
+			$count = $row[0]['cnt'];
 			
+			foreach ($this->filter as $name => $filter) {
+				if ($row[0][$name] > 0) {
+					isset($data[$accountid][$name])
+						? $data[$accountid][$name] += $count
+						: $data[$accountid][$name]  = $count;
+				}
+			}
 		}
 		
-		echo '<pre>'.print_r($res,1).'</pre>';
+		echo '<pre>'.print_r($data,1).'</pre>';
 		
 		exit;
 	}
