@@ -130,15 +130,32 @@ function getdetail(row)
 	var catstr = '';
 	pathdata = row['categorypath'];
 	if (pathdata) {
-		$.each(pathdata, function(idx, val) {
-			$.each(pathdata['nodes'][idx], function(catid, catrow) {
-				if (catrow['CategoryID'] == val) {
-					if (idx > 1) catstr += ' &gt; ';
-					catstr += catrow['CategoryName'];
+		
+		// todo: more elegant way not using many loops
+		$.each(hash['category'][row['Site']][0], function(i, child) {
+			if (child['CategoryID'] == pathdata[1]) {
+				catstr += child['CategoryName'];
+			}
+			tmplastcid = pathdata[1];
+		});
+		
+		$.each(pathdata, function(level, categoryid) {
+			if (level == 1) return;
+			parentid = pathdata[level-1];
+			$.each(hash['category'][row['Site']][parentid], function(i, child) {
+				if (child['CategoryID'] == pathdata[level]) {
+					catstr += ' &gt; '+child['CategoryName'];
 				}
 			});
+			tmplastcid = pathdata[level];
 		});
-		$('td.category', detail).html(catstr);
+		
+		$.each(hash['category'][row['Site']][tmplastcid], function(i, child) {
+			if (child['CategoryID'] == row['PrimaryCategory_CategoryID']) {
+				catstr += ' &gt; '+child['CategoryName'];
+			}
+		});
+		
 	} else {
 		catstr = '<span class="error">not selected</span>';
 	}
@@ -321,6 +338,8 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
+					   savecategorycache(data['category']);
+					   
 					   rowsdata[id] = data;
 					   detail = getdetail(data);
 					   $('tr.row2 td', '#'+id).html(detail);
@@ -521,6 +540,18 @@ function preloadcategory(site, categoryid)
 	
 	return;
 }
+
+function savecategorycache(data)
+{
+	$.each(data, function(site, arr) {
+		$.each(arr, function(categoryid, children) {
+			hash['category'][site][categoryid] = children;
+		});
+	});
+	
+	return;
+}
+
 
 function copyitems()
 {

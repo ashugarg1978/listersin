@@ -665,10 +665,10 @@ class UsersController extends AppController {
 		/* overwrite by child nodes */
 		$path = null;
 		if ($categoryid) {
-		  $path = $this->categorypath($site, $categoryid);
+			$path = $this->categorypath($site, $categoryid);
 		}
-		if (is_array($path['level'])) {
-			foreach ($path['level'] as $level => $cid) {
+		if (is_array($path)) {
+			foreach ($path as $level => $cid) {
 				
 				$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
 				
