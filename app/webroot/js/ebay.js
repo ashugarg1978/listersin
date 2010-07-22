@@ -419,6 +419,7 @@ function bindevents()
 		
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
 		
+		
 		/* listing duration */
 		sel = $('<select/>').attr('name', 'ListingDuration');
 		$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][rowsdata[id]['ListingType']], function(k, v) {
@@ -582,10 +583,11 @@ function copyitems()
 
 function refresh()
 {
+	loadings = $('td.loading');
+	if (loadings.length <= 0) return;
+	
+	// todo: check firefox pseudo class .... warning
 	loadings = $('td.loading > input:checkbox[name=id[]][value!=on]');
-	if (loadings.length <= 0) {
-		return;
-	}
 	
 	$.post('/users/items/',
 		   loadings.serialize(),
