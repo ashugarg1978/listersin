@@ -559,8 +559,8 @@ class UsersController extends AppController {
 	
 	function children($site='US', $categoryid=null)
 	{
-		if (isset($_POST['site'])      ) $site       = $_POST['site'];
-		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
+		if (empty($site)      ) $site       = $_POST['site'];
+		if (empty($categoryid)) $categoryid = $_POST['categoryid'];
 		
 		$rows = array();
 		$table = "categories_".strtolower($site);

@@ -111,9 +111,11 @@ function getdetail(row)
 	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
 	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
 	
-	$.each(row['PictureDetails_PictureURL'], function(i, url) {
-		$('img.PD_PURL_'+(i+1), detail).attr('src', url);
-	});
+	if (row['PictureDetails_PictureURL']) {
+		$.each(row['PictureDetails_PictureURL'], function(i, url) {
+			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
+		});
+	}
 	
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=description]', detail).replaceWith(iframe);
