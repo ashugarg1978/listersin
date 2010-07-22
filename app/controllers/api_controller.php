@@ -23,33 +23,22 @@ class ApiController extends AppController {
 	
 	function test()
 	{
-		exit;
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
+		$res = $this->User->query($sql);
+		$account = $res[0]['accounts'];
 		
-		$xml = file_get_contents(ROOT.'/data/apixml/eBayDetails/US.xml.bz2');
-		$xmlobj = simplexml_load_string($xml);
-		$p = $this->xml2array($xmlobj);
+		$h = null;
+		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+		$h['ApplicationDeliveryPreferences']['ApplicationEnable'] = 'Enable';
+		$h['ApplicationDeliveryPreferences']['ApplicationURL'] =
+			'http://175.41.130.89/users/receivenotify';
+		$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventType'] =
+			'ItemListed';
+		$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventEnable'] = 'Enable';
+
+		$res = $this->callapi('SetNotificationPreferences', $h);
 		
-		echo '<pre>'.print_r($p, 1).'</pre>';
-		//print json_encode($p['ShippingServiceDetails']);
-		exit;
-		
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9284906866.GetSellerList.US.response.xml');
-		$xmlobj = simplexml_load_string($xml);
-		$ns = $xmlobj->getDocNamespaces();
-		$xmlobj->registerXPathNamespace('ns', $ns['']);
-		
-		//$this->getsellerlist_import($xmlobj);exit;
-		
-		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
-			//if ($o->ItemID != '110049111272') continue;
-			
-			$p = $this->xml2array($o->ShippingDetails);
-			echo '<table><tr><td valign="top">';
-			echo '<pre>'.print_r($o->ShippingDetails, 1).'</pre>';
-			echo '</td><td valign="top">';
-			echo '<pre>'.print_r($p, 1).'</pre>';
-			echo '</td></tr></table>';
-		}
+		echo '<pre>'.print_r($res,1).'</pre>';
 		
 		exit;
 	}
@@ -523,7 +512,7 @@ class ApiController extends AppController {
 		  
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
-		  $xmlobj = $this->callapi('GeteBayDetails', $h, $sitename);
+			$xmlobj = $this->callapi('GeteBayDetails', $h, $sitename);
 		}
 		
 		return;
