@@ -21,22 +21,35 @@ class ApiController extends AppController {
 		parent::beforeFilter();
 	}
 	
-	function test()
+	function test($arg=null)
 	{
-		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
-		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		$h['ApplicationDeliveryPreferences']['ApplicationEnable'] = 'Enable';
-		$h['ApplicationDeliveryPreferences']['ApplicationURL'] =
-			'http://175.41.130.89/users/receivenotify';
-		$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventType'] =
-			'ItemListed';
-		$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventEnable'] = 'Enable';
-
-		$res = $this->callapi('SetNotificationPreferences', $h);
+		if ($arg == 'get') {
+			
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+			//$h['PreferenceLevel'] = 'Application';
+			$h['PreferenceLevel'] = 'Event';
+			
+			$res = $this->callapi('GetNotificationPreferences', $h);
+			
+		} else {
+		
+			$h = null;
+			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+			$h['ApplicationDeliveryPreferences']['ApplicationEnable'] = 'Enable';
+			$h['ApplicationDeliveryPreferences']['ApplicationURL'] =
+				'http://175.41.130.89/users/receivenotify';
+			$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventType'] =
+				'ItemListed';
+			$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventEnable'] = 'Enable';
+			
+			$res = $this->callapi('SetNotificationPreferences', $h);
+			
+		}
 		
 		echo '<pre>'.print_r($res,1).'</pre>';
 		

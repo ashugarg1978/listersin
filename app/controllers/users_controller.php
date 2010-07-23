@@ -20,12 +20,12 @@ class UsersController extends AppController {
 	var $accounts;
 	var $filter;
 	
-	function beforeFilter() {
-		
-		error_log($this->action.' POST:'.print_r($_POST,1));
+	function beforeFilter()
+	{
+		error_log($this->action."\n".'POST:'.print_r($_POST,1));
 		parent::beforeFilter();
 		
-        $this->Auth->allow('index', 'register');
+        $this->Auth->allow('index', 'register', 'receivenotify');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
 		$this->Auth->fields = array('username' => 'email',  'password' => 'password');
 		$this->user = $this->Auth->user();
@@ -39,6 +39,17 @@ class UsersController extends AppController {
 		
 		return;
     }	
+	
+	function receivenotify()
+	{
+		$xml = file_get_contents('php://input');
+		
+		$resfile = ROOT.'/app/tmp/apilogs/'.(9999999999-date("mdHis")).'.notify.xml';
+		file_put_contents($resfile, $xml);
+		chmod($resfile, 0777);
+		
+		exit;
+	}
 	
 	function index()
 	{
