@@ -322,7 +322,8 @@
 
 <? // todo: check script tag trends, no need <!-- --> ??? ?>
 <script>
-var hash = <?= json_encode($hash) ?>;
+var hash;
+hash = <?= json_encode($hash) ?>;
 </script>
 
 <div id="debug"></div>

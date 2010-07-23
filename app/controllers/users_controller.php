@@ -22,7 +22,7 @@ class UsersController extends AppController {
 	
 	function beforeFilter()
 	{
-		error_log($this->action."\n".'POST:'.print_r($_POST,1));
+		error_log($this->here."\n".'POST:'.print_r($_POST,1));
 		parent::beforeFilter();
 		
         $this->Auth->allow('index', 'register', 'receivenotify');
@@ -57,22 +57,23 @@ class UsersController extends AppController {
 	{
 		if (isset($this->user['User']['userid'])) {
 			
-			$hash['site'] = $this->sitedetails();
-			foreach ($hash['site'] as $sitename => $siteid) {
+			$sites = $this->sitedetails();
+			foreach ($sites as $sitename => $siteid) {
 				
-				$category[$sitename][0] = $this->children($sitename, 0);
+				$hash[$sitename]['SiteID'] = $siteid;
+				
+				$hash[$sitename]['category'] = $this->children($sitename, null);
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
 				
 				/* ShippingServiceDetails */
-				$hash['ShippingServiceDetails'][$sitename] =
-					$this->getShippingServiceDetails($sitename);
+				$hash[$sitename]['ShippingServiceDetails']
+					= $this->getShippingServiceDetails($sitename);
 				
-				$hash['ShippingPackageDetails'][$sitename] =
-					$this->getShippingPackageDetails($sitename);
+				$hash[$sitename]['ShippingPackageDetails']
+					= $this->getShippingPackageDetails($sitename);
 			}
-			$hash['category'] = $category;
 			
 			$this->set('hash', $hash);
 			$this->render('home');
@@ -551,31 +552,25 @@ class UsersController extends AppController {
 		return $path;
 	}
 	
-	function grandchildren($site='US', $categoryid=null)
+	function grandchildren($site, $categoryid=null)
 	{
-		if (isset($_POST['site'])      ) $site       = $_POST['site'];
-		if (isset($_POST['categoryid'])) $categoryid = $_POST['categoryid'];
-		
 		$children = $this->children($site, $categoryid);
 		foreach ($children as $i => $child) {
-			$children[$i]['children'] = $this->children($site, $child['CategoryID']);
+			$childid = str_replace('c', '', $i);
+			$children[$i]['c'] = $this->children($site, $childid);
 		}
 		
-		// todo: check post or local call in another way
-		if (isset($_POST)) {
+		if ($this->action == __FUNCTION__) {
 			echo json_encode($children);
 			exit;
 		} else {
 			return $children;
-		}		
+		}
 	}
 	
-	function children($site='US', $categoryid=null)
+	function children($site, $categoryid=null)
 	{
-		if (empty($site)      ) $site       = $_POST['site'];
-		if (empty($categoryid)) $categoryid = $_POST['categoryid'];
-		
-		$rows = array();
+		$rows = null;
 		$table = "categories_".strtolower($site);
 		$filter = null;
 		if (empty($categoryid)) {
@@ -584,12 +579,15 @@ class UsersController extends AppController {
 			$filter[] = "CategoryParentID = ".$categoryid;
 			$filter[] = "CategoryID != ".$categoryid;
 		}
-		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
-			. " FROM ".$table." WHERE ".implode(" AND ", $filter);
+		$sql = "SELECT CategoryID AS i, CategoryName AS n"
+			. " FROM ".$table
+			. " WHERE ".implode(" AND ", $filter);
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
-				$rows[] = $row[$table];
+				$id = 'c'.$row[$table]['i'];
+				$name = $row[$table]['n'];
+				$rows[$id]['n'] = $name;
 			}
 		}
 		
