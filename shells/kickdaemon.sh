@@ -9,6 +9,6 @@ ROOT=/var/www/dev.xboo.st
 # below PATH order is important (/usr/local/php/bin/php is first)
 PATH=/usr/local/php/bin:$PATH
 
-$ROOT/cake/console/cake -app $ROOT/app daemon $action $opid
-#	>> $ROOT/app/tmp/apilogs/daemon.log
+$ROOT/cake/console/cake -app $ROOT/app daemon $action $opid \
+	>> $ROOT/app/tmp/apilogs/daemon.log
 

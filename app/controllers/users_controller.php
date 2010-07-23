@@ -48,6 +48,8 @@ class UsersController extends AppController {
 		file_put_contents($resfile, $xml);
 		chmod($resfile, 0777);
 		
+		//$xmlobj = simplexml_load_string($xml);
+		
 		exit;
 	}
 	

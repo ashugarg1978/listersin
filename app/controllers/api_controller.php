@@ -23,6 +23,13 @@ class ApiController extends AppController {
 	
 	function test($arg=null)
 	{
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9276839971.notify.xml');
+		echo $xml;
+		$xmlobj = simplexml_load_string($xml);
+		echo print_r($xmlobj,1);
+		
+		exit;
+		
 		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
