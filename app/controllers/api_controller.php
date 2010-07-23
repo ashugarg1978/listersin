@@ -8,7 +8,7 @@ class ApiController extends AppController {
 	
 	//var $uses = array('User');
     var $name = 'Users';    
-    var $components = array('Auth', 'Email');
+    //var $components = array('Auth', 'Email');
 	//var $user;
 	//var $accounts;
 	
@@ -23,7 +23,7 @@ class ApiController extends AppController {
 	
 	function test($arg=null)
 	{
-		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
@@ -31,8 +31,9 @@ class ApiController extends AppController {
 			
 			$h = null;
 			$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-			//$h['PreferenceLevel'] = 'Application';
+			$h['PreferenceLevel'] = 'Application';
 			$h['PreferenceLevel'] = 'Event';
+			$h['PreferenceLevel'] = 'User';
 			
 			$res = $this->callapi('GetNotificationPreferences', $h);
 			
@@ -43,9 +44,18 @@ class ApiController extends AppController {
 			$h['ApplicationDeliveryPreferences']['ApplicationEnable'] = 'Enable';
 			$h['ApplicationDeliveryPreferences']['ApplicationURL'] =
 				'http://175.41.130.89/users/receivenotify';
-			$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventType'] =
-				'ItemListed';
-			$h['UserDeliveryPreferenceArray']['NotificationEnable']['EventEnable'] = 'Enable';
+			$events = array('ItemListed',
+							'EndOfAuction',
+							'ItemClosed',
+							'ItemExtended',
+							'ItemRevised',
+							'ItemSold',
+							'ItemUnsold');
+			foreach ($events as $i => $event) {
+				$ne['EventType'] = $event;
+				$ne['EventEnable'] = 'Enable';
+				$h['UserDeliveryPreferenceArray']['NotificationEnable'][] = $ne;
+			}
 			
 			$res = $this->callapi('SetNotificationPreferences', $h);
 			

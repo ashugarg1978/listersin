@@ -559,7 +559,7 @@ class UsersController extends AppController {
 			$children[$i]['children'] = $this->children($site, $child['CategoryID']);
 		}
 		
-		error_log(print_r($children,1));
+		// todo: check post or local call in another way
 		if (isset($_POST)) {
 			echo json_encode($children);
 			exit;
