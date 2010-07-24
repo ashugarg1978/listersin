@@ -8,6 +8,22 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
+		$.getJSON('/users/grandchildren/US/',
+				  function(data) {
+					  $.each(data, function(i, arr) {
+						  hash['US']['category'][i]['c'] = arr['c'];
+					  });
+					  
+					  
+		$.getJSON('/users/grandchildren/US/619',
+				  function(data) {
+					  $.each(data, function(i, arr) {
+						  hash['US']['category']['c619']['c'][i]['c'] = arr['c'];
+					  });
+				  });
+		
+				  });
+		
 		/* auto click for debug */
 		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
@@ -258,7 +274,7 @@ function bindevents()
 		$('select:gt(1)', 'tbody#'+id).remove();
 		$('select.category', '#'+id).html(sel.html());
 		
-		preloadcategory(site, 0);
+		//preloadcategory(site, 0);
 		
 		return;
 	});
@@ -275,7 +291,7 @@ function bindevents()
 		$('select.category',      '#'+id).attr('name', '');
 		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
 		
-		preloadcategory(site, categoryid);
+		//preloadcategory(site, categoryid);
 		
 		return;
 	});
@@ -330,6 +346,8 @@ function bindevents()
 					   $('div.detail', '#'+id).slideToggle('fast');
 					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
+					   
+					   preloadcategory(data['Site'], data['categorypath']);
 				   },
 				   'json');
 		} else {
@@ -522,14 +540,29 @@ function getcategorypulldown(site, categoryid)
 	return sel;
 }
 
-function preloadcategory(site, categoryid)
+//function preloadcategory(site, categoryid)
+function preloadcategory(site, path)
 {
-	$.getJSON('/users/grandchildren/'+site+'/'+categoryid,
-			  function(data) {
-				  $.each(data, function(i, arr) {
-					  hash[site]['category'][i]['c'] = arr['c'];
-				  });
-			  });
+	alert($.dump(path));
+	cato = hash[site]['category'];
+	$.each(path, function(level, category) {
+		if (cato['c'+category['i']]['c']) {
+			
+			alert('a['+level+']['+category['i']+']');
+			cato = cato['c'+category['i']]['c'];
+			
+		} else {
+			
+			alert('b['+level+']['+category['i']+']');
+			
+			$.getJSON('/users/grandchildren/'+site+'/'+category['i'],
+					  function(data) {
+						  $.each(data, function(i, arr) {
+							  cato['c'+category['i']]['c'] = arr['c'];
+						  });
+					  });
+		}
+	});
 	
 	return;
 }
