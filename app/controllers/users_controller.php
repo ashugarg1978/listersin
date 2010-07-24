@@ -113,6 +113,9 @@ class UsersController extends AppController {
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
+		$sql_filter[] = "PrimaryCategory_CategoryID != 279";
+		$sql_filter[] = "PrimaryCategory_CategoryID != 31411";
+		$sql_filter[] = "PrimaryCategory_CategoryID != 159681";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -143,6 +146,7 @@ class UsersController extends AppController {
 			. " items.ListingDetails_ViewItemURL,"
 			. " items.Title,"
 			. " items.PictureDetails_PictureURL,"
+			. " items.PrimaryCategory_CategoryID,"
 			. " items.StartPrice,"
 			. " items.Site,"
 			. " items.SellingStatus_ListingStatus,"
@@ -247,9 +251,13 @@ class UsersController extends AppController {
 		if ($categoryid > 0) {
 			$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
 			$row['categorypath'] = $this->categorypath($site, $categoryid);
+			
+			$cp = $this->grandchildren($site);
 			foreach ($row['categorypath'] as $level => $cid) {
-				$row['category'][$site][$cid] = $this->children($site, $cid);
+				$cp['c'.$cid]['n'] = $this->grandchildren($site, $cid);
+				//$row['category'][$site]['c'.$cid] = $this->children($site, $cid);
 			}
+			//$row['cp'] = $cp;
 		}
 		
 		//$row['other']['site'] = $this->sitedetails();

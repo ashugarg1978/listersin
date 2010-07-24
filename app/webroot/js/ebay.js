@@ -8,14 +8,9 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
-		//dump(hash['US']['category']['c10159']); return;
-		
-		preloadcategory('US', '');
-		//hash['US']['category']['c20081']['c'] = 'hoge';
-		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
@@ -90,6 +85,7 @@ function getrow(row)
 		st = $(row['SellingStatus_ListingStatus']);
 	}
 	$('a.Title', dom).before(st);
+	$('a.Title', dom).prepend(row['PrimaryCategory_CategoryID']);
 	
 	if (row['Errors_LongMessage']) {
 		$.each(row['Errors_LongMessage'], function(k, v) {
@@ -137,33 +133,52 @@ function getdetail(row)
 	$('select[name=Site]', detail).replaceWith(row['Site']);
 	
 	// category
-	var catstr = '';
+	var catname = '';
+	var catnode = null;
+	var dstr = '';
 	pathdata = row['categorypath'];
 	if (pathdata) {
 		
-		// todo: more elegant way not using many loops
-		$.each(hash['category'][row['Site']], function(i, child) {
-			if (child['i'] == pathdata[1]) catstr += child['n'];
-			tmplastcid = pathdata[1];
-		});
-		
+		alert($.dump(pathdata));
 		$.each(pathdata, function(level, categoryid) {
-			if (level == 1) return;
+			
+			alert(categoryid);
+			return;
+			if (level == 1) {
+				catnode = hash[row['Site']]['category']['c'+categoryid];
+				catname = catnode['n'];
+			} else {
+				catnode = catnode['c']['c'+categoryid];
+				catname += ' &gt; '+catnode['n'];
+			}
+			
+			dstr += '[level:'+level+']'+$.dump(catnode);
+			
+			alert(catname);
+			return;
+			
+			catnode = catnode['c']['c'+pathdata[level-1]];
+			alert($.dump(catnode));
+			dstr += '['+level+']['+categoryid+']';
+			dstr += $.dump(catnode);
+			return;
+			
 			parentid = pathdata[level-1];
 			$.each(hash['category'][row['Site']][parentid], function(i, child) {
 				if (child['i'] == pathdata[level]) catstr += ' &gt; '+child['n'];
 			});
 			tmplastcid = pathdata[level];
 		});
+		dump(dstr);
 		
-		$.each(hash['category'][row['Site']][tmplastcid], function(i, child) {
-			if (child['i'] == row['PrimaryCategory_CategoryID']) catstr += ' &gt; '+child['n'];
-		});
+		//$.each(hash['category'][row['Site']][tmplastcid], function(i, child) {
+		//	if (child['i'] == row['PrimaryCategory_CategoryID']) catstr += ' &gt; '+child['n'];
+		//});
 		
 	} else {
 		catstr = '<span class="error">not selected</span>';
 	}
-	$('td.category', detail).html(catstr);
+	$('td.category', detail).html(catname);
 	
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
@@ -559,7 +574,8 @@ function savecategorycache(data)
 {
 	$.each(data, function(site, arr) {
 		$.each(arr, function(categoryid, children) {
-			hash['category'][site][categoryid] = children;
+			alert(categoryid);
+			//hash[site]['category'][categoryid]['c'] = children;
 		});
 	});
 	
@@ -586,7 +602,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash); 
+	dump(hash['US']['category']); 
 		
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
