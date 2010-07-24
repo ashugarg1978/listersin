@@ -250,14 +250,13 @@ class UsersController extends AppController {
 		$categoryid = $row['PrimaryCategory_CategoryID'];
 		if ($categoryid > 0) {
 			$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
+			
 			$row['categorypath'] = $this->categorypath($site, $categoryid);
 			
-			$cp = $this->grandchildren($site);
 			foreach ($row['categorypath'] as $level => $cid) {
-				$cp['c'.$cid]['n'] = $this->grandchildren($site, $cid);
 				//$row['category'][$site]['c'.$cid] = $this->children($site, $cid);
+				$sql = "SELECT CategoryName FROM ";
 			}
-			//$row['cp'] = $cp;
 		}
 		
 		//$row['other']['site'] = $this->sitedetails();
@@ -539,15 +538,12 @@ class UsersController extends AppController {
 		while (true) {
 			
 			/* myself */
-			$res = $this->User->query
-				("SELECT CategoryID, CategoryLevel, CategoryParentID"
-				 . " FROM ".$table
-				 . " WHERE CategoryID = ".$parentid);
+			$res = $this->User->query("SELECT * FROM ".$table." WHERE CategoryID = ".$parentid);
 			if (empty($res[0][$table])) break;
 			$row = $res[0][$table];
-			if ($parentid != $categoryid) {
-				$path[$row['CategoryLevel']] = $row['CategoryID'];
-			}
+			//if ($parentid != $categoryid)
+			$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
+			$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
 			
 			/* next loop for upper depth */
 			if ($row['CategoryLevel'] == 1) break;
@@ -556,6 +552,7 @@ class UsersController extends AppController {
 		if (is_array($path)) {
 			ksort($path);
 		}
+		error_log(print_r($path,1));
 		
 		return $path;
 	}

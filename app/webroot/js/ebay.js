@@ -108,7 +108,7 @@ function getdetail(row)
 	id = row['id'];
 	detail = $('div.detail', 'div#detailtemplate').clone();
     
-	// preserve selected tab
+	/* preserve selected tab */
 	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
 	tabnum = tab.parent().prevAll().length + 1;
 	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
@@ -129,57 +129,22 @@ function getdetail(row)
 	
 	$('input:file', detail).remove();
 	
-	// site
+	/* site */
 	$('select[name=Site]', detail).replaceWith(row['Site']);
 	
-	// category
-	var catname = '';
-	var catnode = null;
-	var dstr = '';
-	pathdata = row['categorypath'];
-	if (pathdata) {
-		
-		alert($.dump(pathdata));
-		$.each(pathdata, function(level, categoryid) {
-			
-			alert(categoryid);
-			return;
-			if (level == 1) {
-				catnode = hash[row['Site']]['category']['c'+categoryid];
-				catname = catnode['n'];
-			} else {
-				catnode = catnode['c']['c'+categoryid];
-				catname += ' &gt; '+catnode['n'];
-			}
-			
-			dstr += '[level:'+level+']'+$.dump(catnode);
-			
-			alert(catname);
-			return;
-			
-			catnode = catnode['c']['c'+pathdata[level-1]];
-			alert($.dump(catnode));
-			dstr += '['+level+']['+categoryid+']';
-			dstr += $.dump(catnode);
-			return;
-			
-			parentid = pathdata[level-1];
-			$.each(hash['category'][row['Site']][parentid], function(i, child) {
-				if (child['i'] == pathdata[level]) catstr += ' &gt; '+child['n'];
-			});
-			tmplastcid = pathdata[level];
+	/* category */
+	var pathstr = '';
+	if (row['categorypath']) {
+		$.each(row['categorypath'], function(level, category) {
+			if (pathstr != '') pathstr += ' &gt; ';
+			pathstr += category['n'];
 		});
-		dump(dstr);
-		
-		//$.each(hash['category'][row['Site']][tmplastcid], function(i, child) {
-		//	if (child['i'] == row['PrimaryCategory_CategoryID']) catstr += ' &gt; '+child['n'];
-		//});
-		
 	} else {
-		catstr = '<span class="error">not selected</span>';
+		pathstr = '<span class="error">not selected</span>';
 	}
-	$('td.category', detail).html(catname);
+	$('td.category', detail).html(pathstr);
 	
+	/* duration */
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
 	
@@ -189,7 +154,7 @@ function getdetail(row)
 	}
 	$('td.paymentmethod', detail).html(pmstr);
 	
-	// shippingservice
+	/* shippingservice */
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
@@ -358,7 +323,6 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   savecategorycache(data['category']);
 					   
 					   rowsdata[id] = data;
 					   detail = getdetail(data);
