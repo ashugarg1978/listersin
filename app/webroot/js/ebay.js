@@ -544,24 +544,29 @@ function getcategorypulldown(site, categoryid)
 //function preloadcategory(site, categoryid)
 function preloadcategory(site, path)
 {
-	//alert($.dump(path));
+	debug = $.dump(path);
+	alert(debug);
+	
 	cato = hash[site]['category'];
+	
+	var npath = new Array();
 	$.each(path, function(level, category) {
-		if (cato['c'+category['i']]['c']) {
-			
-			//alert('a['+level+']['+category['i']+']');
-			cato = cato['c'+category['i']]['c'];
-			
-		} else {
-			
-			//alert('b['+level+']['+category['i']+']');
-			
-			$.getJSON('/users/grandchildren/'+site+'/'+category['i'],
-					  function(data) {
-						  cato['c'+category['i']]['c'] = data;
-					  });
+		if (cato['c'+category['i']]) {
+			if (cato['c'+category['i']]['c']) {
+				cato = cato['c'+category['i']]['c'];
+				return;
+			}
 		}
+		
+		npath.push(category['i']);
 	});
+	
+	alert($.dump(cato));
+	
+	$.getJSON('/users/getchildrenbypath/'+site+'/'+npath.join('.'),
+			  function(data) {
+				  cato['c'+npath[0]]['c'] = data;
+			  });
 	
 	return;
 }
@@ -598,7 +603,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']); 
+	dump(hash['US']['category']['c619']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;

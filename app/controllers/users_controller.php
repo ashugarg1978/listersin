@@ -536,25 +536,47 @@ class UsersController extends AppController {
 		
 		$parentid = $categoryid;
 		while (true) {
-			
-			/* myself */
 			$res = $this->User->query("SELECT * FROM ".$table." WHERE CategoryID = ".$parentid);
 			if (empty($res[0][$table])) break;
 			$row = $res[0][$table];
-			//if ($parentid != $categoryid)
 			$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
 			$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
 			
-			/* next loop for upper depth */
 			if ($row['CategoryLevel'] == 1) break;
 			$parentid = $row['CategoryParentID'];
 		}
-		if (is_array($path)) {
-			ksort($path);
-		}
+		if (is_array($path)) ksort($path);
 		error_log(print_r($path,1));
 		
 		return $path;
+	}
+	
+	function getchildrenbypath($site, $pathstr)
+	{
+		$res = $this->_getchildrenbypath($site, $pathstr);
+		
+		echo json_encode($res);
+		error_log(print_r($res,1));
+		exit;
+	}
+
+	function _getchildrenbypath($site, $pathstr)
+	{
+		$arrpath = explode('.', $pathstr);
+		
+		$categoryid = array_shift($arrpath);
+		$children = $this->children($site, $categoryid);
+		foreach ($children as $i => $child) {
+			if (isset($child['c']) && $child['c'] == 'leaf') continue;
+			
+			if ($i == 'c'.$arrpath[0]) {
+				$children[$i]['c'] = $this->_getchildrenbypath($site, implode('.', $arrpath));
+			} else {
+				$children[$i]['c'] = $this->children($site, str_replace('c', '', $i));
+			}
+		}
+		
+		return $children;
 	}
 	
 	function grandchildren($site, $categoryid=null)
@@ -584,7 +606,7 @@ class UsersController extends AppController {
 			$filter[] = "CategoryParentID = ".$categoryid;
 			$filter[] = "CategoryID != ".$categoryid;
 		}
-		$sql = "SELECT CategoryID AS i, CategoryName AS n"
+		$sql = "SELECT CategoryID AS i, CategoryName AS n, LeafCategory AS l"
 			. " FROM ".$table
 			. " WHERE ".implode(" AND ", $filter);
 		$res = $this->User->query($sql);
@@ -593,6 +615,9 @@ class UsersController extends AppController {
 				$id = 'c'.$row[$table]['i'];
 				$name = $row[$table]['n'];
 				$rows[$id]['n'] = $name;
+				if ($row[$table]['l']) {
+					$rows[$id]['c'] = 'leaf';
+				}
 			}
 		}
 		
