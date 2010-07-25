@@ -15,13 +15,14 @@ $(document).bind({
 					  });
 					  
 					  
-		$.getJSON('/users/grandchildren/US/619',
-				  function(data) {
-					  $.each(data, function(i, arr) {
-						  hash['US']['category']['c619']['c'][i]['c'] = arr['c'];
-					  });
-				  });
-		
+					  /*
+						$.getJSON('/users/grandchildren/US/619',
+						function(data) {
+						$.each(data, function(i, arr) {
+						hash['US']['category']['c619']['c'][i]['c'] = arr['c'];
+						});
+						});
+						*/
 				  });
 		
 		/* auto click for debug */
@@ -543,23 +544,21 @@ function getcategorypulldown(site, categoryid)
 //function preloadcategory(site, categoryid)
 function preloadcategory(site, path)
 {
-	alert($.dump(path));
+	//alert($.dump(path));
 	cato = hash[site]['category'];
 	$.each(path, function(level, category) {
 		if (cato['c'+category['i']]['c']) {
 			
-			alert('a['+level+']['+category['i']+']');
+			//alert('a['+level+']['+category['i']+']');
 			cato = cato['c'+category['i']]['c'];
 			
 		} else {
 			
-			alert('b['+level+']['+category['i']+']');
+			//alert('b['+level+']['+category['i']+']');
 			
 			$.getJSON('/users/grandchildren/'+site+'/'+category['i'],
 					  function(data) {
-						  $.each(data, function(i, arr) {
-							  cato['c'+category['i']]['c'] = arr['c'];
-						  });
+						  cato['c'+category['i']]['c'] = data;
 					  });
 		}
 	});
@@ -600,7 +599,7 @@ function copyitems()
 function refresh()
 {
 	dump(hash['US']['category']); 
-		
+	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
 	
