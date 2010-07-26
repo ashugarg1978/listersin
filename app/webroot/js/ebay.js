@@ -408,6 +408,7 @@ function bindevents()
 		$('td.category', dom).html(sel);
 		tmplastcid = pathdata[1];
 		
+		/*
 		$.each(pathdata, function(level, categoryid) {
 			if (level == 1) return;
 			sel = getcategorypulldown(rowsdata[id]['Site'], pathdata[level-1]);
@@ -421,8 +422,8 @@ function bindevents()
 		$('td.category', dom).append(sel);
 		
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
-		
-		
+		*/
+if (0) {		
 		/* listing duration */
 		sel = $('<select/>').attr('name', 'ListingDuration');
 		$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][rowsdata[id]['ListingType']], function(k, v) {
@@ -444,7 +445,7 @@ function bindevents()
 			});
 			//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
 		}
-		
+}		
 		showbuttons(dom, 'save,cancel');
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
@@ -454,7 +455,7 @@ function bindevents()
 		
 	    $('input[name=Title]', 'tbody#'+id).focus();
 	    
-		$('td.shippingservice', '#'+id).append(getshippingservice(id));
+//		$('td.shippingservice', '#'+id).append(getshippingservice(id));
 		
 		return false;
 	});
@@ -531,10 +532,15 @@ function getcategorypulldown(site, categoryid)
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
 	sel.append(opt);
-	$.each(hash['category'][site][categoryid], function(id, row) {
-		str = row['CategoryName'];
-		if (row['LeafCategory'] == 0) str += ' &gt;';
-		opt = $('<option/>').val(row['CategoryID']).html(str);
+	if (categoryid > 0) {
+		o = hash[site]['category'][categoryid];		
+	} else {
+		o = hash[site]['category'];
+	}
+	$.each(o, function(id, row) {
+		str = row['n'];
+		if (row['c'] != 'l') str += ' &gt;';
+		opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
 		sel.append(opt);
 	});
 	
@@ -545,7 +551,7 @@ function getcategorypulldown(site, categoryid)
 function preloadcategory(site, path)
 {
 	debug = $.dump(path);
-	alert(debug);
+	//alert(debug);
 	
 	cato = hash[site]['category'];
 	
@@ -561,7 +567,7 @@ function preloadcategory(site, path)
 		npath.push(category['i']);
 	});
 	
-	alert($.dump(cato));
+	//alert($.dump(cato));
 	
 	$.getJSON('/users/getchildrenbypath/'+site+'/'+npath.join('.'),
 			  function(data) {
