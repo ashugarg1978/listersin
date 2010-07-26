@@ -400,29 +400,11 @@ function bindevents()
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
-		// todo: more elegant way not using many loops
 		/* category selector */
-		pathdata = rowsdata[id]['categorypath'];
-		sel = getcategorypulldown(rowsdata[id]['Site'], 0);
-		sel.val(pathdata[1]);
-		$('td.category', dom).html(sel);
-		tmplastcid = pathdata[1];
-		
-		/*
-		$.each(pathdata, function(level, categoryid) {
-			if (level == 1) return;
-			sel = getcategorypulldown(rowsdata[id]['Site'], pathdata[level-1]);
-			sel.val(pathdata[level]);
-			$('td.category', dom).append(sel);
-			tmplastcid = pathdata[level];
-		});
-		
-		sel = getcategorypulldown(rowsdata[id]['Site'], tmplastcid);
-		sel.val(rowsdata[id]['PrimaryCategory_CategoryID']);
-		$('td.category', dom).append(sel);
-		
+		sels = getcategorypulldowns(rowsdata[id]['Site'], rowsdata[id]['categorypath']);
+		$('td.category', dom).html(sels);
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
-		*/
+		
 if (0) {		
 		/* listing duration */
 		sel = $('<select/>').attr('name', 'ListingDuration');
@@ -547,6 +529,38 @@ function getcategorypulldown(site, categoryid)
 	return sel;
 }
 
+function getcategorypulldowns(site, path)
+{
+	cato = hash[site]['category'];
+	
+	sels = $('<div/>');
+	$.each(path, function(level, category) {
+		if (cato['c'+category['i']]['c']) {
+			
+			sel = $('<select class="category"/>');
+			opt = $('<option/>').val('').text('');
+			sel.append(opt);
+			$.each(cato, function(id, row) {
+				str = row['n'];
+				if (row['c'] != 'leaf') str += ' &gt;';
+				opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
+				if (id.replace(/^c/, '') == category['i']) opt.attr('selected', 'selected');
+				
+				sel.append(opt);
+			});
+			sels.append(sel);
+			
+			cato = cato['c'+category['i']]['c'];
+			return;
+		}
+		
+		alert('getcategorypulldowns error.');
+	});
+	
+	return sels;
+}
+
+
 //function preloadcategory(site, categoryid)
 function preloadcategory(site, path)
 {
@@ -609,7 +623,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']['c619']); 
+	dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;

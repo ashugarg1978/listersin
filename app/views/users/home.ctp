@@ -175,7 +175,7 @@
 	  <td><?= __('Site') ?></td>
 	  <td>
 		<select name="Site"><?
-		foreach ($hash['site'] as $sitestr => $siteid) {
+		foreach ($hash as $sitestr => $tmp) {
 			echo '<option value="'.$sitestr.'">'.$sitestr.'</option>';
 	 	}
 	 	?></select>
