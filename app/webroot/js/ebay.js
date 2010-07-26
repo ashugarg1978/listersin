@@ -26,8 +26,8 @@ $(document).bind({
 				  });
 		
 		/* auto click for debug */
-		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
@@ -262,24 +262,21 @@ function bindevents()
 		$('ul', $(this).parent()).slideToggle('fast');
 	});
 	
+	/* Picture */
     $('input:file').live('change', function() {
 		$(this).closest('form').submit();
 		$(this).closest('form')[0].reset();
     });
     
+	/* Site */
 	$('select[name=Site]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
-		site = $(this).val();
-		
-		sel = getcategorypulldown(site, 0);
-		$('select:gt(1)', 'tbody#'+id).remove();
-		$('select.category', '#'+id).html(sel.html());
-		
-		//preloadcategory(site, 0);
-		
+		sel = getcategorypulldowns($(this).val(), [0]);
+		$('td.category', '#'+id).html(sel);
 		return;
 	});
 	
+	/* Category */
 	$('select.category').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		site = $('select[name=Site]', '#'+id).val();
@@ -535,26 +532,25 @@ function getcategorypulldowns(site, path)
 	
 	sels = $('<div/>');
 	$.each(path, function(level, category) {
-		if (cato['c'+category['i']]['c']) {
 			
-			sel = $('<select class="category"/>');
-			opt = $('<option/>').val('').text('');
+		sel = $('<select class="category"/>');
+		opt = $('<option/>').val('').text('');
+		sel.append(opt);
+		$.each(cato, function(id, row) {
+			str = row['n'];
+			if (row['c'] != 'leaf') str += ' &gt;';
+			opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
 			sel.append(opt);
-			$.each(cato, function(id, row) {
-				str = row['n'];
-				if (row['c'] != 'leaf') str += ' &gt;';
-				opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
-				if (id.replace(/^c/, '') == category['i']) opt.attr('selected', 'selected');
-				
-				sel.append(opt);
-			});
-			sels.append(sel);
-			
-			cato = cato['c'+category['i']]['c'];
-			return;
+		});
+		
+		if (category['i']) {
+			if (cato['c'+category['i']]['c']) {
+				sel.val(category['i']);
+				cato = cato['c'+category['i']]['c'];
+			}
 		}
 		
-		alert('getcategorypulldowns error.');
+		sels.append(sel);
 	});
 	
 	return sels;
