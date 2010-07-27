@@ -68,7 +68,8 @@ class UsersController extends AppController {
 				
 				$hash[$sitename]['SiteID'] = $siteid;
 				
-				$hash[$sitename]['category'] = $this->children($sitename, null);
+				$hash[$sitename]['category']['n'] = $sitename;
+				$hash[$sitename]['category']['c'] = $this->children($sitename, null);
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
@@ -246,23 +247,22 @@ class UsersController extends AppController {
 		
 		$site = $row['Site'];
 		
+		/* Picture */
 		$row['PictureDetails_PictureURL'] = explode("\n", $row['PictureDetails_PictureURL']);
 		if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
 			$row['ShippingDetails_ShippingServiceOptions']
 				= unserialize($row['ShippingDetails_ShippingServiceOptions']);
 		}
 		
-		// todo: avoid infinite loop
+		/* category */
 		$categoryid = $row['PrimaryCategory_CategoryID'];
 		if ($categoryid > 0) {
 			$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
 			
-			$row['categorypath'] = $this->categorypath($site, $categoryid);
-			
-			foreach ($row['categorypath'] as $level => $cid) {
-				//$row['category'][$site]['c'.$cid] = $this->children($site, $cid);
-				$sql = "SELECT CategoryName FROM ";
-			}
+			$categorypath = $this->categorypath($site, $categoryid);
+			$row['categorypath'] = array_keys($categorypath);
+			$row['categorystr'] = implode(' > ', array_values($categorypath));
+			$row['categorystr'] .= ' ('.implode(' > ', array_keys($categorypath)).')';
 		}
 		
 		//$row['other']['site'] = $this->sitedetails();
@@ -545,8 +545,9 @@ class UsersController extends AppController {
 			if (empty($res[0][$table])) break;
 			
 			$row = $res[0][$table];
-			$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
-			$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
+			//$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
+			//$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
+			$path[$row['CategoryID']] = $row['CategoryName'];
 			
 			if ($row['CategoryLevel'] == 1) break;
 			$parentid = $row['CategoryParentID'];
@@ -558,24 +559,23 @@ class UsersController extends AppController {
 	
 	function getchildrenbypath($site, $pathstr)
 	{
-		$res = $this->_getchildrenbypath($site, $pathstr);
+		$arrpath = explode('.', $pathstr);
+		$res = $this->_getchildrenbypath($site, $arrpath);
 		
 		echo json_encode($res);
 		error_log(print_r($res,1));
 		exit;
 	}
 
-	function _getchildrenbypath($site, $pathstr)
+	function _getchildrenbypath($site, $arrpath)
 	{
-		$arrpath = explode('.', $pathstr);
-		
 		$categoryid = array_shift($arrpath);
 		$children = $this->children($site, $categoryid);
 		foreach ($children as $i => $child) {
 			if (isset($child['c']) && $child['c'] == 'leaf') continue;
 			
 			if ($i == 'c'.$arrpath[0]) {
-				$children[$i]['c'] = $this->_getchildrenbypath($site, implode('.', $arrpath));
+				$children[$i]['c'] = $this->_getchildrenbypath($site, $arrpath);
 			} else {
 				$children[$i]['c'] = $this->children($site, str_replace('c', '', $i));
 			}
@@ -611,18 +611,15 @@ class UsersController extends AppController {
 			$filter[] = "CategoryParentID = ".$categoryid;
 			$filter[] = "CategoryID != ".$categoryid;
 		}
-		$sql = "SELECT CategoryID AS i, CategoryName AS n, LeafCategory AS l"
+		$sql = "SELECT CategoryID, CategoryName, LeafCategory"
 			. " FROM ".$table
 			. " WHERE ".implode(" AND ", $filter);
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
-				$id = 'c'.$row[$table]['i'];
-				$name = $row[$table]['n'];
-				$rows[$id]['n'] = $name;
-				if ($row[$table]['l']) {
-					$rows[$id]['c'] = 'leaf';
-				}
+				$id = 'c'.$row[$table]['CategoryID'];
+				$rows[$id]['n'] = $row[$table]['CategoryName'];
+				if ($row[$table]['LeafCategory']) $rows[$id]['c'] = 'leaf';
 			}
 		}
 		
@@ -714,7 +711,7 @@ class UsersController extends AppController {
 			$path = $this->categorypath($site, $categoryid);
 		}
 		if (is_array($path)) {
-			foreach ($path as $level => $cid) {
+			foreach ($path as $cid => $cname) {
 				
 				$cns = "/ns:GetCategoryFeaturesResponse/ns:Category[ns:CategoryID=".$cid."]";
 				

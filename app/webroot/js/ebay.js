@@ -8,25 +8,8 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
-		$.getJSON('/users/grandchildren/US/',
-				  function(data) {
-					  $.each(data, function(i, arr) {
-						  hash['US']['category'][i]['c'] = arr['c'];
-					  });
-					  
-					  
-					  /*
-						$.getJSON('/users/grandchildren/US/619',
-						function(data) {
-						$.each(data, function(i, arr) {
-						hash['US']['category']['c619']['c'][i]['c'] = arr['c'];
-						});
-						});
-						*/
-				  });
-		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('a.Title:lt(5):last').click()", 1000);
 		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
@@ -150,17 +133,13 @@ function getdetail(row)
 	$('select[name=Site]', detail).replaceWith(row['Site']);
 	
 	/* category */
-	var pathstr = '';
-	if (row['categorypath']) {
-		$.each(row['categorypath'], function(level, category) {
-			if (pathstr != '') pathstr += ' &gt; ';
-			pathstr += category['n'];
-		});
+	if (row['categorystr']) {
+		$('td.category', detail).text(row['categorystr']);
 	} else {
-		pathstr = '<span class="error">not selected</span>';
+		$('td.category', detail).html('<span class="error">not selected</span>');
 	}
-	$('td.category', detail).html(pathstr);
 	
+if (1) {
 	/* duration */
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
@@ -179,7 +158,7 @@ function getdetail(row)
 		});
 		$('td.shippingservice', detail).html(ssstr);
 	}	
-	
+}	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
@@ -271,8 +250,21 @@ function bindevents()
 	/* Site */
 	$('select[name=Site]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
-		sel = getcategorypulldowns($(this).val(), [0]);
+		site = $(this).val()
+		
+		sel = getcategorypulldown(site, null);
 		$('td.category', '#'+id).html(sel);
+		
+		if (!hash[site]['category']['gc']) {
+			$.getJSON('/users/grandchildren/'+site,
+					  function(data) {
+						  $.each(data, function(i, arr) {
+							  hash[site]['category']['c'][i]['c'] = arr['c'];
+						  });
+						  hash[site]['category']['gc'] = 1;
+					  });
+		}
+		
 		return;
 	});
 	
@@ -291,6 +283,8 @@ function bindevents()
 		$(this).nextAll().remove();
 		$('td.category', '#'+id).append(sel);
 		
+		preloadcategory(site, tmppath);
+		
 		return;
 		
 		sel = getcategorypulldown(site, categoryid);
@@ -300,7 +294,6 @@ function bindevents()
 		$('select.category',      '#'+id).attr('name', '');
 		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
 		
-		//preloadcategory(site, categoryid);
 		
 		return;
 	});
@@ -519,22 +512,24 @@ if (0) {
 
 function getcategorypulldown(site, path)
 {
-	cato = hash[site]['category'];
-
-	$.each(path, function(i, categoryid) {
-		alert(categoryid);
-		if (cato['c'+categoryid]['c']) {
-			cato = cato['c'+categoryid]['c'];
-			alert($.dump(cato));
-		}
-	});
+	cato = hash[site]['category']['c'];
+	
+	if (path) {
+		$.each(path, function(i, categoryid) {
+			if (cato['c'+categoryid]['c']) {
+				cato = cato['c'+categoryid]['c'];
+			} else {
+				alert('err:'+categoryid);
+			}
+		});
+	}
 	
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
 	sel.append(opt);
 	$.each(cato, function(id, row) {
 		str = row['n'];
-		if (row['c'] != 'l') str += ' &gt;';
+		if (row['c'] != 'leaf') str += ' &gt;';
 		opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
 		sel.append(opt);
 	});
@@ -544,10 +539,10 @@ function getcategorypulldown(site, path)
 
 function getcategorypulldowns(site, path)
 {
-	cato = hash[site]['category'];
+	cato = hash[site]['category']['c'];
 	
 	sels = $('<div/>');
-	$.each(path, function(level, category) {
+	$.each(path, function(i, categoryid) {
 		
 		sel = $('<select class="category"/>');
 		opt = $('<option/>').val('').text('');
@@ -559,10 +554,10 @@ function getcategorypulldowns(site, path)
 			sel.append(opt);
 		});
 		
-		if (category['i']) {
-			if (cato['c'+category['i']]['c']) {
-				sel.val(category['i']);
-				cato = cato['c'+category['i']]['c'];
+		if (cato['c'+categoryid]) {
+			if (cato['c'+categoryid]['c']) {
+				sel.val(categoryid);
+				cato = cato['c'+categoryid]['c'];
 			}
 		}
 		
@@ -573,31 +568,26 @@ function getcategorypulldowns(site, path)
 }
 
 
-//function preloadcategory(site, categoryid)
 function preloadcategory(site, path)
 {
-	debug = $.dump(path);
-	//alert(debug);
-	
 	cato = hash[site]['category'];
 	
 	var npath = new Array();
-	$.each(path, function(level, category) {
-		if (cato['c'+category['i']]) {
-			if (cato['c'+category['i']]['c']) {
-				cato = cato['c'+category['i']]['c'];
-				return;
-			}
+	$.each(path, function(i, categoryid) {
+		if (cato['c'][categoryid]) {
+			cato = cato['c'][categoryid];
+			return;
+		} else if (cato['gc']) {
+			return;
 		}
 		
-		npath.push(category['i']);
+		npath.push(categoryid);
 	});
-	
-	//alert($.dump(cato));
 	
 	$.getJSON('/users/getchildrenbypath/'+site+'/'+npath.join('.'),
 			  function(data) {
-				  cato['c'+npath[0]]['c'] = data;
+				  cato['c']['c'+npath[0]]['c'] = data;
+				  cato['c']['c'+npath[0]]['gc'] = 1;
 			  });
 	
 	return;
@@ -635,7 +625,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']); 
+	dump(hash); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
