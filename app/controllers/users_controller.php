@@ -22,7 +22,8 @@ class UsersController extends AppController {
 	
 	function beforeFilter()
 	{
-		error_log($this->here."\n".'POST:'.print_r($_POST,1));
+		error_log($this->here);
+		if (!empty($_POST)) error_log('POST:'.print_r($_POST,1));
 		parent::beforeFilter();
 		
         $this->Auth->allow('index', 'register', 'receivenotify');
@@ -48,7 +49,12 @@ class UsersController extends AppController {
 		file_put_contents($resfile, $xml);
 		chmod($resfile, 0777);
 		
-		//$xmlobj = simplexml_load_string($xml);
+		$xml = preg_replace("/^.*<soapenv:Body>/s", "", $xml);
+		$xml = preg_replace("/<\/soapenv:Body>.*$/s", "", $xml);
+		$xmlobj = simplexml_load_string($xml);
+		error_log($xmlobj->RecipientUserID
+				  . ':'.$xmlobj->NotificationEventName
+				  . ':'.$xmlobj->Item->ItemID);
 		
 		exit;
 	}
@@ -527,7 +533,6 @@ class UsersController extends AppController {
 	
 	/**
 	 * get hierarchical path data of specific category and its parents.
-	 * not return category itself.
 	 */
 	function categorypath($site, $categoryid)
 	{
@@ -538,6 +543,7 @@ class UsersController extends AppController {
 		while (true) {
 			$res = $this->User->query("SELECT * FROM ".$table." WHERE CategoryID = ".$parentid);
 			if (empty($res[0][$table])) break;
+			
 			$row = $res[0][$table];
 			$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
 			$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
@@ -546,7 +552,6 @@ class UsersController extends AppController {
 			$parentid = $row['CategoryParentID'];
 		}
 		if (is_array($path)) ksort($path);
-		error_log(print_r($path,1));
 		
 		return $path;
 	}
@@ -783,31 +788,35 @@ class UsersController extends AppController {
 
 	function getsummary()
 	{
-		$sql = "SELECT accountid,";
+		/* All */
 		foreach ($this->filter as $name => $filter) {
-			$sql .= " (".$filter.") AS ".$name.",";
-		}
-		$sql .= " COUNT(*) AS cnt"
-			. " FROM items"
-			. " GROUP BY accountid, ".implode(", ", array_keys($this->filter));
-		echo $sql;
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $row) {
-			$accountid = $row['items']['accountid'];
-			$count = $row[0]['cnt'];
-			
-			foreach ($this->filter as $name => $filter) {
-				if ($row[0][$name] > 0) {
-					isset($data[$accountid][$name])
-						? $data[$accountid][$name] += $count
-						: $data[$accountid][$name]  = $count;
-				}
+			$sql = "SELECT COUNT(*) AS cnt"
+				. " FROM items"
+				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " AND ".$filter;
+			$res = $this->User->query($sql);
+			foreach ($res as $i => $row) {
+				$cnt = $row[0]['cnt'];
+				$summary['all'][$name] = $cnt;
 			}
 		}
 		
-		echo '<pre>'.print_r($data,1).'</pre>';
+		/* each accounts */
+		foreach ($this->filter as $name => $filter) {
+			$sql = "SELECT accountid, COUNT(*) AS cnt"
+				. " FROM items"
+				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " AND ".$filter
+				. " GROUP BY accountid";
+			$res = $this->User->query($sql);
+			foreach ($res as $i => $row) {
+				$accountid = $row['items']['accountid'];
+				$cnt = $row[0]['cnt'];
+				$summary[$accountid][$name] = $cnt;
+			}
+		}
 		
-		exit;
+		return $summary;
 	}
 }
 ?>

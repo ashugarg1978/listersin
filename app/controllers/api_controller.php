@@ -23,14 +23,29 @@ class ApiController extends AppController {
 	
 	function test($arg=null)
 	{
-		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9276839971.notify.xml');
-		echo $xml;
-		$xmlobj = simplexml_load_string($xml);
-		echo print_r($xmlobj,1);
+		if (true) {
+			$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9276839971.notify.xml');
+			$xml = preg_replace("/^.*<soapenv:Body>/s", "", $xml);
+			$xml = preg_replace("/<\/soapenv:Body>.*$/s", "", $xml);
+			
+			//$arr = null;
+			//$parser = xml_parser_create('');
+			//xml_parse($parser, $xml, $arr);
+			//echo print_r($arr,1);exit;
+			
+			//$xml = str_replace("\n", "", $xml);
+			//$o = new SoapVar($xml, XSD_STRING);
+			//$o = new SoapVar($xml, XSD_ANYXML);
+			$xmlobj = simplexml_load_string($xml);
+			echo print_r($xmlobj,1);
+			exit;
+			
+			$xmlobj = simplexml_load_file(ROOT.'/app/tmp/apilogs/9273909998.AddItems.Canada.req.xml');
+			echo print_r($xmlobj,1);
+			exit;
+		}
 		
-		exit;
-		
-		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_chiba'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
