@@ -48,7 +48,12 @@ class UsersController extends AppController {
 		file_put_contents($resfile, $xml);
 		chmod($resfile, 0777);
 		
-		//$xmlobj = simplexml_load_string($xml);
+		$xml = preg_replace("/^.*<soapenv:Body>/s", "", $xml);
+		$xml = preg_replace("/<\/soapenv:Body>.*$/s", "", $xml);
+		$xmlobj = simplexml_load_string($xml);
+		error_log($xmlobj->RecipientUserID
+				  . ':'.$xmlobj->NotificationEventName
+				  . ':'.$xmlobj->Item->ItemID);
 		
 		exit;
 	}
@@ -527,7 +532,6 @@ class UsersController extends AppController {
 	
 	/**
 	 * get hierarchical path data of specific category and its parents.
-	 * not return category itself.
 	 */
 	function categorypath($site, $categoryid)
 	{
@@ -538,6 +542,7 @@ class UsersController extends AppController {
 		while (true) {
 			$res = $this->User->query("SELECT * FROM ".$table." WHERE CategoryID = ".$parentid);
 			if (empty($res[0][$table])) break;
+			
 			$row = $res[0][$table];
 			$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
 			$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
@@ -546,7 +551,6 @@ class UsersController extends AppController {
 			$parentid = $row['CategoryParentID'];
 		}
 		if (is_array($path)) ksort($path);
-		error_log(print_r($path,1));
 		
 		return $path;
 	}
