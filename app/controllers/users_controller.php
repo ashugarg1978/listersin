@@ -22,7 +22,8 @@ class UsersController extends AppController {
 	
 	function beforeFilter()
 	{
-		error_log($this->here."\n".'POST:'.print_r($_POST,1));
+		error_log($this->here);
+		if (!empty($_POST)) error_log('POST:'.print_r($_POST,1));
 		parent::beforeFilter();
 		
         $this->Auth->allow('index', 'register', 'receivenotify');
@@ -787,31 +788,35 @@ class UsersController extends AppController {
 
 	function getsummary()
 	{
-		$sql = "SELECT accountid,";
+		/* All */
 		foreach ($this->filter as $name => $filter) {
-			$sql .= " (".$filter.") AS ".$name.",";
-		}
-		$sql .= " COUNT(*) AS cnt"
-			. " FROM items"
-			. " GROUP BY accountid, ".implode(", ", array_keys($this->filter));
-		echo $sql;
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $row) {
-			$accountid = $row['items']['accountid'];
-			$count = $row[0]['cnt'];
-			
-			foreach ($this->filter as $name => $filter) {
-				if ($row[0][$name] > 0) {
-					isset($data[$accountid][$name])
-						? $data[$accountid][$name] += $count
-						: $data[$accountid][$name]  = $count;
-				}
+			$sql = "SELECT COUNT(*) AS cnt"
+				. " FROM items"
+				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " AND ".$filter;
+			$res = $this->User->query($sql);
+			foreach ($res as $i => $row) {
+				$cnt = $row[0]['cnt'];
+				$summary['all'][$name] = $cnt;
 			}
 		}
 		
-		echo '<pre>'.print_r($data,1).'</pre>';
+		/* each accounts */
+		foreach ($this->filter as $name => $filter) {
+			$sql = "SELECT accountid, COUNT(*) AS cnt"
+				. " FROM items"
+				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " AND ".$filter
+				. " GROUP BY accountid";
+			$res = $this->User->query($sql);
+			foreach ($res as $i => $row) {
+				$accountid = $row['items']['accountid'];
+				$cnt = $row[0]['cnt'];
+				$summary[$accountid][$name] = $cnt;
+			}
+		}
 		
-		exit;
+		return $summary;
 	}
 }
 ?>
