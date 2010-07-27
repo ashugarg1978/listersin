@@ -280,7 +280,18 @@ function bindevents()
 	$('select.category').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		site = $('select[name=Site]', '#'+id).val();
-		categoryid = $(this).val();
+		
+		tmppath = [];
+		$.each($(this).prevAll(), function(i, o) {
+			tmppath.push($(o).val());
+		});
+		tmppath.push($(this).val());
+		
+		sel = getcategorypulldown(site, tmppath);
+		$(this).nextAll().remove();
+		$('td.category', '#'+id).append(sel);
+		
+		return;
 		
 		sel = getcategorypulldown(site, categoryid);
 		$(this).nextAll().remove();
@@ -506,17 +517,22 @@ if (0) {
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
 
-function getcategorypulldown(site, categoryid)
+function getcategorypulldown(site, path)
 {
+	cato = hash[site]['category'];
+
+	$.each(path, function(i, categoryid) {
+		alert(categoryid);
+		if (cato['c'+categoryid]['c']) {
+			cato = cato['c'+categoryid]['c'];
+			alert($.dump(cato));
+		}
+	});
+	
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
 	sel.append(opt);
-	if (categoryid > 0) {
-		o = hash[site]['category'][categoryid];		
-	} else {
-		o = hash[site]['category'];
-	}
-	$.each(o, function(id, row) {
+	$.each(cato, function(id, row) {
 		str = row['n'];
 		if (row['c'] != 'l') str += ' &gt;';
 		opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
@@ -532,7 +548,7 @@ function getcategorypulldowns(site, path)
 	
 	sels = $('<div/>');
 	$.each(path, function(level, category) {
-			
+		
 		sel = $('<select class="category"/>');
 		opt = $('<option/>').val('').text('');
 		sel.append(opt);
@@ -553,7 +569,7 @@ function getcategorypulldowns(site, path)
 		sels.append(sel);
 	});
 	
-	return sels;
+	return sels.children();
 }
 
 
