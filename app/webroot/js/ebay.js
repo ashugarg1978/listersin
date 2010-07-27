@@ -9,7 +9,7 @@ $(document).bind({
 		$('ul#selling > li > a.active').click();
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(5):last').click()", 1000);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
@@ -274,26 +274,18 @@ function bindevents()
 		site = $('select[name=Site]', '#'+id).val();
 		
 		tmppath = [];
-		$.each($(this).prevAll(), function(i, o) {
+		curidx = $(this).prevAll().length + 1;
+		$.each($('select.category:lt('+curidx+')', '#'+id), function(i, o) {
 			tmppath.push($(o).val());
 		});
-		tmppath.push($(this).val());
 		
 		sel = getcategorypulldown(site, tmppath);
 		$(this).nextAll().remove();
 		$('td.category', '#'+id).append(sel);
-		
-		preloadcategory(site, tmppath);
-		
-		return;
-		
-		sel = getcategorypulldown(site, categoryid);
-		$(this).nextAll().remove();
-		$('td.category', '#'+id).append(sel);
-		
 		$('select.category',      '#'+id).attr('name', '');
 		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
 		
+		preloadcategory(site, tmppath);
 		
 		return;
 	});
@@ -341,15 +333,12 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   
+					   preloadcategory(data['Site'], data['categorypath']);
 					   rowsdata[id] = data;
 					   detail = getdetail(data);
 					   $('tr.row2 td', '#'+id).html(detail);
 					   $('div.detail', '#'+id).slideToggle('fast');
-					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
-					   
-					   preloadcategory(data['Site'], data['categorypath']);
 				   },
 				   'json');
 		} else {
@@ -570,14 +559,18 @@ function getcategorypulldowns(site, path)
 
 function preloadcategory(site, path)
 {
-	cato = hash[site]['category'];
-	
 	var npath = new Array();
+	
+	cato = hash[site]['category'];
+	if (!cato['gc']) {
+		npath.push(0);
+	}
+	
 	$.each(path, function(i, categoryid) {
-		if (cato['c'][categoryid]) {
-			cato = cato['c'][categoryid];
-			return;
-		} else if (cato['gc']) {
+		if (cato['gc']) {
+			if (cato['c'][categoryid]) {
+				cato = cato['c'][categoryid];
+			}
 			return;
 		}
 		
@@ -586,8 +579,13 @@ function preloadcategory(site, path)
 	
 	$.getJSON('/users/getchildrenbypath/'+site+'/'+npath.join('.'),
 			  function(data) {
-				  cato['c']['c'+npath[0]]['c'] = data;
-				  cato['c']['c'+npath[0]]['gc'] = 1;
+				  if (npath[0] == 0) {
+					  hash[site]['category']['c'] = data;
+					  hash[site]['category']['gc'] = data;
+				  } else {
+					  cato['c']['c'+npath[0]]['c'] = data;
+					  cato['c']['c'+npath[0]]['gc'] = 1;
+				  }
 			  });
 	
 	return;
