@@ -252,17 +252,11 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		site = $(this).val()
 		
-		sel = getcategorypulldown(site, null);
+		sel = getcategorypulldown(site, 0);
 		$('td.category', '#'+id).html(sel);
 		
-		if (!hash[site]['category']['gc']) {
-			$.getJSON('/users/grandchildren/'+site,
-					  function(data) {
-						  $.each(data, function(i, arr) {
-							  hash[site]['category']['c'][i]['c'] = arr['c'];
-						  });
-						  hash[site]['category']['gc'] = 1;
-					  });
+		if (!hash[site]['category']['grandchildren'][0]) {
+			preloadcategory($(this).val(), []);
 		}
 		
 		return;
@@ -273,19 +267,14 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		site = $('select[name=Site]', '#'+id).val();
 		
-		tmppath = [];
-		curidx = $(this).prevAll().length + 1;
-		$.each($('select.category:lt('+curidx+')', '#'+id), function(i, o) {
-			tmppath.push($(o).val());
-		});
-		
-		sel = getcategorypulldown(site, tmppath);
-		$(this).nextAll().remove();
-		$('td.category', '#'+id).append(sel);
+		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
+			preloadcategory(site, [$(this).val()]);
+			sel = getcategorypulldown(site, $(this).val());
+			$(this).nextAll().remove();
+			$('td.category', '#'+id).append(sel);
+		}
 		$('select.category',      '#'+id).attr('name', '');
 		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
-		
-		preloadcategory(site, tmppath);
 		
 		return;
 	});
@@ -499,27 +488,15 @@ if (0) {
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
 
-function getcategorypulldown(site, path)
+function getcategorypulldown(site, categoryid)
 {
-	cato = hash[site]['category']['c'];
-	
-	if (path) {
-		$.each(path, function(i, categoryid) {
-			if (cato['c'+categoryid]['c']) {
-				cato = cato['c'+categoryid]['c'];
-			} else {
-				alert('err:'+categoryid);
-			}
-		});
-	}
-	
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
 	sel.append(opt);
-	$.each(cato, function(id, row) {
-		str = row['n'];
-		if (row['c'] != 'leaf') str += ' &gt;';
-		opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
+	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
+		str = hash[site]['category']['name'][childid];
+		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
+		opt = $('<option/>').val(childid).html(str);
 		sel.append(opt);
 	});
 	
@@ -528,27 +505,23 @@ function getcategorypulldown(site, path)
 
 function getcategorypulldowns(site, path)
 {
-	cato = hash[site]['category']['c'];
+	tmpid = 0;
+	ctgr = hash[site]['category'];
 	
 	sels = $('<div/>');
 	$.each(path, function(i, categoryid) {
-		
 		sel = $('<select class="category"/>');
 		opt = $('<option/>').val('').text('');
 		sel.append(opt);
-		$.each(cato, function(id, row) {
-			str = row['n'];
-			if (row['c'] != 'leaf') str += ' &gt;';
-			opt = $('<option/>').val(id.replace(/^c/, '')).html(str);
+		$.each(ctgr['children'][tmpid], function(i, cid) {
+			str = ctgr['name'][cid];
+			if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
+			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});
 		
-		if (cato['c'+categoryid]) {
-			if (cato['c'+categoryid]['c']) {
-				sel.val(categoryid);
-				cato = cato['c'+categoryid]['c'];
-			}
-		}
+		sel.val(categoryid);
+		tmpid = categoryid;
 		
 		sels.append(sel);
 	});
@@ -561,6 +534,8 @@ function preloadcategory(site, path)
 {
 	var npath = new Array();
 	
+	if (!hash[site]['category']['grandchildren'][0]) npath.push(0);
+	
 	$.each(path, function(i, categoryid) {
 		if (hash[site]['category']['grandchildren'][categoryid]) return;
 		npath.push(categoryid);
@@ -568,8 +543,9 @@ function preloadcategory(site, path)
 	
 	$.getJSON('/users/grandchildren/'+site+'/'+npath.join('.'),
 			  function(data) {
-				  $.each(data['grandchildren'], function(i, v) {
-					  //hash[site]['category']['grandchildren'][c] = 1;
+				  $.each(hash[site]['category'], function(n, a) {
+					  var tmpo = $.extend({}, hash[site]['category'][n], data[n]);
+					  hash[site]['category'][n] = tmpo;
 				  });
 			  });
 	
@@ -608,7 +584,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']); 
+	dump(hash['HongKong']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
