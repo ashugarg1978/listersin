@@ -70,7 +70,13 @@ class UsersController extends AppController {
 				
 				$categorydata = $this->children($sitename, 0);
 				$hash[$sitename]['category']['children'][0] = $categorydata['children'];
-				$hash[$sitename]['category']['name'] = $categorydata['name'];
+				if (isset($categorydata['name'])) {
+					$hash[$sitename]['category']['name'] = $categorydata['name'];
+				} else {
+					$hash[$sitename]['category']['name'] = array();
+					error_log('incomplete category data');
+				}
+				$hash[$sitename]['category']['grandchildren'] = array();
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
@@ -588,16 +594,22 @@ class UsersController extends AppController {
 	function grandchildren($site, $pathstr)
 	{
 		$data['name'] = array();
+		$data['children'] = array();
+		$data['grandchildren'] = array();
 		$arrpath = explode('.', $pathstr);
 		foreach ($arrpath as $i => $categoryid) {
 			
+			$data['grandchildren'][$categoryid] = 1;
 			$p = $this->children($site, $categoryid);
+			if (empty($p['children']) || $p['children'] == 'leaf') continue;
 			foreach ($p['children'] as $i => $childid) {
 				$c = $this->children($site, $childid);
 				$data['children'][$childid] = $c['children'];
 				
-				foreach ($c['name'] as $cid => $cname) {
-					$data['name'][$cid] = $cname;
+				if (isset($c['name'])) {
+					foreach ($c['name'] as $cid => $cname) {
+						$data['name'][$cid] = $cname;
+					}
 				}
 			}
 			

@@ -561,31 +561,16 @@ function preloadcategory(site, path)
 {
 	var npath = new Array();
 	
-	cato = hash[site]['category'];
-	if (!cato['gc']) {
-		npath.push(0);
-	}
-	
 	$.each(path, function(i, categoryid) {
-		if (cato['gc']) {
-			if (cato['c'][categoryid]) {
-				cato = cato['c'][categoryid];
-			}
-			return;
-		}
-		
+		if (hash[site]['category']['grandchildren'][categoryid]) return;
 		npath.push(categoryid);
 	});
 	
-	$.getJSON('/users/getchildrenbypath/'+site+'/'+npath.join('.'),
+	$.getJSON('/users/grandchildren/'+site+'/'+npath.join('.'),
 			  function(data) {
-				  if (npath[0] == 0) {
-					  hash[site]['category']['c'] = data;
-					  hash[site]['category']['gc'] = data;
-				  } else {
-					  cato['c']['c'+npath[0]]['c'] = data;
-					  cato['c']['c'+npath[0]]['gc'] = 1;
-				  }
+				  $.each(data['grandchildren'], function(i, v) {
+					  //hash[site]['category']['grandchildren'][c] = 1;
+				  });
 			  });
 	
 	return;
@@ -623,7 +608,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash); 
+	dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
