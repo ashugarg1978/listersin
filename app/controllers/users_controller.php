@@ -638,7 +638,8 @@ class UsersController extends AppController {
 			foreach ($res as $i => $row) {
 				$id = $row[$table]['CategoryID'];
 				$data['children'][$categoryid][] = $id;
-				$data['name'][$id] = $row[$table]['CategoryName'].'('.$id.')';
+				$data['name'][$id] = $row[$table]['CategoryName'];
+				//$data['name'][$id] .= '('.$id.')';
 				if ($row[$table]['LeafCategory']) {
 					$data['children'][$id] = 'leaf';
 				}
