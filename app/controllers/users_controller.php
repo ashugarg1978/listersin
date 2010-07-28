@@ -564,33 +564,6 @@ class UsersController extends AppController {
 		return $path;
 	}
 	
-	function getchildrenbypath($site, $pathstr)
-	{
-		$arrpath = explode('.', $pathstr);
-		$res = $this->_getchildrenbypath($site, $arrpath);
-		
-		echo json_encode($res);
-		error_log(print_r($res,1));
-		exit;
-	}
-
-	function _getchildrenbypath($site, $arrpath)
-	{
-		$categoryid = array_shift($arrpath);
-		$children = $this->children($site, $categoryid);
-		foreach ($children as $i => $child) {
-			if (isset($child['c']) && $child['c'] == 'leaf') continue;
-			
-			if ($i == 'c'.$arrpath[0]) {
-				$children[$i]['c'] = $this->_getchildrenbypath($site, $arrpath);
-			} else {
-				$children[$i]['c'] = $this->children($site, str_replace('c', '', $i));
-			}
-		}
-		
-		return $children;
-	}
-	
 	function grandchildren($site, $pathstr)
 	{
 		$data['name'] = array();
@@ -598,7 +571,6 @@ class UsersController extends AppController {
 		$data['grandchildren'] = array();
 		$arrpath = explode('.', $pathstr);
 		foreach ($arrpath as $i => $categoryid) {
-			
 			$data['grandchildren'][$categoryid] = 1;
 			$p = $this->children($site, $categoryid);
 			if (empty($p['children']) || $p['children'] == 'leaf') continue;
@@ -615,10 +587,10 @@ class UsersController extends AppController {
 					}
 				}
 			}
-			
 		}
+		
 		echo json_encode($data);
-		error_log(print_r($data,1));
+		//error_log(print_r($data,1));
 		exit;
 	}
 	
@@ -651,23 +623,6 @@ class UsersController extends AppController {
 		//error_log(print_r($data,1));
 		return $data;
 	}
-	
-	function old_grandchildren($site, $pathcategoryid=null)
-	{
-		$children = $this->children($site, $categoryid);
-		foreach ($children as $i => $child) {
-			$childid = str_replace('c', '', $i);
-			$children[$i]['c'] = $this->children($site, $childid);
-		}
-		
-		if ($this->action == __FUNCTION__) {
-			echo json_encode($children);
-			exit;
-		} else {
-			return $children;
-		}
-	}
-	
 	
 	function getShippingServiceDetails($sitename)
 	{
