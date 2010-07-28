@@ -69,7 +69,7 @@ class UsersController extends AppController {
 				$hash[$sitename]['SiteID'] = $siteid;
 				
 				$categorydata = $this->children($sitename, 0);
-				$hash[$sitename]['category']['children'][0] = $categorydata['children'];
+				$hash[$sitename]['category']['children'] = $categorydata['children'];
 				if (isset($categorydata['name'])) {
 					$hash[$sitename]['category']['name'] = $categorydata['name'];
 				} else {
@@ -602,10 +602,13 @@ class UsersController extends AppController {
 			$data['grandchildren'][$categoryid] = 1;
 			$p = $this->children($site, $categoryid);
 			if (empty($p['children']) || $p['children'] == 'leaf') continue;
-			foreach ($p['children'] as $i => $childid) {
+			foreach ($p['children'][$categoryid] as $i => $childid) {
 				$c = $this->children($site, $childid);
-				$data['children'][$childid] = $c['children'];
-				
+				if (isset($c['children']) && is_array($c['children'])) {
+					foreach ($c['children'] as $cid => $carr) {
+						$data['children'][$cid] = $carr;
+					}
+				}
 				if (isset($c['name'])) {
 					foreach ($c['name'] as $cid => $cname) {
 						$data['name'][$cid] = $cname;
@@ -634,13 +637,17 @@ class UsersController extends AppController {
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {
 				$id = $row[$table]['CategoryID'];
-				$data['children'][] = $id;
+				$data['children'][$categoryid][] = $id;
 				$data['name'][$id] = $row[$table]['CategoryName'].'('.$id.')';
+				if ($row[$table]['LeafCategory']) {
+					$data['children'][$id] = 'leaf';
+				}
 			}
 		} else {
 			$data['children'] = 'leaf';
 		}
 		
+		//error_log(print_r($data,1));
 		return $data;
 	}
 	

@@ -250,14 +250,12 @@ function bindevents()
 	/* Site */
 	$('select[name=Site]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
-		site = $(this).val()
+		site = $(this).val();
 		
 		sel = getcategorypulldown(site, 0);
 		$('td.category', '#'+id).html(sel);
 		
-		if (!hash[site]['category']['grandchildren'][0]) {
-			preloadcategory($(this).val(), []);
-		}
+		if (!hash[site]['category']['grandchildren'][0]) preloadcategory(site, []);
 		
 		return;
 	});
@@ -584,7 +582,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['HongKong']['category']); 
+	dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
