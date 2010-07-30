@@ -9,8 +9,9 @@ $(document).bind({
 		$('ul#selling > li > a.active').click();
 		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
-		setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
@@ -23,11 +24,8 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   
 			   paging(data.cnt);
-			   
 			   $('tbody:gt(2)', 'table#items').remove();
-			   
 			   if (data.cnt == 0) {
 				   $('tbody#rowloading > tr > td').html('No item data found.');
 				   $('tbody#rowloading').show();
@@ -35,14 +33,23 @@ function items()
 			   }
 			   $('tbody#rowloading').hide();
 			   
+			   var tmpids = new Array();
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
 				   $('#items').append(dom);
 				   rowsdata[row['id']] = row;
+				   tmpids.push(row['id']);
 			   });
-			   
 		   },
 		   'json');
+	
+	// todo: get detail of each items
+	$.post('/users/items/',
+		   $('input, select', '#filter').serialize(),
+		   function(data) {
+		   },
+		   'json');
+	
 }
 
 function getrow(row)
@@ -54,11 +61,11 @@ function getrow(row)
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
 	
-	var ts = "";
 	$.each(row, function(colname, colval) {
-
-		// todo: why at mark error?
+		
+		// todo: why @ mark error?
 		if (colname.match(/\@/)) return;
+		if (colname == 'PictureDetails_PictureURL') return;
 		
 		$('.'+colname, dom).html(colval);
 	});
@@ -139,7 +146,7 @@ function getdetail(row)
 		$('td.category', detail).html('<span class="error">not selected</span>');
 	}
 	
-if (1) {
+	
 	/* duration */
 	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
 	$('td.duration', detail).text(ldstr);
@@ -150,6 +157,7 @@ if (1) {
 	}
 	$('td.paymentmethod', detail).html(pmstr);
 	
+	
 	/* shippingservice */
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
@@ -158,12 +166,79 @@ if (1) {
 		});
 		$('td.shippingservice', detail).html(ssstr);
 	}	
-}	
+
+	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});
 	
 	return detail;
+}
+
+
+function getdetail2(row)
+{
+	id = row['id'];
+	detail = $('div.detail', '#'+id);
+    
+	/* preserve selected tab */
+	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	tabnum = tab.parent().prevAll().length + 1;
+	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
+	
+	if (row['PictureDetails_PictureURL']) {
+		$.each(row['PictureDetails_PictureURL'], function(i, url) {
+			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
+		});
+	}
+	
+	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
+	$('textarea[name=description]', detail).replaceWith(iframe);
+	
+	tmpv = $('select[name=ListingType] > option[value='+row['ListingType']+']', detail).text();
+	$('select[name=ListingType]', detail).replaceWith(tmpv);
+	
+	$('input:file', detail).remove();
+	
+	/* site */
+	$('select[name=Site]', detail).replaceWith(row['Site']);
+	
+	/* category */
+	if (row['categorystr']) {
+		$('td.category', detail).text(row['categorystr']);
+	} else {
+		$('td.category', detail).html('<span class="error">not selected</span>');
+	}
+	
+	
+	/* duration */
+	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
+	$('td.duration', detail).text(ldstr);
+	
+	var pmstr = "";
+	if (row['PaymentMethods']) {
+		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
+	}
+	$('td.paymentmethod', detail).html(pmstr);
+	
+	
+	/* shippingservice */
+	if (row['ShippingDetails_ShippingServiceOptions']) {
+		ssstr = '';
+		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
+			ssstr += o['ShippingService'] + '<br>';
+		});
+		$('td.shippingservice', detail).html(ssstr);
+	}	
+
+	
+	$.each(row, function(colname, colval) {
+		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
+	});
+	
+	return;
 }
 
 
@@ -317,14 +392,22 @@ function bindevents()
 		var id = $(this).closest('tbody').attr('id');
 		
 		if (!$('tr.row2 td', '#'+id).html().match(/^<div/i)) {
+			
+			detail = $('div.detail', 'div#detailtemplate').clone();
+			$('tr.row2 td', '#'+id).html(detail);
+			$('div.detail', '#'+id).slideToggle('fast');
+			
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
+					   getdetail2(data);
+					   
 					   preloadcategory(data['Site'], data['categorypath']);
 					   rowsdata[id] = data;
-					   detail = getdetail(data);
-					   $('tr.row2 td', '#'+id).html(detail);
-					   $('div.detail', '#'+id).slideToggle('fast');
+					   //detail.css('display', 'block');
+					   //$('tr.row2 td', '#'+id).html(detail);
+					   
+					   //$('div.detail', '#'+id).slideToggle('fast');
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
@@ -352,6 +435,7 @@ function bindevents()
 	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+		dump(rowsdata[id]);
 		
 	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
@@ -436,7 +520,7 @@ if (0) {
 		$.post('/users/save/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
-				   rowsdata[id] = data;
+				   //rowsdata[id] = data;
 				   
 				   dom = getrow(data);
 				   detail = getdetail(data);
@@ -582,7 +666,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']); 
+	//dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;

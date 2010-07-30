@@ -40,6 +40,7 @@ class UsersController extends AppController {
 		
 		return;
     }	
+
 	
 	function receivenotify()
 	{
@@ -127,9 +128,9 @@ class UsersController extends AppController {
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
-		$sql_filter[] = "PrimaryCategory_CategoryID != 279";
-		$sql_filter[] = "PrimaryCategory_CategoryID != 31411";
-		$sql_filter[] = "PrimaryCategory_CategoryID != 159681";
+		//$sql_filter[] = "PrimaryCategory_CategoryID != 279";
+		//$sql_filter[] = "PrimaryCategory_CategoryID != 31411";
+		//$sql_filter[] = "PrimaryCategory_CategoryID != 159681";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -171,9 +172,9 @@ class UsersController extends AppController {
 			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
-		if (isset($_POST['sort'])) {
+		if (isset($_POST['sort']))
 			$sort[] = $this->mres($_POST['sort']);
-		}
+		
 		$sort[] = "id DESC";
 		$sql .= " ORDER BY ".implode(',', $sort);
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
@@ -208,9 +209,8 @@ class UsersController extends AppController {
 			}
 			
 			$tmppct = explode("\n", $item['PictureDetails_PictureURL']);
-			if (is_array($tmppct)) {
+			if (is_array($tmppct))
 				$item['PictureDetails_PictureURL'] = $tmppct[0];
-			}
 			
 			if (isset($item['schedule'])) {
 				if (date('Y-m-d', strtotime($item['schedule'])) == date('Y-m-d')) {
@@ -230,9 +230,8 @@ class UsersController extends AppController {
 		}
 		
 		$data['cnt'] = $cnt;
-		if (isset($items)) {
+		if (isset($items))
 			$data['res'] = $items;
-		}
 		
 		echo json_encode($data);
 		//error_log(print_r($data,1));
@@ -275,9 +274,50 @@ class UsersController extends AppController {
 		//$row['other']['site'] = $this->sitedetails();
 		//$row['other']['shipping'] = $this->getshippingservice($row['Site']);
 		
-		error_log(print_r($row,1));
+		//error_log(print_r($row,1));
 		//error_log(json_encode($row));
 		echo json_encode($row);
+		
+		exit;
+	}
+	
+	
+	function itemsxxx()
+	{
+		// todo: check userid and accountid
+		$sql = "SELECT * FROM items WHERE id IN (".$_POST['id'].")";
+		$res = $this->User->query($sql);
+		foreach ($res as $i => $row) {
+			$row = $row['items'];
+			$site = $row['Site'];
+		
+			/* Picture */
+			$row['PictureDetails_PictureURL'] = explode("\n", $row['PictureDetails_PictureURL']);
+			if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
+				$row['ShippingDetails_ShippingServiceOptions']
+					= unserialize($row['ShippingDetails_ShippingServiceOptions']);
+			}
+			
+			/* category */
+			$categoryid = $row['PrimaryCategory_CategoryID'];
+			if ($categoryid > 0) {
+				$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
+				
+				$categorypath = $this->categorypath($site, $categoryid);
+				$row['categorypath'] = array_keys($categorypath);
+				$row['categorystr'] = implode(' > ', array_values($categorypath));
+				$row['categorystr'] .= ' ('.implode(' > ', array_keys($categorypath)).')';
+			}
+			
+			//$row['other']['site'] = $this->sitedetails();
+			//$row['other']['shipping'] = $this->getshippingservice($row['Site']);
+			$rows[$row['id']] = $row;
+		}
+		
+		error_log(print_r($rows,1));
+		//error_log(json_encode($rows));
+		echo json_encode($rows);
+		
 		exit;
 	}
 	
@@ -447,11 +487,17 @@ class UsersController extends AppController {
 	function save()
 	{
 		if (empty($_POST['id'])) return;
-		
 		$id = $_POST['id'];
 		
 		$sqlcol = null;
 		foreach ($_POST as $k => $v) {
+			
+			if ($k == 'id') continue;
+			
+			// todo: don't skip these columns
+			if ($k == 'ShippingType') continue;
+			if ($k == 'ShippingCost') continue;
+			
 			if (is_array($v)) {
 				$sqlcol[] = $k." = '".$this->mres(implode("\n", $v))."'";
 			} else {
@@ -459,9 +505,11 @@ class UsersController extends AppController {
 			}
 		}
 		
+		// todo: check accountid
 		$sql_update = "UPDATE items SET ".implode(", ", $sqlcol)." WHERE id = ".$id;
-		error_log($sql_update);
 		$res = $this->User->query($sql_update);
+		error_log($sql_update);
+		if (mysql_error()) error_log('MySQL Error:'.mysql_error());
 		
 		$_POST = null;
 		$_POST['id'] = $id;
