@@ -430,7 +430,7 @@ class UsersController extends AppController {
 	 * callback from ebay oauth flow.
 	 */
 	function accept()
-	{
+ppppppppppppppp	{
 		if ($user = $this->Auth->user()) {
 			$sql_insert = "INSERT INTO accounts"
 				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
