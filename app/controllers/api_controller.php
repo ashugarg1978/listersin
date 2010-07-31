@@ -356,6 +356,8 @@ class ApiController extends AppController {
 		return;
 	}
 	
+	
+	// todo: don't post over 18 simaltenious ruled by ebay guildline.
 	function additems($opid)
 	{
 		$sites = $this->sitedetails();
