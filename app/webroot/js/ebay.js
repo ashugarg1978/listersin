@@ -8,6 +8,7 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
+		dump(hash);
 		/* auto click for debug */
 		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
@@ -92,7 +93,7 @@ function getrow(row)
 		st = $(row['SellingStatus_ListingStatus']);
 	}
 	$('a.Title', dom).before(st);
-	$('a.Title', dom).prepend(row['PrimaryCategory_CategoryID']);
+	$('a.Title', dom).prepend(row['ShippingDetails_ShippingType']);
 	
 	if (row['Errors_LongMessage']) {
 		$.each(row['Errors_LongMessage'], function(k, v) {
@@ -113,72 +114,6 @@ function getrow(row)
 function getdetail(row)
 {
 	id = row['id'];
-	detail = $('div.detail', 'div#detailtemplate').clone();
-    
-	/* preserve selected tab */
-	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	tabnum = tab.parent().prevAll().length + 1;
-	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
-	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
-	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
-	
-	if (row['PictureDetails_PictureURL']) {
-		$.each(row['PictureDetails_PictureURL'], function(i, url) {
-			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
-		});
-	}
-	
-	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
-	$('textarea[name=description]', detail).replaceWith(iframe);
-	
-	tmpv = $('select[name=ListingType] > option[value='+row['ListingType']+']', detail).text();
-	$('select[name=ListingType]', detail).replaceWith(tmpv);
-	
-	$('input:file', detail).remove();
-	
-	/* site */
-	$('select[name=Site]', detail).replaceWith(row['Site']);
-	
-	/* category */
-	if (row['categorystr']) {
-		$('td.category', detail).text(row['categorystr']);
-	} else {
-		$('td.category', detail).html('<span class="error">not selected</span>');
-	}
-	
-	
-	/* duration */
-	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
-	$('td.duration', detail).text(ldstr);
-	
-	var pmstr = "";
-	if (row['PaymentMethods']) {
-		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
-	}
-	$('td.paymentmethod', detail).html(pmstr);
-	
-	
-	/* shippingservice */
-	if (row['ShippingDetails_ShippingServiceOptions']) {
-		ssstr = '';
-		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
-			ssstr += o['ShippingService'] + '<br>';
-		});
-		$('td.shippingservice', detail).html(ssstr);
-	}	
-
-	
-	$.each(row, function(colname, colval) {
-		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
-	});
-	
-	return detail;
-}
-
-
-function getdetail2(row)
-{
-	id = row['id'];
 	detail = $('div.detail', '#'+id);
     
 	/* preserve selected tab */
@@ -196,6 +131,7 @@ function getdetail2(row)
 		});
 	}
 	
+	// todo: check html5 srcdoc attribute
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=description]', detail).replaceWith(iframe);
 	
@@ -214,17 +150,16 @@ function getdetail2(row)
 		$('td.category', detail).html('<span class="error">not selected</span>');
 	}
 	
-	
 	/* duration */
-	var ldstr = row['categoryfeatures']['ListingDuration'][row['ListingType']][row['ListingDuration']];
+	var ldstr = getListingDurationLabel(row['ListingDuration']);
 	$('td.duration', detail).text(ldstr);
 	
+	/* paymentmethods */
 	var pmstr = "";
 	if (row['PaymentMethods']) {
 		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
 	}
 	$('td.paymentmethod', detail).html(pmstr);
-	
 	
 	/* shippingservice */
 	if (row['ShippingDetails_ShippingServiceOptions']) {
@@ -234,7 +169,6 @@ function getdetail2(row)
 		});
 		$('td.shippingservice', detail).html(ssstr);
 	}	
-
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -380,19 +314,12 @@ function bindevents()
 		$('ul#selling li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
 		
-		var debug;
-		debug = $('div#container').width() + '<br>';
-		debug += $('div#content').width() + '<br>';
-		debug += $('table#items').width() + '<br>';
-		$('div#debug').html(debug);
-
 		return false;
 	});
 	
 	$('a.Title').live('click', function() {
 		
 		var id = $(this).closest('tbody').attr('id');
-		
 		
 		if (!$('tr.row2 td', '#'+id).html().match(/^<div/i)) {
 			
@@ -404,15 +331,13 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   getdetail2(data);
+					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
 					   preloadcategory(data['Site'], data['categorypath']);
+					   preloadcategoryfeatures(data['Site'], data['PrimaryCategory_CategoryID']);
 					   rowsdata[id] = data;
-					   //detail.css('display', 'block');
-					   //$('tr.row2 td', '#'+id).html(detail);
 					   
-					   //$('div.detail', '#'+id).slideToggle('fast');
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
@@ -440,6 +365,9 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		dump(rowsdata[id]);
+		
+		site = rowsdata[id]['Site'];
+		categoryid = rowsdata[id]['PrimaryCategory_CategoryID'];
 		
 	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
@@ -470,10 +398,10 @@ function bindevents()
 		$('td.category', dom).html(sels);
 		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
 		
-if (0) {		
 		/* listing duration */
+		tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
 		sel = $('<select/>').attr('name', 'ListingDuration');
-		$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][rowsdata[id]['ListingType']], function(k, v) {
+		$.each(tmpo[rowsdata[id]['ListingType']], function(k, v) {
 			opt = $('<option/>').val(k).text(v);
 			if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
 			sel.append(opt);
@@ -481,18 +409,16 @@ if (0) {
 		$('td.duration', dom).html(sel);
 		
 		/* payment method */
-		if (rowsdata[id]['categoryfeatures']['PaymentMethod']) {
-			$.each(rowsdata[id]['categoryfeatures']['PaymentMethod'], function(k, v) {
-				chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
-				if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
-					chk.attr('checked', 'checked');
-				}
-				$('td.paymentmethod', dom).append(chk);
-				$('td.paymentmethod', dom).append(v+'<br>');
-			});
-			//$('td.paymentmethod', dom).append('<hr>'+rowsdata[id]['PaymentMethods']);
-		}
-}		
+		tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
+		$.each(tmpo, function(k, v) {
+			chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
+			if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
+				chk.attr('checked', 'checked');
+			}
+			$('td.paymentmethod', dom).append(chk);
+			$('td.paymentmethod', dom).append(v+'<br>');
+		});
+		
 		showbuttons(dom, 'save,cancel');
 		
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
@@ -507,17 +433,18 @@ if (0) {
 		return false;
 	});
 	
-	
 	/* Save */
 	$('ul.editbuttons > li > a.save', 'div.detail').live('click', function() {
 		
 		id = $(this).closest('tbody.itemrow').attr('id');
+		detail = $(this).closest('div.detail');
 		
 		// todo: varidation check
-		if ($('select[name=PrimaryCategory_CategoryID]', $(this).closest('div.detail')).val() == '') {
+		if ($('select[name=PrimaryCategory_CategoryID]', detail).val() == '') {
 			alert('category error.');
 			return false;
 		}
+		
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
 		
@@ -525,32 +452,21 @@ if (0) {
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
-				   
-				   dom = getrow(data);
-				   detail = getdetail(data);
-				   detail.css('display', 'block');
-				   $('tr.row2 td', dom).html(detail);
-				   $('tbody#'+id).replaceWith(dom);
+				   getdetail(data);
+				   showbuttons(detail, 'edit,copy,delete');
 			   },
 			   'json');
 		
 		return false;
 	});
 	
-	
 	/* Cancel */
 	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', function() {
-		
 		id = $(this).closest('tbody.itemrow').attr('id');
-		
-		detail = getdetail(rowsdata[id]);
-		detail.css('display', 'block');
+		getdetail(rowsdata[id]);
 		showbuttons(detail, 'edit,copy,delete');
-		$('div.detail', 'tbody#'+id).replaceWith(detail);
-		
 		return false;
 	});
-	
 	
 	/* Delete */
 	$('#Delete').live('click', function() {
@@ -638,18 +554,17 @@ function preloadcategory(site, path)
 	return;
 }
 
-function savecategorycache(data)
+function preloadcategoryfeatures(site, categoryid)
 {
-	$.each(data, function(site, arr) {
-		$.each(arr, function(categoryid, children) {
-			alert(categoryid);
-			//hash[site]['category'][categoryid]['c'] = children;
-		});
-	});
+	if (hash[site]['category']['features'][categoryid]) return;
 	
-	return;
+	$.getJSON('/users/categoryfeatures/'+site+'/'+categoryid,
+			  function(data) {
+				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
+				  hash[site]['category']['features'] = tmpo;
+				  dump(hash['US']['category']['features']); 
+			  });
 }
-
 
 function copyitems()
 {
@@ -805,7 +720,9 @@ function dump(o)
 
 function updateduration(id)
 {
+	site = $('select[name=Site]', '#'+id).val();
 	listingtype = $('select[name=ListingType]', '#'+id).val();
+	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
 	
 	sel = $('<select/>').attr('name', 'ListingDuration');
 	$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][listingtype], function(k, v) {
@@ -852,4 +769,16 @@ function getshippingservice(id)
 	//$('td.shippingservice', '#'+id).html(sel);
 	
 	return;
+}
+
+function getListingDurationLabel(str)
+{
+	if (str == 'Days_1') {
+		str = "1 Day";
+	} else if (str == 'GTC') {
+		str = "Good 'Til Cancelled";
+	} else if (str.match(/^Days_([\d]+)$/)) {
+		str = str.replace(/^Days_([\d]+)$/, "$1 Days");
+	}
+	return str;
 }

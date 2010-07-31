@@ -30,11 +30,16 @@ div#content {
 
 
 a {
+	color: #0000aa;
 	text-decoration: none;
 }
 
 a:hover {
 	text-decoration: underline;
+}
+
+a:visited {
+	color: #0000aa;
 }
 
 
@@ -130,6 +135,7 @@ table.detail td:first-child {
 	white-space: nowrap;
 	vertical-align: top;
 }
+
 
 
 div.success {
@@ -297,6 +303,7 @@ div.tabContainer {
 	margin-top: -1px;
 	border: 1px solid #999999;
 	padding: 5px;
+    border-radius:5px;
 }
 
 div.tabContainer div.tab {
@@ -338,6 +345,7 @@ span.active {
 }
 
 div#debug {
+	margin-top: 10px;
 	background-color: #ffffcc;
 	padding: 5px;
 	border: 2px solid #cccc99;

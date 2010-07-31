@@ -89,7 +89,7 @@
 <td>
 	<input type="text" name="title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="100" size="2">
+	<input type="hidden" name="limit"  value="50" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
 	<input type="text" name="sort" size="10" value="ListingDetails_EndTime">
 </td>
@@ -326,3 +326,4 @@ var hash;
 hash = <?= json_encode($hash) ?>;
 </script>
 
+<div id="debug"></div>

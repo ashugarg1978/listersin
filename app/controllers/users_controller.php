@@ -78,6 +78,7 @@ class UsersController extends AppController {
 					error_log('incomplete category data');
 				}
 				$hash[$sitename]['category']['grandchildren'] = array();
+				$hash[$sitename]['category']['features'] = array();
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
@@ -128,9 +129,6 @@ class UsersController extends AppController {
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "userid = ".$userid;
-		//$sql_filter[] = "PrimaryCategory_CategoryID != 279";
-		//$sql_filter[] = "PrimaryCategory_CategoryID != 31411";
-		//$sql_filter[] = "PrimaryCategory_CategoryID != 159681";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -153,11 +151,13 @@ class UsersController extends AppController {
 		
 		/* create sql statement */
 		// todo: timezone convert.
+		// todo: don't join accounts table.
+		//. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " accounts.ebayuserid,"
 			. " items.id,"
 			. " items.ItemID,"
-			. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
+			. " items.ListingDetails_EndTime,"
 			. " items.ListingDetails_ViewItemURL,"
 			. " items.Title,"
 			. " items.PictureDetails_PictureURL,"
@@ -166,6 +166,7 @@ class UsersController extends AppController {
 			. " items.Site,"
 			. " items.SellingStatus_ListingStatus,"
 			. " items.Errors_LongMessage,"
+			. " items.ShippingDetails_ShippingType,"
  		    . " items.schedule,"
 			. " items.status"
 			. " FROM items"
@@ -189,7 +190,7 @@ class UsersController extends AppController {
 		/* modify result records */
 		foreach ($res as $idx => $row) {
 			
-			$row['items']['ListingDetails_EndTime'] = $row[0]['ListingDetails_EndTime'];
+			//$row['items']['ListingDetails_EndTime'] = $row[0]['ListingDetails_EndTime'];
 			
 			$id = $row['items']['id'];
 			$item = $row['items'];
@@ -263,7 +264,7 @@ class UsersController extends AppController {
 		/* category */
 		$categoryid = $row['PrimaryCategory_CategoryID'];
 		if ($categoryid > 0) {
-			$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
+			//$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
 			
 			$categorypath = $this->categorypath($site, $categoryid);
 			$row['categorypath'] = array_keys($categorypath);
@@ -600,8 +601,6 @@ class UsersController extends AppController {
 			if (empty($res[0][$table])) break;
 			
 			$row = $res[0][$table];
-			//$path[$row['CategoryLevel']]['i'] = $row['CategoryID'];
-			//$path[$row['CategoryLevel']]['n'] = $row['CategoryName'];
 			$path[$row['CategoryID']] = $row['CategoryName'];
 			
 			if ($row['CategoryLevel'] == 1) break;
@@ -712,14 +711,11 @@ class UsersController extends AppController {
 								 . '/ns:ListingDurations'
 								 . '/ns:ListingDuration');
 		foreach ($xmlobj_ld as $i => $o) {
-			
-			$o->registerXPathNamespace('ns', $ns['']);
 			$attr = $o->attributes();
 			$setid = $attr['durationSetID'].'';
 			$dur = $o->children($ns['']);
 			
 			$a = null;
-			//$a['Days_1'] = '1 Day';
 			foreach ($dur as $j => $v) {
 				$v = $v.''; // todo: cast string
 				if (preg_match('/^Days_([\d]+)$/', $v, $matches)) {
@@ -728,11 +724,9 @@ class UsersController extends AppController {
 					$a[$v] = "Good 'Til Cancelled";
 				}
 			}
-			
 			$durationset[$setid] = $a;
 		}
-		//error_log(print_r($durationset,1));
-		
+		//echo '<pre>'.print_r($durationset,1).'</pre>'; exit;
 		
 		/* SiteDefaults */
 		$sdns = '/ns:GetCategoryFeaturesResponse/ns:SiteDefaults';
@@ -792,7 +786,9 @@ class UsersController extends AppController {
 		$data['PaymentMethod'] = $arrpm;
 		//error_log(print_r($data,1));
 		
-		return $data;
+		$res['features'][$categoryid] = $data;
+		echo json_encode($res);
+		exit;
 	}
 	
 	
