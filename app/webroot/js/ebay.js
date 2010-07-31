@@ -267,10 +267,10 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		site = $('select[name=Site]', '#'+id).val();
 		
+		$(this).nextAll().remove();
 		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
 			preloadcategory(site, [$(this).val()]);
 			sel = getcategorypulldown(site, $(this).val());
-			$(this).nextAll().remove();
 			$('td.category', '#'+id).append(sel);
 		}
 		$('select.category',      '#'+id).attr('name', '');

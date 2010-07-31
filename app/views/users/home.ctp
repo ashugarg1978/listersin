@@ -326,4 +326,3 @@ var hash;
 hash = <?= json_encode($hash) ?>;
 </script>
 
-<div id="debug"></div>
