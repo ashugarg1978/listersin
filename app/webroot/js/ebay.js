@@ -182,11 +182,13 @@ function getdetail2(row)
 	detail = $('div.detail', '#'+id);
     
 	/* preserve selected tab */
+	/*
 	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
 	tabnum = tab.parent().prevAll().length + 1;
 	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
 	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
 	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
+	*/
 	
 	if (row['PictureDetails_PictureURL']) {
 		$.each(row['PictureDetails_PictureURL'], function(i, url) {
@@ -391,9 +393,11 @@ function bindevents()
 		
 		var id = $(this).closest('tbody').attr('id');
 		
+		
 		if (!$('tr.row2 td', '#'+id).html().match(/^<div/i)) {
 			
 			detail = $('div.detail', 'div#detailtemplate').clone();
+			$('td:nth-child(2)', detail).hide();
 			$('tr.row2 td', '#'+id).html(detail);
 			$('div.detail', '#'+id).slideToggle('fast');
 			
@@ -401,6 +405,7 @@ function bindevents()
 				   'id='+id,
 				   function(data) {
 					   getdetail2(data);
+					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
 					   preloadcategory(data['Site'], data['categorypath']);
 					   rowsdata[id] = data;
@@ -411,10 +416,9 @@ function bindevents()
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
-		} else {
+		} else {	
 			$('div.detail', '#'+id).slideToggle('fast');
 		}
-		
 		
 		return false;
 	});
@@ -520,7 +524,7 @@ if (0) {
 		$.post('/users/save/',
 			   'id='+id+'&'+postdata,
 			   function(data) {
-				   //rowsdata[id] = data;
+				   rowsdata[id] = data;
 				   
 				   dom = getrow(data);
 				   detail = getdetail(data);

@@ -142,7 +142,7 @@
 <div class="detail">
 	
 <ul class="tabNav">
-<li><a href="#"><?= __('Detail') ?></a></li>
+<li class="current"><a href="#"><?= __('Detail') ?></a></li>
 <li><a href="#"><?= __('Description') ?></a></li>
 <li><a href="#"><?= __('Pictures') ?></a></li>
 <li><a href="#"><?= __('Shipping') ?></a></li>
@@ -160,7 +160,7 @@
 </ul>
  
 <div class="tabContainer">
-<div class="tab">
+<div class="tab current">
 <table class="detail">
   <tbody>
 	<tr>
