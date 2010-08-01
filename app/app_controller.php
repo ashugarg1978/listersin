@@ -57,9 +57,24 @@ class AppController extends Controller {
 	}
 	
 	
+	// todo: avoid duplicate loop code in array and children
 	function xml2array($xml)
 	{
-		if (count($xml->children())) {
+		if (is_array($xml)) {
+			foreach ($xml as $child) {
+				$childname = $child->getName();
+				if (isset($array[$childname])) {
+					if (empty($dup[$childname])) {
+						$dup[$childname] = true;
+						$array[$childname] = array($array[$childname]);
+					}
+					$array[$childname][] = $this->xml2array($child);
+				} else {
+					$array[$childname] = $this->xml2array($child);
+				}
+			}
+			return $array;
+		} else if (count($xml->children())) {
 			foreach ($xml->children() as $child) {
 				$childname = $child->getName();
 				if (isset($array[$childname])) {

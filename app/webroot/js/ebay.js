@@ -8,7 +8,7 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
-		dump(hash);
+		dump(hash['US']['ShippingServiceDetails']);
 		/* auto click for debug */
 		//setTimeout("$('a.Title:lt(2):last').click()", 1000);
 		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
@@ -162,6 +162,7 @@ function getdetail(row)
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	/* shippingservice */
+	dump(row);
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
@@ -478,6 +479,7 @@ function bindevents()
 		return false;
 	});
 	
+	/* ShippingType */
 	$('select[name=ShippingType]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		sel = getshippingservice(id);
@@ -562,7 +564,6 @@ function preloadcategoryfeatures(site, categoryid)
 			  function(data) {
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
 				  hash[site]['category']['features'] = tmpo;
-				  dump(hash['US']['category']['features']); 
 			  });
 }
 
@@ -741,7 +742,7 @@ function getshippingservice(id)
 	
 	if (type == 'Calculated') {
 		sel = $('<select class="ShippingPackage"/>');
-		$.each(hash['ShippingPackageDetails'][site], function(i, o) {
+		$.each(hash[site]['ShippingPackageDetails'], function(i, o) {
 			opt = $('<option/>').val(o['ShippingPackage']).html(o['Description']);
 			sel.append(opt);
 		});
@@ -755,7 +756,7 @@ function getshippingservice(id)
 	
 	
 	sel = $('<select class="ShippingService"/>');
-	$.each(hash['ShippingServiceDetails'][site], function(i, o) {
+	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
 		if (o['ValidForSellingFlow'] != 'true') return;
 		if (o['ShippingServiceID'] >= 50000) return;
 		

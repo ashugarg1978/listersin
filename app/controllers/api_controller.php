@@ -549,14 +549,14 @@ class ApiController extends AppController {
 	
 	function getebaydetails()
 	{
-		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
+		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_hal'";
 		$res = $this->User->query($sql);
 		$account = $res[0]['accounts'];
 		
 		$h = null;
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
-		$h['DetailName'] = 'ShippingServiceDetails';
-		  
+		//$h['DetailName'] = 'ShippingServiceDetails';
+		
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			$xmlobj = $this->callapi('GeteBayDetails', $h, $sitename);

@@ -675,16 +675,12 @@ class UsersController extends AppController {
 	{
 		$xml = $this->readbz2xml(ROOT.'/data/apixml/ShippingServiceDetails/'.$sitename.'.xml.bz2');
 		
-		// todo: include only ValidForSellingFlow is true.
-		// xml2array can't handle top level array.
-		/*
 		$xmlo = $xml->xpath("/ns:GeteBayDetailsResponse"
 							. "/ns:ShippingServiceDetails"
 							. "[ns:ValidForSellingFlow='true']");
-		echo '<pre>'.print_r($xmlo,1).'</pre>'; exit;
-		*/
 		
-		$arr = $this->xml2array($xml);
+		$arr = $this->xml2array($xmlo);
+		
 		return $arr['ShippingServiceDetails'];
 	}
 	
