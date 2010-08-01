@@ -254,7 +254,7 @@
 		  <td><?= __('Shipping type') ?></td>
 		  <td class="shippingtype">
 	  		
-			<select name="ShippingType">
+			<select name="ShippingDetails_ShippingType[0]">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="Freight">Freight: large items over 150 lbs.</option>
@@ -314,6 +314,23 @@
 		<tr>
 		  <td><?= __('Handling time') ?></td>
 		  
+		  </td>
+		</tr>
+		<tr>
+		  <td colspan="2" align="left">
+			International shipping
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Shipping type') ?></td>
+		  <td class="shippingtype">
+	  		
+			<select name="ShippingDetails_ShippingType[1]">
+			  <option value="Flat">Flat: same cost to all buyers</option>
+			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+			  <option value="NoShipping">No international shipping</option>
+			</select>
+			
 		  </td>
 		</tr>
 	  </tbody>
