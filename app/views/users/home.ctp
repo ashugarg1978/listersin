@@ -251,7 +251,7 @@
 	<table class="detail">
 	  <tbody>
 		<tr>
-		  <td><?= __('Shipping Type') ?></td>
+		  <td><?= __('Shipping type') ?></td>
 		  <td class="shippingtype">
 	  		
 			<select name="ShippingType">
@@ -264,18 +264,18 @@
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Package Type') ?></td>
+		  <td><?= __('Package type') ?></td>
 		  <td class="shippingpackage">
-			<div class="ShippingPackage">
-			  <select name="ShippingPackage"></select>
-			  <input name="" type="checkbox">Irregular package
-			</div>
-			<div class="Dimensions">
-			  <b><?= __('Dimensions') ?></b>
-			  <input name="" type="text" size="3">in. x
-			  <input name="" type="text" size="3">in. x
-			  <input name="" type="text" size="3">in.
-			</div>
+		  	<select name="ShippingPackage"></select>
+			<input name="" type="checkbox">Irregular package
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Dimensions') ?></td>
+		  <td class="dimensions">
+			<input name="" type="text" size="3">in. x
+			<input name="" type="text" size="3">in. x
+			<input name="" type="text" size="3">in.
 		  </td>
 		</tr>
 		<tr>
@@ -309,6 +309,11 @@
 			<a href="" class="ShippingService3">Remove service</a>
 			</div>
 			
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Handling time') ?></td>
+		  
 		  </td>
 		</tr>
 	  </tbody>
