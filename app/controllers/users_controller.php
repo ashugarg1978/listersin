@@ -83,7 +83,10 @@ class UsersController extends AppController {
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
 				
-				/* ShippingServiceDetails */
+				/* Shipping */
+				$hash[$sitename]['ShippingType']
+					= $this->getShippingType($sitename);
+				
 				$hash[$sitename]['ShippingServiceDetails']
 					= $this->getShippingServiceDetails($sitename);
 				
@@ -851,6 +854,26 @@ class UsersController extends AppController {
 		}
 		
 		return $summary;
+	}
+	
+	function getShippingType($site)
+	{
+		if ($site == 'US') {
+			$data['domestic']['Flat']       = 'Flat: same cost to all buyers';
+			$data['domestic']['Calculated'] = 'Calculated: Cost varies by buyer location';
+			$data['domestic']['Freight']    = 'Freight: large items over 150 lbs.';
+			$data['domestic']['NoShipping'] = 'No shipping: Local pickup only';
+		} else {
+			$data['domestic']['Flat']       = 'Flat: same cost to all buyers';
+			$data['domestic']['Calculated'] = 'Calculated: Cost varies by buyer location';
+			$data['domestic']['NoShipping'] = 'No shipping: Local pickup only';
+		}
+		
+		$data['international']['Flat']       = 'Flat: same cost to all buyers';
+		$data['international']['Calculated'] = 'Calculated: Cost varies by buyer location';
+		$data['international']['NoShipping'] = 'No shipping: Local pickup only';
+		
+		return $data;
 	}
 }
 ?>
