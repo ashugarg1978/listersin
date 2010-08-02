@@ -856,6 +856,7 @@ class UsersController extends AppController {
 		return $summary;
 	}
 	
+	// todo: check UK:courier?
 	function getShippingType($site)
 	{
 		if ($site == 'US') {
