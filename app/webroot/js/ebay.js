@@ -8,17 +8,28 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
-		dump(hash['US']['ShippingServiceDetails']);
+		//dump(hash['US']['ShippingServiceDetails']);
 		
-		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000)
-		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
+		setTimeout('autoclick()', 1000);
+		
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
-		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
 		
 		setInterval(refresh, 2000);
 	}
 });
+
+/* auto click for debug */
+function autoclick()
+{
+	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
+	
+	$('a.Title', 'tbody#'+id).click();
+	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 1000);
+	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 1000);
+	
+	return;
+}
+
 
 /* list items */
 function items()
@@ -81,9 +92,10 @@ function getrow(row)
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
 	if (row['PictureDetails_PictureURL']) {
-		$('img.PictureDetails_PictureURL', dom).attr('src', row['PictureDetails_PictureURL']);
-		$('img.PictureDetails_PictureURL', dom).css('max-width', '20px');
-		$('img.PictureDetails_PictureURL', dom).css('max-height','20px');
+		$('img.PictureDetails_PictureURL', dom)
+			.attr('src', row['PictureDetails_PictureURL'])
+			.css('max-width', '20px')
+			.css('max-height','20px');
 	} else {
 		$('img.PictureDetails_PictureURL', dom).remove();
 	}
@@ -132,10 +144,12 @@ function getdetail(row)
 		});
 	}
 	
+	/* description */
 	// todo: check html5 srcdoc attribute
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=description]', detail).replaceWith(iframe);
 	
+	/* listingtype */
 	tmpv = $('select[name=ListingType] > option[value='+row['ListingType']+']', detail).text();
 	$('select[name=ListingType]', detail).replaceWith(tmpv);
 	
@@ -185,21 +199,6 @@ function getdetail(row)
 	return;
 }
 
-
-function descriptionframe(id)
-{
-	iframe = $('iframe.description', 'tbody#'+id);
-	
-	$(iframe).attr('src', '/users/description/'+id);
-	
-	if ($(td).html().match(/^<iframe/i)) return;
-	
-	description = $('<iframe/>').attr('src', '/users/description/'+itemid);
-	
-	$(td).html(description);
-	
-	return;
-}
 
 function resizediv()
 {

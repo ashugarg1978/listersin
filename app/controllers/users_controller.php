@@ -160,6 +160,7 @@ class UsersController extends AppController {
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " accounts.ebayuserid,"
 			. " items.id,"
+			. " items.accountid,"
 			. " items.ItemID,"
 			. " items.ListingDetails_EndTime,"
 			. " items.ListingDetails_ViewItemURL,"
