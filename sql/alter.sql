@@ -1,4 +1,11 @@
-
+/*
+create table ShippingDetails_ShippingServiceOptions (
+	id bigint,
+	ShippingServiceCost double,
+	ShippingServicePriority int,
+	ShippingService varchar(100)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+*/
 
 alter table items drop ShippingDetails_ShippingServiceOptions_ShippingServiceCost;
 alter table items drop ShippingDetails_ShippingServiceOptions_ShippingServicePriority;

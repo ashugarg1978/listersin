@@ -24,8 +24,8 @@ function autoclick()
 	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 	
 	$('a.Title', 'tbody#'+id).click();
-	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 1000);
-	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 1000);
+	setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
+	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 4000);
 	
 	return;
 }
@@ -486,7 +486,8 @@ function bindevents()
 	});
 	
 	/* ShippingType */
-	$('select[name=ShippingType]').live('change', function() {
+	// todo: check all browsers can detect [domestic] selector
+	$('select[name=ShippingDetails_ShippingType[domestic]]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		sel = getshippingservice(id);
 		$('td.shippingservice', '#'+id).html(sel);
@@ -742,13 +743,12 @@ function updateduration(id)
 function getshippingservice(id)
 {
 	site = $('select[name=Site]', '#'+id).val();
-	type = $('select[name=ShippingType]', '#'+id).val();
+	type = $('select[name=ShippingDetails_ShippingType[domestic]]', '#'+id).val();
 	
 	if (type == 'Calculated') {
 		sel = $('<select class="ShippingPackage"/>');
 		$.each(hash[site]['ShippingPackageDetails'], function(i, o) {
-			opt = $('<option/>').val(o['ShippingPackage']).html(o['Description']);
-			sel.append(opt);
+			$('<option/>').val(o['ShippingPackage']).html(o['Description']).appendTo(sel);
 		});
 		$('select[name=ShippingPackage]', '#'+id).html(sel.html());
 		$('div.ShippingPackage', '#'+id).show();
@@ -765,9 +765,7 @@ function getshippingservice(id)
 		if (o['ShippingServiceID'] >= 50000) return;
 		
 		if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
-			opt = $('<option/>').val(o['ShippingService']).html(o['Description']);
-			
-			sel.append(opt);
+			$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(sel);
 		}
 	});
 	$('select.ShippingService', '#'+id).html(sel.html());
