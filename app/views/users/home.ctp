@@ -254,9 +254,9 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 	  <tbody>
 		<tr>
 		  <td><?= __('Shipping type') ?></td>
-		  <td class="shippingtype">
-	  		
-			<select name="ShippingDetails_ShippingType[0]">
+		  <td class="shippingtype_domestic">
+		  	  		
+			<select name="ShippingDetails_ShippingType[domestic]">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="Freight">Freight: large items over 150 lbs.</option>
@@ -325,9 +325,9 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 		</tr>
 		<tr>
 		  <td><?= __('Shipping type') ?></td>
-		  <td class="shippingtype">
-	  		
-			<select name="ShippingDetails_ShippingType[1]">
+		  <td class="shippingtype_international">
+		  	
+			<select name="ShippingDetails_ShippingType[international]">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="NoShipping">No international shipping</option>

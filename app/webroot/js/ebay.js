@@ -9,8 +9,9 @@ $(document).bind({
 		$('ul#selling > li > a.active').click();
 		
 		dump(hash['US']['ShippingServiceDetails']);
+		
 		/* auto click for debug */
-		setTimeout("$('a.Title:lt(2):last').click()", 1000);
+		setTimeout("$('a.Title:lt(2):last').click()", 1000)
 		//setTimeout("$('ul.editbuttons > li > a.edit', 'div.detail').click()", 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		//setTimeout("$('li > a:contains(Shipping)').click()", 3000);
@@ -163,6 +164,12 @@ function getdetail(row)
 	
 	/* shippingservice */
 	dump(row);
+	if (row['ShippingDetails_ShippingType'] == 'Flat') {
+		ststr = hash[row['Site']]['ShippingType']['domestic']['Flat'];
+		$('td.shippingtype_domestic', detail).html(ststr);
+		ststr = hash[row['Site']]['ShippingType']['international']['Flat'];
+		$('td.shippingtype_international', detail).html(ststr);
+	}
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
