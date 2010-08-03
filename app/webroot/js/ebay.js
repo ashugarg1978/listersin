@@ -350,9 +350,9 @@ function bindevents()
 	});
 	
 	$('#paging > a').live('click', function() {
+		limit = $('input[name=limit]').val();
 		if ($(this).html() == '＞') {
 			offset = ($('input[name=offset]').val() + 1) * limit;
-			alert(offset);
 		} else {
 			offset = ($(this).html() - 1) * limit;
 		}
@@ -675,11 +675,9 @@ function paging(cnt)
 	html += ' of '+cnt+'&nbsp;';
 	
 	for (i=0; i<(cnt/limit); i++) {
-		if (offset/limit < i-5 || i+5 < offset/limit) {
-			continue;
-		}
+		if (offset/limit < i-5 || i+5 < offset/limit) continue;
 		if (offset == i*limit) {
-			html += '<a href="" style="background-color:#ccffcc;">'+(i+1)+'</a>';
+			html += '<a href="" style="background-color:#cccccc;">'+(i+1)+'</a>';
 		} else {
 			html += '<a href="">'+(i+1)+'</a>';
 		}

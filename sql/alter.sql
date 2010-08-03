@@ -1,3 +1,11 @@
+
+
+alter table items drop ShippingDetails_ShippingServiceOptions_ShippingServiceCost;
+alter table items drop ShippingDetails_ShippingServiceOptions_ShippingServicePriority;
+alter table items drop ShippingDetails_ShippingServiceOptions_ShippingService;
+
+\q
+
 alter table items add deleted tinyint default 0;
 
 \q
