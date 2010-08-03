@@ -92,6 +92,7 @@ class UsersController extends AppController {
 			}
 			
 			$this->set('hash', $hash);
+			$this->set('summary', $this->getsummary());
 			$this->render('home');
 		}
 	}
@@ -850,6 +851,7 @@ class UsersController extends AppController {
 			}
 		}
 		
+		//echo '<pre>'.print_r($summary,1).'</pre>';
 		return $summary;
 	}
 }

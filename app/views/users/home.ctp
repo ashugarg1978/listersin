@@ -11,19 +11,21 @@
 <br>
 
 <ul id="selling" class="accounts">
-<li><a href="" class="all"      ><?= __('All Selling') ?></a></li>
-<li><a href="" class="scheduled"><?= __('Scheduled')   ?></a></li>
-<li><a href="" class="active"   ><?= __('Active')      ?></a></li>
-<li><a href="" class="sold"     ><?= __('Sold')        ?></a></li>
-<li><a href="" class="unsold"   ><?= __('Unsold')      ?></a></li>
-<li><a href="" class="saved"    ><?= __('Saved')       ?></a></li>
-<li><a href="" class="deleted"  ><?= __('Trash')       ?></a></li>
+<li><a href="" class="all"    ><?= __('All Selling') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
+<li><a href="" class="scheduled"><?= __('Scheduled') ?>(<?=$summary['all']['scheduled'] ?>)</a></li>
+<li><a href="" class="active"   ><?= __('Active')    ?>(<?=$summary['all']['active'] ?>)</a></li>
+<li><a href="" class="sold"     ><?= __('Sold')      ?>(<?=$summary['all']['sold'] ?>)</a></li>
+<li><a href="" class="unsold"   ><?= __('Unsold')    ?>(<?=$summary['all']['unsold'] ?>)</a></li>
+<li><a href="" class="saved"    ><?= __('Saved')     ?>(<?=$summary['all']['saved'] ?>)</a></li>
+<li><a href="" class="deleted"  ><?= __('Trash')     ?>(<?=$summary['all']['trash'] ?>)</a></li>
 </ul>
 
 <ul class="accounts">
 <? foreach ($accounts as $accountid => $row) { ?>
 <li>
-<a href="#" class="accountaction"><?= $row['ebayuserid'] ?></a>
+<a href="#" class="accountaction"><?= $row['ebayuserid'] ?>(<?
+echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] : '0';
+?>)</a>
 <ul class="accountaction">
 	<li><a href=""><?= __('All Selling') ?></a></li>
 	<li><a href=""><?= __('Scheduled')   ?></a></li>
