@@ -109,7 +109,15 @@ function getrow(row)
 	}
 	$('a.Title', dom).before(st);
 	$('a.Title', dom).prepend(row['ShippingDetails_ShippingType']);
-	
+	if (row['SellingStatus_QuantitySold'] > 0) {
+		sldd = $('<div/>')
+			.css('float', 'right')
+			.css('position', 'absolute')
+			.css('background-color', 'yellow')
+			.css('color', 'red')
+			.html(row['SellingStatus_QuantitySold']+' sold!');
+		$('a.Title', dom).parent().prepend(sldd);
+	}
 	if (row['Errors_LongMessage']) {
 		$.each(row['Errors_LongMessage'], function(k, v) {
 			if (v != '') {
@@ -760,11 +768,11 @@ function getshippingservice(id)
 			$('<option/>').val(o['ShippingPackage']).html(o['Description']).appendTo(sel);
 		});
 		$('select[name=ShippingPackage]', '#'+id).html(sel.html());
-		$('div.ShippingPackage', '#'+id).show();
-		$('div.Dimensions',      '#'+id).show();
+		$('td.shippingpackage', '#'+id).children().show();
+		$('td.dimensions',      '#'+id).children().show();
 	} else {
-		$('div.ShippingPackage', '#'+id).hide();
-		$('div.Dimensions',      '#'+id).hide();
+		$('td.shippingpackage', '#'+id).children().hide();
+		$('td.dimensions',      '#'+id).children().hide();
 	}
 	
 	

@@ -130,6 +130,8 @@ class UsersController extends AppController {
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
+		$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
+		//$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -165,6 +167,7 @@ class UsersController extends AppController {
 			. " StartPrice,"
 			. " Site,"
 			. " SellingStatus_ListingStatus,"
+			. " SellingStatus_QuantitySold,"
 			. " Errors_LongMessage,"
 			. " ShippingDetails_ShippingType,"
  		    . " schedule,"
