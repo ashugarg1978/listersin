@@ -130,7 +130,8 @@ class UsersController extends AppController {
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
-		$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
+		//$sql_filter[] = "id >= 2900";
+		//$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
 		//$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
 		
 		// todo: avoid sql injection
@@ -182,7 +183,7 @@ class UsersController extends AppController {
 		$sql .= " ORDER BY ".implode(',', $sort);
 		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
 		
-		//error_log($sql);
+		error_log($sql);
 		$res = $this->User->query($sql);
 		
 		/* count total records */
