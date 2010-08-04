@@ -89,6 +89,8 @@ function getrow(row)
 	}
 	$('input:checkbox', dom).val(id);
 	
+	$('td.ebayuserid', dom).html(row['accountid']);
+	
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
 	if (row['PictureDetails_PictureURL']) {
@@ -234,6 +236,7 @@ function bindevents()
 			$("input[name='id[]'][value!=on]").attr('checked', '');
 			return;
 		}
+		
 		var postdata = "";
 		postdata = $("input[name='id[]'][value!=on]:checked").serialize();
 		
@@ -245,9 +248,14 @@ function bindevents()
 		$.post('/users/'+action+'/',
 			   postdata,
 			   function(data) {
-				   if (action == 'copy') {
+				   if (action == 'copy' || action == 'delete') {
 					   $("td.loading").removeClass('loading');
-					   $("input[name='id[]'][value!=on]:checked").css('visibility', '').attr('checked', '');
+					   $("input[name='id[]'][value!=on]:checked")
+						   .css('visibility', '')
+						   .attr('checked', '');
+				   }
+				   if (action == 'delete') {
+					   items();
 				   }
 				   dump(data);
 			   });
@@ -476,10 +484,11 @@ function bindevents()
 	});
 	
 	/* Delete */
-	$('#Delete').live('click', function() {
-		$.post();
+	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', function() {
+		return false;
 	});
-
+	
+	
 	$('a.wysiwyg').live('click', function() {
 		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
 		return false;

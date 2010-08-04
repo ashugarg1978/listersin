@@ -69,16 +69,15 @@ class UsersController extends AppController {
 				
 				$hash[$sitename]['SiteID'] = $siteid;
 				
+				$hash[$sitename]['category']['name']          = array();
+				$hash[$sitename]['category']['grandchildren'] = array();
+				$hash[$sitename]['category']['features']      = array();
+				
 				$categorydata = $this->children($sitename, 0);
 				$hash[$sitename]['category']['children'] = $categorydata['children'];
 				if (isset($categorydata['name'])) {
 					$hash[$sitename]['category']['name'] = $categorydata['name'];
-				} else {
-					$hash[$sitename]['category']['name'] = array();
-					error_log('incomplete category data');
 				}
-				$hash[$sitename]['category']['grandchildren'] = array();
-				$hash[$sitename]['category']['features'] = array();
 				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
@@ -128,11 +127,9 @@ class UsersController extends AppController {
 	 */
 	function items()
 	{
-		$userid = $this->user['User']['userid'];
-		
 		/* check post parameters */
 		$sql_filter = null;
-		$sql_filter[] = "userid = ".$userid;
+		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -155,27 +152,24 @@ class UsersController extends AppController {
 		
 		/* create sql statement */
 		// todo: timezone convert.
-		// todo: don't join accounts table.
 		//. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
-			. " accounts.ebayuserid,"
-			. " items.id,"
-			. " items.accountid,"
-			. " items.ItemID,"
-			. " items.ListingDetails_EndTime,"
-			. " items.ListingDetails_ViewItemURL,"
-			. " items.Title,"
-			. " items.PictureDetails_PictureURL,"
-			. " items.PrimaryCategory_CategoryID,"
-			. " items.StartPrice,"
-			. " items.Site,"
-			. " items.SellingStatus_ListingStatus,"
-			. " items.Errors_LongMessage,"
-			. " items.ShippingDetails_ShippingType,"
- 		    . " items.schedule,"
-			. " items.status"
+			. " id,"
+			. " accountid,"
+			. " ItemID,"
+			. " ListingDetails_EndTime,"
+			. " ListingDetails_ViewItemURL,"
+			. " Title,"
+			. " PictureDetails_PictureURL,"
+			. " PrimaryCategory_CategoryID,"
+			. " StartPrice,"
+			. " Site,"
+			. " SellingStatus_ListingStatus,"
+			. " Errors_LongMessage,"
+			. " ShippingDetails_ShippingType,"
+ 		    . " schedule,"
+			. " status"
 			. " FROM items"
-			. " JOIN accounts USING (accountid)"
 			. " WHERE ".implode(" AND ", $sql_filter);
 		
 		if (isset($_POST['sort']))
@@ -195,11 +189,11 @@ class UsersController extends AppController {
 		/* modify result records */
 		foreach ($res as $idx => $row) {
 			
+			// when convert to another timezone
 			//$row['items']['ListingDetails_EndTime'] = $row[0]['ListingDetails_EndTime'];
 			
 			$id = $row['items']['id'];
 			$item = $row['items'];
-			$item['ebayuserid'] = $row['accounts']['ebayuserid'];
 			
 			/* ListingDetails_EndTime */
 			if (isset($item['ListingDetails_EndTime'])) {
@@ -283,46 +277,6 @@ class UsersController extends AppController {
 		//error_log(print_r($row,1));
 		//error_log(json_encode($row));
 		echo json_encode($row);
-		
-		exit;
-	}
-	
-	
-	function itemsxxx()
-	{
-		// todo: check userid and accountid
-		$sql = "SELECT * FROM items WHERE id IN (".$_POST['id'].")";
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $row) {
-			$row = $row['items'];
-			$site = $row['Site'];
-		
-			/* Picture */
-			$row['PictureDetails_PictureURL'] = explode("\n", $row['PictureDetails_PictureURL']);
-			if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
-				$row['ShippingDetails_ShippingServiceOptions']
-					= unserialize($row['ShippingDetails_ShippingServiceOptions']);
-			}
-			
-			/* category */
-			$categoryid = $row['PrimaryCategory_CategoryID'];
-			if ($categoryid > 0) {
-				$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
-				
-				$categorypath = $this->categorypath($site, $categoryid);
-				$row['categorypath'] = array_keys($categorypath);
-				$row['categorystr'] = implode(' > ', array_values($categorypath));
-				$row['categorystr'] .= ' ('.implode(' > ', array_keys($categorypath)).')';
-			}
-			
-			//$row['other']['site'] = $this->sitedetails();
-			//$row['other']['shipping'] = $this->getshippingservice($row['Site']);
-			$rows[$row['id']] = $row;
-		}
-		
-		error_log(print_r($rows,1));
-		//error_log(json_encode($rows));
-		echo json_encode($rows);
 		
 		exit;
 	}
@@ -526,34 +480,14 @@ class UsersController extends AppController {
 	}
 	
 	
-	function edit($itemid)
-	{
-		if (!preg_match('/^[\d]+$/', $itemid)) return null;
-		
-		$arr = null;
-		foreach ($_POST as $k => $v) {
-			$arr[] = $k." = '".$this->mres($v)."'";
-		}
-		if (is_array($arr)) {
-			$sql_update = "UPDATE items"
-				. " SET ".implode(', ', $arr)
-				. " WHERE itemid = ".$itemid;
-			$res = $this->User->query($sql_update);
-			
-		}
-		exit;
-	}
-	
-	
 	/**
 	 * delete items.
 	 */
 	function delete()
 	{
-		if (empty($_POST['item'])) return;
+		if (empty($_POST['id'])) return;
 		
-		$sql = "DELETE FROM items"
-			. " WHERE itemid IN (".implode(",", $_POST['item']).")";
+		$sql = "UPDATE items SET deleted = 1 WHERE id IN (".implode(",", $_POST['id']).")";
 		$res = $this->User->query($sql);
 		
 		exit;
@@ -827,7 +761,7 @@ class UsersController extends AppController {
 
 	function getsummary()
 	{
-		/* All */
+		/* summary of all accounts */
 		foreach ($this->filter as $name => $filter) {
 			$sql = "SELECT COUNT(*) AS cnt"
 				. " FROM items"
