@@ -6,9 +6,10 @@ $(document).bind({
 	ready: function(event) {
 		resizediv();
 		bindevents();
-		$('ul#selling > li > a.active').click();
+		$('ul#selling > li > a.allitems').click();
 		
-		//dump(hash['US']['ShippingServiceDetails']);
+		dump(hash['shippingmap']);
+		return;
 		
 		setTimeout('autoclick()', 1000);
 		
@@ -24,8 +25,8 @@ function autoclick()
 	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 	
 	$('a.Title', 'tbody#'+id).click();
-	setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
-	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 4000);
+	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
+	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
 	
 	return;
 }
@@ -110,7 +111,7 @@ function getrow(row)
 		st = $(row['SellingStatus_ListingStatus']);
 	}
 	$('a.Title', dom).before(st);
-	$('a.Title', dom).prepend(row['ShippingDetails_ShippingType']);
+	$('a.Title', dom).prepend('['+row['ShippingDetails_ShippingType']+']');
 	if (row['SellingStatus_QuantitySold'] > 0) {
 		sldd = $('<div/>')
 			.css('float', 'right')
@@ -189,13 +190,16 @@ function getdetail(row)
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	/* shippingservice */
-	dump(row);
-	if (row['ShippingDetails_ShippingType'] == 'Flat') {
-		ststr = hash[row['Site']]['ShippingType']['domestic']['Flat'];
-		$('td.shippingtype_domestic', detail).html(ststr);
-		ststr = hash[row['Site']]['ShippingType']['international']['Flat'];
-		$('td.shippingtype_international', detail).html(ststr);
+	dump(hash[row['Site']]['ShippingType']);
+	if (row['ShippingDetails_ShippingType']) {
+		dmstmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['domestic'];
+		intlmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['international'];
+		dmst = hash[row['Site']]['ShippingType']['domestic'][dmstmap];
+		intl = hash[row['Site']]['ShippingType']['international'][intlmap];
+		$('td.shippingtype_domestic', detail).html(dmst);
+		$('td.shippingtype_international', detail).html(intl);
 	}
+	
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
@@ -361,6 +365,7 @@ function bindevents()
 					   
 					   preloadcategory(data['Site'], data['categorypath']);
 					   preloadcategoryfeatures(data['Site'], data['PrimaryCategory_CategoryID']);
+					   preloadshippingtype(data['Site']);
 					   rowsdata[id] = data;
 					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
@@ -590,6 +595,16 @@ function preloadcategoryfeatures(site, categoryid)
 			  function(data) {
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
 				  hash[site]['category']['features'] = tmpo;
+			  });
+}
+
+function preloadshippingtype(site)
+{
+	if (hash[site]['ShippingType']) return;
+	
+	$.getJSON('/users/getShippingType/'+site,
+			  function(data) {
+				  hash[site]['ShippingType'] = data;
 			  });
 }
 

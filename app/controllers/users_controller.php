@@ -92,6 +92,7 @@ class UsersController extends AppController {
 				$hash[$sitename]['ShippingPackageDetails']
 					= $this->getShippingPackageDetails($sitename);
 			}
+			$hash['shippingmap'] = $this->getshippingmap();
 			
 			$this->set('hash', $hash);
 			$this->set('summary', $this->getsummary());
@@ -133,7 +134,7 @@ class UsersController extends AppController {
 		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
 		//$sql_filter[] = "id >= 2900";
 		//$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
-		//$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
+		$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -818,5 +819,23 @@ class UsersController extends AppController {
 		
 		return $data;
 	}
+	
+	function getshippingmap()
+	{
+		// todo: check "Freight" is only web?
+		$data['Flat']['domestic']      = 'Flat';
+		$data['Flat']['international'] = 'Flat';
+		$data['Calculated']['domestic']      = 'Calculated';
+		$data['Calculated']['international'] = 'Calculated';
+		$data['FlatDomesticCalculatedInternational']['domestic']      = 'Flat';
+		$data['FlatDomesticCalculatedInternational']['international'] = 'Calculated';
+		$data['CalculatedDomesticFlatInternational']['domestic']      = 'Calculated';
+		$data['CalculatedDomesticFlatInternational']['international'] = 'Flat';
+		$data['FreightFLat']['domestic']      = 'Freight';
+		$data['FreightFLat']['international'] = '???';
+		
+		return $data;
+	}
 }
+
 ?>
