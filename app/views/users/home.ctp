@@ -11,7 +11,7 @@
 <br>
 
 <ul id="selling" class="accounts">
-<li><a href="" class="all"    ><?= __('All Selling') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
+<li><a href="" class="allitems" ><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
 <li><a href="" class="scheduled"><?= __('Scheduled') ?>(<?=$summary['all']['scheduled'] ?>)</a></li>
 <li><a href="" class="active"   ><?= __('Active')    ?>(<?=$summary['all']['active'] ?>)</a></li>
 <li><a href="" class="sold"     ><?= __('Sold')      ?>(<?=$summary['all']['sold'] ?>)</a></li>

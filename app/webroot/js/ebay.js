@@ -57,11 +57,13 @@ function items()
 		   'json');
 	
 	// todo: get detail of each items
+	/*
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
 		   },
 		   'json');
+	*/
 	
 }
 

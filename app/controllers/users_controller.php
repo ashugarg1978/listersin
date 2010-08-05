@@ -124,6 +124,7 @@ class UsersController extends AppController {
 	/**
 	 * get summary data of items.
 	 * todo: deleted items and empty trash function
+	 * todo: use ebayuserid instead of accountid?
 	 */
 	function items()
 	{
