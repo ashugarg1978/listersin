@@ -808,8 +808,8 @@ class UsersController extends AppController {
 			$data['domestic']['Freight']    = 'Freight: large items over 150 lbs.';
 			$data['domestic']['NoShipping'] = 'No shipping: Local pickup only';
 		} else {
-			$data['domestic']['Flat']       = 'Flat: same cost to all buyers';
 			$data['domestic']['Calculated'] = 'Calculated: Cost varies by buyer location';
+			$data['domestic']['Flat']       = 'Flat: same cost to all buyers';
 			$data['domestic']['NoShipping'] = 'No shipping: Local pickup only';
 		}
 		
@@ -817,7 +817,12 @@ class UsersController extends AppController {
 		$data['international']['Calculated'] = 'Calculated: Cost varies by buyer location';
 		$data['international']['NoShipping'] = 'No shipping: Local pickup only';
 		
-		return $data;
+		if ($this->action == __FUNCTION__) {
+			echo json_encode($data);
+			exit;
+		} else {
+			return $data;
+		}
 	}
 	
 	// todo: reverse function
