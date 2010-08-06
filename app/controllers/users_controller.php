@@ -820,6 +820,7 @@ class UsersController extends AppController {
 		return $data;
 	}
 	
+	// todo: reverse function
 	function getshippingmap()
 	{
 		// todo: check "Freight" is only web?
@@ -831,8 +832,8 @@ class UsersController extends AppController {
 		$data['FlatDomesticCalculatedInternational']['international'] = 'Calculated';
 		$data['CalculatedDomesticFlatInternational']['domestic']      = 'Calculated';
 		$data['CalculatedDomesticFlatInternational']['international'] = 'Flat';
-		$data['FreightFLat']['domestic']      = 'Freight';
-		$data['FreightFLat']['international'] = '???';
+		$data['FreightFlat']['domestic']      = 'Freight';
+		$data['FreightFlat']['international'] = '???';
 		
 		return $data;
 	}

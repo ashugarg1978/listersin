@@ -769,7 +769,11 @@ class ApiController extends AppController {
 			$tmpo = $this->xml2array($o->ShippingDetails);
 			if (isset($tmpo['ShippingServiceOptions'])) {
 				$i['ShippingDetails_ShippingServiceOptions'] =
-					"'".mysql_real_escape_string(serialize($tmpo['ShippingServiceOptions']))."'";
+					"'".$this->mres(serialize($tmpo['ShippingServiceOptions']))."'";
+			}
+			if (isset($tmpo['InternationalShippingServiceOption'])) {
+				$i['ShippingDetails_InternationalShippingServiceOption'] =
+					"'".$this->mres(serialize($tmpo['InternationalShippingServiceOption']))."'";
 			}
 			
 			//echo error_log(print_r($arr,1));

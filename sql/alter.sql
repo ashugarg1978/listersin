@@ -1,3 +1,6 @@
+alter table items add ShippingDetails_InternationalShippingServiceOption text; 
+\q
+
 /*
 create table ShippingDetails_ShippingServiceOptions (
 	id bigint,
