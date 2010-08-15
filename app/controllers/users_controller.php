@@ -79,12 +79,12 @@ class UsersController extends AppController {
 					$hash[$sitename]['category']['name'] = $categorydata['name'];
 				}
 				
+				/* Shipping */
+				$hash[$sitename]['ShippingType'] = $this->getShippingType($sitename);
+				
 				// todo: get only frequentry used site by user.
 				if ($sitename != 'US') continue;
 				
-				/* Shipping */
-				$hash[$sitename]['ShippingType']
-					= $this->getShippingType($sitename);
 				
 				$hash[$sitename]['ShippingServiceDetails']
 					= $this->getShippingServiceDetails($sitename);
@@ -134,7 +134,7 @@ class UsersController extends AppController {
 		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
 		//$sql_filter[] = "id >= 2900";
 		//$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
-		$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
+		//$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
 		
 		// todo: avoid sql injection
 		if (!empty($_POST["id"]))
@@ -264,6 +264,10 @@ class UsersController extends AppController {
 		if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
 			$row['ShippingDetails_ShippingServiceOptions']
 				= unserialize($row['ShippingDetails_ShippingServiceOptions']);
+		}
+		if (isset($row['ShippingDetails_InternationalShippingServiceOption'])) {
+			$row['ShippingDetails_InternationalShippingServiceOption']
+				= unserialize($row['ShippingDetails_InternationalShippingServiceOption']);
 		}
 		
 		/* category */
@@ -625,8 +629,14 @@ class UsersController extends AppController {
 							. "[ns:ValidForSellingFlow='true']");
 		
 		$arr = $this->xml2array($xmlo);
+		foreach ($arr['ShippingServiceDetails'] as $i => $o) {
+			error_log($o['ShippingService']);
+			$id = $o['ShippingService'];
+			$arr2[$id] = $o;
+		}
+		error_log(print_r($arr2,1));
 		
-		return $arr['ShippingServiceDetails'];
+		return $arr2;
 	}
 	
 	function getShippingPackageDetails($sitename)

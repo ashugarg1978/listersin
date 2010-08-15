@@ -768,8 +768,13 @@ class ApiController extends AppController {
 			
 			$tmpo = $this->xml2array($o->ShippingDetails);
 			if (isset($tmpo['ShippingServiceOptions'])) {
-				$i['ShippingDetails_ShippingServiceOptions'] =
-					"'".$this->mres(serialize($tmpo['ShippingServiceOptions']))."'";
+				if (isset($tmpo['ShippingServiceOptions']['ShippingService'])) {
+					$i['ShippingDetails_ShippingServiceOptions'] =
+						"'".$this->mres(serialize(array(0 => $tmpo['ShippingServiceOptions'])))."'";
+				} else {
+					$i['ShippingDetails_ShippingServiceOptions'] =
+						"'".$this->mres(serialize($tmpo['ShippingServiceOptions']))."'";
+				}
 			}
 			if (isset($tmpo['InternationalShippingServiceOption'])) {
 				$i['ShippingDetails_InternationalShippingServiceOption'] =

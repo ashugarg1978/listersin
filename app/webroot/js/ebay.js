@@ -8,7 +8,7 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.allitems').click();
 		
-		dump(hash['shippingmap']);
+		dump(hash);
 		return;
 		
 		setTimeout('autoclick()', 1000);
@@ -111,7 +111,9 @@ function getrow(row)
 		st = $(row['SellingStatus_ListingStatus']);
 	}
 	$('a.Title', dom).before(st);
-	$('a.Title', dom).prepend('['+row['ShippingDetails_ShippingType']+']');
+	$('a.Title', dom)
+		.prepend('['+row['ShippingDetails_ShippingType']+']')
+		.prepend('['+row['Site']+']');
 	if (row['SellingStatus_QuantitySold'] > 0) {
 		sldd = $('<div/>')
 			.css('float', 'right')
@@ -190,7 +192,7 @@ function getdetail(row)
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	/* shippingservice */
-	dump(hash[row['Site']]['ShippingType']);
+	//dump(hash[row['Site']]['ShippingType']);
 	if (row['ShippingDetails_ShippingType']) {
 		dmstmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['domestic'];
 		intlmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['international'];
@@ -271,7 +273,7 @@ function bindevents()
 				   if (action == 'delete') {
 					   items();
 				   }
-				   dump(data);
+				   //dump(data);
 			   });
 		
 		return;
@@ -368,6 +370,7 @@ function bindevents()
 					   preloadshippingtype(data['Site']);
 					   rowsdata[id] = data;
 					   
+					   dump(data);
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');
@@ -394,7 +397,7 @@ function bindevents()
 	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-		dump(rowsdata[id]);
+		//dump(rowsdata[id]);
 		
 		site = rowsdata[id]['Site'];
 		categoryid = rowsdata[id]['PrimaryCategory_CategoryID'];
@@ -618,7 +621,7 @@ function copyitems()
 		   function(data) {
 			   $("td.loading").removeClass('loading');
 			   $("input[name='id[]'][value!=on]:checked").css('visibility', '').attr('checked', '');
-			   dump(data);
+			   //dump(data);
 		   },
 		   'json');
 	
