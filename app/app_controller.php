@@ -71,6 +71,9 @@ class AppController extends Controller {
 					$array[$childname][] = $this->xml2array($child);
 				} else {
 					$array[$childname] = $this->xml2array($child);
+					foreach ($child->attributes() as $attr) {
+						$array[$childname.'@'.$attr->getName()] = $attr.'';
+					}
 				}
 			}
 			return $array;
@@ -85,6 +88,9 @@ class AppController extends Controller {
 					$array[$childname][] = $this->xml2array($child);
 				} else {
 					$array[$childname] = $this->xml2array($child);
+					foreach ($child->attributes() as $attr) {
+						$array[$childname.'@'.$attr->getName()] = $attr.'';
+					}
 				}
 			}
 			return $array;

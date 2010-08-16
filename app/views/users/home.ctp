@@ -319,7 +319,7 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 		  </td>
 		</tr>
 		<tr>
-		  <td colspan="2" align="left">
+		  <td colspan="2" style="text-align:left;">
 			International shipping
 		  </td>
 		</tr>
@@ -332,6 +332,13 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="NoShipping">No international shipping</option>
 			</select>
+			
+		  </td>
+		</tr>
+		<tr>
+		  <td><?= __('Services') ?></td>
+		  <td class="intlshippingservice">
+			
 			
 		  </td>
 		</tr>

@@ -1,3 +1,17 @@
+alter table items add `ShippingDetails_PackageDepth@measurementSystem` varchar(20);
+alter table items add `ShippingDetails_PackageDepth@unit` varchar(10);
+alter table items add ShippingDetails_PackageDepth int;
+
+alter table items add `ShippingDetails_PackageLength@measurementSystem` varchar(20);
+alter table items add `ShippingDetails_PackageLength@unit` varchar(10);
+alter table items add ShippingDetails_PackageLength int;
+
+alter table items add `ShippingDetails_PackageWidth@measurementSystem` varchar(20);
+alter table items add `ShippingDetails_PackageWidth@unit` varchar(10);
+alter table items add ShippingDetails_PackageWidth int;
+
+alter table items add ShippingDetails_ShippingPackage varchar(50);
+
 alter table items add ShippingDetails_InternationalShippingServiceOption text; 
 \q
 

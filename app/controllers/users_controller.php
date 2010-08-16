@@ -83,7 +83,7 @@ class UsersController extends AppController {
 				$hash[$sitename]['ShippingType'] = $this->getShippingType($sitename);
 				
 				// todo: get only frequentry used site by user.
-				if ($sitename != 'US') continue;
+				//if ($sitename != 'US') continue;
 				
 				
 				$hash[$sitename]['ShippingServiceDetails']
@@ -643,7 +643,11 @@ class UsersController extends AppController {
 	{
 		$xml = $this->readbz2xml(ROOT.'/data/apixml/ShippingPackageDetails/'.$sitename.'.xml.bz2');
 		$arr = $this->xml2array($xml);
-		return $arr['ShippingPackageDetails'];
+		if (isset($arr['ShippingPackageDetails'])) {
+			return $arr['ShippingPackageDetails'];
+		} else {
+			return null;
+		}
 	}
 	
 	

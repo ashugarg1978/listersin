@@ -673,7 +673,6 @@ class ApiController extends AppController {
 		exit;
 	}
 	
-	
 	/**
 	 *   - getsellerlists
 	 *   - getsellerlist
@@ -689,7 +688,6 @@ class ApiController extends AppController {
 		
 		return;
 	}
-	
 	
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)

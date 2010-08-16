@@ -6,7 +6,7 @@ $(document).bind({
 	ready: function(event) {
 		resizediv();
 		bindevents();
-		$('ul#selling > li > a.allitems').click();
+		$('ul#selling > li > a.active').click();
 		
 		dump(hash);
 		return;
@@ -205,9 +205,24 @@ function getdetail(row)
 	if (row['ShippingDetails_ShippingServiceOptions']) {
 		ssstr = '';
 		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
-			ssstr += o['ShippingService'] + '<br>';
+			ssstr += hash[row['Site']]['ShippingServiceDetails'][o['ShippingService']+'']['Description'];
+			if (o['ShippingServiceCost']) {
+				ssstr += ' '+o['ShippingServiceCost@currencyID']+o['ShippingServiceCost'];
+			}
+			ssstr += '<br>';
 		});
 		$('td.shippingservice', detail).html(ssstr);
+	}	
+	if (row['ShippingDetails_InternationalShippingServiceOption']) {
+		ssstr = '';
+		$.each(row['ShippingDetails_InternationalShippingServiceOption'], function(i, o) {
+			ssstr += hash[row['Site']]['ShippingServiceDetails'][o['ShippingService']+'']['Description'];
+			if (o['ShippingServiceCost']) {
+				ssstr += ' '+o['ShippingServiceCost@currencyID']+o['ShippingServiceCost'];
+			}
+			ssstr += '<br>';
+		});
+		$('td.intlshippingservice', detail).html(ssstr);
 	}	
 	
 	$.each(row, function(colname, colval) {
