@@ -1,3 +1,5 @@
+alter table items add UserID varchar(30);
+
 alter table items add `ShippingDetails_CalculatedShippingRate_PackageDepth@measurementSystem` varchar(20);
 alter table items add `ShippingDetails_CalculatedShippingRate_PackageDepth@unit` varchar(10);
 alter table items add ShippingDetails_CalculatedShippingRate_PackageDepth int;

@@ -161,6 +161,7 @@ class UsersController extends AppController {
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " id,"
 			. " accountid,"
+			. " UserID,"
 			. " ItemID,"
 			. " ListingDetails_EndTime,"
 			. " ListingDetails_ViewItemURL,"
