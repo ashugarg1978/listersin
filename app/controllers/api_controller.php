@@ -673,6 +673,17 @@ class ApiController extends AppController {
 		exit;
 	}
 	
+	function getsellerlists_redo()
+	{
+		$account['accountid'] = 14;
+		
+		$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9182846342.GetSellerList.US.response.xml');
+		$xmlobj = simplexml_load_string($xml);
+		echo print_r($xmlobj,1);
+		$this->getsellerlist_import($xmlobj, $account);
+		
+	}
+	
 	/**
 	 *   - getsellerlists
 	 *   - getsellerlist
