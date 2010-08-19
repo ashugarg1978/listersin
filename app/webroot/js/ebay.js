@@ -354,8 +354,15 @@ function bindevents()
 	
 	
 	$('ul#selling > li > a').live('click', function() {
-		$('input[name=selling]').val($(this).attr('class'));
+		
+		v = $(this).attr('class');
+		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
+		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
+			$('input[name=sort]').val('ListingDetails_EndTime DESC');
+		} else {
+			$('input[name=sort]').val('ListingDetails_EndTime');
+		}
 		items();
 		$('ul#selling li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');

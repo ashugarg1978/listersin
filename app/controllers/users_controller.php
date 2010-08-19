@@ -104,7 +104,8 @@ class UsersController extends AppController {
 	{
 		$hash = null;
 		
-		$sql = "SELECT * FROM accounts"
+		$sql = "SELECT *"
+			. " FROM accounts"
 			. " WHERE userid = ".$userid
 			. " ORDER BY ebayuserid";
 		$res = $this->User->query($sql);
@@ -144,8 +145,8 @@ class UsersController extends AppController {
 		if (!empty($_POST["ItemID"]))
 			$sql_filter[] = "ItemID = '".$this->mres($_POST["ItemID"])."'";
 		
-		if (!empty($_POST["accountid"]))
-			$sql_filter[] = "accountid = '".$this->mres($_POST["accountid"])."'";
+		if (!empty($_POST["UserID"]))
+			$sql_filter[] = "UserID = '".$this->mres($_POST["UserID"])."'";
 		
 		if (!empty($_POST["Title"]))
 			$sql_filter[] = "Title LIKE '%".$this->mres($_POST["Title"])."%'";
