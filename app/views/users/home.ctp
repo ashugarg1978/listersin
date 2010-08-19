@@ -96,11 +96,11 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 	<input type="text" name="sort" size="10" value="ListingDetails_EndTime">
 </td>
 <td>
-	<select name="accountid" onchange="filter();">
+	<select name="UserID" onchange="filter();">
 	<option value=""></option>
 	<?
 	foreach ($accounts as $accountid => $row) {
-		echo '<option value="'.$accountid.'">'.$row['ebayuserid'].'</option>';
+		echo '<option value="'.$row['ebayuserid'].'">'.$row['ebayuserid'].'</option>';
 	}	
 	?>
 	</select>
@@ -116,7 +116,7 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 	<td class="id"></td>
 	<td align="center" valign="middle"><img class="PictureDetails_PictureURL" height="20"></td>
 	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
-	<td class="ebayuserid"></td>
+	<td class="UserID"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="StartPrice"></td>
 	<td class="ListingDetails_EndTime"></td>

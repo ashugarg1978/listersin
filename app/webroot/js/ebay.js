@@ -92,7 +92,7 @@ function getrow(row)
 	}
 	$('input:checkbox', dom).val(id);
 	
-	$('td.ebayuserid', dom).html(row['accountid']);
+	$('td.UserID', dom).html(row['UserID']);
 	
 	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
@@ -377,6 +377,7 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
+					   dump(data);
 					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -385,7 +386,6 @@ function bindevents()
 					   preloadshippingtype(data['Site']);
 					   rowsdata[id] = data;
 					   
-					   dump(data);
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
 				   'json');

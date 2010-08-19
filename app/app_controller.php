@@ -61,6 +61,7 @@ class AppController extends Controller {
 	function xml2array($xml)
 	{
 		if (is_array($xml)) {
+			$array = null;
 			foreach ($xml as $child) {
 				$childname = $child->getName();
 				if (isset($array[$childname])) {

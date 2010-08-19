@@ -574,6 +574,7 @@ class ApiController extends AppController {
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			echo $sitename."\n";
+			if ($sitename != 'Ireland') continue;
 			
 			/* ShippingServiceDetails */
 			if (true) {
@@ -583,7 +584,20 @@ class ApiController extends AppController {
 				$h['RequesterCredentials']['eBayAuthToken'] = $token;
 				$h['DetailName'] = $tmp;
 				$r = $this->getHttpRequest('GeteBayDetails', $h, $sitename);
-				$r->send();
+				
+				$trycount = 0;
+				while ($trycount < 5) {
+					try {
+						$r->send();
+					} catch (HttpException $ex) {
+						sleep(5);
+						$trycount++;
+						error_log($trycount.':updatexml');
+						continue;
+					}
+					break;
+				}
+				
 				$xml = $r->getResponseBody();
 				
 				file_put_contents(ROOT.'/data/apixml/'.$tmp.'/'.$sitename.'.xml', $xml);
@@ -753,6 +767,7 @@ class ApiController extends AppController {
 			
 			$arr = null;
 			$i = null;
+			$i['UserID'] = "'".$xmlobj->Seller->UserID."'";
 			$this->xml2arr($o, $arr, '');
 			
 			foreach ($arr as $c => $v) {
@@ -900,7 +915,11 @@ class ApiController extends AppController {
 		$headers['X-EBAY-API-APP-NAME']  = EBAY_APPID;
 		$headers['X-EBAY-API-CERT-NAME'] = EBAY_CERTID;
 		$headers['X-EBAY-API-CALL-NAME'] = $call;
-		$headers['X-EBAY-API-SITEID']    = $sites[$site];
+		if ($sites[$site] == 100) {
+			$headers['X-EBAY-API-SITEID'] = 0;
+		} else {
+			$headers['X-EBAY-API-SITEID'] = $sites[$site];
+		}
 		
 		/* xml data */
 		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
