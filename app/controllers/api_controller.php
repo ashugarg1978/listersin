@@ -804,8 +804,13 @@ class ApiController extends AppController {
 				}
 			}
 			if (isset($tmpo['InternationalShippingServiceOption'])) {
-				$i['ShippingDetails_InternationalShippingServiceOption'] =
-					"'".$this->mres(serialize($tmpo['InternationalShippingServiceOption']))."'";
+				if (isset($tmpo['InternationalShippingServiceOption']['ShippingService'])) {
+					$i['ShippingDetails_InternationalShippingServiceOption'] =
+						"'".$this->mres(serialize(array(0 => $tmpo['InternationalShippingServiceOption'])))."'";
+				} else {
+					$i['ShippingDetails_InternationalShippingServiceOption'] =
+						"'".$this->mres(serialize($tmpo['InternationalShippingServiceOption']))."'";
+				}
 			}
 			
 			//echo error_log(print_r($arr,1));

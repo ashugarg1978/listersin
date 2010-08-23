@@ -225,6 +225,24 @@ function getdetail(row)
 		$('td.intlshippingservice', detail).html(ssstr);
 	}	
 	
+	/* dimensions */
+	dmstr = '';
+	alert(row['ShippingDetails_CalculatedShippingRate_PackageDepth']);
+	if (row['ShippingDetails_CalculatedShippingRate_PackageDepth']) {
+		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageDepth']
+			+ row['ShippingDetails_CalculatedShippingRate_PackageDepth@unit'] + ' x ';
+	}
+	if (row['ShippingDetails_CalculatedShippingRate_PackageLength']) {
+		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageLength']
+			+ row['ShippingDetails_CalculatedShippingRate_PackageLength@unit'] + ' x ';
+	}
+	if (row['ShippingDetails_CalculatedShippingRate_PackageWidth']) {
+		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageWidth']
+			+ row['ShippingDetails_CalculatedShippingRate_PackageWidth@unit'];
+	}
+	$('td.dimensions', detail).html(dmstr);
+	
+	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
 	});

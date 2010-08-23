@@ -1,3 +1,10 @@
+alter table items drop ShippingDetails_CalcuratedShippingRate_PackageDepth;
+alter table items drop ShippingDetails_CalcuratedShippingRate_PackageLength;
+alter table items drop ShippingDetails_CalcuratedShippingRate_PackageWidth;
+alter table items drop `ShippingDetails_CalcuratedShippingRate_PackageDepth@unit`;
+alter table items drop `ShippingDetails_CalcuratedShippingRate_PackageLength@unit`;
+alter table items drop `ShippingDetails_CalcuratedShippingRate_PackageWidth@unit`;
+
 alter table items add UserID varchar(30);
 
 alter table items add `ShippingDetails_CalculatedShippingRate_PackageDepth@measurementSystem` varchar(20);
