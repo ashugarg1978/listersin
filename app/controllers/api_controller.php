@@ -765,6 +765,9 @@ class ApiController extends AppController {
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
+			//$mongo = new Mongo();
+			//$mongo->ebay->items->insert($o);
+			
 			$arr = null;
 			$i = null;
 			$i['UserID'] = "'".$xmlobj->Seller->UserID."'";
