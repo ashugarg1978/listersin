@@ -18,6 +18,7 @@ class UsersController extends AppController {
 	
 	var $user;
 	var $accounts;
+	var $userids;
 	var $filter;
 	
 	function beforeFilter()
@@ -62,6 +63,11 @@ class UsersController extends AppController {
 	
 	function index()
 	{
+		//$con = new Mongo();
+		//$mongodata['foo1'] = 'bar111';
+		//$mongodata['hoge'] = 'soozoo';
+		//$con->ebay->items->insert($mongodata);
+		
 		if (isset($this->user['User']['userid'])) {
 			
 			$sites = $this->sitedetails();
@@ -112,6 +118,7 @@ class UsersController extends AppController {
 		foreach ($res as $i => $arr) {
 			$a = $arr['accounts'];
 			$hash[$a['accountid']] = $a;
+			$this->userids[] = $a['ebayuserid'];
 		}
 		
 		return $hash;
@@ -132,7 +139,7 @@ class UsersController extends AppController {
 	{
 		/* check post parameters */
 		$sql_filter = null;
-		$sql_filter[] = "accountid IN (".implode(',', array_keys($this->accounts)).")";
+		$sql_filter[] = "UserID IN ('".implode("', '", $this->userids)."')";
 		//$sql_filter[] = "UserID IS NOT NULL";
 		//$sql_filter[] = "id >= 2900";
 		//$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
@@ -162,7 +169,6 @@ class UsersController extends AppController {
 		//. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
 		$sql = "SELECT SQL_CALC_FOUND_ROWS"
 			. " id,"
-			. " accountid,"
 			. " UserID,"
 			. " ItemID,"
 			. " ListingDetails_EndTime,"
@@ -788,7 +794,7 @@ class UsersController extends AppController {
 		foreach ($this->filter as $name => $filter) {
 			$sql = "SELECT COUNT(*) AS cnt"
 				. " FROM items"
-				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " WHERE UserID IN ('".implode("', '", $this->userids)."')"
 				. " AND ".$filter;
 			$res = $this->User->query($sql);
 			foreach ($res as $i => $row) {
@@ -799,16 +805,16 @@ class UsersController extends AppController {
 		
 		/* each accounts */
 		foreach ($this->filter as $name => $filter) {
-			$sql = "SELECT accountid, COUNT(*) AS cnt"
+			$sql = "SELECT UserID, COUNT(*) AS cnt"
 				. " FROM items"
-				. " WHERE accountid IN (".implode(',', array_keys($this->accounts)).")"
+				. " WHERE UserID IN ('".implode("', '", $this->userids)."')"
 				. " AND ".$filter
-				. " GROUP BY accountid";
+				. " GROUP BY UserID";
 			$res = $this->User->query($sql);
 			foreach ($res as $i => $row) {
-				$accountid = $row['items']['accountid'];
+				$userid = $row['items']['UserID'];
 				$cnt = $row[0]['cnt'];
-				$summary[$accountid][$name] = $cnt;
+				$summary[$userid][$name] = $cnt;
 			}
 		}
 		
