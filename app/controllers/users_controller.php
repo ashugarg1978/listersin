@@ -141,13 +141,26 @@ class UsersController extends AppController {
 	 */
 	function items()
 	{
+		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
+		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
+		
 		$mongo = new Mongo();
-		$row = $mongo->ebay->items->find();
-		$row['_id'] = $row['_id'].'';
-		error_log(print_r($row,1));
-		error_log(json_encode($row));
-		echo json_encode($row);
-		exit;
+
+		$query['UserID']['$in'] = $this->userids;
+		error_log(print_r($query,1));
+		
+		$fields['UserID'] = 1;
+		$fields['Title'] = 1;
+		
+		$cursor = $mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset);
+		$tmparr = iterator_to_array($cursor);
+		error_log(print_r($tmparr,1));
+		
+		//$row['_id'] = $row['_id'].'';
+		//error_log(print_r($row,1));
+		//error_log(json_encode($row));
+		//echo json_encode($row);
+		//exit;
 		
 		
 		/* check post parameters */
@@ -174,8 +187,6 @@ class UsersController extends AppController {
 		if (!empty($_POST['selling']) && isset($this->filter[$_POST['selling']]))
 			$sql_filter[] = $this->filter[$_POST['selling']];
 		
-		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
-		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
 		/* create sql statement */
 		// todo: timezone convert.
@@ -668,7 +679,7 @@ class UsersController extends AppController {
 			$id = $o['ShippingService'];
 			$arr2[$id] = $o;
 		}
-		error_log(print_r($arr2,1));
+		//error_log(print_r($arr2,1));
 		
 		return $arr2;
 	}
