@@ -141,9 +141,15 @@ function getrow(row)
 
 function getdetail(row)
 {
-	id = row['id'];
+	id = row._id;
+	alert(id.toString()+"");
 	detail = $('div.detail', '#'+id);
     
+	/* site */
+	$('select[name=Site]', detail).replaceWith(row['Site']);
+	
+	return;
+
 	/* preserve selected tab */
 	/*
 	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
@@ -170,8 +176,6 @@ function getdetail(row)
 	
 	$('input:file', detail).remove();
 	
-	/* site */
-	$('select[name=Site]', detail).replaceWith(row['Site']);
 	
 	/* category */
 	if (row['categorystr']) {

@@ -141,6 +141,15 @@ class UsersController extends AppController {
 	 */
 	function items()
 	{
+		$mongo = new Mongo();
+		$row = $mongo->ebay->items->find();
+		$row['_id'] = $row['_id'].'';
+		error_log(print_r($row,1));
+		error_log(json_encode($row));
+		echo json_encode($row);
+		exit;
+		
+		
 		/* check post parameters */
 		$sql_filter = null;
 		$sql_filter[] = "UserID IN ('".implode("', '", $this->userids)."')";
@@ -265,6 +274,14 @@ class UsersController extends AppController {
 	 */
 	function item()
 	{
+		$mongo = new Mongo();
+		$row = $mongo->ebay->items->findOne();
+		$row['_id'] = $row['_id'].'';
+		error_log(print_r($row,1));
+		error_log(json_encode($row));
+		echo json_encode($row);
+		exit;
+		
 		// todo: check userid and accountid
 		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
 		$res = $this->User->query($sql);
