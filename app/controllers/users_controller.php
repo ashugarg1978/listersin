@@ -42,6 +42,10 @@ class UsersController extends AppController {
 		return;
     }	
 
+	function test()
+	{
+		
+	}
 	
 	function receivenotify()
 	{
