@@ -282,6 +282,10 @@ class UsersController extends AppController {
 			$row['ShippingDetails_InternationalShippingServiceOption']
 				= unserialize($row['ShippingDetails_InternationalShippingServiceOption']);
 		}
+		if (isset($row['ShippingDetails_CalculatedShippingRate'])) {
+			$row['ShippingDetails_CalculatedShippingRate']
+				= unserialize($row['ShippingDetails_CalculatedShippingRate']);
+		}
 		
 		/* category */
 		$categoryid = $row['PrimaryCategory_CategoryID'];

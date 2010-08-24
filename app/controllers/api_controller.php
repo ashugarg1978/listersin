@@ -813,6 +813,10 @@ class ApiController extends AppController {
 						"'".$this->mres(serialize($tmpo['InternationalShippingServiceOption']))."'";
 				}
 			}
+			if (isset($tmpo['CalculatedShippingRate'])) {
+				$i['ShippingDetails_CalculatedShippingRate'] =
+					"'".$this->mres(serialize(array(0 => $tmpo['CalculatedShippingRate'])))."'";
+			}
 			
 			//echo error_log(print_r($arr,1));
 			
