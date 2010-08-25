@@ -23,6 +23,16 @@ class ApiController extends AppController {
 	
 	function test($arg=null)
 	{
+		$mongo = new Mongo();
+		$query['UserID']['$in'] = array('testuser_aichi', 'testuser_chiba');
+		$fields['UserID'] = 1;
+		$fields['Title'] = 1;
+		$cursor = $mongo->ebay->items->find($query, $fields)->limit(700);
+		error_log(print_r($cursor,1));
+		$tmparr = iterator_to_array($cursor);
+		error_log(print_r($tmparr,1));
+		exit;
+		
 		if (true) {
 			$xml = file_get_contents(ROOT.'/app/tmp/apilogs/9276839971.notify.xml');
 			$xml = preg_replace("/^.*<soapenv:Body>/s", "", $xml);
@@ -761,15 +771,22 @@ class ApiController extends AppController {
 	 */
 	function getsellerlist_import($xmlobj, $account)
 	{
+		$mongo = new Mongo();
+		
 		$colnames = $this->getitemcols();
 		
 		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
 			
+			/* mongo */
 			$tmparr = $this->xml2array($o);
 			$tmparr['UserID'] = $xmlobj->Seller->UserID.'';
-			$mongo = new Mongo();
-			$mongo->ebay->items->insert($tmparr);
+			$mcnt = $mongo->ebay->items->count(array('ItemID' => $tmparr['ItemID']));
+			error_log($tmparr['UserID'].'('.$mcnt.')');
+			$mongo->ebay->items->update(array('ItemID' => $tmparr['ItemID']),
+										$tmparr,
+										array('upsert' => true));
 			
+			/* mysql */
 			$arr = null;
 			$i = null;
 			$i['UserID'] = "'".$xmlobj->Seller->UserID."'";
