@@ -77,7 +77,7 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 	<th align="left"><?= __('Title') ?></th>
 	<th align="left"><?= __('Account') ?></th>
 	<th align="left"><?= __('Item ID') ?></th>
-	<th align="right"><?= __('Price') ?></th>
+	<th align="right"><?= __('Now') ?></th>
 	<th align="right"><?= __('End') ?></th>
 	<th align="left"><?= __('Pict') ?></th>
 </tr>

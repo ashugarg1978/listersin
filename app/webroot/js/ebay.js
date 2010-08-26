@@ -153,7 +153,9 @@ function getdetail(row)
 	detail = $('div.detail', '#'+id);
     
 	/* site */
-	$('select[name=Site]', detail).replaceWith(row['Site']);
+	$('select[name=Site]', detail).replaceWith(row.Site);
+	$('input[name=Title]', detail).replaceWith(row.Title);
+	$('input[name=SUbtitle]', detail).replaceWith(row.Subtitle);
 	
 	return;
 
