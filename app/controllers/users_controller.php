@@ -141,21 +141,59 @@ class UsersController extends AppController {
 	 */
 	function items()
 	{
+		$selling = $this->getsellingquery();
+		
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
 		$mongo = new Mongo();
-
+		
 		$query['UserID']['$in'] = $this->userids;
+		
+		if (!empty($_POST['id']))     $query['_id']    = $_POST['id'];
+		if (!empty($_POST['ItemID'])) $query['ItemID'] = $_POST['ItemID'];
+		if (!empty($_POST['UserID'])) $query['UserID'] = $_POST["UserID"];
+		if (!empty($_POST["Title"]))  $query['Title']  = new MongoRegex('/'.$_POST["Title"].'/');
+		if (!empty($_POST['selling']))
+			$query = $query + $selling[$_POST['selling']];
 		error_log(print_r($query,1));
 		
 		$fields['UserID'] = 1;
+		$fields['ItemID'] = 1;
 		$fields['Title'] = 1;
+		$fields['Site'] = 1;
+		$fields['StartPrice'] = 1;
+		$fields['ListingDetails.ViewItemURL'] = 1;
+		$fields['ListingDetails.EndTime'] = 1;
+		$fields['PictureDetails.PictureURL'] = 1;
 		
-		$cursor = $mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset);
+		$count = $mongo->ebay->items->count($query);
+		$cursor = $mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
 		$tmparr = iterator_to_array($cursor);
+		foreach ($tmparr as $id => $row) {
+			
+			/* startprice */
+			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
+			
+			/* endtime */
+			if (isset($row['ListingDetails']['EndTime'])) {
+				if (date('Y-m-d', strtotime($row['ListingDetails']['EndTime'])) == date('Y-m-d')) {
+					$tmparr[$id]['endtime'] =
+						date('H:i', strtotime($row['ListingDetails']['EndTime']));
+				} else {
+					$tmparr[$id]['endtime'] =
+						date('M j', strtotime($row['ListingDetails']['EndTime']));
+				}
+			} else {
+				$tmparr[$id]['endtime'] = '-';
+			}
+		}
 		error_log(print_r($tmparr,1));
 		
+		$data['cnt'] = $count;
+		if (isset($tmparr)) $data['res'] = $tmparr;
+		echo json_encode($data);
+		exit;
 		//$row['_id'] = $row['_id'].'';
 		//error_log(print_r($row,1));
 		//error_log(json_encode($row));
@@ -675,7 +713,6 @@ class UsersController extends AppController {
 		
 		$arr = $this->xml2array($xmlo);
 		foreach ($arr['ShippingServiceDetails'] as $i => $o) {
-			error_log($o['ShippingService']);
 			$id = $o['ShippingService'];
 			$arr2[$id] = $o;
 		}

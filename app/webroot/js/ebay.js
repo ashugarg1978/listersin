@@ -8,7 +8,7 @@ $(document).bind({
 		bindevents();
 		$('ul#selling > li > a.active').click();
 		
-		dump(hash);
+		//dump(hash);
 		return;
 		
 		setTimeout('autoclick()', 1000);
@@ -38,6 +38,7 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
+			   dump(data);
 			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -49,10 +50,12 @@ function items()
 			   
 			   var tmpids = new Array();
 			   $.each(data.res, function(idx, row) {
-				   dom = getrow(row);
+				   dom = getrow(idx, row);
 				   $('#items').append(dom);
-				   rowsdata[row['id']] = row;
-				   tmpids.push(row['id']);
+				   //rowsdata[row['id']] = row;
+				   //tmpids.push(row['id']);
+				   rowsdata[idx] = row;
+				   tmpids.push(idx);
 			   });
 		   },
 		   'json');
@@ -68,12 +71,13 @@ function items()
 	
 }
 
-function getrow(row)
+function getrow(idx, row)
 {
 	var id;
 	var dom;
 	
-	id = row['id'];
+	//id = row['id'];
+	id = idx;
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
 	
@@ -86,6 +90,11 @@ function getrow(row)
 		$('.'+colname, dom).html(colval);
 	});
 	
+	$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+	$('td.EndTime', dom).html(row.endtime);
+	
+	return dom;
+	
 	if (row['status'] == 10) {
 		$('input:checkbox', dom).css('visibility', 'hidden');
 		$('input:checkbox', dom).parent().addClass('loading');
@@ -94,9 +103,8 @@ function getrow(row)
 	
 	$('td.UserID', dom).html(row['UserID']);
 	
-	$('a.ItemID', dom).attr('href', row['ListingDetails_ViewItemURL']);
 	
-	if (row['PictureDetails_PictureURL']) {
+	if (row.PictureDetails.PictureURL) {
 		$('img.PictureDetails_PictureURL', dom)
 			.attr('src', row['PictureDetails_PictureURL'])
 			.css('max-width', '20px')
@@ -142,7 +150,6 @@ function getrow(row)
 function getdetail(row)
 {
 	id = row._id;
-	alert(id.toString()+"");
 	detail = $('div.detail', '#'+id);
     
 	/* site */

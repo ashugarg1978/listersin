@@ -74,22 +74,19 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 <thead>
 <tr>
 	<th></th>
-	<th align="left">ID</th>
-	<th align="left"><?= __('Pict') ?></th>
 	<th align="left"><?= __('Title') ?></th>
 	<th align="left"><?= __('Account') ?></th>
-	<th align="left"><?= __('eBay Item ID') ?></th>
+	<th align="left"><?= __('Item ID') ?></th>
 	<th align="right"><?= __('Price') ?></th>
 	<th align="right"><?= __('End') ?></th>
+	<th align="left"><?= __('Pict') ?></th>
 </tr>
 </thead>
 
 <tr id="filter">
 <td></td>
-<td><input type="text" name="id" size="4"></td>
-<td></td>
 <td>
-	<input type="text" name="title" size="10">
+	<input type="text" name="Title" size="10">
 	<input type="hidden" name="offset" value="0"  size="2">
 	<input type="hidden" name="limit"  value="20" size="2">
 	<input type="hidden" name="selling" size="10" value="active">
@@ -108,20 +105,20 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 <td><input type="text" name="ItemID" size="6"></td>
 <td></td>
 <td></td>
+<td></td>
 </tr>
 
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
 	<td><input type="checkbox" name="id[]"></td>
-	<td class="id"></td>
-	<td align="center" valign="middle"><img class="PictureDetails_PictureURL" height="20"></td>
 	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="UserID"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="StartPrice"></td>
-	<td class="ListingDetails_EndTime"></td>
+	<td class="EndTime"></td>
+	<td align="center" valign="middle"><img class="PictureDetails_PictureURL" height="20"></td>
 </tr>
-<tr class="row2"><td colspan="8"></td></tr>
+<tr class="row2"><td colspan="7"></td></tr>
 </tbody>
 
 <tbody id="rowloading">

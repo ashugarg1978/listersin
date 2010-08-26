@@ -780,11 +780,10 @@ class ApiController extends AppController {
 			/* mongo */
 			$tmparr = $this->xml2array($o);
 			$tmparr['UserID'] = $xmlobj->Seller->UserID.'';
+			$tmparr['deleted'] = 0;
 			$mcnt = $mongo->ebay->items->count(array('ItemID' => $tmparr['ItemID']));
-			error_log($tmparr['UserID'].'('.$mcnt.')');
 			$mongo->ebay->items->update(array('ItemID' => $tmparr['ItemID']),
-										$tmparr,
-										array('upsert' => true));
+										$tmparr, array('upsert' => true));
 			
 			/* mysql */
 			$arr = null;

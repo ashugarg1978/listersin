@@ -146,6 +146,29 @@ class AppController extends Controller {
 		
 		return $filter;
 	}
+	
+	function getsellingquery()
+	{
+		$selling['allitems']['deleted'] = 0;
+		
+		$selling['scheduled'] = null;
+		
+		$selling['active']['deleted'] = 0;
+		$selling['active']['ListingDetails.EndTime']['$gte'] = date('Y-m-d').'T'.date('H:i:s');
+		
+		$selling['sold']['deleted'] = 0;
+		$selling['sold']['SellingStatus.QuantitySold']['$gte'] = "1";
+		
+		$selling['unsold']['deleted'] = 0;
+		$selling['unsold']['ListingDetails.EndTime']['$lte'] = date('Y-m-d').'T'.date('H:i:s');
+		$selling['unsold']['SellingStatus.QuantitySold'] = "0";
+		
+		$selling['saved'] = null;
+		
+		$selling['trash']['deleted'] = 1;
+		
+		return $selling;
+	}
 }
 
 ?>
