@@ -6,7 +6,7 @@ $(document).bind({
 	ready: function(event) {
 		resizediv();
 		bindevents();
-		$('ul#selling > li > a.active').click();
+		$('ul.accounts > li > a:first').click();
 		
 		//dump(hash);
 		return;
@@ -328,7 +328,18 @@ function bindevents()
 	
 	/* Left navi */
 	$('ul.accounts > li > a').live('click', function() {
-		$('ul', $(this).parent()).slideToggle('fast');
+		
+		if ($(this).closest('li').attr('class') == 'allitems'
+			&& $('ul', $(this).parent().next()).css('display') == 'block') {
+			// don't collapse navi
+		} else {
+			$('ul', $(this).parent().next()).slideToggle('fast');
+		}
+		
+		$('ul.accounts li').removeClass('tabselected');
+		$(this).closest('li').addClass('tabselected');
+		
+		return false;
 	});
 	
 	/* Picture */
@@ -389,15 +400,17 @@ function bindevents()
 	$('ul.accounts > li > ul > li > a').live('click', function() {
 		
 		v = $(this).attr('class');
+		userid = $(this).parent().parent().attr('class').replace(/^accountaction /, '');
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
+		$('select[name=UserID').val(userid);
 		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
 			$('input[name=sort]').val('ListingDetails_EndTime DESC');
 		} else {
 			$('input[name=sort]').val('ListingDetails_EndTime');
 		}
 		items();
-		$('ul.accountaction > li').removeClass('tabselected');
+		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
 		
 		return false;

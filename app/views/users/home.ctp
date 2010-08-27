@@ -10,29 +10,29 @@
 
 <br>
 
-<ul id="selling" class="accounts">
+<ul class="accounts">
+<li class="allitems"><a href="" class="allitems"><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
 <li>
-<a href="" class="allitems"><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a>
 <ul class="accountaction">
-<li><a href="" class="scheduled"><?= __('Scheduled') ?>(<?=$summary['all']['scheduled'] ?>)</a></li>
-<li><a href="" class="active"   ><?= __('Active')    ?>(<?=$summary['all']['active'] ?>)</a></li>
-<li><a href="" class="sold"     ><?= __('Sold')      ?>(<?=$summary['all']['sold'] ?>)</a></li>
-<li><a href="" class="unsold"   ><?= __('Unsold')    ?>(<?=$summary['all']['unsold'] ?>)</a></li>
-<li><a href="" class="saved"    ><?= __('Saved')     ?>(<?=$summary['all']['saved'] ?>)</a></li>
-<li><a href="" class="trash"    ><?= __('Trash')     ?>(<?=$summary['all']['trash'] ?>)</a></li>
+<li><a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary['all']['scheduled'] ?>)</a></li>
+<li><a href="" class="active"   ><?= __('Active')    ?> (<?=$summary['all']['active']    ?>)</a></li>
+<li><a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary['all']['sold']      ?>)</a></li>
+<li><a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary['all']['unsold']    ?>)</a></li>
+<li><a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary['all']['saved']     ?>)</a></li>
+<li><a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary['all']['trash']     ?>)</a></li>
 </ul>
 </li>
 <? foreach ($userids as $userid) { ?>
+<li class="allitems"><a href="#" class="<?= $userid ?>"><?= $userid.'('.$summary[$userid]['allitems'].')' ?></a></li>
 <li>
-<a href="#" class="accountaction"><?= $userid.'('.$summary[$userid]['allitems'].')' ?></a>
-<ul class="accountaction">
-	<li><a href="" class="scheduled"><?= __('Scheduled') ?></a></li>
-	<li><a href="" class="active"   ><?= __('Active')    ?></a></li>
-	<li><a href="" class="sold"     ><?= __('Sold')      ?></a></li>
-	<li><a href="" class="unsold"   ><?= __('Unsold')    ?></a></li>
-	<li><a href="" class="saved"    ><?= __('Saved')     ?></a></li>
-	<li><a href="" class="trash"    ><?= __('Trash')     ?></a></li>
-	<li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
+<ul class="accountaction <?= $userid ?>">
+<li><a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary[$userid]['scheduled'] ?>)</a></li>
+<li><a href="" class="active"   ><?= __('Active')    ?> (<?=$summary[$userid]['active']    ?>)</a></li>
+<li><a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary[$userid]['sold']      ?>)</a></li>
+<li><a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary[$userid]['unsold']    ?>)</a></li>
+<li><a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary[$userid]['saved']     ?>)</a></li>
+<li><a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary[$userid]['trash']     ?>)</a></li>
+<li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
 </ul>
 </li>
 <? } ?>
