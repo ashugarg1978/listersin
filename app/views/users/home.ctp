@@ -11,30 +11,28 @@
 <br>
 
 <ul id="selling" class="accounts">
-<li><a href="" class="allitems" ><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
+<li>
+<a href="" class="allitems"><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a>
+<ul class="accountaction">
 <li><a href="" class="scheduled"><?= __('Scheduled') ?>(<?=$summary['all']['scheduled'] ?>)</a></li>
 <li><a href="" class="active"   ><?= __('Active')    ?>(<?=$summary['all']['active'] ?>)</a></li>
 <li><a href="" class="sold"     ><?= __('Sold')      ?>(<?=$summary['all']['sold'] ?>)</a></li>
 <li><a href="" class="unsold"   ><?= __('Unsold')    ?>(<?=$summary['all']['unsold'] ?>)</a></li>
 <li><a href="" class="saved"    ><?= __('Saved')     ?>(<?=$summary['all']['saved'] ?>)</a></li>
-<li><a href="" class="deleted"  ><?= __('Trash')     ?>(<?=$summary['all']['trash'] ?>)</a></li>
+<li><a href="" class="trash"    ><?= __('Trash')     ?>(<?=$summary['all']['trash'] ?>)</a></li>
 </ul>
-
-<ul class="accounts">
-<? foreach ($accounts as $accountid => $row) { ?>
+</li>
+<? foreach ($userids as $userid) { ?>
 <li>
-<a href="#" class="accountaction"><?= $row['ebayuserid'] ?>(<?
-echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] : '0';
-?>)</a>
+<a href="#" class="accountaction"><?= $userid.'('.$summary[$userid]['allitems'].')' ?></a>
 <ul class="accountaction">
-	<li><a href=""><?= __('All Selling') ?></a></li>
-	<li><a href=""><?= __('Scheduled')   ?></a></li>
-	<li><a href=""><?= __('Active')      ?></a></li>
-	<li><a href=""><?= __('Sold')        ?></a></li>
-	<li><a href=""><?= __('Unsold')      ?></a></li>
-	<li><a href=""><?= __('Saved')       ?></a></li>
-	<li><a href=""><?= __('Trash')       ?></a></li>
-	<li><a href="/users/getsellerlist/<?= $row['ebayuserid'] ?>" target="import">import</a></li>
+	<li><a href="" class="scheduled"><?= __('Scheduled') ?></a></li>
+	<li><a href="" class="active"   ><?= __('Active')    ?></a></li>
+	<li><a href="" class="sold"     ><?= __('Sold')      ?></a></li>
+	<li><a href="" class="unsold"   ><?= __('Unsold')    ?></a></li>
+	<li><a href="" class="saved"    ><?= __('Saved')     ?></a></li>
+	<li><a href="" class="trash"    ><?= __('Trash')     ?></a></li>
+	<li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
 </ul>
 </li>
 <? } ?>
@@ -94,7 +92,7 @@ echo isset($summary[$accountid]['allitems']) ? $summary[$accountid]['allitems'] 
 </td>
 <td>
 	<select name="UserID" onchange="filter();">
-	<option value=""></option>
+	<option value="">User ID</option>
 	<?
 	foreach ($accounts as $accountid => $row) {
 		echo '<option value="'.$row['ebayuserid'].'">'.$row['ebayuserid'].'</option>';

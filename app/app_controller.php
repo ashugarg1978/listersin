@@ -151,7 +151,7 @@ class AppController extends Controller {
 	{
 		$selling['allitems']['deleted'] = 0;
 		
-		$selling['scheduled'] = null;
+		$selling['scheduled']['deleted'] = 0;
 		
 		$selling['active']['deleted'] = 0;
 		$selling['active']['ListingDetails.EndTime']['$gte'] = date('Y-m-d').'T'.date('H:i:s');
@@ -163,7 +163,7 @@ class AppController extends Controller {
 		$selling['unsold']['ListingDetails.EndTime']['$lte'] = date('Y-m-d').'T'.date('H:i:s');
 		$selling['unsold']['SellingStatus.QuantitySold'] = "0";
 		
-		$selling['saved'] = null;
+		$selling['saved']['deleted'] = 0;
 		
 		$selling['trash']['deleted'] = 1;
 		
