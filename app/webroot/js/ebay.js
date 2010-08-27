@@ -92,6 +92,7 @@ function getrow(idx, row)
 	
 	$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
 	$('td.EndTime', dom).html(row.endtime);
+	$('input:checkbox', dom).val(id);
 	
 	return dom;
 	
@@ -325,7 +326,8 @@ function bindevents()
 		return;
 	});
 	
-	$('a.accountaction').live('click', function() {
+	/* Left navi */
+	$('ul.accounts > li > a').live('click', function() {
 		$('ul', $(this).parent()).slideToggle('fast');
 	});
 	
@@ -384,7 +386,7 @@ function bindevents()
 	});
 	
 	
-	$('ul#selling > li > a').live('click', function() {
+	$('ul.accounts > li > ul > li > a').live('click', function() {
 		
 		v = $(this).attr('class');
 		$('input[name=selling]').val(v);
@@ -395,7 +397,7 @@ function bindevents()
 			$('input[name=sort]').val('ListingDetails_EndTime');
 		}
 		items();
-		$('ul#selling li').removeClass('tabselected');
+		$('ul.accountaction > li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
 		
 		return false;

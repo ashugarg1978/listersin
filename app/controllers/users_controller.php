@@ -67,11 +67,6 @@ class UsersController extends AppController {
 	
 	function index()
 	{
-		//$con = new Mongo();
-		//$mongodata['foo1'] = 'bar111';
-		//$mongodata['hoge'] = 'soozoo';
-		//$con->ebay->items->insert($mongodata);
-		
 		if (isset($this->user['User']['userid'])) {
 			
 			$sites = $this->sitedetails();
@@ -104,6 +99,7 @@ class UsersController extends AppController {
 			}
 			$hash['shippingmap'] = $this->getshippingmap();
 			
+			$this->set('userids', $this->userids);
 			$this->set('hash', $hash);
 			$this->set('summary', $this->getsummary());
 			$this->render('home');
@@ -154,9 +150,7 @@ class UsersController extends AppController {
 		if (!empty($_POST['ItemID'])) $query['ItemID'] = $_POST['ItemID'];
 		if (!empty($_POST['UserID'])) $query['UserID'] = $_POST["UserID"];
 		if (!empty($_POST["Title"]))  $query['Title']  = new MongoRegex('/'.$_POST["Title"].'/');
-		if (!empty($_POST['selling']))
-			$query = $query + $selling[$_POST['selling']];
-		error_log(print_r($query,1));
+		if (!empty($_POST['selling'])) $query = $query + $selling[$_POST['selling']];
 		
 		$fields['UserID'] = 1;
 		$fields['ItemID'] = 1;
@@ -188,7 +182,6 @@ class UsersController extends AppController {
 				$tmparr[$id]['endtime'] = '-';
 			}
 		}
-		error_log(print_r($tmparr,1));
 		
 		$data['cnt'] = $count;
 		if (isset($tmparr)) $data['res'] = $tmparr;
@@ -510,6 +503,26 @@ class UsersController extends AppController {
 	{
 		if (empty($_POST['id'])) return;
 		
+		/* mongo */
+		foreach ($_POST['id'] as $str) {
+			$ids[] = new MongoID($str);
+		}
+		
+		$mongo = new Mongo();
+		
+		$query['UserID']['$in'] = $this->userids;
+		$query['_id']['$in'] = $ids;
+		$cursor = $mongo->ebay->items->find($query);
+		$tmparr = iterator_to_array($cursor);
+		foreach ($tmparr as $id => $row) {
+			unset($row['ItemID']);
+			unset($row['_id']); // todo: if set, is record overwritten?
+			error_log('copy:'.print_r($row,1));
+			$mongo->ebay->items->insert($row);
+		}
+		
+		
+		/* mysql */
 		$cols = $this->getitemcols();
 		unset($cols['id']);
 		unset($cols['ItemID']);
@@ -574,14 +587,24 @@ class UsersController extends AppController {
 	
 	
 	/**
-	 * delete items.
+	 * delete items. (move into trash)
 	 */
 	function delete()
 	{
 		if (empty($_POST['id'])) return;
 		
-		$sql = "UPDATE items SET deleted = 1 WHERE id IN (".implode(",", $_POST['id']).")";
-		$res = $this->User->query($sql);
+		foreach ($_POST['id'] as $str) {
+			$ids[] = new MongoID($str);
+		}
+		
+		$mongo = new Mongo();
+		
+		$query['UserID']['$in'] = $this->userids;
+		$query['_id']['$in'] = $ids;
+		
+		$set['$set']['deleted'] = 1;
+		
+		$mongo->ebay->items->update($query, $set, array('multiple' => 1));
 		
 		exit;
 	}
@@ -863,36 +886,26 @@ class UsersController extends AppController {
 
 	function getsummary()
 	{
+		$mongo = new Mongo();
+		
+		$selling = $this->getsellingquery();
+		
+		error_log('strt:'.date('H:i:s'));
 		/* summary of all accounts */
-		foreach ($this->filter as $name => $filter) {
-			$sql = "SELECT COUNT(*) AS cnt"
-				. " FROM items"
-				. " WHERE UserID IN ('".implode("', '", $this->userids)."')"
-				. " AND ".$filter;
-			$res = $this->User->query($sql);
-			foreach ($res as $i => $row) {
-				$cnt = $row[0]['cnt'];
-				$summary['all'][$name] = $cnt;
-			}
+		foreach ($selling as $name => $query) {
+			$msummary['all'][$name] = $mongo->ebay->items->count($query);
 		}
 		
 		/* each accounts */
-		foreach ($this->filter as $name => $filter) {
-			$sql = "SELECT UserID, COUNT(*) AS cnt"
-				. " FROM items"
-				. " WHERE UserID IN ('".implode("', '", $this->userids)."')"
-				. " AND ".$filter
-				. " GROUP BY UserID";
-			$res = $this->User->query($sql);
-			foreach ($res as $i => $row) {
-				$userid = $row['items']['UserID'];
-				$cnt = $row[0]['cnt'];
-				$summary[$userid][$name] = $cnt;
+		foreach ($this->userids as $userid) {
+			foreach ($selling as $name => $query) {
+				$query['UserID'] = $userid;
+				$msummary[$userid][$name] = $mongo->ebay->items->count($query);
 			}
 		}
+		error_log('done:'.date('H:i:s'));
 		
-		//echo '<pre>'.print_r($summary,1).'</pre>';
-		return $summary;
+		return $msummary;
 	}
 	
 	// todo: check UK:courier?
