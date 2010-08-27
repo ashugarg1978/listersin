@@ -53,9 +53,9 @@
 <div id="content">
 
 <div id="bulkbuttons" style="float:left; margin:10px;">
-<input  type="button" class="checkall"     value="<?= __('Select all') ?>"
-><input type="button" class="checkallpage" value="<?= __('Select all pages') ?>"
-><input type="button" class="uncheckall"   value="<?= __('Clear selection') ?>">&nbsp;
+<input  type="button" class="checkall"     value="<?= __('All') ?>"
+><input type="button" class="checkallpage" value="<?= __('All pages') ?>"
+><input type="button" class="uncheckall"   value="<?= __('Clear') ?>">&nbsp;
 <input  type="button" class="relist" value="<?= __('(Re)List') ?>"
 ><input type="button" class="revise" value="<?= __('Revise') ?>"
 ><input type="button" class="end"    value="<?= __('End') ?>">&nbsp;
@@ -250,8 +250,8 @@
 		<tr>
 		  <td><?= __('Shipping type') ?></td>
 		  <td class="shippingtype_domestic">
-		  	  		
-			<select name="ShippingDetails_ShippingType[domestic]">
+	 
+			<select name="ShippingDetails[ShippingType][domestic]">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="Freight">Freight: large items over 150 lbs.</option>

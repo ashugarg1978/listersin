@@ -153,10 +153,21 @@ function getdetail(row)
 	id = row._id;
 	detail = $('div.detail', '#'+id);
     
-	/* site */
-	$('select[name=Site]', detail).replaceWith(row.Site);
-	$('input[name=Title]', detail).replaceWith(row.Title);
-	$('input[name=SUbtitle]', detail).replaceWith(row.Subtitle);
+	$('input[name=Title]',    detail).replaceWith(row.Title);
+	$('input[name=Subtitle]', detail).replaceWith(row.SubTitle);
+	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
+	$('input[name=StartPrice]', detail).replaceWith(row.StartPrice
+													+ ' ('+row['StartPrice@currencyID']+')');
+	
+	$('select[name=Site]',    detail).replaceWith(row.Site);
+	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
+	$('select[name=ListingType]', detail).replaceWith(tmp);
+	
+	//$('td.paymentmethod', detail).html(row.PaymentMethods);
+	$('td.duration', detail).text(getListingDurationLabel(row.ListingDuration));
+	$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
+	
+	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
 	return;
 
@@ -181,8 +192,6 @@ function getdetail(row)
 	$('textarea[name=description]', detail).replaceWith(iframe);
 	
 	/* listingtype */
-	tmpv = $('select[name=ListingType] > option[value='+row['ListingType']+']', detail).text();
-	$('select[name=ListingType]', detail).replaceWith(tmpv);
 	
 	$('input:file', detail).remove();
 	
@@ -434,9 +443,9 @@ function bindevents()
 					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
-					   preloadcategory(data['Site'], data['categorypath']);
-					   preloadcategoryfeatures(data['Site'], data['PrimaryCategory_CategoryID']);
-					   preloadshippingtype(data['Site']);
+					   //preloadcategory(data['Site'], data['categorypath']);
+					   //preloadcategoryfeatures(data['Site'], data['PrimaryCategory_CategoryID']);
+					   //preloadshippingtype(data['Site']);
 					   rowsdata[id] = data;
 					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
@@ -464,8 +473,24 @@ function bindevents()
 	/* Edit */
 	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
+		item = rowsdata[id];
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-		//dump(rowsdata[id]);
+		dump(item);
+		
+		$('input[name=Title]',          dom).val(item.Title);
+		$('input[name=SubTitle]',          dom).val(item.SubTitle);
+		$('input[name=StartPrice]',          dom).val(item.StartPrice);
+		$('input[name=Quantity]',          dom).val(item.Quantity);
+		
+		$('select[name=Site]',          dom).val(item.Site);
+		
+		
+		showbuttons(dom, 'save,cancel');
+		$('div.detail', 'tbody#'+id).replaceWith(dom);
+	    $('input[name=Title]', 'tbody#'+id).focus();
+		
+		return false;
+		
 		
 		site = rowsdata[id]['Site'];
 		categoryid = rowsdata[id]['PrimaryCategory_CategoryID'];

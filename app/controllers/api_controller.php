@@ -586,8 +586,20 @@ class ApiController extends AppController {
 			echo $sitename."\n";
 			if ($sitename != 'Ireland') continue;
 			
-			/* ShippingServiceDetails */
+			/* Categories */
 			if (true) {
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] = $token;
+				$h['CategorySiteID'] = $siteid;
+				$h['DetailLevel'] = 'ReturnAll';
+				
+				$xmlobj = $this->callapi("GetCategories", $h, $sitename);
+				
+				exit;
+			}
+			
+			/* ShippingServiceDetails */
+			if (false) {
 				//$tmp = 'ShippingServiceDetails';
 				$tmp = 'ShippingPackageDetails';
 				$h = null;
@@ -885,6 +897,7 @@ class ApiController extends AppController {
 		
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
+			
 			
 			if ($siteid != 77) continue;
 			

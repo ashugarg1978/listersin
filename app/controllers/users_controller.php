@@ -97,7 +97,7 @@ class UsersController extends AppController {
 				$hash[$sitename]['ShippingPackageDetails']
 					= $this->getShippingPackageDetails($sitename);
 			}
-			$hash['shippingmap'] = $this->getshippingmap();
+			//$hash['shippingmap'] = $this->getshippingmap();
 			
 			$this->set('userids', $this->userids);
 			$this->set('hash', $hash);
@@ -317,34 +317,22 @@ class UsersController extends AppController {
 	function item()
 	{
 		$mongo = new Mongo();
-		$row = $mongo->ebay->items->findOne();
-		$row['_id'] = $row['_id'].'';
+		
+		$query['UserID']['$in'] = $this->userids;
+		$query['_id'] = new MongoID($_POST['id']);
+		
+		$row = $mongo->ebay->items->findOne($query);
+		
+		$row['_id'] = $_POST['id'];
+		
+		$row['shippingtype'] = $this->getshippingmap($row['ShippingDetails']['ShippingType']);
+		
 		error_log(print_r($row,1));
-		error_log(json_encode($row));
 		echo json_encode($row);
+		
 		exit;
 		
 		// todo: check userid and accountid
-		$sql = "SELECT * FROM items WHERE id = ".$_POST['id'];
-		$res = $this->User->query($sql);
-		$row = $res[0]['items'];
-		
-		$site = $row['Site'];
-		
-		/* Picture */
-		$row['PictureDetails_PictureURL'] = explode("\n", $row['PictureDetails_PictureURL']);
-		if (isset($row['ShippingDetails_ShippingServiceOptions'])) {
-			$row['ShippingDetails_ShippingServiceOptions']
-				= unserialize($row['ShippingDetails_ShippingServiceOptions']);
-		}
-		if (isset($row['ShippingDetails_InternationalShippingServiceOption'])) {
-			$row['ShippingDetails_InternationalShippingServiceOption']
-				= unserialize($row['ShippingDetails_InternationalShippingServiceOption']);
-		}
-		if (isset($row['ShippingDetails_CalculatedShippingRate'])) {
-			$row['ShippingDetails_CalculatedShippingRate']
-				= unserialize($row['ShippingDetails_CalculatedShippingRate']);
-		}
 		
 		/* category */
 		$categoryid = $row['PrimaryCategory_CategoryID'];
@@ -553,29 +541,13 @@ class UsersController extends AppController {
 	function save()
 	{
 		if (empty($_POST['id'])) return;
-		$id = $_POST['id'];
 		
-		$sqlcol = null;
-		foreach ($_POST as $k => $v) {
-			
-			if ($k == 'id') continue;
-			
-			// todo: don't skip these columns
-			if ($k == 'ShippingType') continue;
-			if ($k == 'ShippingCost') continue;
-			
-			if (is_array($v)) {
-				$sqlcol[] = $k." = '".$this->mres(implode("\n", $v))."'";
-			} else {
-				$sqlcol[] = $k." = '".$this->mres($v)."'";
-			}
-		}
+		$item = $_POST;
 		
-		// todo: check accountid
-		$sql_update = "UPDATE items SET ".implode(", ", $sqlcol)." WHERE id = ".$id;
-		$res = $this->User->query($sql_update);
-		error_log($sql_update);
-		if (mysql_error()) error_log('MySQL Error:'.mysql_error());
+		$mongo = new Mongo();
+		$query['_id'] = new MongoID($_POST['id']);
+		$set['$set'] = $item;
+		$mongo->ebay->items->update($query, $set);
 		
 		$_POST = null;
 		$_POST['id'] = $id;
@@ -935,7 +907,7 @@ class UsersController extends AppController {
 	}
 	
 	// todo: reverse function
-	function getshippingmap()
+	function getshippingmap($type)
 	{
 		// todo: check "Freight" is only web?
 		$data['Flat']['domestic']      = 'Flat';
@@ -949,7 +921,21 @@ class UsersController extends AppController {
 		$data['FreightFlat']['domestic']      = 'Freight';
 		$data['FreightFlat']['international'] = '???';
 		
-		return $data;
+		return $data[$type];
+	}
+
+	function getshippingtypelabel()
+	{
+		$d['Flat']       = 'Flat: same cost to all buyers';
+		$d['Calculated'] = 'Calculated: Cost varies by buyer location';
+		$d['Freight']    = 'Freight: large items over 150 lbs.';
+		$d['NoShipping'] = 'No shipping: Local pickup only';
+		
+		$i['Flat']       = $d['Flat'];
+		$i['Calculated'] = $d['Calculated'];
+		$i['NoShipping'] = 'No international shipping';
+		
+		
 	}
 }
 
