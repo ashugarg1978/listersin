@@ -577,6 +577,8 @@ class ApiController extends AppController {
 	
 	function updatexml()
 	{
+		$mongo = new Mongo();
+		
 		$sql = "SELECT * FROM accounts WHERE ebayuserid = 'testuser_tokyo'";
 		$res = $this->User->query($sql);
 		$token = $res[0]['accounts']['ebaytoken'];
@@ -584,10 +586,10 @@ class ApiController extends AppController {
 		$sites = $this->sitedetails();
 		foreach ($sites as $sitename => $siteid) {
 			echo $sitename."\n";
-			if ($sitename != 'Ireland') continue;
+			//if ($sitename != 'Ireland') continue;
 			
 			/* Categories */
-			if (true) {
+			if (false) {
 				$h = null;
 				$h['RequesterCredentials']['eBayAuthToken'] = $token;
 				$h['CategorySiteID'] = $siteid;
@@ -596,6 +598,13 @@ class ApiController extends AppController {
 				$xmlobj = $this->callapi("GetCategories", $h, $sitename);
 				
 				exit;
+			}
+			if (true) {
+				eval('$mongo->ebay->Categories_'.$sitename.'->drop();');
+				$xml = $this->readbz2xml(ROOT.'/data/apixml/Categories/'.$sitename.'.xml.bz2');
+				foreach ($xml->CategoryArray->Category as $o) {
+					eval('$mongo->ebay->Categories_'.$sitename.'->save($o);');
+				}
 			}
 			
 			/* ShippingServiceDetails */
