@@ -224,7 +224,7 @@ ul.accounts {
 
 ul.accounts li {
 	margin: 0px;
-	padding: 2px 0px 2px 5px;
+	padding: 1px 0px 1px 5px;
 }
 
 ul.accounts > li.allitems {
@@ -233,14 +233,14 @@ ul.accounts > li.allitems {
 }
 
 a.accountaction {
-	font-size: 9pt;
+	font-size: 8pt;
 }
 
 ul.accountaction {
 	display: none;
 	/* position: absolute; */
 	list-style-type: none;
-	padding: 0px 0px 0px 5px;
+	padding: 0px 0px 0px 0px;
 }
 
 .tabselected {

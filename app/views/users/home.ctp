@@ -11,27 +11,27 @@
 <br>
 
 <ul class="accounts">
-<li class="allitems"><a href="" class="allitems"><?= __('All Items') ?>(<?=$summary['all']['allitems'] ?>)</a></li>
+<li class="allitems"><a href="" class="allitems"><?= __('All Items') ?> (<?=$summary['all']['allitems'] ?>)</a></li>
 <li>
 <ul class="accountaction">
-<li><a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary['all']['scheduled'] ?>)</a></li>
-<li><a href="" class="active"   ><?= __('Active')    ?> (<?=$summary['all']['active']    ?>)</a></li>
-<li><a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary['all']['sold']      ?>)</a></li>
-<li><a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary['all']['unsold']    ?>)</a></li>
-<li><a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary['all']['saved']     ?>)</a></li>
-<li><a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary['all']['trash']     ?>)</a></li>
+<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary['all']['scheduled'] ?>)</a></li>
+<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><?= __('Active')    ?> (<?=$summary['all']['active']    ?>)</a></li>
+<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary['all']['sold']      ?>)</a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary['all']['unsold']    ?>)</a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary['all']['saved']     ?>)</a></li>
+<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary['all']['trash']     ?>)</a></li>
 </ul>
 </li>
 <? foreach ($userids as $userid) { ?>
-<li class="allitems"><a href="#" class="<?= $userid ?>"><?= $userid.'('.$summary[$userid]['allitems'].')' ?></a></li>
+<li class="allitems"><a href="#" class="<?= $userid ?>"><?= $userid.' ('.$summary[$userid]['allitems'].')' ?></a></li>
 <li>
 <ul class="accountaction <?= $userid ?>">
-<li><a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary[$userid]['scheduled'] ?>)</a></li>
-<li><a href="" class="active"   ><?= __('Active')    ?> (<?=$summary[$userid]['active']    ?>)</a></li>
-<li><a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary[$userid]['sold']      ?>)</a></li>
-<li><a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary[$userid]['unsold']    ?>)</a></li>
-<li><a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary[$userid]['saved']     ?>)</a></li>
-<li><a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary[$userid]['trash']     ?>)</a></li>
+<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary[$userid]['scheduled'] ?>)</a></li>
+<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><?= __('Active')    ?> (<?=$summary[$userid]['active']    ?>)</a></li>
+<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary[$userid]['sold']      ?>)</a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary[$userid]['unsold']    ?>)</a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary[$userid]['saved']     ?>)</a></li>
+<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary[$userid]['trash']     ?>)</a></li>
 <li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
 </ul>
 </li>
@@ -114,7 +114,7 @@
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="StartPrice"></td>
 	<td class="EndTime"></td>
-	<td align="center" valign="middle"><img class="PictureDetails_PictureURL" height="20"></td>
+	<td align="center" valign="middle"><img class="PictureURL" height="20"></td>
 </tr>
 <tr class="row2"><td colspan="7"></td></tr>
 </tbody>

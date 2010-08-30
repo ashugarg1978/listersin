@@ -321,38 +321,30 @@ class UsersController extends AppController {
 		$query['UserID']['$in'] = $this->userids;
 		$query['_id'] = new MongoID($_POST['id']);
 		
-		$row = $mongo->ebay->items->findOne($query);
+		$item = $mongo->ebay->items->findOne($query);
 		
-		$row['_id'] = $_POST['id'];
+		$item['_id'] = $_POST['id'];
 		
-		$row['shippingtype'] = $this->getshippingmap($row['ShippingDetails']['ShippingType']);
+		if (!empty($item['ShippingDetails']['ShippingType']))
+			$item['shippingtype'] = $this->getshippingmap($item['ShippingDetails']['ShippingType']);
 		
-		error_log(print_r($row,1));
-		echo json_encode($row);
-		
-		exit;
-		
-		// todo: check userid and accountid
-		
-		/* category */
-		$categoryid = $row['PrimaryCategory_CategoryID'];
+		$site = $item['Site'];
+		$categoryid = $item['PrimaryCategory']['CategoryID'];
 		if ($categoryid > 0) {
 			//$row['categoryfeatures'] = $this->categoryfeatures($site, $categoryid);
 			
 			$categorypath = $this->categorypath($site, $categoryid);
-			$row['categorypath'] = array_keys($categorypath);
-			$row['categorystr'] = implode(' > ', array_values($categorypath));
-			$row['categorystr'] .= ' ('.implode(' > ', array_keys($categorypath)).')';
+			$item['categorypath'] = array_keys($categorypath);
 		}
+		
+		//error_log(print_r($item,1));
+		//error_log(json_encode($item));
+		echo json_encode($item);
+		
+		exit;
 		
 		//$row['other']['site'] = $this->sitedetails();
 		//$row['other']['shipping'] = $this->getshippingservice($row['Site']);
-		
-		//error_log(print_r($row,1));
-		//error_log(json_encode($row));
-		echo json_encode($row);
-		
-		exit;
 	}
 	
 	
@@ -921,7 +913,11 @@ class UsersController extends AppController {
 		$data['FreightFlat']['domestic']      = 'Freight';
 		$data['FreightFlat']['international'] = '???';
 		
-		return $data[$type];
+		if (!empty($type)) {
+			return $data[$type];
+		} else {
+			return null;
+		}
 	}
 
 	function getshippingtypelabel()

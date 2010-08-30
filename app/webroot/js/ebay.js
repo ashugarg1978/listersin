@@ -93,6 +93,19 @@ function getrow(idx, row)
 	$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
 	$('td.EndTime', dom).html(row.endtime);
 	$('input:checkbox', dom).val(id);
+
+	/* Picture */
+	var pictstr = '';
+	if (typeof(row.PictureDetails.PictureURL) == 'string') {
+		pictstr = row.PictureDetails.PictureURL;
+	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
+		//pictstr = row.PictureDetails.PictureURL(1);
+	}
+	if (pictstr != '') {
+		$('img.PictureURL', dom).attr('src', pictstr);
+	} else {
+		$('img.PictureURL', dom).remove();
+	}
 	
 	return dom;
 	
@@ -163,7 +176,18 @@ function getdetail(row)
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
 	$('select[name=ListingType]', detail).replaceWith(tmp);
 	
-	//$('td.paymentmethod', detail).html(row.PaymentMethods);
+	/* paymentmethods */
+	var pmstr = "";
+	if (typeof(row.PaymentMethods) == 'string') {
+		pmstr = row.PaymentMethods;
+	} else if (typeof(row.PaymentMethods) == 'object') {
+		pmstr = row.PaymentMethods.join('<br>');
+	} else {
+		alert(typeof(row.PaymentMethods));
+	}
+	pmstr = pmstr.replace(/PayPal/, 'PayPal ('+row.PayPalEmailAddress+')');
+	$('td.paymentmethod', detail).html(pmstr);
+	
 	$('td.duration', detail).text(getListingDurationLabel(row.ListingDuration));
 	$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
 	
@@ -195,24 +219,9 @@ function getdetail(row)
 	
 	$('input:file', detail).remove();
 	
-	
-	/* category */
-	if (row['categorystr']) {
-		$('td.category', detail).text(row['categorystr']);
-	} else {
-		$('td.category', detail).html('<span class="error">not selected</span>');
-	}
-	
 	/* duration */
 	var ldstr = getListingDurationLabel(row['ListingDuration']);
 	$('td.duration', detail).text(ldstr);
-	
-	/* paymentmethods */
-	var pmstr = "";
-	if (row['PaymentMethods']) {
-		pmstr = row['PaymentMethods'].replace(/\n/g, '<br>');
-	}
-	$('td.paymentmethod', detail).html(pmstr);
 	
 	/* shippingservice */
 	//dump(hash[row['Site']]['ShippingType']);
@@ -412,7 +421,7 @@ function bindevents()
 		userid = $(this).parent().parent().attr('class').replace(/^accountaction /, '');
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
-		$('select[name=UserID').val(userid);
+		$('select[name=UserID]').val(userid);
 		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
 			$('input[name=sort]').val('ListingDetails_EndTime DESC');
 		} else {
@@ -443,9 +452,9 @@ function bindevents()
 					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
-					   //preloadcategory(data['Site'], data['categorypath']);
-					   //preloadcategoryfeatures(data['Site'], data['PrimaryCategory_CategoryID']);
-					   //preloadshippingtype(data['Site']);
+					   preloadcategory(data.Site, data.categorypath);
+					   preloadcategoryfeatures(data.Site, data.PrimaryCategory.CategoryID);
+					   preloadshippingtype(data.Site);
 					   rowsdata[id] = data;
 					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
@@ -477,13 +486,16 @@ function bindevents()
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		dump(item);
 		
-		$('input[name=Title]',          dom).val(item.Title);
-		$('input[name=SubTitle]',          dom).val(item.SubTitle);
-		$('input[name=StartPrice]',          dom).val(item.StartPrice);
-		$('input[name=Quantity]',          dom).val(item.Quantity);
+		$('input[name=Title]',      dom).val(item.Title);
+		$('input[name=SubTitle]',   dom).val(item.SubTitle);
+		$('input[name=StartPrice]', dom).val(item.StartPrice);
+		$('input[name=Quantity]',   dom).val(item.Quantity);
 		
-		$('select[name=Site]',          dom).val(item.Site);
+		$('select[name=Site]',      dom).val(item.Site);
 		
+		/* category selector */
+		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
+		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
@@ -519,10 +531,6 @@ function bindevents()
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 		
-		/* category selector */
-		sels = getcategorypulldowns(rowsdata[id]['Site'], rowsdata[id]['categorypath']);
-		$('td.category', dom).html(sels);
-		$('select.category:last', dom).attr('name', 'PrimaryCategory_CategoryID');
 		
 		/* listing duration */
 		tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
