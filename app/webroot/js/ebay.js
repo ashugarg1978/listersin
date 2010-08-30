@@ -99,7 +99,7 @@ function getrow(idx, row)
 	if (typeof(row.PictureDetails.PictureURL) == 'string') {
 		pictstr = row.PictureDetails.PictureURL;
 	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
-		//pictstr = row.PictureDetails.PictureURL(1);
+		pictstr = row.PictureDetails.PictureURL[0];
 	}
 	if (pictstr != '') {
 		$('img.PictureURL', dom).attr('src', pictstr);
@@ -177,13 +177,11 @@ function getdetail(row)
 	$('select[name=ListingType]', detail).replaceWith(tmp);
 	
 	/* paymentmethods */
-	var pmstr = "";
+	var pmstr = '<span style="color:#aaaaaa;">-</span>';
 	if (typeof(row.PaymentMethods) == 'string') {
 		pmstr = row.PaymentMethods;
 	} else if (typeof(row.PaymentMethods) == 'object') {
 		pmstr = row.PaymentMethods.join('<br>');
-	} else {
-		alert(typeof(row.PaymentMethods));
 	}
 	pmstr = pmstr.replace(/PayPal/, 'PayPal ('+row.PayPalEmailAddress+')');
 	$('td.paymentmethod', detail).html(pmstr);

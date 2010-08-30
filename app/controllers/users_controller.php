@@ -160,6 +160,9 @@ class UsersController extends AppController {
 		$fields['ListingDetails.ViewItemURL'] = 1;
 		$fields['ListingDetails.EndTime'] = 1;
 		$fields['PictureDetails.PictureURL'] = 1;
+		$fields['SellingStatus.ListingStatus'] = 1;
+		$fields['SellingStatus.CurrentPrice'] = 1;
+		$fields['SellingStatus.CurrentPrice@currencyID'] = 1;
 		
 		$count = $mongo->ebay->items->count($query);
 		$cursor = $mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
@@ -168,6 +171,13 @@ class UsersController extends AppController {
 			
 			/* startprice */
 			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
+			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
+			
+			if (isset($row['SellingStatus']['CurrentPrice'])) {
+				$tmparr[$id]['price'] =
+					$this->currencysymbols($row['SellingStatus']['CurrentPrice@currencyID'])
+					. number_format($row['SellingStatus']['CurrentPrice']);
+			}
 			
 			/* endtime */
 			if (isset($row['ListingDetails']['EndTime'])) {

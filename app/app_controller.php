@@ -152,22 +152,50 @@ class AppController extends Controller {
 		$selling['allitems']['deleted'] = 0;
 		
 		$selling['scheduled']['deleted'] = 0;
+		$selling['scheduled']['ItemID']['$exists'] = 0;
 		
 		$selling['active']['deleted'] = 0;
-		$selling['active']['ListingDetails.EndTime']['$gte'] = date('Y-m-d').'T'.date('H:i:s');
+		$selling['active']['ItemID']['$exists'] = 1;
+		$selling['active']['SellingStatus.ListingStatus'] = 'Active';
+		//$selling['active']['ListingDetails.EndTime']['$gte'] = date('Y-m-d').'T'.date('H:i:s');
 		
 		$selling['sold']['deleted'] = 0;
+		$selling['sold']['ItemID']['$exists'] = 1;
 		$selling['sold']['SellingStatus.QuantitySold']['$gte'] = "1";
 		
 		$selling['unsold']['deleted'] = 0;
-		$selling['unsold']['ListingDetails.EndTime']['$lte'] = date('Y-m-d').'T'.date('H:i:s');
+		$selling['unsold']['ItemID']['$exists'] = 1;
+		$selling['unsold']['SellingStatus.ListingStatus'] = 'Completed';
 		$selling['unsold']['SellingStatus.QuantitySold'] = "0";
+		//$selling['unsold']['ListingDetails.EndTime']['$lte'] = date('Y-m-d').'T'.date('H:i:s');
 		
 		$selling['saved']['deleted'] = 0;
+		$selling['saved']['ItemID']['$exists'] = 0;
 		
 		$selling['trash']['deleted'] = 1;
 		
 		return $selling;
+	}
+	
+	/**
+	 * http://www.xe.com/symbols.php
+	 */
+	function currencysymbols($str)
+	{
+		$cs['USD'] = 'US $';
+		$cs['AUD'] = 'AU $';
+		$cs['CAD'] = '$';
+		$cs['EUR'] = 'EUR '; // '€';
+		$cs['GBP'] = '£';
+		$cs['JPY'] = '¥';
+		$cs['CHF'] = 'CHF ';
+		//$cs[''] = '';
+		
+		if (isset($cs[$str])) {
+			return $cs[$str];
+		} else {
+			return $str;
+		}
 	}
 }
 

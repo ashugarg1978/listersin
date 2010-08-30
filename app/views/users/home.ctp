@@ -112,7 +112,7 @@
 	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="UserID"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
-	<td class="StartPrice"></td>
+	<td class="price"></td>
 	<td class="EndTime"></td>
 	<td align="center" valign="middle"><img class="PictureURL" height="20"></td>
 </tr>
