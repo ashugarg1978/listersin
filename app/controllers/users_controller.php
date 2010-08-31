@@ -336,7 +336,8 @@ class UsersController extends AppController {
 		$item['_id'] = $_POST['id'];
 		
 		if (!empty($item['ShippingDetails']['ShippingType']))
-			$item['shippingtype'] = $this->getshippingmap($item['ShippingDetails']['ShippingType']);
+			$item['shippingtype'] = $this->getshippingtypelabel
+				($item['Site'], $item['ShippingDetails']['ShippingType']);
 		
 		$site = $item['Site'];
 		$categoryid = $item['PrimaryCategory']['CategoryID'];
@@ -898,7 +899,7 @@ class UsersController extends AppController {
 		
 		$data['international']['Flat']       = 'Flat: same cost to all buyers';
 		$data['international']['Calculated'] = 'Calculated: Cost varies by buyer location';
-		$data['international']['NoShipping'] = 'No shipping: Local pickup only';
+		$data['international']['NoShipping'] = 'No international shipping';
 		
 		if ($this->action == __FUNCTION__) {
 			echo json_encode($data);
@@ -929,19 +930,16 @@ class UsersController extends AppController {
 			return null;
 		}
 	}
-
-	function getshippingtypelabel()
+	
+	function getshippingtypelabel($site, $type)
 	{
-		$d['Flat']       = 'Flat: same cost to all buyers';
-		$d['Calculated'] = 'Calculated: Cost varies by buyer location';
-		$d['Freight']    = 'Freight: large items over 150 lbs.';
-		$d['NoShipping'] = 'No shipping: Local pickup only';
+		$arrtype = $this->getShippingType($site);
+		$map = $this->getshippingmap($type);
 		
-		$i['Flat']       = $d['Flat'];
-		$i['Calculated'] = $d['Calculated'];
-		$i['NoShipping'] = 'No international shipping';
+		$result['domestic'] = $arrtype[$map['domestic']];
+		$result['international'] = $arrtype[$map['international']];
 		
-		
+		return $result;
 	}
 }
 

@@ -249,11 +249,11 @@ ul.accountaction {
 	border-bottom-left-radius: 5px;
 }
 
-td.StartPrice {
+td.price {
 	text-align: right;
 }
 
-td.ListingDetails_EndTime {
+td.EndTime {
 	text-align: right;
 	white-space: nowrap;
 }
