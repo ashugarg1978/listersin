@@ -575,6 +575,27 @@ class ApiController extends AppController {
 		return;
 	}
 	
+	function importxml()
+	{
+		$mongo = new Mongo();
+		
+		$sites = $this->sitedetails();
+		foreach ($sites as $sitename => $siteid) {
+			echo "importxml:".$sitename."\n";
+			
+			/* Categories */
+			if (true) {
+				$xml = $this->readbz2xml(ROOT.'/data/apixml/Categories/'.$sitename.'.xml.bz2');
+				$arr = $this->xml2array($xml->CategoryArray);
+				
+				eval('$coll = $mongo->ebay->Categories_'.$sitename.';');
+				$coll->drop();
+				$coll->batchInsert($arr['Category']);
+			}
+			
+		}
+	}
+	
 	function updatexml()
 	{
 		$mongo = new Mongo();
@@ -598,13 +619,6 @@ class ApiController extends AppController {
 				$xmlobj = $this->callapi("GetCategories", $h, $sitename);
 				
 				exit;
-			}
-			if (true) {
-				eval('$mongo->ebay->Categories_'.$sitename.'->drop();');
-				$xml = $this->readbz2xml(ROOT.'/data/apixml/Categories/'.$sitename.'.xml.bz2');
-				foreach ($xml->CategoryArray->Category as $o) {
-					eval('$mongo->ebay->Categories_'.$sitename.'->save($o);');
-				}
 			}
 			
 			/* ShippingServiceDetails */
