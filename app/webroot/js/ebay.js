@@ -191,6 +191,29 @@ function getdetail(row)
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
+	$('td.shippingtype_domestic', detail).html(row.shippingtype.domestic);
+	$('td.shippingtype_international', detail).html(row.shippingtype.international);
+
+	if (typeof(row.ShippingDetails.ShippingServiceOptions)) {
+		sso = '';
+		$.each(row.ShippingDetails.ShippingServiceOptions, function(i, o) {
+			sso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
+			sso += '<br>';
+		});
+		$('td.shippingservice', detail).html(sso);
+	}
+	if (typeof(row.ShippingDetails.InternationalShippingServiceOption)) {
+		isso = '';
+		$.each(row.ShippingDetails.InternationalShippingServiceOption, function(i, o) {
+			isso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
+			if (o.ShippingServiceCost) {
+				isso += ' '+o['ShippingServiceCost@currencyID']+o.ShippingServiceCost;
+			}
+			isso += '<br>';
+		});
+		$('td.intlshippingservice', detail).html(isso);
+	}
+	
 	return;
 
 	/* preserve selected tab */

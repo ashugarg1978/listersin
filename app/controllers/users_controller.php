@@ -169,8 +169,6 @@ class UsersController extends AppController {
 			
 			/* startprice */
 			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
-			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
-			
 			if (isset($row['SellingStatus']['CurrentPrice'])) {
 				$tmparr[$id]['price'] =
 					$this->currencysymbols($row['SellingStatus']['CurrentPrice@currencyID'])
@@ -189,6 +187,8 @@ class UsersController extends AppController {
 			} else {
 				$tmparr[$id]['endtime'] = '-';
 			}
+
+			
 		}
 		
 		$data['cnt'] = $count;
@@ -934,8 +934,8 @@ class UsersController extends AppController {
 		$arrtype = $this->getShippingType($site);
 		$map = $this->getshippingmap($type);
 		
-		$result['domestic'] = $arrtype[$map['domestic']];
-		$result['international'] = $arrtype[$map['international']];
+		$result['domestic'] = $arrtype['domestic'][$map['domestic']];
+		$result['international'] = $arrtype['international'][$map['international']];
 		
 		return $result;
 	}
