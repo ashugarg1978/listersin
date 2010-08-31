@@ -4,9 +4,11 @@ class AppController extends Controller {
 	
 	var $uses = array('User');
 	var $filter;
+	var $mongo;
 	
 	function beforeFilter() {
 		$this->filter = $this->getsqlfilter();
+		$this->mongo = new Mongo();
 	}
 	
 	/**

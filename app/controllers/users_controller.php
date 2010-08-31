@@ -142,8 +142,6 @@ class UsersController extends AppController {
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
-		$mongo = new Mongo();
-		
 		$query['UserID']['$in'] = $this->userids;
 		
 		if (!empty($_POST['id']))     $query['_id']    = $_POST['id'];
@@ -164,8 +162,8 @@ class UsersController extends AppController {
 		$fields['SellingStatus.CurrentPrice'] = 1;
 		$fields['SellingStatus.CurrentPrice@currencyID'] = 1;
 		
-		$count = $mongo->ebay->items->count($query);
-		$cursor = $mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
+		$count = $this->mongo->ebay->items->count($query);
+		$cursor = $this->mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
 		$tmparr = iterator_to_array($cursor);
 		foreach ($tmparr as $id => $row) {
 			
