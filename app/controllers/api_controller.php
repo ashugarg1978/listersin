@@ -772,7 +772,7 @@ class ApiController extends AppController {
 		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ReturnAll'; // ItemReturnDescription, ReturnAll
-		$h['StartTimeFrom'] = '2010-06-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-08-01 00:00:00';
 		$h['StartTimeTo'] =
 			date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
 		$h['Pagination']['EntriesPerPage'] = 50;
