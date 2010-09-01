@@ -34,8 +34,8 @@ class UsersController extends AppController {
 		$this->set('user', $this->Auth->user());
 		
 		if (isset($this->user['User']['email'])) {
-			$this->accounts = $this->getAccounts($this->user['User']['email']);
-			Configure::write('Config.language', $this->user['User']['language']);
+			//$this->accounts = $this->getAccounts($this->user['User']['email']);
+			//Configure::write('Config.language', $this->user['User']['language']);
 		}
 		$this->set('accounts', $this->accounts);
 		
@@ -467,6 +467,14 @@ class UsersController extends AppController {
 	function accept()
 	{
 		if ($user = $this->Auth->user()) {
+			
+			$query['email'] = $user['User']['email'];
+			$query['email.userids'] = $_GET['username'];
+			$values['userids'] = $_GET;
+			$this->mongo->ebay->users->update($query,
+											  $values,
+											  array('upsert' => true));
+			
 			$sql_insert = "INSERT INTO accounts"
 				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
 				. " VALUES ("
