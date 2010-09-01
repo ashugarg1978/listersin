@@ -377,13 +377,19 @@ class ApiController extends AppController {
 		$items = iterator_to_array($cursor);
 		foreach ($items as $i => $item) {
 			//$xml = $this->array2xml($item);
-
 			$userid = $item['UserID'];
 			$site   = $item['Site'];
-			
-			$itemdata[$userid][$site][] = $item['Title'];
+			$itemdata[$userid][$site]['items'][] = $item['Title'];
 		}
 		
+		/* chunk by 5 */
+		foreach ($itemdata as $userid => $sitearr) {
+			foreach ($sitearr as $site => $itemarr) {
+				$chunked = array_chunk($itemarr['items'], 5);
+				$itemdata[$userid][$site]['chunk'] = $chunked;
+				unset($itemdata[$userid][$site]['items']);
+			}
+		}
 		error_log(print_r($itemdata,1));
 		
 		exit;

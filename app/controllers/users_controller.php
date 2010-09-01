@@ -328,7 +328,7 @@ class UsersController extends AppController {
 	{
 		$mongo = new Mongo();
 		
-		$query['UserID']['$in'] = $this->userids;
+		$query['UserID']['$in'] = $this->user['userids'];
 		$query['_id'] = new MongoID($_POST['id']);
 		
 		$item = $mongo->ebay->items->findOne($query);
