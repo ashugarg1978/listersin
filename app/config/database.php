@@ -74,6 +74,14 @@
 class DATABASE_CONFIG {
 
 	var $default = array(
+		'driver' => 'mongodb.mongodbSource',
+		'database' => 'ebay',
+		'host' => 'localhost',
+		'port' => 27017
+	);
+	
+	/*
+	var $default = array(
 		'driver' => 'mysql',
 		'persistent' => false,
 		'host' => 'localhost',
@@ -82,7 +90,8 @@ class DATABASE_CONFIG {
 		'database' => 'ebay',
 		'prefix' => '',
 	);
-
+	*/
+	
 	var $test = array(
 		'driver' => 'mysql',
 		'persistent' => false,

@@ -372,6 +372,13 @@ class ApiController extends AppController {
 	{
 		$sites = $this->sitedetails();
 		
+		$this->mongo = new Mongo();
+		$cursor = $this->mongo->ebay->items->find()->limit(2);
+		$items = iterator_to_array($cursor);
+		error_log(print_r($items,1));
+		
+		exit;
+		
 		/* read item data from database */
 		// todo: check user account id
 		// todo: avoid duplicate listing submit
@@ -816,93 +823,12 @@ class ApiController extends AppController {
 			$tmparr = $this->xml2array($o);
 			$tmparr['UserID'] = $xmlobj->Seller->UserID.'';
 			$tmparr['deleted'] = 0;
+			
 			$mcnt = $mongo->ebay->items->count(array('ItemID' => $tmparr['ItemID']));
+			
 			$mongo->ebay->items->update(array('ItemID' => $tmparr['ItemID']),
-										$tmparr, array('upsert' => true));
-			
-			/* mysql */
-			$arr = null;
-			$i = null;
-			$i['UserID'] = "'".$xmlobj->Seller->UserID."'";
-			$this->xml2arr($o, $arr, '');
-			
-			foreach ($arr as $c => $v) {
-				$c = str_replace('.','_',$c);
-				if (isset($colnames[$c])) {
-					
-					//if ($c == 'TimeLeft') $v = $this->duration2str($v);
-					
-					if ($c == 'PictureDetails_PictureURL' && is_array($v)) {
-						$v = implode("\n", $v);
-					} else if ($c == 'PaymentMethods' && is_array($v)) {
-						$v = implode("\n", $v);
-					} else if (is_array($v)) {
-						error_log('arr? '.$c);
-						continue;
-					}
-					
-					if (preg_match('/@/', $c)) $c = '`'.$c.'`';
-					$i[$c] = "'".mysql_real_escape_string($v)."'";
-				}
-			}
-			
-			$tmpo = $this->xml2array($o->ShippingDetails);
-			if (isset($tmpo['ShippingServiceOptions'])) {
-				if (isset($tmpo['ShippingServiceOptions']['ShippingService'])) {
-					$i['ShippingDetails_ShippingServiceOptions'] =
-						"'".$this->mres(serialize(array(0 => $tmpo['ShippingServiceOptions'])))."'";
-				} else {
-					$i['ShippingDetails_ShippingServiceOptions'] =
-						"'".$this->mres(serialize($tmpo['ShippingServiceOptions']))."'";
-				}
-			}
-			if (isset($tmpo['InternationalShippingServiceOption'])) {
-				if (isset($tmpo['InternationalShippingServiceOption']['ShippingService'])) {
-					$i['ShippingDetails_InternationalShippingServiceOption'] =
-						"'".$this->mres(serialize(array(0 => $tmpo['InternationalShippingServiceOption'])))."'";
-				} else {
-					$i['ShippingDetails_InternationalShippingServiceOption'] =
-						"'".$this->mres(serialize($tmpo['InternationalShippingServiceOption']))."'";
-				}
-			}
-			if (isset($tmpo['CalculatedShippingRate'])) {
-				$i['ShippingDetails_CalculatedShippingRate'] =
-					"'".$this->mres(serialize(array(0 => $tmpo['CalculatedShippingRate'])))."'";
-			}
-			
-			//echo error_log(print_r($arr,1));
-			
-			/* SELECT */
-			// todo: catch INSERT/UPDATE query result.
-			// todo: unique constraint of ItemID
-			$res = $this->User->query("SELECT id FROM items WHERE ItemID = ".$i['ItemID']);
-			if (!empty($res[0]['items']['id'])) {
-				
-				// todo: check accountid
-				/* UPDATE */
-				$sql_updates = null;
-				foreach ($i as $f => $v) {
-					$sql_updates[] = $f." = ".$v;
-				}
-				$sql_update = "UPDATE items"
-					. " SET ".implode(",",$sql_updates)
-					. " WHERE ItemID = ".$i['ItemID'];
-				$res = $this->User->query($sql_update);
-				//error_log($sql_update);
-				
-			} else {
-				
-				$i['created']   = "NOW()";
-				$i['accountid'] = $account['accountid'];
-				
-				/* INSERT */
-				$sql_insert = "INSERT INTO items"
-					. " (".implode(",", array_keys($i)).")"
-					. " VALUES"
-					. " (".implode(",", array_values($i)).")";
-				$res = $this->User->query($sql_insert);
-				//error_log($sql_insert);
-			}
+										$tmparr,
+										array('upsert' => true));
 		}
 		
 		return;

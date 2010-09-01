@@ -33,8 +33,8 @@ class UsersController extends AppController {
 		$this->user = $this->Auth->user();
 		$this->set('user', $this->Auth->user());
 		
-		if (isset($this->user['User']['userid'])) {
-			$this->accounts = $this->getAccounts($this->user['User']['userid']);
+		if (isset($this->user['User']['email'])) {
+			$this->accounts = $this->getAccounts($this->user['User']['email']);
 			Configure::write('Config.language', $this->user['User']['language']);
 		}
 		$this->set('accounts', $this->accounts);
@@ -67,7 +67,7 @@ class UsersController extends AppController {
 	
 	function index()
 	{
-		if (isset($this->user['User']['userid'])) {
+		if (isset($this->user['User']['email'])) {
 			
 			$sites = $this->sitedetails();
 			foreach ($sites as $sitename => $siteid) {
