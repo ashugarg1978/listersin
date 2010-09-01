@@ -373,9 +373,18 @@ class ApiController extends AppController {
 		$sites = $this->sitedetails();
 		
 		$this->mongo = new Mongo();
-		$cursor = $this->mongo->ebay->items->find()->limit(2);
+		$cursor = $this->mongo->ebay->items->find()->limit(200);
 		$items = iterator_to_array($cursor);
-		error_log(print_r($items,1));
+		foreach ($items as $i => $item) {
+			//$xml = $this->array2xml($item);
+
+			$userid = $item['UserID'];
+			$site   = $item['Site'];
+			
+			$itemdata[$userid][$site][] = $item['Title'];
+		}
+		
+		error_log(print_r($itemdata,1));
 		
 		exit;
 		

@@ -102,6 +102,36 @@ class AppController extends Controller {
 		}
 	}
 	
+	function array2xml($array, $depth=0)
+	{
+		$xml = "";
+		foreach ($array as $k => $v) {
+			if (is_array($v)) {
+				if (array_key_exists(0, $v)) {
+					if (is_array($v[0])) {
+						foreach ($v as $j => $tmp) {
+							$xml .= str_repeat("\t", $depth)."<".$k.">\n";
+							$xml .= $this->xml($tmp, ($depth+1));
+							$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+						}
+					} else {
+						foreach ($v as $j => $tmp) {
+							$xml .= str_repeat("\t", $depth)."<".$k.">".$tmp."</".$k.">"."\n";
+						}
+					}
+				} else {
+					$xml .= str_repeat("\t", $depth)."<".$k.">\n";
+					$xml .= $this->xml($v, ($depth+1));
+					$xml .= str_repeat("\t", $depth)."</".$k.">\n";
+				}
+			} else {
+				$xml .= str_repeat("\t", $depth)."<".$k.">".$v."</".$k.">"."\n";
+			}
+			
+		}
+		
+		return $xml;
+	}
 	
 	function readbz2xml($file)
 	{

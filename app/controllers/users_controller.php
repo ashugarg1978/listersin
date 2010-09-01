@@ -469,11 +469,8 @@ class UsersController extends AppController {
 		if ($user = $this->Auth->user()) {
 			
 			$query['email'] = $user['User']['email'];
-			$query['email.userids'] = $_GET['username'];
-			$values['userids'] = $_GET;
-			$this->mongo->ebay->users->update($query,
-											  $values,
-											  array('upsert' => true));
+			$values['$addToSet']['userids'][$_GET['username']] = $_GET;
+			$this->mongo->ebay->users->update($query, $values);
 			
 			$sql_insert = "INSERT INTO accounts"
 				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
