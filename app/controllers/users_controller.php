@@ -30,14 +30,17 @@ class UsersController extends AppController {
         $this->Auth->allow('index', 'register', 'receivenotify');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
 		$this->Auth->fields = array('username' => 'email',  'password' => 'password');
-		$this->user = $this->Auth->user();
-		$this->set('user', $this->Auth->user());
 		
-		if (isset($this->user['User']['email'])) {
+		if ($userauth = $this->Auth->user()) {
+			
+			$query['email'] = $userauth['User']['email'];
+			$this->user = $this->mongo->ebay->users->findOne($query);
+			$this->set('user', $this->user);
+			error_log(print_r($this->user,1));
+			
 			//$this->accounts = $this->getAccounts($this->user['User']['email']);
 			//Configure::write('Config.language', $this->user['User']['language']);
 		}
-		$this->set('accounts', $this->accounts);
 		
 		return;
     }	
@@ -67,7 +70,7 @@ class UsersController extends AppController {
 	
 	function index()
 	{
-		if (isset($this->user['User']['email'])) {
+		if (isset($this->user['email'])) {
 			
 			$sites = $this->sitedetails();
 			foreach ($sites as $sitename => $siteid) {
@@ -99,7 +102,6 @@ class UsersController extends AppController {
 			}
 			//$hash['shippingmap'] = $this->getshippingmap();
 			
-			$this->set('userids', $this->userids);
 			$this->set('hash', $hash);
 			$this->set('summary', $this->getsummary());
 			$this->render('home');
@@ -142,7 +144,7 @@ class UsersController extends AppController {
 		$limit  = empty($_POST["limit"])  ? 10 : $_POST["limit"];
 		$offset = empty($_POST["offset"]) ?  0 : $_POST["offset"];
 		
-		$query['UserID']['$in'] = $this->userids;
+		$query['UserID']['$in'] = array_keys($this->user['userids']);
 		
 		if (!empty($_POST['id']))     $query['_id']    = $_POST['id'];
 		if (!empty($_POST['ItemID'])) $query['ItemID'] = $_POST['ItemID'];
@@ -469,18 +471,9 @@ class UsersController extends AppController {
 		if ($user = $this->Auth->user()) {
 			
 			$query['email'] = $user['User']['email'];
-			$values['$addToSet']['userids'][$_GET['username']] = $_GET;
+			$values['$set']['userids.'.$_GET['username']] = $_GET;
 			$this->mongo->ebay->users->update($query, $values);
 			
-			$sql_insert = "INSERT INTO accounts"
-				. " (userid, ebayuserid, ebaytoken, ebaytokenexp, created)"
-				. " VALUES ("
-				. " ".$user['User']['userid'].","
-				. " '".$this->mres($_GET["username"])."',"
-				. " '".$this->mres($_GET["ebaytkn"])."',"
-				. " '".$this->mres($_GET["tknexp"])."',"
-				. " NOW())";
-			$res = $this->User->query($sql_insert);
 		}
 	}
 	
@@ -871,11 +864,12 @@ class UsersController extends AppController {
 		error_log('strt:'.date('H:i:s'));
 		/* summary of all accounts */
 		foreach ($selling as $name => $query) {
+			$query['UserID']['$in'] = array_keys($this->user['userids']);
 			$msummary['all'][$name] = $mongo->ebay->items->count($query);
 		}
 		
 		/* each accounts */
-		foreach ($this->userids as $userid) {
+		foreach ($this->user['userids'] as $userid => $userobj) {
 			foreach ($selling as $name => $query) {
 				$query['UserID'] = $userid;
 				$msummary[$userid][$name] = $mongo->ebay->items->count($query);

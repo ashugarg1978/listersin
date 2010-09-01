@@ -4,7 +4,7 @@
 <div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>
 
 <div style="font-size:11px; margin-right:10px;">
-<b><?= $user['User']['email'] ?></b><br>
+<b><?= $user['email'] ?></b><br>
 <div style="text-align:right;"><a href="/users/logout"><?= __('Sign out') ?></a></div>
 </div>
 
@@ -22,7 +22,9 @@
 <li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary['all']['trash']     ?>)</a></li>
 </ul>
 </li>
-<? foreach ($userids as $userid) { ?>
+<?
+foreach ($user['userids'] as $userid => $userobj) {
+?>
 <li class="allitems"><a href="#" class="<?= $userid ?>"><?= $userid.' ('.$summary[$userid]['allitems'].')' ?></a></li>
 <li>
 <ul class="accountaction <?= $userid ?>">
@@ -35,7 +37,9 @@
 <li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
 </ul>
 </li>
-<? } ?>
+<?
+} 
+?>
 </ul>
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
@@ -94,8 +98,8 @@
 	<select name="UserID" onchange="filter();">
 	<option value="">User ID</option>
 	<?
-	foreach ($accounts as $accountid => $row) {
-		echo '<option value="'.$row['ebayuserid'].'">'.$row['ebayuserid'].'</option>';
+	foreach ($user['userids'] as $userid => $userobj) {
+		echo '<option value="'.$userid.'">'.$userid.'</option>';
 	}	
 	?>
 	</select>

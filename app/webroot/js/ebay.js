@@ -209,9 +209,31 @@ function getdetail(row)
 			if (o.ShippingServiceCost) {
 				isso += ' '+o['ShippingServiceCost@currencyID']+o.ShippingServiceCost;
 			}
+			if (typeof(o.ShipToLocation == 'string')) {
+				isso += '<br>Ship to ' + o.ShipToLocation;
+			} else if (typeof(o.ShipToLocation == 'object')) {
+				isso += '<br>Ship to ' + o.ShipToLocation.join(' / ');
+			}
 			isso += '<br>';
 		});
 		$('td.intlshippingservice', detail).html(isso);
+	}
+	
+	if (row.ShippingDetails.CalculatedShippingRate) {
+		csro = row.ShippingDetails.CalculatedShippingRate;
+		
+		sp = csro.ShippingPackage;
+		if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
+		$('td.shippingpackage', detail).html(sp);
+		
+		dm = csro.PackageLength + csro['PackageLength@unit']
+			+ ' x ' + csro.PackageWidth + csro['PackageWidth@unit']
+			+ ' x ' + csro.PackageDepth + csro['PackageDepth@unit'];
+		$('td.dimensions', detail).html(dm);
+		
+		weight = csro.WeightMajor + csro['WeightMajor@unit']
+			+ ' ' + csro.WeightMinor + csro['WeightMinor@unit'];
+		$('td.weight', detail).html(weight);
 	}
 	
 	return;
