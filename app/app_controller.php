@@ -106,12 +106,16 @@ class AppController extends Controller {
 	{
 		$xml = "";
 		foreach ($array as $k => $v) {
+			
+			// todo: don't skip here
+			if (preg_match('/@/', $k)) continue;
+			
 			if (is_array($v)) {
 				if (array_key_exists(0, $v)) {
 					if (is_array($v[0])) {
 						foreach ($v as $j => $tmp) {
 							$xml .= str_repeat("\t", $depth)."<".$k.">\n";
-							$xml .= $this->xml($tmp, ($depth+1));
+							$xml .= $this->array2xml($tmp, ($depth+1));
 							$xml .= str_repeat("\t", $depth)."</".$k.">\n";
 						}
 					} else {
@@ -121,11 +125,11 @@ class AppController extends Controller {
 					}
 				} else {
 					$xml .= str_repeat("\t", $depth)."<".$k.">\n";
-					$xml .= $this->xml($v, ($depth+1));
+					$xml .= $this->array2xml($v, ($depth+1));
 					$xml .= str_repeat("\t", $depth)."</".$k.">\n";
 				}
 			} else {
-				$xml .= str_repeat("\t", $depth)."<".$k.">".$v."</".$k.">"."\n";
+				$xml .= str_repeat("\t", $depth)."<".$k.">".htmlspecialchars($v)."</".$k.">"."\n";
 			}
 			
 		}

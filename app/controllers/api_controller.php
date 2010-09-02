@@ -370,19 +370,29 @@ class ApiController extends AppController {
 	// todo: don't post over 18 simaltenious ruled by ebay guildline.
 	function additems($opid)
 	{
+		exit;
+		
 		$sites = $this->sitedetails();
 		
 		$this->mongo = new Mongo();
 		
 		/* get items */
-		$cursor = $this->mongo->ebay->items->find()->limit(1000);
+		$cursor = $this->mongo->ebay->items->find()->limit(600);
 		$items = iterator_to_array($cursor);
 		foreach ($items as $i => $item) {
-			//$xml = $this->array2xml($item);
 			$userid = $item['UserID'];
 			$site   = $item['Site'];
-			$itemdata[$userid][$site]['items'][] = $item['StartPrice'];
+			$itemdata[$userid][$site]['items'][] = $item;
 		}
+		error_log(print_r(array_keys($itemdata),1));
+		
+		/* get token */
+		// todo: get only needed userid
+		//$query = null;
+		//$query['userids.$.username']['$in'] = array_keys($itemdata);
+		//$fields['userids'] = 1; 
+		$users = $this->mongo->ebay->users->findOne();
+		//$users = iterator_to_array($cursor);
 		
 		/* chunk by 5 */
 		foreach ($itemdata as $userid => $sitearr) {
@@ -397,16 +407,51 @@ class ApiController extends AppController {
 				}
 			}
 		}
-
+		
 		/* chunk by 18 */
 		$chunk18 = array_chunk($chunks, 18);
-		
 		foreach ($chunk18 as $chunk18idx => $chunk5) {
+			
+			$pool = new HttpRequestPool();
+			
 			foreach ($chunk5 as $chunk5idx => $chunk) {
 				error_log('chunk '.$chunk18idx.'-'.$chunk5idx.' '.count($chunk['items']));
-				//error_log(print_r($chunk,1));
+				error_log(print_r($chunk,1));
+				
+				$h = null;
+				$h['RequesterCredentials']['eBayAuthToken'] =
+					$users['userids'][$chunk['userid']]['ebaytkn'];
+				
+				foreach ($chunk['items'] as $i => $item) {
+					$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
+					$h['AddItemRequestContainer'][$i]['Item'] = $item;
+				}
+				$r = $this->getHttpRequest('AddItems', $h, $chunk['site']);
+				$pool->attach($r);
 			}
+
+			
+			try {
+				$pool->send();
+			} catch (HttpRequestPoolException $ex) {
+				error_log("pool->send() error\n".$ex->getMessage());
+			}
+			
+			$ridx = 0;
+			foreach ($pool as $r) {
+				
+				$ridx++;
+				
+				$xml_response = $r->getResponseBody();
+				
+				$resfile = ROOT.'/app/tmp/apilogs/'
+					. (9999999999-date("mdHis")).'.AddIs.res.'.$chunk18idx.'.'.$chunk5idx.'.xml';
+				file_put_contents($resfile, $xml_response);
+				chmod($resfile, 0777);
+			}
+			
 		}
+		
 		exit;
 		
 		/* read item data from database */
@@ -947,7 +992,7 @@ class ApiController extends AppController {
 		$xml_request = '<?xml version="1.0" encoding="utf-8" ?>'."\n"
 			. '<'.$call.'Request xmlns="urn:ebay:apis:eBLBaseComponents">'."\n"
 			. '<WarningLevel>High</WarningLevel>'."\n"
-			. $this->xml($xmldata, 1)
+			. $this->array2xml($xmldata, 1)
 			. '</'.$call.'Request>'."\n";
 		
 		$date = 9999999999 - date("mdHis");
