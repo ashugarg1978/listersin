@@ -373,25 +373,40 @@ class ApiController extends AppController {
 		$sites = $this->sitedetails();
 		
 		$this->mongo = new Mongo();
-		$cursor = $this->mongo->ebay->items->find()->limit(200);
+		
+		/* get items */
+		$cursor = $this->mongo->ebay->items->find()->limit(1000);
 		$items = iterator_to_array($cursor);
 		foreach ($items as $i => $item) {
 			//$xml = $this->array2xml($item);
 			$userid = $item['UserID'];
 			$site   = $item['Site'];
-			$itemdata[$userid][$site]['items'][] = $item['Title'];
+			$itemdata[$userid][$site]['items'][] = $item['StartPrice'];
 		}
 		
 		/* chunk by 5 */
 		foreach ($itemdata as $userid => $sitearr) {
 			foreach ($sitearr as $site => $itemarr) {
 				$chunked = array_chunk($itemarr['items'], 5);
-				$itemdata[$userid][$site]['chunk'] = $chunked;
-				unset($itemdata[$userid][$site]['items']);
+				foreach ($chunked as $chunkidx => $chunkarr) {
+					$chunk = null;
+					$chunk['userid'] = $userid;
+					$chunk['site']   = $site;
+					$chunk['items']  = $chunkarr;
+					$chunks[] = $chunk;
+				}
 			}
 		}
-		error_log(print_r($itemdata,1));
+
+		/* chunk by 18 */
+		$chunk18 = array_chunk($chunks, 18);
 		
+		foreach ($chunk18 as $chunk18idx => $chunk5) {
+			foreach ($chunk5 as $chunk5idx => $chunk) {
+				error_log('chunk '.$chunk18idx.'-'.$chunk5idx.' '.count($chunk['items']));
+				//error_log(print_r($chunk,1));
+			}
+		}
 		exit;
 		
 		/* read item data from database */
