@@ -397,6 +397,10 @@ function bindevents()
 			$('ul', $(this).parent().next()).slideToggle('fast');
 		}
 		
+		userid = $(this).attr('class');
+		$('select[name=UserID]').val(userid);
+		items();
+		
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
 		
