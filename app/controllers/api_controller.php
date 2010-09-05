@@ -429,7 +429,6 @@ class ApiController extends AppController {
 				$r = $this->getHttpRequest('AddItems', $h, $chunk['site']);
 				$pool->attach($r);
 			}
-
 			
 			try {
 				$pool->send();
@@ -832,10 +831,15 @@ class ApiController extends AppController {
 	 */
 	function getsellerlists()
 	{
-		$sql = "SELECT ebayuserid FROM accounts";
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $row) {
-			$this->getsellerlist($row['accounts']['ebayuserid']);
+		$mongo = new Mongo();
+		
+		$cursor = $mongo->ebay->users->find();
+		$rows = iterator_to_array($cursor);
+		foreach ($rows as $i => $row) {
+			if (!is_array($row['userids'])) continue;
+			foreach ($row['userids'] as $userid => $userobj) {
+				$this->getsellerlist($userid);
+			}
 		}
 		
 		return;
@@ -844,17 +848,21 @@ class ApiController extends AppController {
 	// todo: authorize login user or daemon process
 	function getsellerlist($ebayuserid, $userid=null)
 	{
-		$sql = "SELECT * FROM accounts"
-			. " WHERE ebayuserid = '".mysql_real_escape_string($ebayuserid)."'";
-		$res = $this->User->query($sql);
-		$account = $res[0]['accounts'];
+		$mongo = new Mongo();
+		
+		/* get ebay token */
+		$query['userids.'.$ebayuserid]['$exists'] = 1;
+		$field['userids.'.$ebayuserid.'.ebaytkn'] = 1;
+		$row = $mongo->ebay->users->findOne($query, $field);
+		$token = $row['userids'][$ebayuserid]['ebaytkn'];
+		
 		
 		// todo: I can specify the span by EndTime
 		$h = null;
-		$h['RequesterCredentials']['eBayAuthToken'] = $account['ebaytoken'];
+		$h['RequesterCredentials']['eBayAuthToken'] = $token;
 		//$h['GranularityLevel'] = 'Fine'; // Coarse, Medium, Fine
 		$h['DetailLevel'] = 'ReturnAll'; // ItemReturnDescription, ReturnAll
-		$h['StartTimeFrom'] = '2010-08-01 00:00:00';
+		$h['StartTimeFrom'] = '2010-06-01 00:00:00';
 		$h['StartTimeTo'] =
 			date('Y-m-d H:i:s', strtotime('+90day', strtotime($h['StartTimeFrom'])));
 		$h['Pagination']['EntriesPerPage'] = 50;
@@ -864,7 +872,19 @@ class ApiController extends AppController {
 		
 		while (true) {
 			$xmlobj = $this->callapi('GetSellerList', $h);
-			$this->getsellerlist_import($xmlobj, $account);
+			
+			foreach ($xmlobj->ItemArray->Item as $idx => $o) {
+				
+				$tmparr = $this->xml2array($o);
+				$tmparr['UserID'] = $xmlobj->Seller->UserID.'';
+				$tmparr['deleted'] = 0;
+				
+				$mcnt = $mongo->ebay->items->count(array('ItemID' => $tmparr['ItemID']));
+				
+				$mongo->ebay->items->update(array('ItemID' => $tmparr['ItemID']),
+											$tmparr,
+											array('upsert' => true));
+			}
 			
 			$tnop = $xmlobj->PaginationResult->TotalNumberOfPages;
 			$tnoe = $xmlobj->PaginationResult->TotalNumberOfEntries;
@@ -877,33 +897,6 @@ class ApiController extends AppController {
 			} else {
 				break;
 			}
-		}
-		
-		return;
-	}
-	
-	
-	/**
-	 * 
-	 */
-	function getsellerlist_import($xmlobj, $account)
-	{
-		$mongo = new Mongo();
-		
-		$colnames = $this->getitemcols();
-		
-		foreach ($xmlobj->ItemArray->Item as $idx => $o) {
-			
-			/* mongo */
-			$tmparr = $this->xml2array($o);
-			$tmparr['UserID'] = $xmlobj->Seller->UserID.'';
-			$tmparr['deleted'] = 0;
-			
-			$mcnt = $mongo->ebay->items->count(array('ItemID' => $tmparr['ItemID']));
-			
-			$mongo->ebay->items->update(array('ItemID' => $tmparr['ItemID']),
-										$tmparr,
-										array('upsert' => true));
 		}
 		
 		return;

@@ -36,9 +36,7 @@ class UsersController extends AppController {
 			$query['email'] = $userauth['User']['email'];
 			$this->user = $this->mongo->ebay->users->findOne($query);
 			$this->set('user', $this->user);
-			error_log(print_r($this->user,1));
 			
-			//$this->accounts = $this->getAccounts($this->user['User']['email']);
 			//Configure::write('Config.language', $this->user['User']['language']);
 		}
 		
@@ -106,24 +104,6 @@ class UsersController extends AppController {
 			$this->set('summary', $this->getsummary());
 			$this->render('home');
 		}
-	}
-	
-	function getAccounts($userid)
-	{
-		$hash = null;
-		
-		$sql = "SELECT *"
-			. " FROM accounts"
-			. " WHERE userid = ".$userid
-			. " ORDER BY ebayuserid";
-		$res = $this->User->query($sql);
-		foreach ($res as $i => $arr) {
-			$a = $arr['accounts'];
-			$hash[$a['accountid']] = $a;
-			$this->userids[] = $a['ebayuserid'];
-		}
-		
-		return $hash;
 	}
 	
 	function home()
@@ -196,126 +176,6 @@ class UsersController extends AppController {
 		$data['cnt'] = $count;
 		if (isset($tmparr)) $data['res'] = $tmparr;
 		echo json_encode($data);
-		exit;
-		//$row['_id'] = $row['_id'].'';
-		//error_log(print_r($row,1));
-		//error_log(json_encode($row));
-		//echo json_encode($row);
-		//exit;
-		
-		
-		/* check post parameters */
-		$sql_filter = null;
-		$sql_filter[] = "UserID IN ('".implode("', '", $this->userids)."')";
-		//$sql_filter[] = "UserID IS NOT NULL";
-		//$sql_filter[] = "id >= 2900";
-		//$sql_filter[] = "ShippingDetails_ShippingServiceOptions != ''";
-		//$sql_filter[] = "ShippingDetails_ShippingType != 'Flat'";
-		
-		// todo: avoid sql injection
-		if (!empty($_POST["id"]))
-			$sql_filter[] = "id IN (".implode(",", $_POST['id']).")";
-		
-		if (!empty($_POST["ItemID"]))
-			$sql_filter[] = "ItemID = '".$this->mres($_POST["ItemID"])."'";
-		
-		if (!empty($_POST["UserID"]))
-			$sql_filter[] = "UserID = '".$this->mres($_POST["UserID"])."'";
-		
-		if (!empty($_POST["Title"]))
-			$sql_filter[] = "Title LIKE '%".$this->mres($_POST["Title"])."%'";
-		
-		if (!empty($_POST['selling']) && isset($this->filter[$_POST['selling']]))
-			$sql_filter[] = $this->filter[$_POST['selling']];
-		
-		
-		/* create sql statement */
-		// todo: timezone convert.
-		//. " CONVERT_TZ(items.ListingDetails_EndTime, 'GMT', 'Japan') AS ListingDetails_EndTime,"
-		$sql = "SELECT SQL_CALC_FOUND_ROWS"
-			. " id,"
-			. " UserID,"
-			. " ItemID,"
-			. " ListingDetails_EndTime,"
-			. " ListingDetails_ViewItemURL,"
-			. " Title,"
-			. " PictureDetails_PictureURL,"
-			. " PrimaryCategory_CategoryID,"
-			. " StartPrice,"
-			. " Site,"
-			. " SellingStatus_ListingStatus,"
-			. " SellingStatus_QuantitySold,"
-			. " Errors_LongMessage,"
-			. " ShippingDetails_ShippingType,"
- 		    . " schedule,"
-			. " status"
-			. " FROM items"
-			. " WHERE ".implode(" AND ", $sql_filter);
-		
-		if (isset($_POST['sort']))
-			$sort[] = $this->mres($_POST['sort']);
-		
-		$sort[] = "id DESC";
-		$sql .= " ORDER BY ".implode(',', $sort);
-		$sql .= " LIMIT ".$limit." OFFSET ".$offset;
-		
-		error_log($sql);
-		$res = $this->User->query($sql);
-		
-		/* count total records */
-		$res_cnt = $this->User->query("SELECT FOUND_ROWS() AS cnt");
-		$cnt = $res_cnt[0][0]['cnt'];
-		
-		/* modify result records */
-		foreach ($res as $idx => $row) {
-			
-			// when convert to another timezone
-			//$row['items']['ListingDetails_EndTime'] = $row[0]['ListingDetails_EndTime'];
-			
-			$id = $row['items']['id'];
-			$item = $row['items'];
-			
-			/* ListingDetails_EndTime */
-			if (isset($item['ListingDetails_EndTime'])) {
-				if (date('Y-m-d', strtotime($item['ListingDetails_EndTime'])) == date('Y-m-d')) {
-					$item['ListingDetails_EndTime'] =
-						date('H:i', strtotime($item['ListingDetails_EndTime']));
-				} else {
-					$item['ListingDetails_EndTime'] =
-						date('M j', strtotime($item['ListingDetails_EndTime']));
-				}
-			} else {
-				$item['ListingDetails_EndTime'] = '-';
-			}
-			
-			$tmppct = explode("\n", $item['PictureDetails_PictureURL']);
-			if (is_array($tmppct))
-				$item['PictureDetails_PictureURL'] = $tmppct[0];
-			
-			if (isset($item['schedule'])) {
-				if (date('Y-m-d', strtotime($item['schedule'])) == date('Y-m-d')) {
-					$item['schedule'] = date('H:i', strtotime($item['schedule']));
-				} else {
-					$item['schedule'] = date('M j', strtotime($item['schedule']));
-				}
-			}
-			
-			/* StartPrice */
-			$item['StartPrice'] = number_format($item['StartPrice']);
-			
-			$item['Errors_LongMessage'] = explode("\n", $item['Errors_LongMessage']);
-			
-			/* add to rows */
-			$items[] = $item;
-		}
-		
-		$data['cnt'] = $cnt;
-		if (isset($items))
-			$data['res'] = $items;
-		
-		echo json_encode($data);
-		//error_log(print_r($data,1));
-		//error_log(json_encode($data));
 		
 		exit;
 	}
@@ -326,12 +186,13 @@ class UsersController extends AppController {
 	 */
 	function item()
 	{
-		$mongo = new Mongo();
+		//$mongo = new Mongo();
 		
 		$query['UserID']['$in'] = $this->user['userids'];
 		$query['_id'] = new MongoID($_POST['id']);
 		
-		$item = $mongo->ebay->items->findOne($query);
+		$item = $this->mongo->ebay->items->findOne($query);
+		error_log(print_r($item,1));
 		
 		$item['_id'] = $_POST['id'];
 		
@@ -469,11 +330,9 @@ class UsersController extends AppController {
 	function accept()
 	{
 		if ($user = $this->Auth->user()) {
-			
 			$query['email'] = $user['User']['email'];
 			$values['$set']['userids.'.$_GET['username']] = $_GET;
 			$this->mongo->ebay->users->update($query, $values);
-			
 		}
 	}
 	
@@ -495,9 +354,7 @@ class UsersController extends AppController {
 			$ids[] = new MongoID($str);
 		}
 		
-		$mongo = new Mongo();
-		
-		$query['UserID']['$in'] = $this->userids;
+		$query['UserID']['$in'] = $this->user['userids'];
 		$query['_id']['$in'] = $ids;
 		$cursor = $mongo->ebay->items->find($query);
 		$tmparr = iterator_to_array($cursor);
@@ -505,27 +362,8 @@ class UsersController extends AppController {
 			unset($row['ItemID']);
 			unset($row['_id']); // todo: if set, is record overwritten?
 			error_log('copy:'.print_r($row,1));
-			$mongo->ebay->items->insert($row);
+			$this->mongo->ebay->items->insert($row);
 		}
-		
-		
-		/* mysql */
-		$cols = $this->getitemcols();
-		unset($cols['id']);
-		unset($cols['ItemID']);
-		unset($cols['created']);
-		unset($cols['updated']);
-		unset($cols['ListingDetails_StartTime']);
-		unset($cols['ListingDetails_EndTime']);
-		$colnames = array_keys($cols);
-		
-		// todo: list copy column names
-		$sql_copy = "INSERT INTO items (".implode(',', $colnames).", created, updated)"
-			. " SELECT ".implode(',', $colnames).", NOW(), NOW() FROM items"
-			. " WHERE id IN (".implode(",", $_POST['id']).")"
-			. " ORDER BY id";
-		$res = $this->User->query($sql_copy);
-		error_log(print_r($res,1));
 		
 		$copycount = count($_POST['id']);
 		
@@ -861,7 +699,7 @@ class UsersController extends AppController {
 		
 		$selling = $this->getsellingquery();
 		
-		error_log('strt:'.date('H:i:s'));
+		//error_log('strt:'.date('H:i:s'));
 		/* summary of all accounts */
 		foreach ($selling as $name => $query) {
 			$query['UserID']['$in'] = array_keys($this->user['userids']);
@@ -875,7 +713,7 @@ class UsersController extends AppController {
 				$msummary[$userid][$name] = $mongo->ebay->items->count($query);
 			}
 		}
-		error_log('done:'.date('H:i:s'));
+		//error_log('done:'.date('H:i:s'));
 		
 		return $msummary;
 	}

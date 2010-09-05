@@ -7,6 +7,7 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		$('ul.accounts > li > a:first').click();
+		$('a.active', $('ul.accountaction:first')).click();
 		
 		//dump(hash);
 		return;
@@ -396,6 +397,10 @@ function bindevents()
 		} else {
 			$('ul', $(this).parent().next()).slideToggle('fast');
 		}
+		
+		userid = $(this).attr('class');
+		$('select[name=UserID]').val(userid);
+		items();
 		
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
