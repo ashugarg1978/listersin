@@ -188,7 +188,7 @@ class UsersController extends AppController {
 	{
 		//$mongo = new Mongo();
 		
-		$query['UserID']['$in'] = $this->user['userids'];
+		$query['UserID']['$in'] = array_keys($this->user['userids']);
 		$query['_id'] = new MongoID($_POST['id']);
 		
 		$item = $this->mongo->ebay->items->findOne($query);
@@ -271,6 +271,19 @@ class UsersController extends AppController {
 	
 	function description($id)
 	{
+		$query['UserID']['$in'] = array_keys($this->user['userids']);
+		$query['_id'] = new MongoID($id);
+		
+		$field['Description'] = 1;
+		
+		$item = $this->mongo->ebay->items->findOne($query, $field);
+		error_log('desc:'.print_r($item,1));
+		
+		echo '<html><body style="margin:0px; padding:0px;">';
+		echo $item['Description'];
+		echo '</body></html>';
+		exit;
+		
 		//$id = $_POST['itemid'];
 		$sql = "SELECT description FROM items WHERE id = ".$id;
 		$res = $this->User->query($sql);
@@ -456,15 +469,16 @@ class UsersController extends AppController {
 	 */
 	function categorypath($site, $categoryid)
 	{
-		$table = "categories_".strtolower($site);
+		eval('$coll = $this->mongo->ebay->Categories_'.$site.';');
+		
 		$path = null;
 		
 		$parentid = $categoryid;
 		while (true) {
-			$res = $this->User->query("SELECT * FROM ".$table." WHERE CategoryID = ".$parentid);
-			if (empty($res[0][$table])) break;
+			$query = null;
+			$query['CategoryID'] = $parentid;
+			$row = $coll->findOne($query);
 			
-			$row = $res[0][$table];
 			$path[$row['CategoryID']] = $row['CategoryName'];
 			
 			if ($row['CategoryLevel'] == 1) break;
@@ -507,15 +521,24 @@ class UsersController extends AppController {
 	
 	function children($site, $categoryid)
 	{
+		eval('$coll = $this->mongo->ebay->Categories_'.$site.';');
+		
 		$data = null;
 		$table = "categories_".strtolower($site);
 		$sql = "SELECT CategoryID, CategoryName, LeafCategory FROM ".$table;
 		if ($categoryid) {
+			$query['CategoryParentID'] = $categoryid;
 			$sql .= " WHERE CategoryParentID = ".$categoryid
 				. " AND CategoryID != ".$categoryid;
 		} else {
+			$query['CategoryLevel'] = 1;
 			$sql .= " WHERE CategoryLevel = 1";
 		}
+		error_log(print_r($query,1));
+		$cursor = $coll->find($query);
+		$rows = iterator_to_array($cursor);
+		error_log(print_r($rows,1));
+		
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
 			foreach ($res as $i => $row) {

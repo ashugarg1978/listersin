@@ -9,7 +9,7 @@ $(document).bind({
 		$('ul.accounts > li > a:first').click();
 		$('a.active', $('ul.accountaction:first')).click();
 		
-		//dump(hash);
+		dump(hash);
 		return;
 		
 		setTimeout('autoclick()', 1000);
@@ -39,7 +39,7 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   dump(data);
+			   //dump(data);
 			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -162,6 +162,8 @@ function getrow(idx, row)
 	return dom;
 }
 
+// todo: consider about how to generate strings for display
+// todo: if build a clone of python version, it's easy if generation is in javascript.
 function getdetail(row)
 {
 	id = row._id;
@@ -192,10 +194,11 @@ function getdetail(row)
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
-	$('td.shippingtype_domestic', detail).html(row.shippingtype.domestic);
-	$('td.shippingtype_international', detail).html(row.shippingtype.international);
-
-	if (typeof(row.ShippingDetails.ShippingServiceOptions)) {
+	if (row.shippingtype) {
+		$('td.shippingtype_domestic', detail).html(row.shippingtype.domestic);
+		$('td.shippingtype_international', detail).html(row.shippingtype.international);
+	}
+	if (row.ShippingDetails.ShippingServiceOptions) {
 		sso = '';
 		$.each(row.ShippingDetails.ShippingServiceOptions, function(i, o) {
 			sso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
@@ -203,7 +206,7 @@ function getdetail(row)
 		});
 		$('td.shippingservice', detail).html(sso);
 	}
-	if (typeof(row.ShippingDetails.InternationalShippingServiceOption)) {
+	if (row.ShippingDetails.InternationalShippingServiceOption) {
 		isso = '';
 		$.each(row.ShippingDetails.InternationalShippingServiceOption, function(i, o) {
 			isso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
@@ -237,6 +240,12 @@ function getdetail(row)
 		$('td.weight', detail).html(weight);
 	}
 	
+	/* description */
+	// todo: check html5 srcdoc attribute
+	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
+	$('textarea[name=Description]', detail).replaceWith(iframe);
+	
+	
 	return;
 
 	/* preserve selected tab */
@@ -253,11 +262,6 @@ function getdetail(row)
 			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
 		});
 	}
-	
-	/* description */
-	// todo: check html5 srcdoc attribute
-	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
-	$('textarea[name=description]', detail).replaceWith(iframe);
 	
 	/* listingtype */
 	
@@ -542,8 +546,8 @@ function bindevents()
 		$('select[name=Site]',      dom).val(item.Site);
 		
 		/* category selector */
-		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
-		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
+		//$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
+		//$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);

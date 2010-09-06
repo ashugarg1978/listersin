@@ -223,7 +223,7 @@ foreach ($user['userids'] as $userid => $userobj) {
 </div>
 <div class="tab">
 	<div class="description">
-		<textarea name="description" cols="100" rows="10"></textarea>
+		<textarea name="Description" cols="100" rows="10"></textarea>
 	</div>
 </div>
 <div class="tab">
