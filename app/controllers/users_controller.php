@@ -230,7 +230,7 @@ class UsersController extends AppController {
 			foreach ($_FILES as $fname => $arr) {
 				if ($arr['error'] != 0) continue;
 				
-				preg_match('/_([\d]+)_([\d]+)$/', $fname, $matches);
+				preg_match('/_([\w]+)_([\d]+)$/', $fname, $matches);
 				$id  = $matches[1];
 				$num = $matches[2];
 				

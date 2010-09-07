@@ -245,6 +245,15 @@ function getdetail(row)
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
+	/* pictures */
+	if (typeof(row.PictureDetails.PictureURL) == 'string') {
+		$('img.PD_PURL_1', detail).attr('src', row.PictureDetails.PictureURL);
+	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
+		$.each(row.PictureDetails.PictureURL, function(i, url) {
+			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
+		});
+	}
+	
 	
 	return;
 
@@ -500,7 +509,7 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   dump(hash['US']);
+					   dump(data);
 					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -549,6 +558,19 @@ function bindevents()
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
 		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
+		/* pictures */
+		if (typeof(item.PictureDetails.PictureURL) == 'string') {
+			$('img.PD_PURL_1', dom).attr('src', item.PictureDetails.PictureURL);
+		} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
+			$.each(item.PictureDetails.PictureURL, function(i, url) {
+				$('img.PD_PURL_'+(i+1), dom).attr('src', url);
+			});
+		} 
+		for (i=1; i<=12; i++) {
+			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
+			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
+		}
+		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 	    $('input[name=Title]', 'tbody#'+id).focus();
@@ -566,14 +588,6 @@ function bindevents()
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
-		/* replace form values */
-		$.each(rowsdata[id]['PictureDetails_PictureURL'], function(i, url) {
-			$('img.PD_PURL_'+(i+1), dom).attr('src', url);
-		});
-		for (i=1; i<=12; i++) {
-			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
-			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
-		}
 		
 		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
 		$('select[name=ListingType]',   dom).val(rowsdata[id]['ListingType']);
@@ -783,7 +797,7 @@ function copyitems()
 
 function refresh()
 {
-	dump(hash['US']['category']); 
+	//dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;

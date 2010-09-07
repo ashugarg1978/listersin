@@ -44,7 +44,10 @@ foreach ($user['userids'] as $userid => $userobj) {
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
 
-<iframe name="posttarget" width="130" height="100" src="/blank.html"></iframe>
+<br><br>
+post target<br>
+<iframe name="posttarget" width="130" height="100" src="/blank.html"
+style="border:1px solid gray;"></iframe>
 
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
@@ -244,7 +247,11 @@ foreach ($user['userids'] as $userid => $userobj) {
 	?></tr>
 	</table>
 	</form>
-	
+	<?
+	for ($i=1; $i<=12; $i++) {
+		 echo '<input type="text" name="PictureDetails[PictureURL]['.$i.']" size="20"><br>';
+	}
+	?>
   </div>
 </div>
 <div class="tab">
