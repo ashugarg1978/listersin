@@ -9,14 +9,14 @@ $(document).bind({
 		$('ul.accounts > li > a:first').click();
 		$('a.active', $('ul.accountaction:first')).click();
 		
-		dump(hash);
-		return;
+		//dump(hash);
 		
-		setTimeout('autoclick()', 1000);
-		
+		//setTimeout('autoclick()', 1000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
 		setInterval(refresh, 2000);
+		
+		return;
 	}
 });
 
@@ -500,7 +500,7 @@ function bindevents()
 			$.post('/users/item/',
 				   'id='+id,
 				   function(data) {
-					   dump(data);
+					   dump(hash['US']);
 					   getdetail(data);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -546,8 +546,8 @@ function bindevents()
 		$('select[name=Site]',      dom).val(item.Site);
 		
 		/* category selector */
-		//$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
-		//$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
+		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
+		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
@@ -783,7 +783,7 @@ function copyitems()
 
 function refresh()
 {
-	//dump(hash['US']['category']); 
+	dump(hash['US']['category']); 
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;

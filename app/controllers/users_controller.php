@@ -483,6 +483,7 @@ class UsersController extends AppController {
 	
 	function grandchildren($site, $pathstr)
 	{
+		$start = date('H:i:s');
 		$data['name'] = array();
 		$data['children'] = array();
 		$data['grandchildren'] = array();
@@ -507,6 +508,8 @@ class UsersController extends AppController {
 		}
 		
 		echo json_encode($data);
+		$end = date('H:i:s');
+		error_log('grandchildren '.$start.' '.$end);
 		//error_log(print_r($data,1));
 		exit;
 	}
@@ -516,43 +519,26 @@ class UsersController extends AppController {
 		eval('$coll = $this->mongo->ebay->Categories_'.$site.';');
 		
 		$data = null;
-		$table = "categories_".strtolower($site);
-		$sql = "SELECT CategoryID, CategoryName, LeafCategory FROM ".$table;
 		if ($categoryid) {
 			$query['CategoryParentID'] = $categoryid;
-			$sql .= " WHERE CategoryParentID = ".$categoryid
-				. " AND CategoryID != ".$categoryid;
+			$query['CategoryID']['$ne'] = $categoryid;
 		} else {
 			$query['CategoryLevel'] = "1";
-			$sql .= " WHERE CategoryLevel = 1";
 		}
 		$cursor = $coll->find($query);
 		$rows = iterator_to_array($cursor);
-		foreach ($rows as $i => $row) {
-			$data['children'][$categoryid][]  = $row['CategoryID'];
-			$data['name'][$row['CategoryID']] = $row['CategoryName'];
-			
-			if (isset($row['LeafCategory']))
-				$data['children'][$row['CategoryID']] = 'leaf';
-		}
-		return $data;
-		
-		$res = $this->User->query($sql);
-		if (count($res) > 0) {
-			foreach ($res as $i => $row) {
-				$id = $row[$table]['CategoryID'];
-				$data['children'][$categoryid][] = $id;
-				$data['name'][$id] = $row[$table]['CategoryName'];
-				//$data['name'][$id] .= '('.$id.')';
-				if ($row[$table]['LeafCategory']) {
-					$data['children'][$id] = 'leaf';
-				}
+		if (count($rows)) {
+			foreach ($rows as $i => $row) {
+				$data['children'][$categoryid][]  = $row['CategoryID'];
+				$data['name'][$row['CategoryID']] = $row['CategoryName'];
+				
+				if (isset($row['LeafCategory']))
+					$data['children'][$row['CategoryID']] = 'leaf';
 			}
 		} else {
 			$data['children'] = 'leaf';
 		}
 		
-		//error_log(print_r($data,1));
 		return $data;
 	}
 	
