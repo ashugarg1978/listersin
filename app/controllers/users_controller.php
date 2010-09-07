@@ -277,19 +277,11 @@ class UsersController extends AppController {
 		$field['Description'] = 1;
 		
 		$item = $this->mongo->ebay->items->findOne($query, $field);
-		error_log('desc:'.print_r($item,1));
+		//error_log('desc:'.print_r($item,1));
 		
 		echo '<html><body style="margin:0px; padding:0px;">';
 		echo $item['Description'];
 		echo '</body></html>';
-		exit;
-		
-		//$id = $_POST['itemid'];
-		$sql = "SELECT description FROM items WHERE id = ".$id;
-		$res = $this->User->query($sql);
-		$html = $res[0]['items']['description'];
-		
-		echo $html;
 		
 		exit;
 	}
@@ -531,13 +523,19 @@ class UsersController extends AppController {
 			$sql .= " WHERE CategoryParentID = ".$categoryid
 				. " AND CategoryID != ".$categoryid;
 		} else {
-			$query['CategoryLevel'] = 1;
+			$query['CategoryLevel'] = "1";
 			$sql .= " WHERE CategoryLevel = 1";
 		}
-		error_log(print_r($query,1));
 		$cursor = $coll->find($query);
 		$rows = iterator_to_array($cursor);
-		error_log(print_r($rows,1));
+		foreach ($rows as $i => $row) {
+			$data['children'][$categoryid][]  = $row['CategoryID'];
+			$data['name'][$row['CategoryID']] = $row['CategoryName'];
+			
+			if (isset($row['LeafCategory']))
+				$data['children'][$row['CategoryID']] = 'leaf';
+		}
+		return $data;
 		
 		$res = $this->User->query($sql);
 		if (count($res) > 0) {
