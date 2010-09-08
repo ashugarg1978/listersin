@@ -143,10 +143,12 @@ class UsersController extends AppController {
 		$fields['SellingStatus.ListingStatus'] = 1;
 		$fields['SellingStatus.CurrentPrice'] = 1;
 		$fields['SellingStatus.CurrentPrice@currencyID'] = 1;
+		$fields['status'] = 1;
 		
 		$count = $this->mongo->ebay->items->count($query);
 		$cursor = $this->mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
 		$tmparr = iterator_to_array($cursor);
+		error_log(print_r($tmparr,1));
 		foreach ($tmparr as $id => $row) {
 			
 			/* startprice */
@@ -354,19 +356,18 @@ class UsersController extends AppController {
 	{
 		if (empty($_POST['id'])) return;
 		
-		/* mongo */
 		foreach ($_POST['id'] as $str) {
 			$ids[] = new MongoID($str);
 		}
 		
-		$query['UserID']['$in'] = $this->user['userids'];
+		$query['UserID']['$in'] = array_keys($this->user['userids']);
 		$query['_id']['$in'] = $ids;
-		$cursor = $mongo->ebay->items->find($query);
+		$cursor = $this->mongo->ebay->items->find($query);
 		$tmparr = iterator_to_array($cursor);
 		foreach ($tmparr as $id => $row) {
 			unset($row['ItemID']);
 			unset($row['_id']); // todo: if set, is record overwritten?
-			error_log('copy:'.print_r($row,1));
+			//error_log('copy:'.print_r($row,1));
 			$this->mongo->ebay->items->insert($row);
 		}
 		
@@ -386,10 +387,9 @@ class UsersController extends AppController {
 		
 		$item = $_POST;
 		
-		$mongo = new Mongo();
 		$query['_id'] = new MongoID($_POST['id']);
 		$set['$set'] = $item;
-		$mongo->ebay->items->update($query, $set);
+		$this->mongo->ebay->items->update($query, $set);
 		
 		$_POST = null;
 		$_POST['id'] = $id;
@@ -427,6 +427,17 @@ class UsersController extends AppController {
 	function relist()
 	{
 		if (empty($_POST['id'])) return;
+		
+		$time = date('YmdHis');
+		
+		foreach ($_POST['id'] as $str) {
+			$ids[] = new MongoID($str);
+		}
+		
+		$query['UserID']['$in'] = array_keys($this->user['userids']);
+		$query['_id']['$in'] = $ids;
+		$set['$set']['status'] = $time.'.add';
+		$this->mongo->ebay->items->update($query, $set, array('multiple' => 1));
 		
 		$opid = $this->user['User']['userid'].date('YmdHis');
 		$opid = base_convert($opid, 10, 32);

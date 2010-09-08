@@ -827,7 +827,6 @@ class ApiController extends AppController {
 	/**
 	 *   - getsellerlists
 	 *   - getsellerlist
-	 *   - getsellerlist_import
 	 */
 	function getsellerlists()
 	{

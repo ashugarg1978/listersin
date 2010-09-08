@@ -39,7 +39,7 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   //dump(data);
+			   dump(data);
 			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -93,8 +93,13 @@ function getrow(idx, row)
 	
 	$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
 	$('td.EndTime', dom).html(row.endtime);
+	
+	if (typeof(row.status) == 'string') {
+		$('input:checkbox', dom).css('visibility', 'hidden');
+		$('input:checkbox', dom).parent().addClass('loading');
+	}
 	$('input:checkbox', dom).val(id);
-
+	
 	/* Picture */
 	var pictstr = '';
 	if (typeof(row.PictureDetails.PictureURL) == 'string') {
