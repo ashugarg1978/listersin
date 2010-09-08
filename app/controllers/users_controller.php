@@ -232,7 +232,7 @@ class UsersController extends AppController {
 			foreach ($_FILES as $fname => $arr) {
 				if ($arr['error'] != 0) continue;
 				
-				preg_match('/_([\w]+)_([\d]+)$/', $fname, $matches);
+				preg_match('/^PD_PURL_([\w]+)_([\d]+)$/', $fname, $matches);
 				$id  = $matches[1];
 				$num = $matches[2];
 				
@@ -242,18 +242,9 @@ class UsersController extends AppController {
 				
 				move_uploaded_file($arr['tmp_name'], ROOT.'/app/webroot/itemimg/'.$savename);
 				
-				$sql = "SELECT PictureDetails_PictureURL FROM items WHERE id = ".$id;
-				$res = $this->User->query($sql);
-				$arrurl = explode("\n", $res[0]['items']['PictureDetails_PictureURL']);
-				$arrurl[$num-1] = 'http://localhost/itemimg/'.$savename;
-				$sql = "UPDATE items"
-					. " SET PictureDetails_PictureURL"
-					. " = '".$this->mres(implode("\n", $arrurl))."'"
-					. " WHERE id = ".$id;
-				$res = $this->User->query($sql);
+				$arrurl[$num] = 'http://localhost/itemimg/'.$savename;
 				
 				error_log($fname);
-				error_log(print_r($arr,1));
 				
 				$this->set('id', $id);
 				$this->set('arrurl', $arrurl);

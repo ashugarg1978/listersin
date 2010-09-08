@@ -39,7 +39,7 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   dump(data);
+			   //dump(data);
 			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -649,6 +649,15 @@ function bindevents()
 			alert('category error.');
 			return false;
 		}
+		
+		$.each($('img.PictureDetails_PictureURL', detail), function(i, e) {
+			//alert('input[name=PictureDetails[PictureURL]['+(i+1)+']]');
+			//$(e).attr('src')
+			alert($('input[name=PictureDetails[PictureURL]['+(i+1)+']]', detail).attr('name'));
+		});
+		
+		alert('chk');
+		return false;
 		
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();

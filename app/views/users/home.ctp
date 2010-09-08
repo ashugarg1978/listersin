@@ -249,7 +249,7 @@ style="border:1px solid gray;"></iframe>
 	</form>
 	<?
 	for ($i=1; $i<=12; $i++) {
-		 echo '<input type="text" name="PictureDetails[PictureURL]['.$i.']" size="20"><br>';
+		 echo '<input type="text" name="PictureDetails[PictureURL]['.$i.']" size="40"><br>';
 	}
 	?>
   </div>
