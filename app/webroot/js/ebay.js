@@ -650,14 +650,14 @@ function bindevents()
 			return false;
 		}
 		
-		$.each($('img.PictureDetails_PictureURL', detail), function(i, e) {
-			//alert('input[name=PictureDetails[PictureURL]['+(i+1)+']]');
-			//$(e).attr('src')
-			alert($('input[name=PictureDetails[PictureURL]['+(i+1)+']]', detail).attr('name'));
+		$.each($('img.PictureDetails_PictureURL', detail), function(i, imgelm) {
+			imgsrc = $(imgelm).attr('src');
+			if (imgsrc == '/img/noimage.jpg') {
+				$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).remove();
+			} else {
+				$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).val(imgsrc);
+			}
 		});
-		
-		alert('chk');
-		return false;
 		
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();

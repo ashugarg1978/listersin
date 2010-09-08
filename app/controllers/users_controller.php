@@ -383,7 +383,7 @@ class UsersController extends AppController {
 		$this->mongo->ebay->items->update($query, $set);
 		
 		$_POST = null;
-		$_POST['id'] = $id;
+		$_POST['id'] = $item['id'];
 		
 		$this->item();
 		
