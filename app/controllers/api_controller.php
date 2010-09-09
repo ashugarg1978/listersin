@@ -370,21 +370,21 @@ class ApiController extends AppController {
 	// todo: don't post over 18 simaltenious ruled by ebay guildline.
 	function additems($opid)
 	{
-		exit;
-		
 		$sites = $this->sitedetails();
 		
 		$this->mongo = new Mongo();
 		
 		/* get items */
-		$cursor = $this->mongo->ebay->items->find()->limit(600);
+		$query['status'] = new MongoRegex('/list$/');
+		$cursor = $this->mongo->ebay->items->find($query)->limit(20);
 		$items = iterator_to_array($cursor);
 		foreach ($items as $i => $item) {
 			$userid = $item['UserID'];
 			$site   = $item['Site'];
+			$item['id'] = $i;
 			$itemdata[$userid][$site]['items'][] = $item;
+			echo $item['status']."\n";
 		}
-		error_log(print_r(array_keys($itemdata),1));
 		
 		/* get token */
 		// todo: get only needed userid
@@ -416,7 +416,7 @@ class ApiController extends AppController {
 			
 			foreach ($chunk5 as $chunk5idx => $chunk) {
 				error_log('chunk '.$chunk18idx.'-'.$chunk5idx.' '.count($chunk['items']));
-				error_log(print_r($chunk,1));
+				//error_log(print_r($chunk,1));
 				
 				$h = null;
 				$h['RequesterCredentials']['eBayAuthToken'] =
@@ -436,17 +436,57 @@ class ApiController extends AppController {
 				error_log("pool->send() error\n".$ex->getMessage());
 			}
 			
-			$ridx = 0;
-			foreach ($pool as $r) {
+			foreach ($pool as $ridx => $r) {
 				
-				$ridx++;
+				/* HTTP error */
+				if ($r->getResponseCode() != 200) {
+					error_log('Error[ridx:'.$ridx.']'
+							  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
+					continue;
+				}
 				
 				$xml_response = $r->getResponseBody();
 				
 				$resfile = ROOT.'/app/tmp/apilogs/'
-					. (9999999999-date("mdHis")).'.AddIs.res.'.$chunk18idx.'.'.$chunk5idx.'.xml';
+					. (9999999999-date("mdHis")).'.AddIs.res.'.$chunk18idx.'.'.$ridx.'.xml';
 				file_put_contents($resfile, $xml_response);
 				chmod($resfile, 0777);
+				
+				$xmlobj = simplexml_load_string($xml_response);
+				foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
+					
+					$id = $chunk5[$ridx]['items'][($obj->CorrelationID-1)]['id'];
+					
+					$query['_id'] = new MongoID($id);
+					$set = null;
+					$set['$unset']['status'] = 1;
+					if (isset($obj->ItemID)) {
+						
+						$set['$set']['ItemID'] = $obj->ItemID;
+						//$set['$set']['SellingStatus_ListingStatus'] = 'Active'; // manually?
+						$set['$set']['ListingDetails']['StartTime'] = $obj->StartTime;
+						$set['$set']['ListingDetails']['EndTime']   = $obj->EndTime;
+						
+					} else if (isset($obj->Errors)) {
+						
+						$set['$set']['Errors'] = 'some error!';
+						
+						/*
+						$arrerrshort = null;
+						$arrerrlong  = null;
+						foreach ($obj->Errors as $ei => $eo) {
+							$arrerrshort[] = $eo->ShortMessage;
+							$arrerrlong[]  = $eo->LongMessage;
+						}
+						
+						$set['$set']['Errors_ShortMessage'] = implode("\n", $arrerrshort);
+						$set['$set']['Errors_LongMessage']  = implode("\n", $arrerrlong);
+						*/
+					}
+					
+					$this->mongo->ebay->items->update($query, $set);
+				}
+				
 			}
 			
 		}

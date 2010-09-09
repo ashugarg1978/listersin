@@ -148,7 +148,7 @@ class UsersController extends AppController {
 		$count = $this->mongo->ebay->items->count($query);
 		$cursor = $this->mongo->ebay->items->find($query, $fields)->limit($limit)->skip($offset)->sort(array("ListingDetails.EndTime" => -1));
 		$tmparr = iterator_to_array($cursor);
-		error_log(print_r($tmparr,1));
+		error_log('itemsres:'.print_r($tmparr,1));
 		foreach ($tmparr as $id => $row) {
 			
 			/* startprice */
@@ -427,32 +427,9 @@ class UsersController extends AppController {
 		
 		$query['UserID']['$in'] = array_keys($this->user['userids']);
 		$query['_id']['$in'] = $ids;
-		$set['$set']['status'] = $time.'.add';
+		$query['status']['$exists'] = false; // todo: try $exists, $ne:'', etc...
+		$set['$set']['status'] = $time.'.(re)list';
 		$this->mongo->ebay->items->update($query, $set, array('multiple' => 1));
-		
-		$opid = $this->user['User']['userid'].date('YmdHis');
-		$opid = base_convert($opid, 10, 32);
-		
-		/* prepare additems */
-		$sql = "UPDATE items"
-			. " SET status = 'add.".$opid."'"
-			. " WHERE status IS NULL"
-			. " AND id IN (".implode(',', $_POST['id']).")"
-			. " AND ItemID IS NULL";
-		$res = $this->User->query($sql);
-		
-		/* prepare relistitem */
-		// todo: check timezone
-		$sql = "UPDATE items"
-			. " SET status = 'relist.".$opid."'"
-			. " WHERE status IS NULL"
-			. " AND id IN (".implode(',', $_POST['id']).")"
-			. " AND ItemID IS NOT NULL"
-			. " AND ListingDetails_EndTime < NOW()";
-		$res = $this->User->query($sql);
-		
-		system(ROOT.'/shells/kickdaemon.sh additems '.$opid);
-		system(ROOT.'/shells/kickdaemon.sh relistitems '.$opid);
 		
 		return;
 	}
