@@ -123,23 +123,6 @@ class ApiController extends AppController {
 		exit;
 	}
 	
-	function arr2xml(&$arr, $depth, $val)
-	{
-		if (count($depth) > 1) {
-			$here = array_shift($depth);
-			$res[$here] = $this->arr2xml($arr, $depth, $val);
-			return $res;
-		} else {
-			$here = $depth[0];
-			if (is_array($val)) {
-				$res[$here] = $val;
-			} else {
-				$res[$here] = htmlspecialchars($val);
-			}
-			return $res;
-		}
-	}
-	
 	function xml2arr($xml, &$arr, $path)
 	{
 		foreach ($xml->children() as $child) {
@@ -383,7 +366,6 @@ class ApiController extends AppController {
 			$site   = $item['Site'];
 			$item['id'] = $i;
 			$itemdata[$userid][$site]['items'][] = $item;
-			echo $item['status']."\n";
 		}
 		
 		/* get token */
@@ -471,145 +453,11 @@ class ApiController extends AppController {
 						
 						$set['$set']['Errors'] = 'some error!';
 						
-						/*
-						$arrerrshort = null;
-						$arrerrlong  = null;
-						foreach ($obj->Errors as $ei => $eo) {
-							$arrerrshort[] = $eo->ShortMessage;
-							$arrerrlong[]  = $eo->LongMessage;
-						}
-						
-						$set['$set']['Errors_ShortMessage'] = implode("\n", $arrerrshort);
-						$set['$set']['Errors_LongMessage']  = implode("\n", $arrerrlong);
-						*/
 					}
 					
 					$this->mongo->ebay->items->update($query, $set);
 				}
 				
-			}
-			
-		}
-		
-		exit;
-		
-		/* read item data from database */
-		// todo: check user account id
-		// todo: avoid duplicate listing submit
-		$sql = "SELECT * FROM items"
-			. " JOIN accounts USING (accountid)"
-			. " WHERE status = 'add.".$opid."'"
-			. " AND ItemID IS NULL";
-		$res = $this->User->query($sql);
-		if (empty($res)) return;
-		error_log('add.'.$opid.' : '.count($res).' items.');
-		
-		foreach ($res as $i => $arr) {
-			$accountid = $arr['items']['accountid'];
-			$site      = $arr['items']['Site'];
-			$accounts[$accountid] = $arr['accounts'];
-			$itemdata[$accountid][$site][] = $arr['items'];
-		}
-		
-		$pool = new HttpRequestPool();
-		$seqidx = 0;
-		foreach ($itemdata as $accountid => $sitehash) {
-			foreach ($sitehash as $site => $hash) {
-				$chunked = array_chunk($hash, 5);
-				foreach ($chunked as $chunkedidx => $items) {
-					
-					$seqidx++;
-					$h = null;
-					$h['RequesterCredentials']['eBayAuthToken'] =
-						$accounts[$accountid]['ebaytoken'];
-					
-					foreach ($items as $i => $arr) {
-						$arr['ApplicationData'] = 'id:'.$arr['id']; // SKU
-						$h['AddItemRequestContainer'][$i]['MessageID'] = ($i+1);
-						$h['AddItemRequestContainer'][$i]['Item'] = $this->xml_item($arr);
-						
-						$seqmap[$seqidx][($i+1)] = $arr['id'];
-					}
-					
-					$r = $this->getHttpRequest('AddItems', $h, $site);
-					$pool->attach($r);
-				}
-			}
-		}
-		
-		try {
-			$pool->send();
-		} catch (HttpRequestPoolException $ex) {
-			error_log("pool->send() error\n".$ex->getMessage());
-		}
-		
-		$ridx = 0;
-		foreach ($pool as $r) {
-			
-			$ridx++;
-			
-			/* HTTP error */
-			if ($r->getResponseCode() != 200) {
-				error_log('Error[ridx:'.$ridx.']'
-						  . '['.$r->getResponseCode().']['.$r->getResponseStatus().']');
-				$sql = "UPDATE items SET status = NULL,"
-					. " Errors_LongMessage ="
-					. " '".date('m.d H:i')." Network error. Please try again later.'"
-					. " WHERE id IN (".implode(",", $seqmap[$ridx]).")";
-				$this->User->query($sql);
-				
-				continue;
-			}
-			
-			$xml_response = $r->getResponseBody();
-			
-			$resfile = ROOT.'/app/tmp/apilogs/'
-				. (9999999999-date("mdHis")).'.AddIs.res.'.substr('0'.$ridx, -2).'.xml';
-			file_put_contents($resfile, $xml_response);
-			chmod($resfile, 0777);
-			
-			$xmlobj = simplexml_load_string($xml_response);
-			foreach ($xmlobj->AddItemResponseContainer as $i => $obj) {
-				
-				$id = $seqmap[$ridx][$obj->CorrelationID.''];
-				
-				$j = null;
-				$j['status'] = 'NULL';
-				$j['schedule'] = '0000-00-00 00:00:00';
-				
-				if (isset($obj->ItemID)) {
-					
-					$j['ItemID'] = $obj->ItemID;
-					$j['SellingStatus_ListingStatus'] = 'Active'; // manually?
-					$j['ListingDetails_StartTime'] = $obj->StartTime;
-					$j['ListingDetails_EndTime']   = $obj->EndTime;
-					
-				} else if (isset($obj->Errors)) {
-					
-					$arrerrshort = null;
-					$arrerrlong  = null;
-					foreach ($obj->Errors as $ei => $eo) {
-						$arrerrshort[] = $eo->ShortMessage;
-						$arrerrlong[]  = $eo->LongMessage;
-					}
-					
-					$j['Errors_ShortMessage'] = implode("\n", $arrerrshort);
-					$j['Errors_LongMessage']  = implode("\n", $arrerrlong);
-				}
-				
-				$sql_u = null;
-				foreach ($j as $f => $v) {
-					if ($v == 'NULL') {
-						$sql_u[] = $f." = NULL";
-					} else {
-						$sql_u[] = $f." = '".mysql_real_escape_string($v)."'";
-					}
-				}			  
-				
-				// todo: check userid/accountid
-				$sql = "UPDATE items SET ".implode(', ', $sql_u)." WHERE id = ".$id;
-				$this->User->query($sql);
-				//error_log($sql);
 			}
 			
 		}
@@ -650,33 +498,6 @@ class ApiController extends AppController {
 		
 		return $xml;
 	}
-	
-	function xml_item($i)
-	{
-		$xml = array();
-		foreach ($i as $col => $val) {
-			// todo: delete ItemID from caller function AddItems
-			// todo: manage necessary column names in other way.
-			if (preg_match('/(^[a-z]|ListingDetails|CategoryName|Error)/', $col)
-				|| preg_match('/@/', $col)
-				|| $val == '') {
-				continue;
-			}
-			
-			if ($col == 'PaymentMethods' || $col == 'PictureDetails_PictureURL') {
-				$val = preg_replace("/^\n/", "", $val);
-				$val = explode("\n", $val);
-			} else if ($col == 'ScheduleTime') {
-				$val = str_replace(' ', 'T', $val).'Z';
-			}
-			
-			$depth = explode('_', $col);
-			$xml = array_merge_recursive($xml, $this->arr2xml($arr, $depth, $val));
-		}
-		
-		return $xml;
-	}
-	
 	
 	function getebaydetails()
 	{

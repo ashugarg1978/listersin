@@ -80,18 +80,6 @@ class DATABASE_CONFIG {
 		'port' => 27017
 	);
 	
-	/*
-	var $default = array(
-		'driver' => 'mysql',
-		'persistent' => false,
-		'host' => 'localhost',
-		'login' => 'root',
-		'password' => '',
-		'database' => 'ebay',
-		'prefix' => '',
-	);
-	*/
-	
 	var $test = array(
 		'driver' => 'mysql',
 		'persistent' => false,
