@@ -368,6 +368,8 @@ class ApiController extends AppController {
 			$itemdata[$userid][$site]['items'][] = $item;
 		}
 		
+		if (!is_array($itemdata)) return;
+		
 		/* get token */
 		// todo: get only needed userid
 		//$query = null;
