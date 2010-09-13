@@ -6,18 +6,18 @@
 <struts>
 
 	<constant name="struts.devMode" value="true" />
-
-	<package name="basicstruts2" extends="json-default">
+	
+	<package name="ebaytool" extends="struts-default">
 	  
-	  <!--
-		  <action name="index">
+		  <action name="ebay">
 		  <result>/index.jsp</result>
 		  </action>
-	  -->
 	  
+	  <!--
 	  <action name="ebay">
 		<result type="json" />
 	  </action>
+	  -->
 	  
 	</package>
 
