@@ -9,9 +9,9 @@
 	
 	<package name="ebaytool" extends="struts-default">
 	  
-		  <action name="ebay">
-		  <result>/index.jsp</result>
-		  </action>
+	  <action name="ebay" class="ebaytool.Ebay">
+		<result name="success">/index.jsp</result>
+	  </action>
 	  
 	  <!--
 	  <action name="ebay">
