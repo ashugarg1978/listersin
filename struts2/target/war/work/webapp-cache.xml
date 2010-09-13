@@ -4,31 +4,31 @@
       <string>currentBuild</string>
       <path-set>
         <pathsSet class="linked-hash-set">
-          <string>img/noimage.jpg</string>
+          <string>index.jsp</string>
           <string>img/indicator.gif</string>
           <string>img/img.png</string>
+          <string>img/noimage.jpg</string>
           <string>css/ebay.css</string>
           <string>blank.html</string>
           <string>META-INF/MANIFEST.MF</string>
-          <string>index.jsp</string>
-          <string>js/jquery.scrollTo-min.js</string>
-          <string>js/jquery.timers-1.2.js</string>
-          <string>js/jquery-1.4.2.min.js</string>
+          <string>js/jwysiwyg/jquery.wysiwyg.gif</string>
+          <string>js/jwysiwyg/jquery.wysiwyg.jpg</string>
           <string>js/jwysiwyg/jquery.wysiwyg.modal.css</string>
           <string>js/jwysiwyg/jquery.wysiwyg.min.js</string>
           <string>js/jwysiwyg/jquery.wysiwyg.js</string>
           <string>js/jwysiwyg/jquery.wysiwyg.css</string>
-          <string>js/jwysiwyg/jquery.wysiwyg.gif</string>
-          <string>js/jwysiwyg/jquery.wysiwyg.jpg</string>
+          <string>js/empty</string>
           <string>js/jquery.dump.js</string>
           <string>js/ebay.js</string>
-          <string>js/empty</string>
+          <string>js/jquery.scrollTo-min.js</string>
+          <string>js/jquery-1.4.2.min.js</string>
+          <string>js/jquery.timers-1.2.js</string>
           <string>js/ebay.js.orig</string>
           <string>WEB-INF/web.xml</string>
+          <string>WEB-INF/classes/struts.xml</string>
           <string>WEB-INF/classes/log4j.dtd</string>
           <string>WEB-INF/classes/ebaytool/Ebay.class</string>
           <string>WEB-INF/classes/log4j.xml</string>
-          <string>WEB-INF/classes/struts.xml</string>
           <string>WEB-INF/lib/struts2-core-2.2.1.jar</string>
           <string>WEB-INF/lib/xwork-core-2.2.1.jar</string>
           <string>WEB-INF/lib/ognl-3.0.jar</string>
@@ -38,6 +38,7 @@
           <string>WEB-INF/lib/log4j-1.2.14.jar</string>
           <string>WEB-INF/lib/javassist-3.8.0.GA.jar</string>
           <string>WEB-INF/lib/struts2-json-plugin-2.2.1.jar</string>
+          <string>WEB-INF/lib/mongo-java-driver-2.1.jar</string>
         </pathsSet>
       </path-set>
     </entry>
@@ -90,6 +91,18 @@
         <optional>false</optional>
       </dependency>
       <targetFileName>struts2-json-plugin-2.2.1.jar</targetFileName>
+    </org.apache.maven.plugin.war.util.DependencyInfo>
+    <org.apache.maven.plugin.war.util.DependencyInfo>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongo-java-driver</artifactId>
+        <version>2.1</version>
+        <type>jar</type>
+        <scope>compile</scope>
+        <exclusions/>
+        <optional>false</optional>
+      </dependency>
+      <targetFileName>mongo-java-driver-2.1.jar</targetFileName>
     </org.apache.maven.plugin.war.util.DependencyInfo>
   </dependenciesInfo>
 </webapp-structure>
