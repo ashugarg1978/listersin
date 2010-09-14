@@ -5,30 +5,30 @@
       <path-set>
         <pathsSet class="linked-hash-set">
           <string>index.jsp</string>
-          <string>img/indicator.gif</string>
-          <string>img/img.png</string>
-          <string>img/noimage.jpg</string>
-          <string>css/ebay.css</string>
           <string>blank.html</string>
           <string>META-INF/MANIFEST.MF</string>
-          <string>js/jwysiwyg/jquery.wysiwyg.gif</string>
-          <string>js/jwysiwyg/jquery.wysiwyg.jpg</string>
           <string>js/jwysiwyg/jquery.wysiwyg.modal.css</string>
+          <string>js/jwysiwyg/jquery.wysiwyg.gif</string>
+          <string>js/jwysiwyg/jquery.wysiwyg.css</string>
           <string>js/jwysiwyg/jquery.wysiwyg.min.js</string>
           <string>js/jwysiwyg/jquery.wysiwyg.js</string>
-          <string>js/jwysiwyg/jquery.wysiwyg.css</string>
-          <string>js/empty</string>
-          <string>js/jquery.dump.js</string>
-          <string>js/ebay.js</string>
+          <string>js/jwysiwyg/jquery.wysiwyg.jpg</string>
           <string>js/jquery.scrollTo-min.js</string>
           <string>js/jquery-1.4.2.min.js</string>
           <string>js/jquery.timers-1.2.js</string>
+          <string>js/empty</string>
           <string>js/ebay.js.orig</string>
+          <string>js/jquery.dump.js</string>
+          <string>js/ebay.js</string>
+          <string>img/noimage.jpg</string>
+          <string>img/img.png</string>
+          <string>img/indicator.gif</string>
+          <string>css/ebay.css</string>
           <string>WEB-INF/web.xml</string>
           <string>WEB-INF/classes/struts.xml</string>
           <string>WEB-INF/classes/log4j.dtd</string>
-          <string>WEB-INF/classes/ebaytool/Ebay.class</string>
           <string>WEB-INF/classes/log4j.xml</string>
+          <string>WEB-INF/classes/ebaytool/Ebay.class</string>
           <string>WEB-INF/lib/struts2-core-2.2.1.jar</string>
           <string>WEB-INF/lib/xwork-core-2.2.1.jar</string>
           <string>WEB-INF/lib/ognl-3.0.jar</string>
