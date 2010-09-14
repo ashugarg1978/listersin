@@ -7,7 +7,6 @@ $(document).bind({
 
 		$.getJSON('/ebaytool/items',
 				  function(data) {
-					  alert('res');
 					  dump(data);
 				  });
 		

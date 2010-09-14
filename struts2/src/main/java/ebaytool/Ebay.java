@@ -2,6 +2,9 @@ package ebaytool;
 
 import com.opensymphony.xwork2.ActionSupport;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -12,16 +15,13 @@ import com.mongodb.DBCursor;
 public class Ebay extends ActionSupport {
 	
 	private String msg;
-	private DBObject item;
+	private Map<String,Object> json;
 	
     public String execute() throws Exception {
 		
-		setMsg("in execute() method");
 		
-		return SUCCESS;
-    }
-	
-	public String items() throws Exception {
+		json = new HashMap<String,Object>();
+		
 		Mongo m = new Mongo();
 		
 		DB db = m.getDB("ebay");
@@ -29,7 +29,13 @@ public class Ebay extends ActionSupport {
 		DBCollection coll = db.getCollection("items");
 		
 		DBObject obj = coll.findOne();
-		setItem(obj);
+		
+		json.put("aa", obj);
+		
+		
+		String ss = obj.get("id") + ":";
+		setMsg(ss);
+		//setMsg("in execute() method");
 		
 		return SUCCESS;
 	}
@@ -43,11 +49,7 @@ public class Ebay extends ActionSupport {
 		return msg;
 	}
 	
-	public void setItem(DBObject item) {
-		this.item = item;
-	}
-	
-	public DBObject getItem() {
-		return item;
+	public Map<String,Object> getJson() {
+		return json;
 	}
 }

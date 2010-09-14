@@ -5,9 +5,27 @@
 	<artifactId>ebaytool</artifactId>
 	<packaging>war</packaging>
 	<version>0.0.1-SNAPSHOT</version>
+	
+	<properties>
+	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	
 	<name>ebaytool</name>
 	<build>
 		<finalName>ebaytool</finalName>
+
+		<plugins>
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.0.2</version>
+			<configuration>
+			  <source>1.5</source>
+			  <target>1.5</target>
+			</configuration>
+		  </plugin>
+		</plugins>
 	</build>
 	<dependencies>
 
