@@ -4,6 +4,15 @@ var rowsdata = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
+
+		$.getJSON('/ebaytool/items',
+				  function(data) {
+					  alert('res');
+					  dump(data);
+				  });
+		
+		return;
+		
 		resizediv();
 		bindevents();
 		$('ul.accounts > li > a:first').click();

@@ -59,5 +59,7 @@ echo $form->end('Register');
 </div>
 </div>
 
+<div id="debug"></div>
+
 </body>
 </html>
