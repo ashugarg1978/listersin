@@ -19,24 +19,29 @@ public class Ebay extends ActionSupport {
 	
     public String execute() throws Exception {
 		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("items");
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("deleted", 0);
 		
 		json = new HashMap<String,Object>();
 		
-		Mongo m = new Mongo();
+		DBCursor cur = coll.find();
+		while (cur.hasNext()) {
+			DBObject item = cur.next();
+			String id = (String)item.get("id");
+			json.put(id, item);
+		}
 		
-		DB db = m.getDB("ebay");
+		//json.put("aa", obj);
+		setMsg("foobar");
 		
-		DBCollection coll = db.getCollection("items");
-		
-		DBObject obj = coll.findOne();
-		
-		json.put("aa", obj);
-		
-		
-		String ss = obj.get("id") + ":";
-		setMsg(ss);
-		//setMsg("in execute() method");
-		
+		return SUCCESS;
+	}
+	
+	public String items() throws Exception {
 		return SUCCESS;
 	}
 	
