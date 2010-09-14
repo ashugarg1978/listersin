@@ -21,22 +21,21 @@ public class Ebay extends ActionSupport {
 		
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
-		DBCollection coll = db.getCollection("items");
 
 		BasicDBObject query = new BasicDBObject();
 		query.put("deleted", 0);
 		
 		json = new HashMap<String,Object>();
 		
-		DBCursor cur = coll.find();
+		DBCollection coll = db.getCollection("items");
+		DBCursor cur = coll.find().limit(10);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = (String)item.get("id");
 			json.put(id, item);
 		}
 		
-		//json.put("aa", obj);
-		setMsg("foobar");
+		setMsg("foo");
 		
 		return SUCCESS;
 	}
