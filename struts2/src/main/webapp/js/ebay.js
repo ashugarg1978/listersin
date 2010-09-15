@@ -4,16 +4,14 @@ var rowsdata = new Array();
 /* initialize */
 $(document).bind({
 	ready: function(event) {
-
-		$.getJSON('/ebaytool/items',
-				  function(data) {
-					  dump(data);
-				  });
-		
-		return;
 		
 		resizediv();
 		bindevents();
+		
+		items();
+		
+		return;
+		
 		$('ul.accounts > li > a:first').click();
 		$('a.active', $('ul.accountaction:first')).click();
 		
@@ -44,11 +42,10 @@ function autoclick()
 /* list items */
 function items()
 {
-	$.post('/users/items/',
+	$.post('/ebaytool/items',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   //dump(data);
-			   paging(data.cnt);
+			   //paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
 				   $('tbody#rowloading > tr > td').html('No item data found.');
@@ -58,7 +55,7 @@ function items()
 			   $('tbody#rowloading').hide();
 			   
 			   var tmpids = new Array();
-			   $.each(data.res, function(idx, row) {
+			   $.each(data.json, function(idx, row) {
 				   dom = getrow(idx, row);
 				   $('#items').append(dom);
 				   //rowsdata[row['id']] = row;

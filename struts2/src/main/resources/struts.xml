@@ -11,7 +11,7 @@
 	  <action name="ebay" class="ebaytool.Ebay">
 		<result name="success">/index.jsp</result>
 	  </action>
-	  <action name="items" class="ebaytool.Ebay">
+	  <action name="items" class="ebaytool.Ebay" method="items">
 		<result type="json" />
 	  </action>
 	</package>

@@ -19,34 +19,6 @@ public class Ebay extends ActionSupport {
 	
     public String execute() throws Exception {
 		
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
-		DBCollection coll = db.getCollection("items");
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("deleted", 0);
-		
-		json = new HashMap<String,Object>();
-		
-		/*
-		DBCursor cur = coll.find().limit(1);
-		DBObject item = cur.next();
-		String id = item.get("_id")+":";
-		json.put(id, item);
-		*/
-		
-		DBObject item = coll.findOne();
-		String id = item.get("_id")+":";
-		json.put(id, item);
-		
-		/*
-		while (cur.hasNext()) {
-			DBObject item = cur.next();
-			String id = item.get("_id")+":";
-			json.put(id, item);
-		}
-		*/
-		
 		setMsg("oiuh");
 		
 		return SUCCESS;
@@ -54,6 +26,22 @@ public class Ebay extends ActionSupport {
 	
 	public String items() throws Exception {
 		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("deleted", 0);
+		query.put("UserID", "testuser_hal");
+		
+		json = new HashMap<String,Object>();
+		
+		DBCursor cur = coll.find(query).limit(40);
+		while (cur.hasNext()) {
+			DBObject item = cur.next();
+			String id = item.get("_id")+"";
+			json.put(id, item);
+		}
 		
 		return SUCCESS;
 	}
