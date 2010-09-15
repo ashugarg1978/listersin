@@ -7,4 +7,5 @@ cd /var/www/dev.xboo.st/struts2
 
 mvn clean package
 
-cp target/ebaytool.war /usr/local/apache-tomcat-7.0.2/webapps/
+cp target/ebaytool.war /usr/local/apache-tomcat-7.0.2/webapps/ROOT.war
+
