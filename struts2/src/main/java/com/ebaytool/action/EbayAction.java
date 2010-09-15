@@ -1,4 +1,4 @@
-package ebaytool;
+package com.ebaytool.action;
 
 import com.opensymphony.xwork2.ActionSupport;
 
@@ -12,7 +12,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 
-public class Ebay extends ActionSupport {
+public class EbayAction extends ActionSupport {
 	
 	private String msg;
 	private Map<String,Object> json;
