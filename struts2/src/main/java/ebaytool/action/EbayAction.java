@@ -1,4 +1,4 @@
-package com.ebaytool.action;
+package ebaytool.action;
 
 import com.opensymphony.xwork2.ActionSupport;
 
