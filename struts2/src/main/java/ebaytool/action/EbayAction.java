@@ -46,6 +46,30 @@ public class EbayAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	public String summary() throws Exception {
+		
+		String[] userids = {"testuser_hal",
+							"testuser_chiba",
+							"testuser_aichi",
+							"testuser_tokyo",
+							"testuser_kanagawa"};
+		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("deleted", 0);
+		query.put("UserID", new BasicDBObject("$in", userids));
+		
+		json = new HashMap<String,Object>();
+		
+		Long cnt = coll.count(query);
+		json.put("cnt", cnt);
+		
+		return SUCCESS;
+	}
+	
 	public void setMsg(String msg) {
 		this.msg = msg;
 		return;
