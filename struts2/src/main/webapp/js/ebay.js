@@ -42,7 +42,7 @@ function autoclick()
 /* list items */
 function items()
 {
-	$.post('/ebaytool/items',
+	$.post('/items',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
 			   //paging(data.cnt);

@@ -1,6 +1,10 @@
 package ebaytool.actions;
 
 import com.opensymphony.xwork2.ActionSupport;
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
+import org.apache.struts2.convention.annotation.ParentPackage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +16,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 
+@ParentPackage("json-default")
 public class UserAction extends ActionSupport {
 	
 	private String msg;
@@ -24,6 +29,9 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	@Action(value="/items",
+			results={@Result(name="success",type="json")}
+			)
 	public String items() throws Exception {
 		
 		Mongo m = new Mongo();
