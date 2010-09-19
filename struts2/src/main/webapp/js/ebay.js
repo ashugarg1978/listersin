@@ -8,7 +8,7 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		
-		summary();
+		//summary();
 		items();
 		
 		$('ul.accounts > li > a:first').click();
@@ -60,6 +60,7 @@ function items()
 	$.post('/items',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
+			   dump(data);
 			   //paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {

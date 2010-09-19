@@ -1,6 +1,8 @@
 package ebaytool.actions;
 
 import com.opensymphony.xwork2.ActionSupport;
+import com.opensymphony.xwork2.ActionContext;
+
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
@@ -19,6 +21,11 @@ import com.mongodb.DBCursor;
 
 @ParentPackage("json-default")
 public class UserAction extends ActionSupport {
+	
+	private String sort;
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
 	
 	private LinkedHashMap<String,Object> json;
 	
@@ -45,6 +52,9 @@ public class UserAction extends ActionSupport {
 			String id = item.get("_id")+"";
 			json.put(id, item);
 		}
+		
+		Map request = (Map) ActionContext.getContext().get("request");
+		json.put("sort", request);
 		
 		return SUCCESS;
 	}
