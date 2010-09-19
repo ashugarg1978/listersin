@@ -8,12 +8,13 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		
+		summary();
 		items();
-		
-		return;
 		
 		$('ul.accounts > li > a:first').click();
 		$('a.active', $('ul.accountaction:first')).click();
+		
+		return;
 		
 		//dump(hash);
 		
@@ -25,6 +26,20 @@ $(document).bind({
 		return;
 	}
 });
+
+function summary()
+{
+	$.getJSON('/summary', function(data) {
+		
+		$('ul.accounts > li.allitems > a.allitems').append(' ('+data.json.alluserids.allitems+')');
+		$.each(data.json.alluserids, function(k, v) {
+			$('ul.accounts > ul.accountaction a.'+k).append(' ('+v+')');
+		});
+		dump(data);
+	});
+	
+	return;
+}
 
 /* auto click for debug */
 function autoclick()

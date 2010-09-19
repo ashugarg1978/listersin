@@ -65,10 +65,10 @@ style="border:1px solid gray;"></iframe>
 ><input type="button" class="uncheckall"   value="<?= __('Clear') ?>">&nbsp;
 <input  type="button" class="edit"   value="<?= __('Edit') ?>"
 ><input type="button" class="copy"   value="<?= __('Copy') ?>"
-><input type="button" class="delete" value="<?= __('Delete') ?>">
+><input type="button" class="delete" value="<?= __('Delete') ?>">&nbsp;
 <input  type="button" class="relist" value="<?= __('(Re)List') ?>"
 ><input type="button" class="revise" value="<?= __('Revise') ?>"
-><input type="button" class="end"    value="<?= __('End') ?>">&nbsp;
+><input type="button" class="end"    value="<?= __('End') ?>">
 </div>
 
 <div id="paging"></div>

@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>(str2)</title>
+<title>ebaytool.jp</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>
@@ -19,48 +19,48 @@
 
 <div id="container">
 
-<div id="loading"><?= __('Loading...') ?></div>
+<div id="loading"><s:text name="loading"/></div>
 
 <div id="toolbar">
 <div style="border:1px solid #999999; background-color:#dadada; margin-bottom:10px; text-align:center; font-weight:bold; border-radius:5px; -moz-border-radius:5px; padding:10px; font-size:16px; margin-right:10px;"><a href="/">ebaytool.jp</a></div>
 
 <div style="font-size:11px; margin-right:10px;">
-<b><?= $user['email'] ?></b><br>
-<div style="text-align:right;"><a href="/users/logout"><?= __('Sign out') ?></a></div>
+<b>fd3s.boost@gmail.com</b><br>
+<div style="text-align:right;"><a href="/users/logout"><s:text name="signout"/></a></div>
 </div>
 
 <br>
 
 <ul class="accounts">
-<li class="allitems"><a href="" class="allitems"><?= __('All Items') ?> (<?=$summary['all']['allitems'] ?>)</a></li>
+<li class="allitems">
+<a href="" class="allitems"><s:text name="allitems"/></a>
+</li>
 <li>
 <ul class="accountaction">
-<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary['all']['scheduled'] ?>)</a></li>
-<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><?= __('Active')    ?> (<?=$summary['all']['active']    ?>)</a></li>
-<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary['all']['sold']      ?>)</a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary['all']['unsold']    ?>)</a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary['all']['saved']     ?>)</a></li>
-<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary['all']['trash']     ?>)</a></li>
+<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><s:text name="scheduled"/></a></li>
+<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><s:text name="active"   /></a></li>
+<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><s:text name="sold"     /></a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><s:text name="unsold"   /></a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><s:text name="saved"    /></a></li>
+<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><s:text name="trash"    /></a></li>
 </ul>
 </li>
-<?
-foreach ($user['userids'] as $userid => $userobj) {
-?>
-<li class="allitems"><a href="#" class="<?= $userid ?>"><?= $userid.' ('.$summary[$userid]['allitems'].')' ?></a></li>
+
+<li class="allitems">
+<a href="#" class="<?= $userid ?>">*******</a>
+</li>
 <li>
 <ul class="accountaction <?= $userid ?>">
-<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><?= __('Scheduled') ?> (<?=$summary[$userid]['scheduled'] ?>)</a></li>
-<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><?= __('Active')    ?> (<?=$summary[$userid]['active']    ?>)</a></li>
-<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><?= __('Sold')      ?> (<?=$summary[$userid]['sold']      ?>)</a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><?= __('Unsold')    ?> (<?=$summary[$userid]['unsold']    ?>)</a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><?= __('Saved')     ?> (<?=$summary[$userid]['saved']     ?>)</a></li>
-<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><?= __('Trash')     ?> (<?=$summary[$userid]['trash']     ?>)</a></li>
+<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><s:text name="scheduled"/></a></li>
+<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><s:text name="active"   /></a></li>
+<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><s:text name="sold"     /></a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><s:text name="unsold"   /></a></li>
+<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><s:text name="saved"    /></a></li>
+<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><s:text name="trash"    /></a></li>
 <li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
 </ul>
 </li>
-<?
-} 
-?>
+
 </ul>
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
@@ -81,15 +81,15 @@ style="border:1px solid gray;"></iframe>
 <div id="content">
 
 <div id="bulkbuttons" style="float:left; margin:10px;">
-<input  type="button" class="checkall"     value="<?= __('All') ?>"
-><input type="button" class="checkallpage" value="<?= __('All pages') ?>"
-><input type="button" class="uncheckall"   value="<?= __('Clear') ?>">&nbsp;
-<input  type="button" class="edit"   value="<?= __('Edit') ?>"
-><input type="button" class="copy"   value="<?= __('Copy') ?>"
-><input type="button" class="delete" value="<?= __('Delete') ?>">
-<input  type="button" class="relist" value="<?= __('(Re)List') ?>"
-><input type="button" class="revise" value="<?= __('Revise') ?>"
-><input type="button" class="end"    value="<?= __('End') ?>">&nbsp;
+<input  type="button" class="checkall"     value="<s:text name="checkall"/>"
+><input type="button" class="checkallpage" value="<s:text name="checkallpage"/>"
+><input type="button" class="uncheckall"   value="<s:text name="uncheckall"/>">&nbsp;
+<input  type="button" class="edit"         value="<s:text name="edit"/>"
+><input type="button" class="copy"         value="<s:text name="copy"/>"
+><input type="button" class="delete"       value="<s:text name="delete"/>">&nbsp;
+<input  type="button" class="relist"       value="<s:text name="relist"/>"
+><input type="button" class="revise"       value="<s:text name="revise"/>"
+><input type="button" class="end"          value="<s:text name="end"/>">
 </div>
 
 <div id="paging"></div>
