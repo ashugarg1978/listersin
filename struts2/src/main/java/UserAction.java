@@ -36,11 +36,23 @@ public class UserAction extends ActionSupport {
 	@Action(value="/items", results={@Result(name="success",type="json")})
 	public String items() throws Exception {
 		
+		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
+		
+		/* connect to database */
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
+		/* handling post parameters */
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		for (Object k : request.keySet()) {
+			json.put(k.toString(), request.get(k));
+		}
+		
+		/* query */
 		BasicDBObject query = new BasicDBObject();
+		//query = sellingquery.get(request.get("selling").toString());
 		query.put("deleted", 0);
 		query.put("UserID", "testuser_hal");
 		
@@ -53,20 +65,13 @@ public class UserAction extends ActionSupport {
 			json.put(id, item);
 		}
 		
-		/* post parameter example */
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
-		for (Object k : request.keySet()) {
-			json.put(k.toString(), request.get(k));
-		}
-		
 		return SUCCESS;
 	}
 	
 	@Action(value="/summary", results={@Result(name="success",type="json")})
 	public String summary() throws Exception {
 		
-		LinkedHashMap<String,BasicDBObject> selling = getsummaryquery();
+		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
 		String[] userids = {"testuser_hal",
 							"testuser_chiba",
@@ -106,8 +111,8 @@ public class UserAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
-	
-	private LinkedHashMap<String,BasicDBObject> getsummaryquery() {
+
+	private LinkedHashMap<String,BasicDBObject> getsellingquery() {
 		
 		BasicDBObject allitems  = new BasicDBObject();
 		BasicDBObject scheduled = new BasicDBObject();
