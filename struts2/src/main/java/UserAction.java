@@ -1,5 +1,9 @@
 package ebaytool.actions;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 
@@ -7,10 +11,6 @@ import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
 import org.apache.struts2.convention.annotation.ParentPackage;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 import com.mongodb.Mongo;
 import com.mongodb.DB;
@@ -53,8 +53,12 @@ public class UserAction extends ActionSupport {
 			json.put(id, item);
 		}
 		
-		Map request = (Map) ActionContext.getContext().get("request");
-		json.put("sort", request);
+		/* post parameter example */
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		for (Object k : request.keySet()) {
+			json.put(k.toString(), request.get(k));
+		}
 		
 		return SUCCESS;
 	}
