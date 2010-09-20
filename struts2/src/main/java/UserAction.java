@@ -12,6 +12,8 @@ import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
 import org.apache.struts2.convention.annotation.ParentPackage;
 
+import org.apache.log4j.Logger;
+
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -21,6 +23,8 @@ import com.mongodb.DBCursor;
 
 @ParentPackage("json-default")
 public class UserAction extends ActionSupport {
+	
+	protected Logger log = Logger.getLogger(this.getClass());
 	
 	private String sort;
 	public void setSort(String sort) {
@@ -36,6 +40,8 @@ public class UserAction extends ActionSupport {
 	@Action(value="/items", results={@Result(name="success",type="json")})
 	public String items() throws Exception {
 		
+		json = new LinkedHashMap<String,Object>();
+		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
 		/* connect to database */
@@ -46,17 +52,14 @@ public class UserAction extends ActionSupport {
 		/* handling post parameters */
 		ActionContext context = ActionContext.getContext();
 		Map request = (Map) context.getParameters();
-		for (Object k : request.keySet()) {
-			json.put(k.toString(), request.get(k));
-		}
+		
+		log.debug(request.get("selling").toString());
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
-		//query = sellingquery.get(request.get("selling").toString());
-		query.put("deleted", 0);
-		query.put("UserID", "testuser_hal");
-		
-		json = new LinkedHashMap<String,Object>();
+		query = sellingquery.get(request.get("selling").toString());
+		//query.put("deleted", 0);
+		//query.put("UserID", "testuser_hal");
 		
 		DBCursor cur = coll.find(query).limit(40);
 		while (cur.hasNext()) {
@@ -64,6 +67,11 @@ public class UserAction extends ActionSupport {
 			String id = item.get("_id")+"";
 			json.put(id, item);
 		}
+		
+		for (Object k : request.keySet()) {
+			json.put(k.toString(), request.get(k));
+		}
+		json.put("selling", request.get("selling"));
 		
 		return SUCCESS;
 	}

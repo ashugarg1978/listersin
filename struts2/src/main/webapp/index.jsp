@@ -381,7 +381,6 @@ style="border:1px solid gray;"></iframe>
 <? // todo: check script tag trends, no need <!-- --> ??? ?>
 <script>
 var hash;
-hash = <?= json_encode($hash) ?>;
 </script>
 
 <div id="debug"></div>

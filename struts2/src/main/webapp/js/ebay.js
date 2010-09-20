@@ -8,11 +8,11 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		
-		//summary();
+		summary();
 		items();
 		
-		$('ul.accounts > li > a:first').click();
-		$('a.active', $('ul.accountaction:first')).click();
+		//$('ul.accounts > li > a:first').click();
+		//$('a.active', $('ul.accountaction:first')).click();
 		
 		return;
 		
