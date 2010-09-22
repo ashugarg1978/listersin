@@ -26,11 +26,6 @@ public class UserAction extends ActionSupport {
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
-	private String sort;
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
-	
 	private LinkedHashMap<String,Object> json;
 	
 	public LinkedHashMap<String,Object> getJson() {
@@ -53,20 +48,35 @@ public class UserAction extends ActionSupport {
 		ActionContext context = ActionContext.getContext();
 		Map request = (Map) context.getParameters();
 		
-		log.debug(request.get("selling").toString());
+		int limit  = Integer.parseInt(((String[]) request.get("limit"))[0]);
+		int offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
-		query = sellingquery.get(request.get("selling").toString());
-		//query.put("deleted", 0);
-		//query.put("UserID", "testuser_hal");
+		query = sellingquery.get(((String[]) request.get("selling"))[0]);
 		
-		DBCursor cur = coll.find(query).limit(40);
+		BasicDBObject field = new BasicDBObject();
+		field.put("UserID", 1);
+		field.put("ItemID", 1);
+		field.put("Title", 1);
+		field.put("Site", 1);
+		field.put("StartPrice", 1);
+		field.put("ListingDetails.ViewItemURL", 1);
+		field.put("ListingDetails.EndTime", 1);
+		field.put("PictureDetails.PictureURL", 1);
+		field.put("SellingStatus.ListingStatus", 1);
+		field.put("SellingStatus.CurrentPrice", 1);
+		field.put("SellingStatus.CurrentPrice@currencyID", 1);
+		field.put("status", 1);
+		
+		DBCursor cur = coll.find(query, field).limit(limit).skip(offset);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id")+"";
 			json.put(id, item);
 		}
+		
+		json.put("cnt", cur.count());
 		
 		for (Object k : request.keySet()) {
 			json.put(k.toString(), request.get(k));

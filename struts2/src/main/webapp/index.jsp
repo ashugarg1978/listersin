@@ -113,10 +113,10 @@ style="border:1px solid gray;"></iframe>
 <td></td>
 <td>
 	<input type="text" name="Title" size="10">
-	<input type="hidden" name="offset" value="0"  size="2">
-	<input type="hidden" name="limit"  value="20" size="2">
-	<input type="hidden" name="selling" size="10" value="active">
-	<input type="text" name="sort" size="10" value="ListingDetails_EndTime">
+	<input type="text" name="offset"  value="0"  size="2">
+	<input type="text" name="limit"   value="13" size="2">
+	<input type="text" name="selling" value="active" size="10" >
+	<input type="text" name="sort"    value="ListingDetails_EndTime" size="10" >
 </td>
 <td>
 	<select name="UserID" onchange="filter();">

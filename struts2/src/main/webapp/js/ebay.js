@@ -61,7 +61,7 @@ function items()
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
 			   dump(data);
-			   //paging(data.cnt);
+			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
 				   $('tbody#rowloading > tr > td').html('No item data found.');
