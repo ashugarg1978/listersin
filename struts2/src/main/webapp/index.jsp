@@ -84,12 +84,12 @@ style="border:1px solid gray;"></iframe>
 <thead>
 <tr>
 	<th></th>
-	<th align="left"><?= __('Title') ?></th>
-	<th align="left"><?= __('Account') ?></th>
-	<th align="left"><?= __('Item ID') ?></th>
-	<th align="right"><?= __('Now') ?></th>
-	<th align="right"><?= __('End') ?></th>
-	<th align="left"><?= __('Pict') ?></th>
+	<th align="left"><s:text name="title"/></th>
+	<th align="left"><s:text name="account"/></th>
+	<th align="left"><s:text name="itemid"/></th>
+	<th align="right"><s:text name="now"/></th>
+	<th align="right"><s:text name="end"/></th>
+	<th align="left"><s:text name="pict"/></th>
 </tr>
 </thead>
 
@@ -98,7 +98,7 @@ style="border:1px solid gray;"></iframe>
 <td>
 	<input type="text" name="Title" size="10">
 	<input type="text" name="offset"  value="0"  size="2">
-	<input type="text" name="limit"   value="13" size="2">
+	<input type="text" name="limit"   value="20" size="2">
 	<input type="text" name="selling" value="active" size="10" >
 	<input type="text" name="sort"    value="ListingDetails_EndTime" size="10" >
 </td>
@@ -173,7 +173,7 @@ style="border:1px solid gray;"></iframe>
 <table class="detail">
   <tbody>
 	<tr>
-	  <td><?= __('Title') ?></td>
+	  <td><s:text name="title"/></td>
 	  <td><input name="Title" type="text" size="60"></td>
 	</tr>
 	<tr>

@@ -90,6 +90,7 @@ public class UserAction extends ActionSupport {
 		}
 		
 		json.put("cnt", cur.count());
+		//json.put("cnt", cur.size());
 		
 		for (Object k : request.keySet()) {
 			json.put(k.toString(), request.get(k));
