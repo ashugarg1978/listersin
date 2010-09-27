@@ -26,6 +26,17 @@ public class UserAction extends ActionSupport {
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
+	private static Mongo m;
+	
+	public UserAction() {
+		 m = new Mongo();
+	}
+	
+	private String sort;
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
+	
 	private LinkedHashMap<String,Object> json;
 	
 	public LinkedHashMap<String,Object> getJson() {
@@ -91,9 +102,9 @@ public class UserAction extends ActionSupport {
 		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
-		String[] userids = {"testuser_hal",
+		String[] userids = {"testuser_aichi",
+							"testuser_hal",
 							"testuser_chiba",
-							"testuser_aichi",
 							"testuser_tokyo",
 							"testuser_kanagawa"};
 		

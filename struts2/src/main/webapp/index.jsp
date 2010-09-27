@@ -45,22 +45,6 @@
 <li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><s:text name="trash"    /></a></li>
 </ul>
 </li>
-
-<li class="allitems">
-<a href="#" class="<?= $userid ?>">*******</a>
-</li>
-<li>
-<ul class="accountaction <?= $userid ?>">
-<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><s:text name="scheduled"/></a></li>
-<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><s:text name="active"   /></a></li>
-<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><s:text name="sold"     /></a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><s:text name="unsold"   /></a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><s:text name="saved"    /></a></li>
-<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><s:text name="trash"    /></a></li>
-<li><a href="/users/getsellerlist/<?= $userid ?>" target="import">import</a></li>
-</ul>
-</li>
-
 </ul>
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>

@@ -9,9 +9,9 @@ $(document).bind({
 		bindevents();
 		
 		summary();
-		items();
+		//items();
 		
-		//$('ul.accounts > li > a:first').click();
+		$('ul.accounts > li > a:first').click();
 		//$('a.active', $('ul.accountaction:first')).click();
 		
 		return;
@@ -29,12 +29,26 @@ $(document).bind({
 
 function summary()
 {
+	ulorg = $('ul.accounts').clone();
+	
 	$.getJSON('/summary', function(data) {
 		
 		$('ul.accounts > li.allitems > a.allitems').append(' ('+data.json.alluserids.allitems+')');
 		$.each(data.json.alluserids, function(k, v) {
-			$('ul.accounts > ul.accountaction a.'+k).append(' ('+v+')');
+			$('ul.accounts > li > ul.accountaction a.'+k).append(' ('+v+')');
 		});
+		
+		$.each(data.json, function(k, o) {
+			if (k == 'alluserids') return;
+			ul = ulorg.clone();
+			$('a.allitems', ul).attr('class', k).html(k+' ('+o.allitems+')');
+			$('ul.accountaction', ul).attr('class', 'accountaction '+k);
+			$.each(o, function(j, v) {
+				$('a.'+j, ul).append(' ('+v+')');
+			});
+			$('ul.accounts').append(ul.html());
+		});
+		
 		dump(data);
 	});
 	
