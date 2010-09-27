@@ -11,8 +11,8 @@ $(document).bind({
 		summary();
 		//items();
 		
-		$('ul.accounts > li > a:first').click();
-		//$('a.active', $('ul.accountaction:first')).click();
+		$('ul.accounts > li > ul:first').slideToggle('fast');
+		$('a.active', $('ul.accountaction:first')).click();
 		
 		return;
 		

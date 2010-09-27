@@ -27,9 +27,11 @@ public class UserAction extends ActionSupport {
 	protected Logger log = Logger.getLogger(this.getClass());
 	
 	private static Mongo m;
+	private static DB db;
 	
-	public UserAction() {
-		 m = new Mongo();
+	public UserAction() throws Exception {
+		m = new Mongo();
+		db = m.getDB("ebay");
 	}
 	
 	private String sort;
@@ -51,8 +53,8 @@ public class UserAction extends ActionSupport {
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
 		/* connect to database */
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
+		//Mongo m = new Mongo();
+		//DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
@@ -108,8 +110,8 @@ public class UserAction extends ActionSupport {
 							"testuser_tokyo",
 							"testuser_kanagawa"};
 		
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
+		//Mongo m = new Mongo();
+		//DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
 		json = new LinkedHashMap<String,Object>();
