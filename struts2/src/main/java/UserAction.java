@@ -34,11 +34,6 @@ public class UserAction extends ActionSupport {
 		db = m.getDB("ebay");
 	}
 	
-	private String sort;
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
-	
 	private LinkedHashMap<String,Object> json;
 	
 	public LinkedHashMap<String,Object> getJson() {
@@ -82,10 +77,17 @@ public class UserAction extends ActionSupport {
 		field.put("SellingStatus.CurrentPrice@currencyID", 1);
 		field.put("status", 1);
 		
-		DBCursor cur = coll.find(query, field).limit(limit).skip(offset);
+		BasicDBObject sort = new BasicDBObject();
+		sort.put("ListingDetails.EndTime", -1);
+		
+		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
-			String id = item.get("_id")+"";
+			
+			String id = item.get("_id").toString();
+			//DBObject price = (DBObject) item.get("SellingStatus");
+			item.put("price", ((DBObject) item.get("SellingStatus")).get("CurrentPrice").toString());
+			
 			json.put(id, item);
 		}
 		
