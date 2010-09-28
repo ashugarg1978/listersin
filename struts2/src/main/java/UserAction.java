@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import com.ebay.sdk.ApiAccount;
 import com.ebay.sdk.ApiContext;
+import com.ebay.sdk.ApiCredential;
 import com.ebay.sdk.TimeFilter;
 import com.ebay.sdk.call.GetSellerListCall;
 import com.ebay.sdk.helper.Utils;
@@ -211,8 +213,8 @@ public class UserAction extends ActionSupport {
 	public String test() throws Exception {
 		
 		ApiContext apiContext = new ApiContext();
-		//GetSellerListCall api = new GetSellerListCall(apiContext);
-        //ItemType[] retItems = api.getEntireSellerList();
+		GetSellerListCall api = new GetSellerListCall(apiContext);
+        ItemType[] retItems = api.getEntireSellerList();
 		
 		return SUCCESS;
 	}

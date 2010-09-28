@@ -60,8 +60,8 @@ public class LocalMarketRegularSubscriptionDefinitionType
      * 
      * @return
      *     array of
-     *     {@link Element }
      *     {@link Object }
+     *     {@link Element }
      *     
      */
     public Object[] getAny() {
@@ -76,8 +76,8 @@ public class LocalMarketRegularSubscriptionDefinitionType
      * 
      * @return
      *     one of
-     *     {@link Element }
      *     {@link Object }
+     *     {@link Element }
      *     
      */
     public Object getAny(int idx) {
@@ -99,8 +99,8 @@ public class LocalMarketRegularSubscriptionDefinitionType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Element }
      *     {@link Object }
+     *     {@link Element }
      *     
      */
     public void setAny(Object[] values) {
@@ -123,8 +123,8 @@ public class LocalMarketRegularSubscriptionDefinitionType
      * 
      * @param value
      *     allowed object is
-     *     {@link Element }
      *     {@link Object }
+     *     {@link Element }
      *     
      */
     public Object setAny(int idx, Object value) {
