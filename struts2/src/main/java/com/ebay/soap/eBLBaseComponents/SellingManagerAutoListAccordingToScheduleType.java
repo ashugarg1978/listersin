@@ -304,8 +304,8 @@ public class SellingManagerAutoListAccordingToScheduleType
      * 
      * @return
      *     array of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object[] getAny() {
@@ -320,8 +320,8 @@ public class SellingManagerAutoListAccordingToScheduleType
      * 
      * @return
      *     one of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object getAny(int idx) {
@@ -343,8 +343,8 @@ public class SellingManagerAutoListAccordingToScheduleType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public void setAny(Object[] values) {
@@ -367,8 +367,8 @@ public class SellingManagerAutoListAccordingToScheduleType
      * 
      * @param value
      *     allowed object is
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object setAny(int idx, Object value) {

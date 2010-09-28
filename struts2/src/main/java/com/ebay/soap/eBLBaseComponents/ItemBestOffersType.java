@@ -139,8 +139,8 @@ public class ItemBestOffersType
      * 
      * @return
      *     array of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object[] getAny() {
@@ -155,8 +155,8 @@ public class ItemBestOffersType
      * 
      * @return
      *     one of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object getAny(int idx) {
@@ -178,8 +178,8 @@ public class ItemBestOffersType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public void setAny(Object[] values) {
@@ -202,8 +202,8 @@ public class ItemBestOffersType
      * 
      * @param value
      *     allowed object is
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object setAny(int idx, Object value) {

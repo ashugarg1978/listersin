@@ -211,8 +211,8 @@ public class UserAction extends ActionSupport {
 	public String test() throws Exception {
 		
 		ApiContext apiContext = new ApiContext();
-		GetSellerListCall api = new GetSellerListCall(apiContext);
-        ItemType[] retItems = api.getEntireSellerList();
+		//GetSellerListCall api = new GetSellerListCall(apiContext);
+        //ItemType[] retItems = api.getEntireSellerList();
 		
 		return SUCCESS;
 	}
