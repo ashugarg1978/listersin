@@ -4,6 +4,21 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
+import com.ebay.sdk.ApiContext;
+import com.ebay.sdk.TimeFilter;
+import com.ebay.sdk.call.GetSellerListCall;
+import com.ebay.sdk.helper.Utils;
+import com.ebay.sdk.helper.ui.ControlEntryTypes;
+import com.ebay.sdk.helper.ui.ControlTagItem;
+import com.ebay.sdk.helper.ui.GuiUtil;
+import com.ebay.sdk.util.eBayUtil;
+import com.ebay.soap.eBLBaseComponents.BestOfferDetailsType;
+import com.ebay.soap.eBLBaseComponents.DetailLevelCodeType;
+import com.ebay.soap.eBLBaseComponents.ItemType;
+import com.ebay.soap.eBLBaseComponents.ListingDetailsType;
+import com.ebay.soap.eBLBaseComponents.PaginationResultType;
+import com.ebay.soap.eBLBaseComponents.PaginationType;
+
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 
@@ -192,4 +207,13 @@ public class UserAction extends ActionSupport {
 		return selling;
 	}
 	
+	@Action(value="/test")
+	public String test() throws Exception {
+		
+		ApiContext apiContext = new ApiContext();
+		GetSellerListCall api = new GetSellerListCall(apiContext);
+        ItemType[] retItems = api.getEntireSellerList();
+		
+		return SUCCESS;
+	}
 }
