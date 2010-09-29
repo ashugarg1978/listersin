@@ -651,8 +651,8 @@ public class MyMessagesMessageType
      * 
      * @return
      *     array of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object[] getAny() {
@@ -667,8 +667,8 @@ public class MyMessagesMessageType
      * 
      * @return
      *     one of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object getAny(int idx) {
@@ -690,8 +690,8 @@ public class MyMessagesMessageType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public void setAny(Object[] values) {
@@ -714,8 +714,8 @@ public class MyMessagesMessageType
      * 
      * @param value
      *     allowed object is
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object setAny(int idx, Object value) {

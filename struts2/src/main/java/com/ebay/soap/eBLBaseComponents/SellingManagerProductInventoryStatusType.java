@@ -218,8 +218,8 @@ public class SellingManagerProductInventoryStatusType
      * 
      * @return
      *     array of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object[] getAny() {
@@ -234,8 +234,8 @@ public class SellingManagerProductInventoryStatusType
      * 
      * @return
      *     one of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object getAny(int idx) {
@@ -257,8 +257,8 @@ public class SellingManagerProductInventoryStatusType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public void setAny(Object[] values) {
@@ -281,8 +281,8 @@ public class SellingManagerProductInventoryStatusType
      * 
      * @param value
      *     allowed object is
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object setAny(int idx, Object value) {

@@ -475,8 +475,8 @@ public class CharityInfoType
      * 
      * @return
      *     array of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object[] getAny() {
@@ -491,8 +491,8 @@ public class CharityInfoType
      * 
      * @return
      *     one of
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object getAny(int idx) {
@@ -514,8 +514,8 @@ public class CharityInfoType
      * 
      * @param values
      *     allowed objects are
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public void setAny(Object[] values) {
@@ -538,8 +538,8 @@ public class CharityInfoType
      * 
      * @param value
      *     allowed object is
-     *     {@link Object }
      *     {@link Element }
+     *     {@link Object }
      *     
      */
     public Object setAny(int idx, Object value) {

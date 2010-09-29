@@ -212,7 +212,29 @@ public class UserAction extends ActionSupport {
 	@Action(value="/test")
 	public String test() throws Exception {
 		
+		/*
+		  <ServerUrl></ServerUrl>
+		  <EpsServerUrl></EpsServerUrl>
+		  <SignInUrl>https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn</SignInUrl>
+		*/
+		
 		ApiContext apiContext = new ApiContext();
+		apiContext.setApiServerUrl("https://api.sandbox.ebay.com/wsapi");
+		apiContext.setEpsServerUrl("https://api.sandbox.ebay.com/ws/api.dll");
+		apiContext.setSignInUrl("https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn");
+		
+		ApiCredential apiCred = new ApiCredential();
+		apiContext.setApiCredential(apiCred);
+		
+		ApiAccount ac = new ApiAccount();
+		apiCred.setApiAccount(ac);
+		
+		ac.setDeveloper("e60361cd-e306-496f-ad7d-ba7b688e2207");
+		ac.setApplication("Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
+		ac.setCertificate("8118c1eb-e879-47f3-a172-2b08ca680770");
+		
+		apiCred.seteBayToken("");
+		
 		GetSellerListCall api = new GetSellerListCall(apiContext);
         ItemType[] retItems = api.getEntireSellerList();
 		
