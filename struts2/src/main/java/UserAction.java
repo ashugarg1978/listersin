@@ -1,25 +1,12 @@
 package ebaytool.actions;
 
+import java.io.*;
+import java.net.URL;
+//import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import com.ebay.sdk.ApiAccount;
-import com.ebay.sdk.ApiContext;
-import com.ebay.sdk.ApiCredential;
-import com.ebay.sdk.TimeFilter;
-import com.ebay.sdk.call.GetSellerListCall;
-import com.ebay.sdk.helper.Utils;
-import com.ebay.sdk.helper.ui.ControlEntryTypes;
-import com.ebay.sdk.helper.ui.ControlTagItem;
-import com.ebay.sdk.helper.ui.GuiUtil;
-import com.ebay.sdk.util.eBayUtil;
-import com.ebay.soap.eBLBaseComponents.BestOfferDetailsType;
-import com.ebay.soap.eBLBaseComponents.DetailLevelCodeType;
-import com.ebay.soap.eBLBaseComponents.ItemType;
-import com.ebay.soap.eBLBaseComponents.ListingDetailsType;
-import com.ebay.soap.eBLBaseComponents.PaginationResultType;
-import com.ebay.soap.eBLBaseComponents.PaginationType;
+import javax.net.ssl.HttpsURLConnection;
 
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
@@ -211,41 +198,47 @@ public class UserAction extends ActionSupport {
 	
 	@Action(value="/test")
 	public String test() throws Exception {
+
+        URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        //URL url = new URL("http://175.41.130.89/dump.php");
+        //HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		
-		/*
-		  <ServerUrl></ServerUrl>
-		  <EpsServerUrl></EpsServerUrl>
-		  <SignInUrl>https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn</SignInUrl>
-		*/
+        conn.setRequestMethod("POST");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
 		
-		ApiContext apiContext = new ApiContext();
-		apiContext.setApiServerUrl("https://api.sandbox.ebay.com/wsapi");
-		apiContext.setEpsServerUrl("https://api.sandbox.ebay.com/ws/api.dll");
-		apiContext.setSignInUrl("https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn");
+        conn.setRequestProperty("Content-Type", "text/xml");
+        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "677");
+        conn.setRequestProperty("X-EBAY-API-CALL-NAME", "GetSellerList");
+        conn.setRequestProperty("X-EBAY-API-SITEID", "0");
+        conn.setRequestProperty("X-EBAY-API-DEV-NAME", "e60361cd-e306-496f-ad7d-ba7b688e2207");
+        conn.setRequestProperty("X-EBAY-API-APP-NAME", "Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
+        conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
 		
+		String xmldata;
+		xmldata = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><GetSellerListRequest xmlns=\"urn:ebay:apis:eBLBaseComponents\"><WarningLevel>High</WarningLevel><RequesterCredentials><eBayAuthToken>AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB</eBayAuthToken></RequesterCredentials><DetailLevel>ReturnAll</DetailLevel><StartTimeFrom>2010-06-01 00:00:00</StartTimeFrom><StartTimeTo>2010-08-30 00:00:00</StartTimeTo><Pagination><EntriesPerPage>50</EntriesPerPage><PageNumber>1</PageNumber></Pagination><Sort>1</Sort></GetSellerListRequest>";
 		
-		ApiAccount ac = new ApiAccount();
-		ac.setDeveloper("e60361cd-e306-496f-ad7d-ba7b688e2207");
-		ac.setApplication("Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
-		ac.setCertificate("8118c1eb-e879-47f3-a172-2b08ca680770");
+		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+		osw.write(xmldata);
+		osw.flush();
+		osw.close();
 		
-		ApiCredential apiCred = new ApiCredential();
-		apiCred.seteBayToken("AgAAAA**AQAAAA**aAAAAA**BSF/TA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mFow6dj6x9nY+seQ**Q0UBAA**AAMAAA**JJDsfE+wQFK+EWdZ26syt/D3f1YfYL236IUFs4qTucxrgq0cSr5Pk0YD35LuwFQHLwwJ6Mbz3l+qsQZkF05V/WbkYgbvLu8HG6AtdtL6VdIo941fiW9+XFOvdMgdPI+zFnSp7HNec9+f0plQ7tutQUuu2/t5GmWEEFB3hP9jDVDZ5nD/uNY+332WybjTSwkUUwTQW74fcnEZJB8Afr+gYk9kt71yD5iZMMc6Pbj38FcrYPDLIrhIh5yC7S/Z3EGkUxqPqJuC0SO6iisuG4wG28zJ5vJqQ4lfa+M9VIlOhBADdo2KFaF37wVR0sakHBmmXRDRNfJ5M4DxHX0mW1Y9gHXrjO9IRuG77kjeCA+yvauYJU/QMuidcftlP/QwXZEd4oI1nj/fUyPZbtNMbichZn/5AmEfpJfD3tRkfEyW9QL0Xobw4i5QOi8MVSE2jh+3OjK4J0iKK4naQ9Xiv43uOjPTVbR6Ii3hgGBC+nOXVqgh2DmQpX4vznTl92f5WEyFuNZpLuiyNs3T/QbQ/7ps5POBAnfCwDQMSVBdvRPPOxcXwb8D8uPk2H71VarDxPFYzpew/KVBjpB1nhwXvXWT5uKyq86cYQSanEK7QxUDGu5PcTT2eYB/cZ4lDoviF135Z91ULc4WiVzUpeoHQ7et+eED7bw4VD0HeFfTKwqoQ0VZvPfs3IVhLGswtrlrWmklmMUBuy2d4GF3UInZOUvkkcKw7Sk/nmfLhueixz4iQkWDSi+wxeOumVk86mNoc93H");
+        //PrintWriter output = new PrintWriter(new OutputStreamWriter(conn.getOutputStream()));
+        //String fileContent = convertFileContent2String(XmlFileName);
 		
-		apiCred.setApiAccount(ac);
-		apiContext.setApiCredential(apiCred);
+        //output.println(fileContent);
+        //output.close();
+        conn.connect();
 		
-		//GetSellerListRequestType req = new GetSellerListRequestType();
-		
-		GetSellerListCall api = new GetSellerListCall(apiContext);
-		
-		api.setUserID("testuser_hal");
-		
-		TimeFilter tf;
-		tf = GuiUtil.getTimeFilterFromFields("2010-06-01", "2010-09-01");
-		api.setStartTimeFilter(tf);
-		
-        ItemType[] retItems = api.getEntireSellerList();
+        InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+		BufferedReader br = new BufferedReader(isr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			System.out.println(line);
+			// Process line...
+		}
+		br.close();
 		
 		return SUCCESS;
 	}
