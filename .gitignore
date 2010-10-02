@@ -6,4 +6,3 @@ app/tmp
 app/webroot/itemimg
 logs
 struts2/target
-struts2/src/main/java/com/ebay/soap/eBLBaseComponents
