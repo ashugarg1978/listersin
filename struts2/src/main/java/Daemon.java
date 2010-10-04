@@ -5,6 +5,10 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.*;
 
 public class Daemon extends Thread {
 	
@@ -19,12 +23,13 @@ public class Daemon extends Thread {
 		
 		try {
 			
+			getSellerList();
+			
 			for (int i=0; i<10; i++) {
 				System.out.println("main() method.["+i+"]\n");
 				Thread.sleep(600);
 			}
 			
-			//getSellerList();
 		} catch (Exception e) {
 			
 		}
@@ -76,11 +81,21 @@ public class Daemon extends Thread {
         InputStreamReader isr = new InputStreamReader(conn.getInputStream());
 		BufferedReader br = new BufferedReader(isr);
 		String line;
+		String allline;
+		allline = "";
 		while ((line = br.readLine()) != null) {
 			System.out.println(line);
 			// Process line...
+			allline = allline + line;
 		}
 		br.close();
+		
+		/* JAXB test */
+		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
+		Unmarshaller unm = jc.createUnmarshaller();
+		Collection collection = (Collection) unm.unmarshal(allline);
+		
+		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
 		
 		return "ok";
 	}
