@@ -1,5 +1,12 @@
 package ebaytool;
 
+import com.mongodb.Mongo;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.DBCursor;
+
 import java.io.*;
 import java.net.URL;
 
@@ -32,6 +39,8 @@ public class Daemon extends Thread {
 			
 		} catch (Exception e) {
 			
+			System.out.println(e.toString());
+			
 		}
     }
 	
@@ -47,6 +56,26 @@ public class Daemon extends Thread {
 	}
 	
 	public static String getSellerList() throws Exception {
+		
+		/* JAXB test */
+		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
+		Unmarshaller unm = jc.createUnmarshaller();
+		Object collection = (Object) unm.unmarshal
+			(new java.io.FileInputStream("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml"));
+		
+		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
+		
+		System.out.println(collection.toString());
+		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("test");
+		
+		coll.insert((DBObject) collection);
+		
+		if (true) {
+			return "ok";
+		}
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -90,13 +119,7 @@ public class Daemon extends Thread {
 		}
 		br.close();
 		
-		/* JAXB test */
-		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
-		Unmarshaller unm = jc.createUnmarshaller();
-		Object collection = (Object) unm.unmarshal
-			(new java.io.FileInputStream("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml"));
 		
-		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
 		
 		return "ok";
 	}
