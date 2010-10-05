@@ -7,7 +7,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
 
 public class Daemon extends Thread {
@@ -93,7 +93,8 @@ public class Daemon extends Thread {
 		/* JAXB test */
 		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
 		Unmarshaller unm = jc.createUnmarshaller();
-		Collection collection = (Collection) unm.unmarshal(allline);
+		Object collection = (Object) unm.unmarshal
+			(new java.io.FileInputStream("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml"));
 		
 		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
 		
