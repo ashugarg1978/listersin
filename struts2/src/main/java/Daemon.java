@@ -7,8 +7,14 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 
+//import com.thoughtworks.xstream.XStream;
+
 import java.io.*;
 import java.net.URL;
+
+import net.sf.json.JSON;
+import net.sf.json.xml.XMLSerializer;
+//import org.apache.commons.io.IOUtils;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -34,7 +40,7 @@ public class Daemon extends Thread {
 			
 			for (int i=0; i<10; i++) {
 				System.out.println("main() method.["+i+"]\n");
-				Thread.sleep(600);
+				//Thread.sleep(600);
 			}
 			
 		} catch (Exception e) {
@@ -48,7 +54,7 @@ public class Daemon extends Thread {
 		try {
 			for (int i=0; i<10; i++) {
 				System.out.println("run() method.["+i+"]\n");
-				Thread.sleep(1000);
+				//Thread.sleep(1000);
 			}
 		} catch (Exception e) {
 			
@@ -57,7 +63,18 @@ public class Daemon extends Thread {
 	
 	public static String getSellerList() throws Exception {
 		
-		/* JAXB test */
+		/*
+		InputStream is = ConvertXMLtoJSON.class.getResourceAsStream
+			("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml");
+		String xml = IOUtils.toString(is);
+		*/
+		
+		
+		//XStream xs = new XStream();
+		
+		
+		// JAXB test
+		/*
 		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
 		Unmarshaller unm = jc.createUnmarshaller();
 		Object collection = (Object) unm.unmarshal
@@ -66,7 +83,9 @@ public class Daemon extends Thread {
 		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
 		
 		System.out.println(collection.toString());
+		*/
 		
+		/*
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("test");
@@ -76,6 +95,7 @@ public class Daemon extends Thread {
 		if (true) {
 			return "ok";
 		}
+		*/
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -113,13 +133,17 @@ public class Daemon extends Thread {
 		String allline;
 		allline = "";
 		while ((line = br.readLine()) != null) {
-			System.out.println(line);
+			//System.out.println(line);
 			// Process line...
 			allline = allline + line;
 		}
 		br.close();
+		//allline = "<o number=\"1\">first<string>json</string><array><e>1</e><e>true</e></array></o>";
 		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		JSON json = xmlSerializer.read(allline);
 		
+		System.out.println(json.toString(2));
 		
 		return "ok";
 	}
