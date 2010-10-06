@@ -6,6 +6,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
+import com.mongodb.util.*;
 
 //import com.thoughtworks.xstream.XStream;
 
@@ -27,7 +28,7 @@ public class Daemon extends Thread {
 	
     public static void main(String[] args)
     {
-		System.out.println("main()\n");
+		System.out.println("main()");
 		
 		Daemon t = new Daemon();
 		t.setDaemon(true);
@@ -39,7 +40,7 @@ public class Daemon extends Thread {
 			getSellerList();
 			
 			for (int i=0; i<10; i++) {
-				System.out.println("main() method.["+i+"]\n");
+				System.out.println("main() method.["+i+"]");
 				//Thread.sleep(600);
 			}
 			
@@ -53,7 +54,7 @@ public class Daemon extends Thread {
 	public void run() {
 		try {
 			for (int i=0; i<10; i++) {
-				System.out.println("run() method.["+i+"]\n");
+				System.out.println("run() method.["+i+"]");
 				//Thread.sleep(1000);
 			}
 		} catch (Exception e) {
@@ -141,9 +142,14 @@ public class Daemon extends Thread {
 		//allline = "<o number=\"1\">first<string>json</string><array><e>1</e><e>true</e></array></o>";
 		
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
-		JSON json = xmlSerializer.read(allline);
+		net.sf.json.JSON json = xmlSerializer.read(allline);
+		//System.out.println(json.toString(2));
 		
-		System.out.println(json.toString(2));
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("test");
+		
+		coll.insert((DBObject) com.mongodb.util.JSON.parse(json.toString(2)));
 		
 		return "ok";
 	}
