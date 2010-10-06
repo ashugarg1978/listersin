@@ -8,7 +8,7 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.util.*;
 
-//import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.XStream;
 
 import java.io.*;
 import java.net.URL;
@@ -64,39 +64,8 @@ public class Daemon extends Thread {
 	
 	public static String getSellerList() throws Exception {
 		
-		/*
-		InputStream is = ConvertXMLtoJSON.class.getResourceAsStream
-			("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml");
-		String xml = IOUtils.toString(is);
-		*/
 		
 		
-		//XStream xs = new XStream();
-		
-		
-		// JAXB test
-		/*
-		JAXBContext jc = JAXBContext.newInstance("test.jaxb");
-		Unmarshaller unm = jc.createUnmarshaller();
-		Object collection = (Object) unm.unmarshal
-			(new java.io.FileInputStream("/var/www/dev.xboo.st/data/apixml/SiteDetails.xml"));
-		
-		//Collection collection = (Collection) jc.createUnmarshaller().unmarshal(allline);
-		
-		System.out.println(collection.toString());
-		*/
-		
-		/*
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
-		DBCollection coll = db.getCollection("test");
-		
-		coll.insert((DBObject) collection);
-		
-		if (true) {
-			return "ok";
-		}
-		*/
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -134,22 +103,23 @@ public class Daemon extends Thread {
 		String allline;
 		allline = "";
 		while ((line = br.readLine()) != null) {
-			//System.out.println(line);
-			// Process line...
 			allline = allline + line;
 		}
 		br.close();
-		//allline = "<o number=\"1\">first<string>json</string><array><e>1</e><e>true</e></array></o>";
 		
+		
+		/* convert Strint to JSON */
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
 		net.sf.json.JSON json = xmlSerializer.read(allline);
-		//System.out.println(json.toString(2));
 		
+		/* convert JSON to DBObject */
+		DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(json.toString(2));
+		
+		/* insert into mongodb */
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("test");
-		
-		coll.insert((DBObject) com.mongodb.util.JSON.parse(json.toString(2)));
+		coll.insert(dbobject);
 		
 		return "ok";
 	}
