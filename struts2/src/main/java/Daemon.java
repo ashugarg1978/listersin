@@ -74,15 +74,6 @@ public class Daemon extends Thread {
 		
 		String token = "AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB";
 		
-		/* test */
-		/*
-		LinkedHashMap<String,Object> req = new LinkedHashMap<String,Object>();
-		req.put("aaa", "bbb");
-		req.put("ccc", "ddd");
-		XStream xstream = new XStream();
-        xstream.toXML(req, System.out);
-		*/
-		
 		BasicDBObject test = new BasicDBObject();
 		test.put("DetailLevel", "ReturnAll");
 		test.put("WarningLevel", "High");
@@ -106,7 +97,9 @@ public class Daemon extends Thread {
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
+		/* call api */
 		JSONObject json = (JSONObject) callapi("GetSellerList", xml);
+		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
 		JSONArray jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
@@ -137,6 +130,7 @@ public class Daemon extends Thread {
         conn.setDoInput(true);
         conn.setDoOutput(true);
 		
+		/* http request header */
         conn.setRequestProperty("Content-Type", "text/xml");
         conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "677");
         conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
@@ -145,15 +139,12 @@ public class Daemon extends Thread {
         conn.setRequestProperty("X-EBAY-API-APP-NAME",  "Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
         conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
 		
-		
 		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
 		osw.write(xmldata);
 		osw.flush();
 		osw.close();
 		
-		
         conn.connect();
-		
 		
 		/* handle http response */
         InputStreamReader isr = new InputStreamReader(conn.getInputStream());
@@ -165,7 +156,7 @@ public class Daemon extends Thread {
 		}
 		br.close();
 		
-		
+		/* XML -> JSON */
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
 		net.sf.json.JSON json = xmlSerializer.read(response);
 		
