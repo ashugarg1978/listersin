@@ -1,5 +1,9 @@
 package ebaytool;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -93,6 +97,12 @@ public class Daemon extends Thread {
 		String xml = xmls.write(jso);
 		
 		
+<<<<<<< HEAD
+		System.out.println(collection.toString());
+		*/
+		
+		/*
+=======
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
@@ -101,6 +111,7 @@ public class Daemon extends Thread {
 		JSONObject json = (JSONObject) callapi("GetSellerList", xml);
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
+>>>>>>> e81e6a433550a21487fe9b06948588f915a51443
 		
 		JSONArray jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
 		for (Object item : jsonarr) {
@@ -160,7 +171,18 @@ public class Daemon extends Thread {
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
 		net.sf.json.JSON json = xmlSerializer.read(response);
 		
+<<<<<<< HEAD
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("test");
+		
+		HashMap map = (HashMap) json;
+		coll.insert((DBObject) map);
+		
+		return "ok";
+=======
 		return json;
+>>>>>>> e81e6a433550a21487fe9b06948588f915a51443
 	}
 	
 }
