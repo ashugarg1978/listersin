@@ -1,5 +1,16 @@
 package ebaytool;
 
+import com.mongodb.Mongo;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.util.*;
+
+import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
+
 import java.io.*;
 import java.net.URL;
 import java.util.concurrent.*;
@@ -7,17 +18,43 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class ApiCall implements Callable {
 	
-	private String callname;
-	public String requestxml;
+	public String callname;
+	public BasicDBObject requestdbobject;
+	
 	private String result;
 	
-	public String call() throws Exception {
-		return "";
+	public BasicDBObject call() throws Exception {
+		return null;
 	}
 	
-	public String callapi(String callname, String xml) throws Exception {
+	private String convertDBObject2XML(DBObject dbobject) {
 		
-		System.out.println(this.getClass());
+		String jsonstring = (String) com.mongodb.util.JSON.serialize(dbobject);
+		
+		JSONObject jso = JSONObject.fromObject(jsonstring);
+		XMLSerializer xmls = new XMLSerializer();
+		xmls.setObjectName("GetSellerListRequest");
+		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
+		xmls.setTypeHintsEnabled(false);
+		String xml = xmls.write(jso);
+		
+		return xml;
+	}
+	
+	private BasicDBObject convertXML2DBObject(String xml) {
+		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		
+		net.sf.json.JSON json = xmlSerializer.read(xml);
+		
+		BasicDBObject dbobject = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+		
+		return dbobject;
+	}
+	
+	public BasicDBObject callapi() throws Exception {
+		
+		String xml = convertDBObject2XML(requestdbobject);
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
 		
@@ -53,7 +90,9 @@ public class ApiCall implements Callable {
 		}
 		br.close();
 		
-		return response;
+		BasicDBObject responsedbobject = convertXML2DBObject(response);
+		
+		return responsedbobject;
 	}
 	
 }

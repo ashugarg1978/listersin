@@ -1,5 +1,7 @@
 package ebaytool;
 
+import com.mongodb.BasicDBObject;
+
 import ebaytool.ApiCall;
 
 import java.io.*;
@@ -9,25 +11,23 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class GetSellerList extends ApiCall {
 	
-	public GetSellerList (String xml) {
-		this.requestxml = xml;
+	public GetSellerList (BasicDBObject requestdbobject) {
+		this.callname = "GetSellerList";
+		this.requestdbobject = requestdbobject;
 	}
 	
-	public String call() throws Exception {
+	public BasicDBObject call() throws Exception {
 		
-		System.out.println(requestxml);
+		String debug = "page:"+((BasicDBObject) requestdbobject
+								.get("Pagination")).get("PageNumber").toString();
+		System.out.println(debug);
 		
-		String responsexml = callapi("GetSellerList", requestxml);
+		BasicDBObject responsedbobject = callapi();
 		
-		//return responsexml;
+		debug = debug + " -> " + responsedbobject.get("PageNumber").toString();
+		System.out.println(debug);
 		
-		return "done";
+		return responsedbobject;
 	}
 	
-	private String callback() {
-		
-		System.out.println("callback() in GetSellerList.java");
-		
-		return "result";
-	}
 }

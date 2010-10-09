@@ -30,12 +30,13 @@ public class ThreadPool {
 		ThreadPool threadpool = new ThreadPool();
 		threadpool.getSellerList();
 		
+		return;
     }
 	
 	private String getSellerList() throws Exception {
 		
 		BasicDBObject pagination = new BasicDBObject();
-		pagination.put("EntriesPerPage", "50");
+		pagination.put("EntriesPerPage", "3");
 		pagination.put("PageNumber", "1");
 		
 		BasicDBObject dbobject = new BasicDBObject();
@@ -46,40 +47,20 @@ public class ThreadPool {
 		dbobject.put("StartTimeTo",   "2010-08-01 00:00:00");
 		dbobject.put("Pagination", pagination);
 		dbobject.put("Sort", "1");
-		String jsonstring = (String) com.mongodb.util.JSON.serialize(dbobject);
 		
-		JSONObject jso = JSONObject.fromObject(jsonstring);
-		XMLSerializer xmls = new XMLSerializer();
-		xmls.setObjectName("GetSellerListRequest");
-		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
-		xmls.setTypeHintsEnabled(false);
-		String xml = xmls.write(jso);
+		Future<BasicDBObject> future = pool.submit(new GetSellerList(dbobject));
+		BasicDBObject result = future.get();
 		
-		Future<String> future = pool.submit(new GetSellerList(xml));
-		String result = future.get();
+		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
+									 .get("TotalNumberOfPages").toString());
 		
-		System.out.println(result);
-		
-		/*
-		  
-		Set<Future<String>> set = new HashSet<Future<String>>();
-		
-        for (int i = 0; i < 10; i++) {
-			
-			System.out.println("pool.submit :"+i);
-			Future<String> future = pool.submit(new Worker(i));
-			
-			set.add(future);
-        }
-		
-		for (Future<String> future : set) {
-			String resultfromworker = future.get();
-			System.out.println(resultfromworker);
+		for (int i=2; i<=pages; i++) {
+			BasicDBObject dbocopy = (BasicDBObject) dbobject.clone();
+			((BasicDBObject) dbocopy.get("Pagination")).put("PageNumber", i);
+			pool.submit(new GetSellerList(dbocopy));
 		}
-		*/
 		
-		return "ok";
+		return "OK";
 	}
-	
 	
 }
