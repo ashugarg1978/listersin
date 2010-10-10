@@ -32,7 +32,10 @@ public class GetSellerList extends ApiCall implements Callable {
 		
 		BasicDBObject resdbo = callapi(callname, chkdbo);
 		
-		System.out.println(idx+" res "+resdbo.get("Pagination").toString());
+		System.out.println(idx+" res "+resdbo.get("PageNumber").toString());
+		
+		//BasicDBObject items = ((BasicDBObject) resdbo.get("ItemArray")).get("Item");
+		//System.out.println(items.toString());
 		
 		return resdbo;
 	}

@@ -66,6 +66,13 @@ public class ThreadPool {
 			((BasicDBObject) dbocopy.get("Pagination")).put("PageNumber", i);
 			
 			pool.submit(new GetSellerList(i, dbocopy));
+			
+			// todo: next thread overwrite variables of previous thread! How do I fix this?
+			try {
+				Thread.sleep(500);
+			} catch (Exception e) {
+				
+			}
 		}
 		
 		return "OK";
