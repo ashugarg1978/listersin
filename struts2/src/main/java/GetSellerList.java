@@ -11,17 +11,20 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class GetSellerList extends ApiCall implements Callable {
 	
-	private volatile String callname;
-	private volatile BasicDBObject requestdbobject;
+	private final BasicDBObject requestdbobject;
 	
 	public GetSellerList (BasicDBObject requestdbobject) {
-		this.callname = "GetSellerList";
+		
+		String debug = "GetSellerList constructor:"+((BasicDBObject) requestdbobject
+								.get("Pagination")).get("PageNumber").toString();
+		System.out.println(debug);
+		
 		this.requestdbobject = requestdbobject;
 	}
 	
 	public BasicDBObject call() throws Exception {
 		
-		String callname = this.callname;
+		String callname = "GetSellerList";
 		BasicDBObject requestdbobject = this.requestdbobject;
 		
 		String debug = "page:"+((BasicDBObject) requestdbobject
