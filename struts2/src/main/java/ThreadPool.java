@@ -53,7 +53,7 @@ public class ThreadPool {
 		dbobject.put("Pagination", pagination);
 		dbobject.put("Sort", "1");
 		
-		Future<BasicDBObject> future = pool.submit(new GetSellerList(dbobject));
+		Future<BasicDBObject> future = pool.submit(new GetSellerList(1, dbobject));
 		BasicDBObject result = future.get();
 		
 		//int pages = 10;
@@ -65,10 +65,7 @@ public class ThreadPool {
 			BasicDBObject dbocopy = (BasicDBObject) dbobject.clone();
 			((BasicDBObject) dbocopy.get("Pagination")).put("PageNumber", i);
 			
-			String d = ((BasicDBObject) dbocopy.get("Pagination")).get("PageNumber").toString();
-			System.out.println("caller:"+d);
-			
-			pool.submit(new GetSellerList(dbocopy));
+			pool.submit(new GetSellerList(i, dbocopy));
 		}
 		
 		return "OK";

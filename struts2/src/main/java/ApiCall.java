@@ -21,9 +21,7 @@ public class ApiCall {
 	
 	private String convertDBObject2XML(DBObject dbobject) {
 		
-		String jsonstring = (String) com.mongodb.util.JSON.serialize(dbobject);
-		
-		JSONObject jso = JSONObject.fromObject(jsonstring);
+		JSONObject jso = JSONObject.fromObject(dbobject.toString());
 		XMLSerializer xmls = new XMLSerializer();
 		xmls.setObjectName("GetSellerListRequest");
 		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
