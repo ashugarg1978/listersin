@@ -28,17 +28,13 @@ public class GetSellerList extends ApiCall implements Callable {
 		String callname = "GetSellerList";
 		BasicDBObject chkdbo = mapdbo.get(idx);
 		
-		String debug = idx+" "+chkdbo.toString();
-		//	idx+" page:"+((BasicDBObject) chkdbo.get("Pagination")).get("PageNumber").toString();
+		System.out.println(idx+" req "+chkdbo.get("Pagination").toString());
 		
-		System.out.println(debug);
+		BasicDBObject resdbo = callapi(callname, chkdbo);
 		
-		BasicDBObject responsedbobject = callapi(callname, chkdbo);
+		System.out.println(idx+" res "+resdbo.get("Pagination").toString());
 		
-		debug = debug + " -> " + responsedbobject.get("PageNumber").toString();
-		System.out.println(debug);
-		
-		return responsedbobject;
+		return resdbo;
 	}
 	
 }

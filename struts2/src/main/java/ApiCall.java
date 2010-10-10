@@ -27,6 +27,7 @@ public class ApiCall {
 		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 		xmls.setTypeHintsEnabled(false);
 		String xml = xmls.write(jso);
+		System.out.println(xml);
 		
 		return xml;
 	}
