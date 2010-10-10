@@ -17,16 +17,7 @@ import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
 import java.net.HttpURLConnection;
 
-public class ApiCall implements Callable {
-	
-	public String callname;
-	public BasicDBObject requestdbobject;
-	
-	private String result;
-	
-	public BasicDBObject call() throws Exception {
-		return null;
-	}
+public class ApiCall {
 	
 	private String convertDBObject2XML(DBObject dbobject) {
 		
@@ -53,7 +44,7 @@ public class ApiCall implements Callable {
 		return dbobject;
 	}
 	
-	public BasicDBObject callapi() throws Exception {
+	public BasicDBObject callapi(String callname, BasicDBObject requestdbobject) throws Exception {
 		
 		String xml = convertDBObject2XML(requestdbobject);
 		

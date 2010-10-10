@@ -30,8 +30,13 @@ public class ThreadPool {
 		ThreadPool threadpool = new ThreadPool();
 		threadpool.getSellerList();
 		
+		threadpool.shutdown();
 		return;
     }
+	
+	private void shutdown() {
+		pool.shutdown();
+	}
 	
 	private String getSellerList() throws Exception {
 		
@@ -54,10 +59,15 @@ public class ThreadPool {
 		//int pages = 10;
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
 									 .get("TotalNumberOfPages").toString());
-			
+		System.out.println("total: "+pages);
+		
 		for (int i=2; i<=pages; i++) {
 			BasicDBObject dbocopy = (BasicDBObject) dbobject.clone();
 			((BasicDBObject) dbocopy.get("Pagination")).put("PageNumber", i);
+			
+			String d = ((BasicDBObject) dbocopy.get("Pagination")).get("PageNumber").toString();
+			System.out.println("caller:"+d);
+			
 			pool.submit(new GetSellerList(dbocopy));
 		}
 		
