@@ -51,9 +51,10 @@ public class ThreadPool {
 		Future<BasicDBObject> future = pool.submit(new GetSellerList(dbobject));
 		BasicDBObject result = future.get();
 		
+		//int pages = 10;
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
 									 .get("TotalNumberOfPages").toString());
-		
+			
 		for (int i=2; i<=pages; i++) {
 			BasicDBObject dbocopy = (BasicDBObject) dbobject.clone();
 			((BasicDBObject) dbocopy.get("Pagination")).put("PageNumber", i);

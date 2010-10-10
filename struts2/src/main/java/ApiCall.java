@@ -15,6 +15,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
+import java.net.HttpURLConnection;
 
 public class ApiCall implements Callable {
 	
@@ -57,8 +58,10 @@ public class ApiCall implements Callable {
 		String xml = convertDBObject2XML(requestdbobject);
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
-		
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		
+        //URL url = new URL("http://175.41.130.89/dump.php");
+        //HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		
         conn.setRequestMethod("POST");
         conn.setDoInput(true);
