@@ -1,5 +1,7 @@
 package ebaytool;
 
+import java.util.Map;
+
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -8,6 +10,7 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.util.*;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
@@ -18,17 +21,26 @@ import ebaytool.GetSellerList;
 public class ThreadPool {
 	
 	private ExecutorService pool;
-
-	private String token = "AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB";
+	private Mongo m;
+	private DB db;
 	
 	public ThreadPool () {
+		
+		try {
+			 m = new Mongo();
+			 db = m.getDB("ebay");
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
 		pool = Executors.newFixedThreadPool(18);
+		
 	}
 	
     public static void main(String[] args) throws Exception {
 		
 		ThreadPool threadpool = new ThreadPool();
-		threadpool.getSellerList();
+		threadpool.getSellerLists();
 		
 		threadpool.shutdown();
 		return;
@@ -38,10 +50,36 @@ public class ThreadPool {
 		pool.shutdown();
 	}
 	
-	private String getSellerList() throws Exception {
+	private void addItems() throws Exception {
+		
+		
+		return;
+	}
+	
+	private void getSellerLists() throws Exception {
+
+		BasicDBObject query = new BasicDBObject();
+		
+		DBCollection coll = db.getCollection("users");
+		DBObject user = coll.findOne();
+
+		Map userids = ((BasicDBObject) user.get("userids")).toMap();
+		
+		//JSONObject jsonarr = json.getJSONObject("userids");
+		
+		for (Object userid : userids.keySet()) {
+			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
+			String token = json.get("ebaytkn").toString();
+			getSellerList(token);
+		}
+		
+		return;
+	}
+	
+	private void getSellerList(String token) throws Exception {
 		
 		BasicDBObject pagination = new BasicDBObject();
-		pagination.put("EntriesPerPage", "3");
+		pagination.put("EntriesPerPage", "50");
 		pagination.put("PageNumber", "1");
 		
 		BasicDBObject dbobject = new BasicDBObject();
@@ -59,7 +97,7 @@ public class ThreadPool {
 		//int pages = 10;
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
 									 .get("TotalNumberOfPages").toString());
-		System.out.println("total: "+pages);
+		System.out.println("TotalNumberOfPages : "+pages);
 		
 		for (int i=2; i<=pages; i++) {
 			BasicDBObject dbocopy = (BasicDBObject) dbobject.clone();
@@ -69,13 +107,13 @@ public class ThreadPool {
 			
 			// todo: next thread overwrite variables of previous thread! How do I fix this?
 			try {
-				Thread.sleep(500);
+				Thread.sleep(1000);
 			} catch (Exception e) {
 				
 			}
 		}
 		
-		return "OK";
+		return;
 	}
 	
 }

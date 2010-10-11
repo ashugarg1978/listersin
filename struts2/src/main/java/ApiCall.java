@@ -1,5 +1,9 @@
 package ebaytool;
 
+//import java.util.Date;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
+
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -19,7 +23,7 @@ import java.net.HttpURLConnection;
 
 public class ApiCall {
 	
-	private String convertDBObject2XML(DBObject dbobject) {
+	public String convertDBObject2XML(DBObject dbobject) {
 		
 		JSONObject jso = JSONObject.fromObject(dbobject.toString());
 		XMLSerializer xmls = new XMLSerializer();
@@ -31,7 +35,7 @@ public class ApiCall {
 		return xml;
 	}
 	
-	private BasicDBObject convertXML2DBObject(String xml) {
+	public BasicDBObject convertXML2DBObject(String xml) {
 		
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
 		
@@ -42,9 +46,7 @@ public class ApiCall {
 		return dbobject;
 	}
 	
-	public BasicDBObject callapi(String callname, BasicDBObject requestdbobject) throws Exception {
-		
-		String xml = convertDBObject2XML(requestdbobject);
+	public String callapi(String callname, String requestxml) throws Exception {
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -66,7 +68,7 @@ public class ApiCall {
         conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
 		
 		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
-		osw.write(xml);
+		osw.write(requestxml);
 		osw.flush();
 		osw.close();
 		
@@ -76,15 +78,29 @@ public class ApiCall {
         InputStreamReader isr = new InputStreamReader(conn.getInputStream());
 		BufferedReader br = new BufferedReader(isr);
 		String line;
-		String response = "";
+		String responsexml = "";
 		while ((line = br.readLine()) != null) {
-			response = response + line;
+			responsexml = responsexml + line;
 		}
 		br.close();
 		
-		BasicDBObject responsedbobject = convertXML2DBObject(response);
+		//String filename = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date());
+		//writelog();
 		
-		return responsedbobject;
+		return responsexml;
+	}
+	
+	public void writelog(String filename, String content) {
+		try {
+			FileWriter fstream = new FileWriter("/var/www/dev.xboo.st/logs/apixml/"+filename);
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write(content);
+			out.close();
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
+		
+		return;
 	}
 	
 }

@@ -153,11 +153,13 @@ class UsersController extends AppController {
 			
 			/* startprice */
 			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
+			/*
 			if (isset($row['SellingStatus']['CurrentPrice'])) {
 				$tmparr[$id]['price'] =
 					$this->currencysymbols($row['SellingStatus']['CurrentPrice@currencyID'])
 					. number_format($row['SellingStatus']['CurrentPrice']);
 			}
+			*/
 			
 			/* endtime */
 			if (isset($row['ListingDetails']['EndTime'])) {

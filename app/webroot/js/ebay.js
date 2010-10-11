@@ -39,7 +39,6 @@ function items()
 	$.post('/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   //dump(data);
 			   paging(data.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
