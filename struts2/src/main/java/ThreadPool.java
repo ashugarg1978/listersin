@@ -17,6 +17,7 @@ import net.sf.json.xml.XMLSerializer;
 import java.util.concurrent.*;
 import java.util.*;
 import ebaytool.GetSellerList;
+import ebaytool.AddItems;
 
 public class ThreadPool {
 	
@@ -72,6 +73,13 @@ public class ThreadPool {
 			String token = json.get("ebaytkn").toString();
 			getSellerList(token);
 		}
+		
+		return;
+	}
+	
+	private void addItems() throws Exception {
+		
+		
 		
 		return;
 	}
