@@ -23,22 +23,13 @@ import java.util.HashMap;
 
 public class GetSellerList extends ApiCall implements Callable {
 	
-	private int idx;
-	private HashMap<Integer,BasicDBObject> mapdbo = new HashMap<Integer,BasicDBObject>();
+	private String requestxml;
 	
-	public GetSellerList (int idx, BasicDBObject requestdbobject) {
-		this.idx = idx;
-		mapdbo.put(idx, requestdbobject);
+	public GetSellerList (BasicDBObject requestdbobject) {
+		this.requestxml = convertDBObject2XML(requestdbobject);
 	}
 	
 	public BasicDBObject call() throws Exception {
-		
-		int idx = this.idx;
-		
-		BasicDBObject requestdbo = mapdbo.get(idx);
-		String requestxml = convertDBObject2XML(requestdbo);
-		
-		//System.out.println(idx+" req "+requestdbo.get("Pagination").toString());
 		
 		String responsexml = callapi("GetSellerList", requestxml);
 		
@@ -46,14 +37,15 @@ public class GetSellerList extends ApiCall implements Callable {
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
-		writelog("GetSellerList."+userid+".xml", responsexml);
-		
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-		System.out.println(idx+" res "+responsedbo.get("PageNumber").toString());
+
+		String pagenumber = responsedbo.get("PageNumber").toString();
+		writelog("GSL.req."+userid+"."+pagenumber+".xml", requestxml);
+		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
 		int rica = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
 		if (rica == 0) {

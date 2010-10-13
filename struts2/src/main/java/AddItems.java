@@ -23,26 +23,21 @@ import java.util.HashMap;
 
 public class AddItems extends ApiCall implements Callable {
 	
-	private int idx;
-	private HashMap<Integer,BasicDBObject> mapdbo = new HashMap<Integer,BasicDBObject>();
+	private String requestxml;
 	
-	public AddItems (int idx, BasicDBObject requestdbobject) {
-		this.idx = idx;
-		mapdbo.put(idx, requestdbobject);
+	public AddItems (String requestxml) {
+		this.requestxml = requestxml;
 	}
 	
 	public BasicDBObject call() throws Exception {
 		
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
-		DBCollection coll = db.getCollection("items");
-		BasicDBObject item = coll.findOne();
+		writelog("AIs.req.xml", requestxml);
 		
-		BasicDBObject dbobject = new BasicDBObject();
-		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		//dbobject.put("AddItemRequestContainer");
+		String responsexml = callapi("AddItems", requestxml);
 		
-		BasicDBObject responsedbo = new BasicDBObject();
+		writelog("AIs.res.xml", responsexml);
+		
+		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		return responsedbo;
 	}
