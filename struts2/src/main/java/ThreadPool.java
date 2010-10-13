@@ -85,6 +85,7 @@ public class ThreadPool {
 		
 		JSONObject jso = JSONObject.fromObject(requestdbo.toString());
 		jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
+		jso.getJSONObject("AddItemRequestContainer").getJSONObject("Item").getJSONArray("PaymentAllowedSite").setExpandElements(true);
 		
 		XMLSerializer xmls = new XMLSerializer();
 		xmls.setObjectName("AddItemsRequest");
