@@ -1,6 +1,7 @@
 package ebaytool;
 
 import java.util.Map;
+import java.util.LinkedHashMap;
 
 import com.mongodb.Mongo;
 import com.mongodb.DB;
@@ -64,7 +65,6 @@ public class ThreadPool {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("SellingStatus.ListingStatus", "Completed");
-		query.put("UserID", "testuser_hal");
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("Description", 1);
@@ -72,27 +72,43 @@ public class ThreadPool {
 		
 		DBCollection coll = db.getCollection("items");
 		
+		String userid;
+		String site;
+		
 		int messageid = 0;
 		List<DBObject> ldbo = new ArrayList<DBObject>();
-		DBCursor cur = coll.find(query, null).limit(5);
+		LinkedHashMap<String,Object> lhm = new LinkedHashMap<String,Object>();
+		DBCursor cur = coll.find(query, null);
 		while (cur.hasNext()) {
 			messageid++;
 			DBObject item = cur.next();
 			item.removeField("_id");
 			ldbo.add(new BasicDBObject("MessageID", messageid).append("Item", item));
+			
+			userid = item.get("UserID").toString();
+			site   = item.get("Site").toString();
+			
+			if (!lhm.containsKey(userid)) {
+				lhm.put(userid, new LinkedHashMap<String,Object>());
+			}
+			if (!lhm.get(userid).containsKey(site)) {
+				lhm.get(userid).put(site, new LinkedHashMap<String,Object>());
+			}
+			
 		}		
+		System.out.println(lhm.toString());
 		requestdbo.append("AddItemRequestContainer", ldbo);
 		
 		JSONObject jso = JSONObject.fromObject(requestdbo.toString());
 		JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 		for (Object tmpitem : tmpitems) {
 			JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
-			if (tmpi.has("PaymentAllowedSite")
-				&& ((JSONObject) tmpi.get("PaymentAllowedSite")).isArray()) {
+			if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
+				.getClass().toString().equals("class net.sf.json.JSONArray")) {
 				tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
 			}
-			if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods").getClass().toString()
-				.equals("class net.sf.json.JSONArray")) {
+			if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
+				.getClass().toString().equals("class net.sf.json.JSONArray")) {
 				tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
 			}
 		}			
@@ -104,7 +120,7 @@ public class ThreadPool {
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
 		
-		Future<BasicDBObject> future = pool.submit(new AddItems(requestxml));
+		//Future<BasicDBObject> future = pool.submit(new AddItems(requestxml));
 		
 		return;
 	}
