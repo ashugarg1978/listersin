@@ -10,6 +10,7 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.util.*;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
@@ -62,7 +63,7 @@ public class ThreadPool {
 		requestdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Completed");
+		query.put("SellingStatus.ListingStatus", "Active");
 		query.put("UserID", "testuser_hal");
 		
 		BasicDBObject field = new BasicDBObject();
@@ -73,7 +74,7 @@ public class ThreadPool {
 		
 		int messageid = 0;
 		List<DBObject> ldbo = new ArrayList<DBObject>();
-		DBCursor cur = coll.find(query, null).limit(1);
+		DBCursor cur = coll.find(query, null).limit(5).skip(30);
 		while (cur.hasNext()) {
 			messageid++;
 			DBObject item = cur.next();
@@ -82,10 +83,16 @@ public class ThreadPool {
 		}		
 		requestdbo.append("AddItemRequestContainer", ldbo);
 		
-		
 		JSONObject jso = JSONObject.fromObject(requestdbo.toString());
+		JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
+		for (Object tmpitem : tmpitems) {
+			JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
+			if (tmpi.has("PaymentAllowedSite")) {
+				tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
+			}
+		}			
 		jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
-		jso.getJSONObject("AddItemRequestContainer").getJSONObject("Item").getJSONArray("PaymentAllowedSite").setExpandElements(true);
+		System.out.println(jso.toString());
 		
 		XMLSerializer xmls = new XMLSerializer();
 		xmls.setObjectName("AddItemsRequest");
