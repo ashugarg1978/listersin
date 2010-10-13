@@ -45,8 +45,8 @@ public class ThreadPool {
 		
 		ThreadPool threadpool = new ThreadPool();
 		
-		threadpool.addItems();
 		//threadpool.getSellerLists();
+		threadpool.addItems();
 		
 		threadpool.shutdown();
 		return;
@@ -63,7 +63,7 @@ public class ThreadPool {
 		requestdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Active");
+		query.put("SellingStatus.ListingStatus", "Completed");
 		query.put("UserID", "testuser_hal");
 		
 		BasicDBObject field = new BasicDBObject();
@@ -74,7 +74,7 @@ public class ThreadPool {
 		
 		int messageid = 0;
 		List<DBObject> ldbo = new ArrayList<DBObject>();
-		DBCursor cur = coll.find(query, null).limit(5).skip(30);
+		DBCursor cur = coll.find(query, null).limit(5);
 		while (cur.hasNext()) {
 			messageid++;
 			DBObject item = cur.next();
@@ -87,12 +87,16 @@ public class ThreadPool {
 		JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 		for (Object tmpitem : tmpitems) {
 			JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
-			if (tmpi.has("PaymentAllowedSite")) {
+			if (tmpi.has("PaymentAllowedSite")
+				&& ((JSONObject) tmpi.get("PaymentAllowedSite")).isArray()) {
 				tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
+			}
+			if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods").getClass().toString()
+				.equals("class net.sf.json.JSONArray")) {
+				tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
 			}
 		}			
 		jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
-		System.out.println(jso.toString());
 		
 		XMLSerializer xmls = new XMLSerializer();
 		xmls.setObjectName("AddItemsRequest");
