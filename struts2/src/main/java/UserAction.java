@@ -3,6 +3,7 @@ package ebaytool.actions;
 import java.io.*;
 import java.net.URL;
 //import java.net.HttpURLConnection;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -78,19 +79,23 @@ public class UserAction extends ActionSupport {
 		field.put("PictureDetails.PictureURL", 1);
 		field.put("SellingStatus.ListingStatus", 1);
 		field.put("SellingStatus.CurrentPrice", 1);
-		field.put("SellingStatus.CurrentPrice@currencyID", 1);
+		//field.put("SellingStatus.CurrentPrice@currencyID", 1);
 		field.put("status", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("ListingDetails.EndTime", -1);
 		
+		SimpleDateFormat sdf = new SimpleDateFormat("");
+		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
-			
 			String id = item.get("_id").toString();
-			//DBObject price = (DBObject) item.get("SellingStatus");
-			item.put("price", ((DBObject) item.get("SellingStatus")).get("CurrentPrice").toString());
+			
+			DBObject ss = (DBObject) item.get("SellingStatus");
+			DBObject cp = (DBObject) ss.get("CurrentPrice");
+			item.put("price", cp.get("@currencyID")+" "+cp.get("#text"));
+			item.put("endtime", );
 			
 			json.put(id, item);
 		}

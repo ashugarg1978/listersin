@@ -152,7 +152,7 @@ class UsersController extends AppController {
 		foreach ($tmparr as $id => $row) {
 			
 			/* startprice */
-			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']);
+			$tmparr[$id]['StartPrice'] = number_format($row['StartPrice']['#text']);
 			/*
 			if (isset($row['SellingStatus']['CurrentPrice'])) {
 				$tmparr[$id]['price'] =
