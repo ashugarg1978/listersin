@@ -3,6 +3,8 @@ package ebaytool.actions;
 import java.io.*;
 import java.net.URL;
 //import java.net.HttpURLConnection;
+import java.util.Date;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.HashMap;
@@ -85,7 +87,8 @@ public class UserAction extends ActionSupport {
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("ListingDetails.EndTime", -1);
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("");
+		SimpleDateFormat sdf = new SimpleDateFormat();
+		Date now = sdf.parse(new Date().toString());
 		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		while (cur.hasNext()) {
@@ -95,7 +98,10 @@ public class UserAction extends ActionSupport {
 			DBObject ss = (DBObject) item.get("SellingStatus");
 			DBObject cp = (DBObject) ss.get("CurrentPrice");
 			item.put("price", cp.get("@currencyID")+" "+cp.get("#text"));
-			item.put("endtime", );
+			
+			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
+			Date dt = sdf.parse(endtime);
+			item.put("endtime", endtime);
 			
 			json.put(id, item);
 		}
