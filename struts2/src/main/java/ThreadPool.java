@@ -46,8 +46,8 @@ public class ThreadPool {
 		
 		ThreadPool threadpool = new ThreadPool();
 		
-		//threadpool.getSellerLists();
-		threadpool.addItems();
+		threadpool.getSellerLists();
+		//threadpool.addItems();
 		
 		threadpool.shutdown();
 		return;
@@ -59,68 +59,103 @@ public class ThreadPool {
 	
 	private void addItems() throws Exception {
 		
-		BasicDBObject requestdbo = new BasicDBObject();
-		requestdbo.append("WarningLevel", "High");
-		requestdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Completed");
-		
-		BasicDBObject field = new BasicDBObject();
-		field.put("Description", 1);
-		field.put("Title", 1);
-		
-		DBCollection coll = db.getCollection("items");
-		
 		String userid;
 		String site;
 		
-		int messageid = 0;
-		List<DBObject> ldbo = new ArrayList<DBObject>();
-		LinkedHashMap<String,Object> lhm = new LinkedHashMap<String,Object>();
-		DBCursor cur = coll.find(query, null);
+		BasicDBObject query = new BasicDBObject();
+		query.put("SellingStatus.ListingStatus", "Completed");
+		query.put("Site", "Canada");
+		
+		BasicDBObject field = new BasicDBObject();
+		//field.put("Description", 1);
+		field.put("Title", 1);
+		field.put("UserID", 1);
+		field.put("Site", 1);
+		
+		DBCollection coll = db.getCollection("items");
+		
+		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
+		//DBCursor cur = coll.find(query, field);
+		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
-			messageid++;
 			DBObject item = cur.next();
 			item.removeField("_id");
-			ldbo.add(new BasicDBObject("MessageID", messageid).append("Item", item));
 			
 			userid = item.get("UserID").toString();
 			site   = item.get("Site").toString();
 			
 			if (!lhm.containsKey(userid)) {
-				lhm.put(userid, new LinkedHashMap<String,Object>());
-			}
-			if (!lhm.get(userid).containsKey(site)) {
-				lhm.get(userid).put(site, new LinkedHashMap<String,Object>());
+				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
 			}
 			
+			if (!lhm.get(userid).containsKey(site)) {
+				((LinkedHashMap) lhm.get(userid)).put(site, new LinkedHashMap<Integer,ArrayList>());
+				((LinkedHashMap) lhm.get(userid).get(site)).put(0, new ArrayList<DBObject>());
+			}
+			
+			int curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
+			int size = ((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).size();
+			if (size >= 5) {
+				((LinkedHashMap) lhm.get(userid).get(site)).put(curidx,
+																new ArrayList<DBObject>());
+				curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
+			}
+			((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).add(item);
 		}		
-		System.out.println(lhm.toString());
-		requestdbo.append("AddItemRequestContainer", ldbo);
 		
-		JSONObject jso = JSONObject.fromObject(requestdbo.toString());
-		JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
-		for (Object tmpitem : tmpitems) {
-			JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
-			if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
-				.getClass().toString().equals("class net.sf.json.JSONArray")) {
-				tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
+		for (String tmpuserid : lhm.keySet()) {
+			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
+			for (Object tmpsite : lhmuserid.keySet()) {
+				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
+				for (Object tmpchunk : lhmsite.keySet()) {
+					List litems = (List) lhmsite.get(tmpchunk);
+					
+					BasicDBObject requestdbo = new BasicDBObject();
+					requestdbo.append("WarningLevel", "High");
+					requestdbo.append("RequesterCredentials",
+									  new BasicDBObject("eBayAuthToken", token));
+					
+					int messageid = 0;
+					List<DBObject> ldbo = new ArrayList<DBObject>();
+					for (Object tmpidx : litems) {
+						messageid++;
+						ldbo.add(new BasicDBObject("MessageID", messageid).append("Item", tmpidx));
+						
+						String title = ((BasicDBObject) tmpidx).get("Title").toString();
+						//System.out.println(tmpuserid+" "+tmpsite+" "+tmpchunk+" "+title);
+					}
+					
+					requestdbo.append("AddItemRequestContainer", ldbo);
+					
+					JSONObject jso = JSONObject.fromObject(requestdbo.toString());
+					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
+					for (Object tmpitem : tmpitems) {
+						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
+						if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
+						}
+						if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
+						}
+					}			
+					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
+					
+					XMLSerializer xmls = new XMLSerializer();
+					xmls.setObjectName("AddItemsRequest");
+					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
+					xmls.setTypeHintsEnabled(false);
+					String requestxml = xmls.write(jso);
+					
+					Future<BasicDBObject> future = pool.submit
+						(new AddItems((String) tmpuserid,
+									  (String) tmpsite,
+									  new Integer(Integer.parseInt(tmpchunk.toString())).toString(),
+									  requestxml));
+				}
 			}
-			if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
-				.getClass().toString().equals("class net.sf.json.JSONArray")) {
-				tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
-			}
-		}			
-		jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
-		
-		XMLSerializer xmls = new XMLSerializer();
-		xmls.setObjectName("AddItemsRequest");
-		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
-		xmls.setTypeHintsEnabled(false);
-		String requestxml = xmls.write(jso);
-		
-		//Future<BasicDBObject> future = pool.submit(new AddItems(requestxml));
+		}
 		
 		return;
 	}
@@ -146,8 +181,8 @@ public class ThreadPool {
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2010-06-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2010-08-01 00:00:00");
+		dbobject.put("StartTimeFrom", "2010-09-01 00:00:00");
+		dbobject.put("StartTimeTo",   "2010-11-01 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 10).append("PageNumber", 1));
 		dbobject.put("Sort", "1");
 		

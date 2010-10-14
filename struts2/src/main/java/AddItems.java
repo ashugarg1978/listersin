@@ -23,19 +23,25 @@ import java.util.HashMap;
 
 public class AddItems extends ApiCall implements Callable {
 	
+	private String userid;
+	private String site;
+	private String chunkidx;
 	private String requestxml;
 	
-	public AddItems (String requestxml) {
+	public AddItems (String userid, String site, String chunkidx, String requestxml) {
+		this.userid     = userid;
+		this.site       = site;
+		this.chunkidx   = chunkidx;
 		this.requestxml = requestxml;
 	}
 	
 	public BasicDBObject call() throws Exception {
 		
-		writelog("AIs.req.xml", requestxml);
+		writelog("AIs.req."+userid+"."+site+"."+chunkidx+".xml", requestxml);
 		
 		String responsexml = callapi("AddItems", requestxml);
 		
-		writelog("AIs.res.xml", responsexml);
+		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
