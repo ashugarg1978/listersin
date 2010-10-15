@@ -3,9 +3,12 @@ package ebaytool.actions;
 import java.io.*;
 import java.net.URL;
 //import java.net.HttpURLConnection;
+
+import java.util.Calendar;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -87,22 +90,33 @@ public class UserAction extends ActionSupport {
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("ListingDetails.EndTime", -1);
 		
-		SimpleDateFormat sdf = new SimpleDateFormat();
-		Date now = sdf.parse(new Date().toString());
+        Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date now = new Date();
+		String today = sdf.format(calendar.getTime());
 		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
 			
+			/* price */
 			DBObject ss = (DBObject) item.get("SellingStatus");
 			DBObject cp = (DBObject) ss.get("CurrentPrice");
 			item.put("price", cp.get("@currencyID")+" "+cp.get("#text"));
 			
+			/* endtime */
+			sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
 			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
-			Date dt = sdf.parse(endtime);
-			item.put("endtime", endtime);
+			Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+			if (dfendtime.equals(now)) {
+				sdf.applyPattern("h:mm a");
+			} else {
+				sdf.applyPattern("MMM d h:mm a");
+			}
+			item.put("endtime", sdf.format(dfendtime));
 			
+			/* add */
 			json.put(id, item);
 		}
 		
