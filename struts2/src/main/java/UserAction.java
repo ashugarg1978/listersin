@@ -58,8 +58,6 @@ public class UserAction extends ActionSupport {
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
 		/* connect to database */
-		//Mongo m = new Mongo();
-		//DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
@@ -127,6 +125,30 @@ public class UserAction extends ActionSupport {
 			json.put(k.toString(), request.get(k));
 		}
 		json.put("selling", request.get("selling"));
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/item", results={@Result(name="success",type="json")})
+	public String item() throws Exception {
+		
+		json = new LinkedHashMap<String,Object>();
+
+		DBCollection coll = db.getCollection("items");
+		
+		/* handling post parameters */
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		
+		//String id = ((String[]) request.get("id"))[0];
+		
+		/* query */
+		BasicDBObject query = new BasicDBObject();
+		//query.put("_id", id);
+		
+		DBObject item = coll.findOne();
+		
+		json.put("item", item);
 		
 		return SUCCESS;
 	}

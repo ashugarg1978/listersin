@@ -546,17 +546,17 @@ function bindevents()
 			$('tr.row2 td', '#'+id).html(detail);
 			$('div.detail', '#'+id).slideToggle('fast');
 			
-			$.post('/users/item/',
+			$.post('/item',
 				   'id='+id,
 				   function(data) {
 					   dump(data);
-					   getdetail(data);
+					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
-					   preloadcategory(data.Site, data.categorypath);
-					   preloadcategoryfeatures(data.Site, data.PrimaryCategory.CategoryID);
-					   preloadshippingtype(data.Site);
-					   rowsdata[id] = data;
+					   //preloadcategory(data.Site, data.categorypath);
+					   //preloadcategoryfeatures(data.Site, data.PrimaryCategory.CategoryID);
+					   //preloadshippingtype(data.Site);
+					   rowsdata[id] = data.json.item;
 					   
 					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 				   },
