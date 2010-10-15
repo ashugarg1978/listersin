@@ -147,6 +147,8 @@ public class UserAction extends ActionSupport {
 		//query.put("_id", id);
 		
 		DBObject item = coll.findOne();
+		String id = item.get("_id").toString();
+		item.put("_id", id);
 		
 		json.put("item", item);
 		

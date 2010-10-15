@@ -212,8 +212,7 @@ function getdetail(row)
 	$('input[name=Title]',    detail).replaceWith(row.Title);
 	$('input[name=Subtitle]', detail).replaceWith(row.SubTitle);
 	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
-	$('input[name=StartPrice]', detail).replaceWith(row.StartPrice
-													+ ' ('+row['StartPrice@currencyID']+')');
+	//$('input[name=StartPrice]', detail).replaceWith(row.StartPrice);
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -233,6 +232,8 @@ function getdetail(row)
 	$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
+	
+	return;
 	
 	if (row.shippingtype) {
 		$('td.shippingtype_domestic', detail).html(row.shippingtype.domestic);
@@ -295,7 +296,6 @@ function getdetail(row)
 	}
 	
 	
-	return;
 
 	/* preserve selected tab */
 	/*
