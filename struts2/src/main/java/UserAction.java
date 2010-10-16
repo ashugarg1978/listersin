@@ -30,6 +30,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
+import org.bson.types.ObjectId;
 
 @ParentPackage("json-default")
 public class UserAction extends ActionSupport {
@@ -140,15 +141,14 @@ public class UserAction extends ActionSupport {
 		ActionContext context = ActionContext.getContext();
 		Map request = (Map) context.getParameters();
 		
-		//String id = ((String[]) request.get("id"))[0];
+		String id = ((String[]) request.get("id"))[0];
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
-		//query.put("_id", id);
+		query.put("_id", new ObjectId(id));
 		
-		DBObject item = coll.findOne();
-		String id = item.get("_id").toString();
-		item.put("_id", id);
+		DBObject item = coll.findOne(query);
+		item.put("id", item.get("_id").toString());
 		
 		json.put("item", item);
 		
@@ -243,6 +243,13 @@ public class UserAction extends ActionSupport {
 		selling.put("trash",     trash);
 		
 		return selling;
+	}
+	
+	private List categorypath(String site) {
+		List path = new ArrayList();
+		
+		
+		return path;
 	}
 	
 	@Action(value="/test")

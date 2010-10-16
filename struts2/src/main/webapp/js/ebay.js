@@ -206,13 +206,13 @@ function getrow(idx, row)
 // todo: if build a clone of python version, it's easy if generation is in javascript.
 function getdetail(row)
 {
-	id = row._id;
+	id = row.id;
 	detail = $('div.detail', '#'+id);
     
 	$('input[name=Title]',    detail).replaceWith(row.Title);
 	$('input[name=Subtitle]', detail).replaceWith(row.SubTitle);
 	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
-	//$('input[name=StartPrice]', detail).replaceWith(row.StartPrice);
+	$('input[name=StartPrice]', detail).replaceWith(row.StartPrice['#text']);
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -549,7 +549,7 @@ function bindevents()
 			$.post('/item',
 				   'id='+id,
 				   function(data) {
-					   dump(data);
+					   dump(data.json.item);
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -589,10 +589,16 @@ function bindevents()
 		
 		$('input[name=Title]',      dom).val(item.Title);
 		$('input[name=SubTitle]',   dom).val(item.SubTitle);
-		$('input[name=StartPrice]', dom).val(item.StartPrice);
+		$('input[name=StartPrice]', dom).val(item.StartPrice['#text']);
 		$('input[name=Quantity]',   dom).val(item.Quantity);
 		
 		$('select[name=Site]',      dom).val(item.Site);
+		
+		showbuttons(dom, 'save,cancel');
+		$('div.detail', 'tbody#'+id).replaceWith(dom);
+	    $('input[name=Title]', 'tbody#'+id).focus();
+		
+		return false;
 		
 		/* category selector */
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
@@ -611,11 +617,6 @@ function bindevents()
 			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
 		}
 		
-		showbuttons(dom, 'save,cancel');
-		$('div.detail', 'tbody#'+id).replaceWith(dom);
-	    $('input[name=Title]', 'tbody#'+id).focus();
-		
-		return false;
 		
 		
 		site = rowsdata[id]['Site'];

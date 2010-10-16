@@ -47,7 +47,7 @@
 </li>
 </ul>
 
-<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><?= __('add new account') ?></a>
+<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><s:text name="add new account"/></a>
 
 <br><br>
 post target<br>
@@ -134,7 +134,7 @@ style="border:1px solid gray;"></iframe>
 <tbody id="rowloading">
 <tr>
 	<td colspan="8" align="center" style="height:200px;">
-		<?= __('Loading Item Data ...') ?>
+		<s:text name="Loading Item Data ..."/>
 	</td>
 </tr>
 </tbody>
@@ -151,10 +151,10 @@ style="border:1px solid gray;"></iframe>
 <div class="detail">
 	
 <ul class="tabNav">
-<li class="current"><a href="#"><?= __('Detail') ?></a></li>
-<li><a href="#"><?= __('Description') ?></a></li>
-<li><a href="#"><?= __('Pictures') ?></a></li>
-<li><a href="#"><?= __('Shipping') ?></a></li>
+<li class="current"><a href="#"><s:text name="detail"/></a></li>
+<li><a href="#"><s:text name="description"/></a></li>
+<li><a href="#"><s:text name="Pictures"/></a></li>
+<li><a href="#"><s:text name="Shipping"/></a></li>
 </ul>
 
 <ul class="editbuttons">
@@ -177,11 +177,11 @@ style="border:1px solid gray;"></iframe>
 	  <td><input name="Title" type="text" size="60"></td>
 	</tr>
 	<tr>
-	  <td><?= __('SubTitle') ?></td>
+	  <td><s:text name="subtitle"/></td>
 	  <td><input name="SubTitle" type="text" size="60"></td>
 	</tr>
 	<tr>
-	  <td><?= __('Site') ?></td>
+	  <td><s:text name="Site"/></td>
 	  <td>
 		<select name="Site"><?
 		foreach ($hash as $sitestr => $tmp) {
@@ -191,21 +191,21 @@ style="border:1px solid gray;"></iframe>
 	  </td>
 	</tr>
 	<tr>
-	  <td><?= __('Category') ?></td>
+	  <td><s:text name="Category"/></td>
 	  <td class="category">
 		<select class="category"></select>
 	  </td>
 	</tr>
 	<tr>
-	  <td><?= __('Start Price') ?></td>
+	  <td><s:text name="Start Price"/></td>
 	  <td><input name="StartPrice" type="text" size="10"></td>
 	</tr>
 	<tr>
-	  <td><?= __('Quantity') ?></td>
+	  <td><s:text name="Quantity"/></td>
 	  <td><input name="Quantity" type="text" size="5"></td>
 	</tr>
 	<tr>
-	  <td><?= __('Listing Type') ?></td>
+	  <td><s:text name="Listing Type"/></td>
 	  <td>
 		<select name="ListingType">
 		<option value="Chinese">Online Auction</option>  
@@ -215,15 +215,15 @@ style="border:1px solid gray;"></iframe>
 	  </td>
 	</tr>
 	<tr>
-	  <td><?= __('Listing Duration') ?></td>
+	  <td><s:text name="Listing Duration"/></td>
 	  <td class="duration"></td>
 	</tr>
 	<tr>
-	  <td><?= __('Payment Methods') ?></td>
+	  <td><s:text name="Payment Methods"/></td>
 	  <td class="paymentmethod"></td>
 	</tr>
 	<tr>
-	  <td><?= __('schedule') ?></td>
+	  <td><s:text name="schedule"/></td>
 	  <td><input name="schedule" type="" size="15"></td>
 	</tr>
   </tbody>
@@ -264,7 +264,7 @@ style="border:1px solid gray;"></iframe>
 	<table class="detail">
 	  <tbody>
 		<tr>
-		  <td><?= __('Shipping type') ?></td>
+		  <td><s:text name="Shipping type"/></td>
 		  <td class="shippingtype_domestic">
 	 
 			<select name="ShippingDetails[ShippingType][domestic]">
@@ -277,14 +277,14 @@ style="border:1px solid gray;"></iframe>
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Package type') ?></td>
+		  <td><s:text name="Package type"/></td>
 		  <td class="shippingpackage">
 		  	<select name="ShippingPackage"></select>
 			<input name="" type="checkbox">Irregular package
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Dimensions') ?></td>
+		  <td><s:text name="Dimensions"/></td>
 		  <td class="dimensions">
 			<input name="" type="text" size="3">in. x
 			<input name="" type="text" size="3">in. x
@@ -292,32 +292,32 @@ style="border:1px solid gray;"></iframe>
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Weight') ?></td>
+		  <td><s:text name="Weight"/></td>
 		  <td class="weight">
 			
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Services') ?></td>
+		  <td><s:text name="Services"/></td>
 		  <td class="shippingservice">
 			
 			<div class="ShippingService">
 			<select name="ShippingService[1]" class="ShippingService"></select>
-			<b><?= __('Cost') ?></b>
+			<b><s:text name="Cost"/></b>
 			<input name="ShippingCost[1]" type="text" size="5">
 			<input name="ShippingFree" value="1" type="checkbox">Free shipping
 			</div>
 			
 			<div class="ShippingService">
 			<select name="ShippingService[2]" class="ShippingService"></select>
-			<b><?= __('Cost') ?></b>
+			<b><s:text name="Cost"/></b>
 			<input name="ShippingCost[2]" type="text" size="5">
 			<a href="" class="ShippingService2">Remove service</a>
 			</div>
 			
 			<div class="ShippingService">
 			<select name="ShippingService[2]" class="ShippingService"></select>
-			<b><?= __('Cost') ?></b>
+			<b><s:text name="Cost"/></b>
 			<input name="ShippingCost[2]" type="text" size="5">
 			<a href="" class="ShippingService3">Remove service</a>
 			</div>
@@ -325,7 +325,7 @@ style="border:1px solid gray;"></iframe>
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Handling time') ?></td>
+		  <td><s:text name="Handling time"/></td>
 		  
 		  </td>
 		</tr>
@@ -335,7 +335,7 @@ style="border:1px solid gray;"></iframe>
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Shipping type') ?></td>
+		  <td><s:text name="Shipping type"/></td>
 		  <td class="shippingtype_international">
 		  	
 			<select name="ShippingDetails_ShippingType[international]">
@@ -347,7 +347,7 @@ style="border:1px solid gray;"></iframe>
 		  </td>
 		</tr>
 		<tr>
-		  <td><?= __('Services') ?></td>
+		  <td><s:text name="Services"/></td>
 		  <td class="intlshippingservice">
 			
 			
