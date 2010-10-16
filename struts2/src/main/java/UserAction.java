@@ -4,8 +4,7 @@ import java.io.*;
 import java.net.URL;
 //import java.net.HttpURLConnection;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -245,8 +244,8 @@ public class UserAction extends ActionSupport {
 		return selling;
 	}
 	
-	private List categorypath(String site) {
-		List path = new ArrayList();
+	private ArrayList categorypath(String site) {
+		ArrayList path = new ArrayList();
 		
 		
 		return path;

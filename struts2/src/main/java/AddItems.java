@@ -39,7 +39,7 @@ public class AddItems extends ApiCall implements Callable {
 		
 		writelog("AIs.req."+userid+"."+site+"."+chunkidx+".xml", requestxml);
 		
-		String responsexml = callapi("AddItems", requestxml);
+		String responsexml = callapi(requestxml);
 		
 		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
 		

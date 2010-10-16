@@ -31,7 +31,7 @@ public class GetSellerList extends ApiCall implements Callable {
 	
 	public BasicDBObject call() throws Exception {
 		
-		String responsexml = callapi("GetSellerList", requestxml);
+		String responsexml = callapi(requestxml);
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
@@ -72,8 +72,6 @@ public class GetSellerList extends ApiCall implements Callable {
 			} catch (Exception e) {
 				System.out.println(e.toString());
 			}
-			
-			//System.out.println(dbobject.get("Title"));
 		}
 		
 		return responsedbo;
