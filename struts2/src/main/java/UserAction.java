@@ -149,7 +149,9 @@ public class UserAction extends ActionSupport {
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
 		item.put("id", item.get("_id").toString());
 		
-		List path = categorypath("US", Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID")));
+		Integer categoryid =
+			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+		List path = categorypath(item.getString("Site"), categoryid);
 		item.put("path", path);
 		
 		json.put("item", item);
@@ -256,12 +258,14 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("Categories_"+site);
 		while (true) {
 			
-			query.put("CategoryID", categoryid);
+			query.put("CategoryID", categoryid.toString());
 			BasicDBObject row = (BasicDBObject) coll.findOne(query);
 			path.add(row.getInt("CategoryID"));
 			
 			if (row.getInt("CategoryLevel") == 1) break;
 			categoryid = row.getInt("CategoryParentID");
+			
+			break;
 		}
 		System.out.println(path.toString());
 		

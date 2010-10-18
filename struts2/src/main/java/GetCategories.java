@@ -58,14 +58,13 @@ public class GetCategories extends ApiCall implements Callable {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
-		/*
 		Mongo m = new Mongo();
 		DB db = m.getDB("ebay");
 		
 		DBCollection coll = db.getCollection("Categories_"+site);
 		coll.drop();
-		coll.insert((List<DBObject>) responsedbo);
-		*/
+		coll.insert
+			((List<DBObject>) ((BasicDBObject) responsedbo.get("CategoryArray")).get("Category"));
 		
 		return "";
 	}

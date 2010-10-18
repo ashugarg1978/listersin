@@ -62,7 +62,7 @@ public class ThreadPool {
 	private void getCategories() throws Exception {
 		
 		DBCollection coll = db.getCollection("SiteDetails");
-		DBCursor cur = coll.find();
+		DBCursor cur = coll.find(new BasicDBObject("Site", "US"));
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			
@@ -71,6 +71,8 @@ public class ThreadPool {
 			System.out.println(site+"("+siteid+")");
 			
 			pool.submit(new GetCategories(siteid, site));
+			
+			Thread.sleep(500);
 		}
 		
 		return;
