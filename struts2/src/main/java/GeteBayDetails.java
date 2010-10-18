@@ -20,6 +20,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
 import java.util.HashMap;
+import java.util.*;
 
 public class GeteBayDetails extends ApiCall implements Callable {
 	
@@ -46,6 +47,25 @@ public class GeteBayDetails extends ApiCall implements Callable {
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		for (Object idx : responsedbo.keySet()) {
+			String classname = responsedbo.get(idx).getClass().toString();
+			
+			DBCollection coll = db.getCollection(idx.toString());
+			coll.drop();
+			
+			if (classname.equals("class com.mongodb.BasicDBList")) {
+				System.out.println("List "+idx.toString());
+				coll.insert((List<DBObject>) responsedbo.get(idx));
+			} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+				System.out.println("Object "+idx.toString());
+				coll.insert((DBObject) responsedbo.get(idx));
+			} else {
+				System.out.println("SKIP "+classname+" "+idx.toString());
+			}
+		}
 		
 		return "";
 	}
