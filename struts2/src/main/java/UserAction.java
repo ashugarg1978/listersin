@@ -146,8 +146,11 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
-		DBObject item = coll.findOne(query);
+		BasicDBObject item = (BasicDBObject) coll.findOne(query);
 		item.put("id", item.get("_id").toString());
+		
+		List path = categorypath("US", Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID")));
+		item.put("path", path);
 		
 		json.put("item", item);
 		
@@ -244,9 +247,23 @@ public class UserAction extends ActionSupport {
 		return selling;
 	}
 	
-	private ArrayList categorypath(String site) {
+	private ArrayList categorypath(String site, Integer categoryid) {
+		
 		ArrayList path = new ArrayList();
 		
+		BasicDBObject query = new BasicDBObject();
+		
+		DBCollection coll = db.getCollection("Categories_"+site);
+		while (true) {
+			
+			query.put("CategoryID", categoryid);
+			BasicDBObject row = (BasicDBObject) coll.findOne(query);
+			path.add(row.getInt("CategoryID"));
+			
+			if (row.getInt("CategoryLevel") == 1) break;
+			categoryid = row.getInt("CategoryParentID");
+		}
+		System.out.println(path.toString());
 		
 		return path;
 	}
