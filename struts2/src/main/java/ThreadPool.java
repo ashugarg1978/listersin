@@ -22,6 +22,7 @@ import java.util.*;
 import ebaytool.AddItems;
 import ebaytool.GeteBayDetails;
 import ebaytool.GetSellerList;
+import ebaytool.GetCategories;
 
 public class ThreadPool {
 	
@@ -41,7 +42,8 @@ public class ThreadPool {
 		
 		ThreadPool threadpool = new ThreadPool();
 		
-		threadpool.geteBayDetails();
+		threadpool.getCategories();
+		//threadpool.geteBayDetails();
 		//threadpool.getSellerLists();
 		//threadpool.addItems();
 		
@@ -56,7 +58,24 @@ public class ThreadPool {
 		
 		return;
 	}
-
+	
+	private void getCategories() throws Exception {
+		
+		DBCollection coll = db.getCollection("SiteDetails");
+		DBCursor cur = coll.find();
+		while (cur.hasNext()) {
+			DBObject row = cur.next();
+			
+			String  site   = row.get("Site").toString();
+			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
+			System.out.println(site+"("+siteid+")");
+			
+			pool.submit(new GetCategories(siteid, site));
+		}
+		
+		return;
+	}
+	
 	private void geteBayDetails() throws Exception {
 		
 		pool.submit(new GeteBayDetails());
