@@ -180,11 +180,7 @@ style="border:1px solid gray;"></iframe>
 	<tr>
 	  <td><s:text name="Site"/></td>
 	  <td>
-		<select name="Site"><?
-		foreach ($hash as $sitestr => $tmp) {
-			echo '<option value="'.$sitestr.'">'.$sitestr.'</option>';
-	 	}
-	 	?></select>
+		<select name="Site"></select>
 	  </td>
 	</tr>
 	<tr>

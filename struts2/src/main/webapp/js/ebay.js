@@ -30,6 +30,11 @@ function gethash()
 {
 	$.getJSON('/hash', function(data) {
 		hash = data.json;
+
+		$.each(hash, function(k, v) {
+			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
+		});
+		
 		dump(hash);
 	});
 	
@@ -561,7 +566,7 @@ function bindevents()
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
-					   //preloadcategory(data.Site, data.categorypath);
+					   preloadcategory(data.json.item.Site, data.json.item.categorypath);
 					   //preloadcategoryfeatures(data.Site, data.PrimaryCategory.CategoryID);
 					   //preloadshippingtype(data.Site);
 					   rowsdata[id] = data.json.item;
@@ -804,8 +809,9 @@ function preloadcategory(site, path)
 		npath.push(categoryid);
 	});
 	
-	$.getJSON('/users/grandchildren/'+site+'/'+npath.join('.'),
+	$.getJSON('/grandchildren?site='+site+'&pathstr='+npath.join('.'),
 			  function(data) {
+				  alert(data);
 				  $.each(hash[site]['category'], function(n, a) {
 					  var tmpo = $.extend({}, hash[site]['category'][n], data[n]);
 					  hash[site]['category'][n] = tmpo;

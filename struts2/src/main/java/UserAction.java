@@ -36,12 +36,9 @@ public class UserAction extends ActionSupport {
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
-	private static Mongo m;
 	private static DB db;
 	
 	public UserAction() throws Exception {
-		//m = new Mongo();
-		//db = m.getDB("ebay");
 		db = new Mongo().getDB("ebay");
 	}
 	
@@ -50,13 +47,6 @@ public class UserAction extends ActionSupport {
 	public LinkedHashMap<String,Object> getJson() {
 		return json;
 	}
-	
-	/*
-	public String execute() throws Exception {
-		json.put("foo", "bar");
-		return SUCCESS;
-	}
-	*/
 	
 	@Action(value="/hash", results={@Result(name="success",type="json")})
 	public String hash() throws Exception {
@@ -334,6 +324,30 @@ public class UserAction extends ActionSupport {
 		return data;
 	}
 	
+	@Action(value="/grandchildren", results={@Result(name="success",type="json")})
+	public String grandchildren() {
+		
+		/* handling post parameters */
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		
+		String site    = ((String[]) request.get("site"))[0];
+		String pathstr = ((String[]) request.get("pathstr"))[0];
+		
+		String[] arrs = pathstr.split("\\.");
+		for (String s : arrs) {
+			Integer categoryid = Integer.parseInt(s);
+			
+			LinkedHashMap p = children(site, categoryid);
+			
+			System.out.println(p.toString());
+		}
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("hoge", arrs);
+		
+		return SUCCESS;
+	}
 	
 	@Action(value="/test")
 	public String test() throws Exception {
