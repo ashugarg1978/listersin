@@ -1,5 +1,7 @@
 /* store rows data */
 var rowsdata = new Array();
+var hash;
+
 
 /* initialize */
 $(document).bind({
@@ -7,16 +9,13 @@ $(document).bind({
 		
 		resizediv();
 		bindevents();
-		
 		summary();
-		//items();
+		gethash();
 		
 		$('ul.accounts > li > ul:first').slideToggle('fast');
 		$('a.active', $('ul.accountaction:first')).click();
 		
 		return;
-		
-		//dump(hash);
 		
 		//setTimeout('autoclick()', 1000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
@@ -26,6 +25,16 @@ $(document).bind({
 		return;
 	}
 });
+
+function gethash()
+{
+	$.getJSON('/hash', function(data) {
+		hash = data.json;
+		dump(hash);
+	});
+	
+	return;
+}
 
 function summary()
 {
@@ -49,7 +58,6 @@ function summary()
 			$('ul.accounts').append(ul.html());
 		});
 		
-		dump(data);
 	});
 	
 	return;
@@ -74,7 +82,7 @@ function items()
 	$.post('/items',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
-			   dump(data);
+			   //dump(data);
 			   paging(data.json.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {

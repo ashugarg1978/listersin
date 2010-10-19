@@ -9,7 +9,7 @@ $(document).bind({
 		$('ul.accounts > li > a:first').click();
 		$('a.active', $('ul.accountaction:first')).click();
 		
-		//dump(hash);
+		dump(hash);
 		
 		//setTimeout('autoclick()', 1000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);

@@ -17,6 +17,8 @@
 </head>
 <body>
 
+${json}
+
 <div id="container">
 
 <div id="loading"><s:text name="loading"/></div>
@@ -105,11 +107,6 @@ style="border:1px solid gray;"></iframe>
 <td>
 	<select name="UserID" onchange="filter();">
 	<option value="">User ID</option>
-	<?
-	foreach ($user['userids'] as $userid => $userobj) {
-		echo '<option value="'.$userid.'">'.$userid.'</option>';
-	}	
-	?>
 	</select>
 </td>
 <td><input type="text" name="ItemID" size="6"></td>
@@ -361,11 +358,6 @@ style="border:1px solid gray;"></iframe>
 
 </div>
 </div>
-
-<? // todo: check script tag trends, no need <!-- --> ??? ?>
-<script>
-var hash;
-</script>
 
 <div id="debug"></div>
 
