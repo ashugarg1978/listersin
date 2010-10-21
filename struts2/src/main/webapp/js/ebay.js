@@ -496,7 +496,7 @@ function bindevents()
 		site = $('select[name=Site]', '#'+id).val();
 		
 		$(this).nextAll().remove();
-		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
+		if (hash[site]['category']['children'][$(this).val()][0] != '0') {
 			preloadcategory(site, [$(this).val()]);
 			sel = getcategorypulldown(site, $(this).val());
 			$('td.category', '#'+id).append(sel);
@@ -760,7 +760,7 @@ function getcategorypulldown(site, categoryid)
 	sel.append(opt);
 	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
 		str = hash[site]['category']['name'][childid];
-		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
+		if (hash[site]['category']['children'][childid][0] != '0') str += ' &gt;';
 		opt = $('<option/>').val(childid).html(str);
 		sel.append(opt);
 	});
@@ -780,7 +780,7 @@ function getcategorypulldowns(site, path)
 		sel.append(opt);
 		$.each(ctgr['children'][tmpid], function(i, cid) {
 			str = ctgr['name'][cid];
-			if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
+			if (ctgr['children'][cid][0] != '0') str += ' &gt;';
 			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});

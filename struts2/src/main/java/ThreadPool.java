@@ -42,9 +42,9 @@ public class ThreadPool {
 		
 		ThreadPool threadpool = new ThreadPool();
 		
-		threadpool.getCategories();
+		//threadpool.getCategories();
 		//threadpool.geteBayDetails();
-		//threadpool.getSellerLists();
+		threadpool.getSellerLists();
 		//threadpool.addItems();
 		
 		threadpool.shutdown();
