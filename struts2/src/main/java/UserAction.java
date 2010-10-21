@@ -293,10 +293,18 @@ public class UserAction extends ActionSupport {
 		return path;
 	}
 	
-	private LinkedHashMap<String,Object> children(String site, Integer categoryid) {
+	private LinkedHashMap<String,LinkedHashMap> children(String site, Integer categoryid) {
 		
-		LinkedHashMap<String,Object> name = new LinkedHashMap<String,Object>();
-		ArrayList<String> arrchildren = new ArrayList<String>();
+		LinkedHashMap<String,LinkedHashMap> data = new LinkedHashMap<String,LinkedHashMap>();
+		
+		LinkedHashMap<Integer,String> name = new LinkedHashMap<Integer,String>();
+		
+		LinkedHashMap<Integer,ArrayList<Integer>> children =
+			new LinkedHashMap<Integer,ArrayList<Integer>>();
+		
+		ArrayList<Integer> arrchildren = new ArrayList<Integer>();
+		ArrayList<Integer> leafval = new ArrayList<Integer>();
+		leafval.add(0);
 		
 		BasicDBObject query = new BasicDBObject();
 		if (categoryid == 0) {
@@ -309,15 +317,21 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("Categories_"+site);
 		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
-			DBObject row = cur.next();
-			name.put(row.get("CategoryID").toString(), row.get("CategoryName").toString());
-			arrchildren.add(row.get("CategoryID").toString());
+			BasicDBObject row = (BasicDBObject) cur.next();
+			Integer childid = Integer.parseInt(row.get("CategoryID").toString());
+			String childname = row.get("CategoryName").toString();
+			
+			name.put(childid, childname);
+			arrchildren.add(childid);
+			
+			if (row.get("LeafCategory") != null
+				&& row.get("LeafCategory").toString().equals("true")) {
+				children.put(childid, leafval);
+			}
+			
 		}
-		LinkedHashMap<Integer,ArrayList<String>> children =
-			new LinkedHashMap<Integer,ArrayList<String>>();
 		children.put(categoryid, arrchildren);
 		
-		LinkedHashMap<String,Object> data = new LinkedHashMap<String,Object>();
 		data.put("name", name);
 		data.put("children", children);
 		
@@ -327,51 +341,55 @@ public class UserAction extends ActionSupport {
 	@Action(value="/grandchildren", results={@Result(name="success",type="json")})
 	public String grandchildren() {
 		
+		json = new LinkedHashMap<String,Object>();
+		
+		LinkedHashMap<Integer,Integer> grandchildren = new LinkedHashMap<Integer,Integer>();
+		
+		LinkedHashMap<Integer,String> name = new LinkedHashMap<Integer,String>();
+		
+		LinkedHashMap<Integer,ArrayList<Integer>> children =
+			new LinkedHashMap<Integer,ArrayList<Integer>>();
+		
 		/* handling post parameters */
 		ActionContext context = ActionContext.getContext();
 		Map request = (Map) context.getParameters();
-		
 		String site    = ((String[]) request.get("site"))[0];
 		String pathstr = ((String[]) request.get("pathstr"))[0];
 		
 		String[] arrs = pathstr.split("\\.");
 		for (String s : arrs) {
 			Integer categoryid = Integer.parseInt(s);
-			
+			grandchildren.put(categoryid, 1);
 			LinkedHashMap p = children(site, categoryid);
-			
-			System.out.println(p.toString());
+			ArrayList childids = (ArrayList) ((LinkedHashMap) p.get("children")).get(categoryid);
+			for (Object ochildid : childids) {
+				Integer childid = Integer.parseInt(ochildid.toString());
+				LinkedHashMap c = children(site, childid);
+				LinkedHashMap gchildids = (LinkedHashMap) c.get("children");
+				for (Object ogchildid : gchildids.keySet()) {
+					Integer gchildid = Integer.parseInt(ogchildid.toString());
+					children.put(gchildid, (ArrayList<Integer>) gchildids.get(gchildid));
+				}
+				LinkedHashMap names = (LinkedHashMap) c.get("name");
+				for (Object tmpname : names.keySet()) {
+					name.put(Integer.parseInt(tmpname.toString()), names.get(tmpname).toString());
+				}
+			}
 		}
 		
-		json = new LinkedHashMap<String,Object>();
-		json.put("hoge", arrs);
+		json.put("grandchildren", grandchildren);
+		json.put("children", children);
+		json.put("name", name);
 		
 		return SUCCESS;
 	}
 	
-	@Action(value="/test")
+	@Action(value="/test", results={@Result(name="success",type="json")})
 	public String test() throws Exception {
 		
 		String site = "US";
 		Integer categoryid = 159681;
 		
-		ArrayList path = new ArrayList();
-		
-		BasicDBObject query = new BasicDBObject();
-		
-		DBCollection coll = db.getCollection("Categories_"+site);
-		while (true) {
-			
-			query.put("CategoryID", categoryid.toString());
-			BasicDBObject row = (BasicDBObject) coll.findOne(query);
-			path.add(0, Integer.parseInt(row.getString("CategoryID")));
-			
-			if (row.getString("CategoryLevel").equals("1")) break;
-			categoryid = Integer.parseInt(row.getString("CategoryParentID"));
-			
-			System.out.println(row.get("CategoryID"));
-		}
-		System.out.println(path.toString());
 		
 		return SUCCESS;
 	}

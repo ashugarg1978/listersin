@@ -15,16 +15,26 @@ $(document).bind({
 		$('ul.accounts > li > ul:first').slideToggle('fast');
 		$('a.active', $('ul.accountaction:first')).click();
 		
-		return;
-		
-		//setTimeout('autoclick()', 1000);
+		setTimeout('autoclick()', 1000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		setInterval(refresh, 2000);
+		//setInterval(refresh, 2000);
 		
 		return;
 	}
 });
+
+/* auto click for debug */
+function autoclick()
+{
+	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
+	
+	$('a.Title', 'tbody#'+id).click();
+	//setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
+	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
+	
+	return;
+}
 
 function gethash()
 {
@@ -67,19 +77,6 @@ function summary()
 	
 	return;
 }
-
-/* auto click for debug */
-function autoclick()
-{
-	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
-	
-	$('a.Title', 'tbody#'+id).click();
-	setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
-	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
-	
-	return;
-}
-
 
 /* list items */
 function items()
@@ -562,7 +559,7 @@ function bindevents()
 			$.post('/item',
 				   'id='+id,
 				   function(data) {
-					   dump(data.json.item);
+					   //dump(data.json.item);
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -611,11 +608,11 @@ function bindevents()
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 	    $('input[name=Title]', 'tbody#'+id).focus();
 		
-		return false;
-		
 		/* category selector */
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
 		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
+		
+		return false;
 		
 		/* pictures */
 		if (typeof(item.PictureDetails.PictureURL) == 'string') {
@@ -811,11 +808,11 @@ function preloadcategory(site, path)
 	
 	$.getJSON('/grandchildren?site='+site+'&pathstr='+npath.join('.'),
 			  function(data) {
-				  alert(data);
 				  $.each(hash[site]['category'], function(n, a) {
-					  var tmpo = $.extend({}, hash[site]['category'][n], data[n]);
+					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
 					  hash[site]['category'][n] = tmpo;
 				  });
+				  dump(hash[site]['category']);
 			  });
 	
 	return;
