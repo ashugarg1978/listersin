@@ -1,9 +1,5 @@
 package ebaytool.actions;
 
-import java.io.*;
-import java.net.URL;
-//import java.net.HttpURLConnection;
-
 import java.util.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,13 +28,18 @@ import com.mongodb.DBCursor;
 import org.bson.types.ObjectId;
 
 @ParentPackage("json-default")
+@Result(name="success",type="json")
 public class UserAction extends ActionSupport {
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
-	private static DB db;
+	public ActionContext context;
+	public Map request;
+	public static DB db;
 	
 	public UserAction() throws Exception {
+		context = ActionContext.getContext();
+		request = (Map) context.getParameters();
 		db = new Mongo().getDB("ebay");
 	}
 	
@@ -48,31 +49,7 @@ public class UserAction extends ActionSupport {
 		return json;
 	}
 	
-	@Action(value="/", results={
-			@Result(name="success",location="index.jsp"),
-			@Result(name="loggedin",location="user.jsp")
-		})
-	public String execute() {
-		
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
-		
-		String email = "";
-		String password = "";
-		if (request.get("email") != null)
-			email = ((String[]) request.get("email"))[0];
-		
-		if (request.get("password") != null)
-			password = ((String[]) request.get("password"))[0];
-		
-		if (email.equals("fd3s.boost@gmail.com")) {
-			return "loggedin";
-		}
-		
-		return SUCCESS;
-	}
-	
-	@Action(value="/hash", results={@Result(name="success",type="json")})
+	@Action(value="/hash")
 	public String hash() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
@@ -98,7 +75,7 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	@Action(value="/items", results={@Result(name="success",type="json")})
+	@Action(value="/items")
 	public String items() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
@@ -109,9 +86,6 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
-		
 		int limit  = Integer.parseInt(((String[]) request.get("limit"))[0]);
 		int offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
 		
@@ -177,7 +151,7 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	@Action(value="/item", results={@Result(name="success",type="json")})
+	@Action(value="/item")
 	public String item() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
@@ -185,9 +159,6 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
-		
 		String id = ((String[]) request.get("id"))[0];
 		
 		/* query */
@@ -209,7 +180,7 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	@Action(value="/summary", results={@Result(name="success",type="json")})
+	@Action(value="/summary")
 	public String summary() throws Exception {
 		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
@@ -362,8 +333,8 @@ public class UserAction extends ActionSupport {
 		
 		return data;
 	}
-	
-	@Action(value="/grandchildren", results={@Result(name="success",type="json")})
+
+	@Action(value="/grandchildren")
 	public String grandchildren() {
 		
 		json = new LinkedHashMap<String,Object>();
@@ -373,8 +344,6 @@ public class UserAction extends ActionSupport {
 		LinkedHashMap<Integer,Integer> grandchildren = new LinkedHashMap<Integer,Integer>();
 		
 		/* handling post parameters */
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
 		String site    = ((String[]) request.get("site"))[0];
 		String pathstr = ((String[]) request.get("pathstr"))[0];
 		
@@ -418,8 +387,8 @@ public class UserAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
-	
-	@Action(value="/test", results={@Result(name="success",type="json")})
+
+	@Action(value="/test")
 	public String test() throws Exception {
 		
 		String site = "US";

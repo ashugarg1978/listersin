@@ -11,7 +11,7 @@ import com.opensymphony.xwork2.ActionSupport;
 
 public class IndexAction extends ActionSupport {
 	
-	@Action(value="/", results={@Result(name="loggedin",location="users.jsp")})
+	@Action(value="/", results={@Result(name="loggedin",location="user.jsp")})
 	public String execute() {
 		
 		ActionContext context = ActionContext.getContext();
