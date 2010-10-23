@@ -60,6 +60,7 @@ style="border:1px solid gray;"></iframe>
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
 <br><br><br>
 
+<div id="msg"></div>
 
 </div>
 

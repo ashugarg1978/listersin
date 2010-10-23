@@ -296,11 +296,8 @@ public class UserAction extends ActionSupport {
 	private LinkedHashMap<String,LinkedHashMap> children(String site, Integer categoryid) {
 		
 		LinkedHashMap<String,LinkedHashMap> data = new LinkedHashMap<String,LinkedHashMap>();
-		
-		LinkedHashMap<Integer,String> name = new LinkedHashMap<Integer,String>();
-		
-		LinkedHashMap<Integer,ArrayList<Integer>> children =
-			new LinkedHashMap<Integer,ArrayList<Integer>>();
+		LinkedHashMap<Integer,String>       name = new LinkedHashMap<Integer,String>();
+		LinkedHashMap<Integer,Object>   children = new LinkedHashMap<Integer,Object>();
 		
 		ArrayList<Integer> arrchildren = new ArrayList<Integer>();
 		ArrayList<Integer> leafval = new ArrayList<Integer>();
@@ -316,21 +313,25 @@ public class UserAction extends ActionSupport {
 		
 		DBCollection coll = db.getCollection("Categories_"+site);
 		DBCursor cur = coll.find(query);
-		while (cur.hasNext()) {
-			BasicDBObject row = (BasicDBObject) cur.next();
-			Integer childid = Integer.parseInt(row.get("CategoryID").toString());
-			String childname = row.get("CategoryName").toString();
-			
-			name.put(childid, childname);
-			arrchildren.add(childid);
-			
-			if (row.get("LeafCategory") != null
-				&& row.get("LeafCategory").toString().equals("true")) {
-				children.put(childid, leafval);
+		if (cur.count() > 0) {
+			while (cur.hasNext()) {
+				BasicDBObject row = (BasicDBObject) cur.next();
+				Integer childid = Integer.parseInt(row.get("CategoryID").toString());
+				String childname = row.get("CategoryName").toString();
+				
+				name.put(childid, childname);
+				arrchildren.add(childid);
+				
+				if (row.get("LeafCategory") != null
+					&& row.get("LeafCategory").toString().equals("true")) {
+					children.put(childid, "children");
+				}
+				
 			}
-			
+			children.put(categoryid, arrchildren);
+		} else {
+			children.put(categoryid, "leaf");
 		}
-		children.put(categoryid, arrchildren);
 		
 		data.put("name", name);
 		data.put("children", children);
@@ -343,12 +344,9 @@ public class UserAction extends ActionSupport {
 		
 		json = new LinkedHashMap<String,Object>();
 		
+		LinkedHashMap<Integer,String>  name          = new LinkedHashMap<Integer,String>();
+		LinkedHashMap<Integer,Object>  children      = new LinkedHashMap<Integer,Object>();
 		LinkedHashMap<Integer,Integer> grandchildren = new LinkedHashMap<Integer,Integer>();
-		
-		LinkedHashMap<Integer,String> name = new LinkedHashMap<Integer,String>();
-		
-		LinkedHashMap<Integer,ArrayList<Integer>> children =
-			new LinkedHashMap<Integer,ArrayList<Integer>>();
 		
 		/* handling post parameters */
 		ActionContext context = ActionContext.getContext();
@@ -361,6 +359,8 @@ public class UserAction extends ActionSupport {
 			Integer categoryid = Integer.parseInt(s);
 			grandchildren.put(categoryid, 1);
 			LinkedHashMap p = children(site, categoryid);
+			json.put("chk"+categoryid.toString(), p.get("children").getClass().toString());
+			if (p.get("children").getClass().toString().equals("class java.lang.String")) continue;
 			ArrayList childids = (ArrayList) ((LinkedHashMap) p.get("children")).get(categoryid);
 			for (Object ochildid : childids) {
 				Integer childid = Integer.parseInt(ochildid.toString());
@@ -368,7 +368,13 @@ public class UserAction extends ActionSupport {
 				LinkedHashMap gchildids = (LinkedHashMap) c.get("children");
 				for (Object ogchildid : gchildids.keySet()) {
 					Integer gchildid = Integer.parseInt(ogchildid.toString());
-					children.put(gchildid, (ArrayList<Integer>) gchildids.get(gchildid));
+					
+					if (gchildids.get(gchildid).getClass().toString()
+						.equals("class java.lang.String")) {
+						children.put(gchildid, "leaf");
+					} else {
+						children.put(gchildid, (ArrayList<Integer>) gchildids.get(gchildid));
+					}
 				}
 				LinkedHashMap names = (LinkedHashMap) c.get("name");
 				for (Object tmpname : names.keySet()) {
