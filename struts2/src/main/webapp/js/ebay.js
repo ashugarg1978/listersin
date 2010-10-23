@@ -496,7 +496,7 @@ function bindevents()
 		site = $('select[name=Site]', '#'+id).val();
 		
 		$(this).nextAll().remove();
-		alert(hash[site]['category']['children'][$(this).val()]);
+		msg(hash[site]['category']['children'][$(this).val()]);
 		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
 			preloadcategory(site, [$(this).val()]);
 			sel = getcategorypulldown(site, $(this).val());

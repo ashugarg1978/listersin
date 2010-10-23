@@ -1,6 +1,6 @@
 #!/bin/sh
 
-CP=/var/www/dev.xboo.st/struts2/target/classes/
+CP=/var/www/ebaytool/struts2/target/classes/
 
 for jar in `ls /usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/`
 do

@@ -9,7 +9,7 @@ mvn archetype:generate
 
 exit
 
-cd /var/www/dev.xboo.st/
+cd /var/www/ebaytool/
 mvn archetype:generate -B \
     -DgroupId=tutorial \
     -DartifactId=tutorial \

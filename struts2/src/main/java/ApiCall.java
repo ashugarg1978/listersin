@@ -85,7 +85,7 @@ public class ApiCall {
 	
 	public void writelog(String filename, String content) {
 		try {
-			FileWriter fstream = new FileWriter("/var/www/dev.xboo.st/logs/apixml/"+filename);
+			FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
 			BufferedWriter out = new BufferedWriter(fstream);
 			out.write(content);
 			out.close();

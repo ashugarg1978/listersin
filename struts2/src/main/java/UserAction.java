@@ -48,6 +48,30 @@ public class UserAction extends ActionSupport {
 		return json;
 	}
 	
+	@Action(value="/", results={
+			@Result(name="success",location="index.jsp"),
+			@Result(name="loggedin",location="user.jsp")
+		})
+	public String execute() {
+		
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		
+		String email = "";
+		String password = "";
+		if (request.get("email") != null)
+			email = ((String[]) request.get("email"))[0];
+		
+		if (request.get("password") != null)
+			password = ((String[]) request.get("password"))[0];
+		
+		if (email.equals("fd3s.boost@gmail.com")) {
+			return "loggedin";
+		}
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/hash", results={@Result(name="success",type="json")})
 	public String hash() throws Exception {
 		
@@ -360,7 +384,12 @@ public class UserAction extends ActionSupport {
 			grandchildren.put(categoryid, 1);
 			LinkedHashMap p = children(site, categoryid);
 			json.put("chk"+categoryid.toString(), p.get("children").getClass().toString());
-			if (p.get("children").getClass().toString().equals("class java.lang.String")) continue;
+			
+			if (((LinkedHashMap) p.get("children")).get(categoryid)
+				.getClass().toString().equals("class java.lang.String")) {
+				continue;
+			}
+			
 			ArrayList childids = (ArrayList) ((LinkedHashMap) p.get("children")).get(categoryid);
 			for (Object ochildid : childids) {
 				Integer childid = Integer.parseInt(ochildid.toString());
