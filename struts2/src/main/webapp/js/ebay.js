@@ -18,7 +18,7 @@ $(document).bind({
 		setTimeout('autoclick()', 1000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		//setInterval(refresh, 2000);
+		setInterval(refresh, 2000);
 		
 		return;
 	}
@@ -496,7 +496,8 @@ function bindevents()
 		site = $('select[name=Site]', '#'+id).val();
 		
 		$(this).nextAll().remove();
-		if (hash[site]['category']['children'][$(this).val()][0] != '0') {
+		alert(hash[site]['category']['children'][$(this).val()]);
+		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
 			preloadcategory(site, [$(this).val()]);
 			sel = getcategorypulldown(site, $(this).val());
 			$('td.category', '#'+id).append(sel);
@@ -595,7 +596,7 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		item = rowsdata[id];
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-		dump(item);
+		//dump(item);
 		
 		$('input[name=Title]',      dom).val(item.Title);
 		$('input[name=SubTitle]',   dom).val(item.SubTitle);
@@ -760,7 +761,8 @@ function getcategorypulldown(site, categoryid)
 	sel.append(opt);
 	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
 		str = hash[site]['category']['name'][childid];
-		if (hash[site]['category']['children'][childid][0] != '0') str += ' &gt;';
+		str += '('+childid+')';
+		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
 		opt = $('<option/>').val(childid).html(str);
 		sel.append(opt);
 	});
@@ -780,7 +782,7 @@ function getcategorypulldowns(site, path)
 		sel.append(opt);
 		$.each(ctgr['children'][tmpid], function(i, cid) {
 			str = ctgr['name'][cid];
-			if (ctgr['children'][cid][0] != '0') str += ' &gt;';
+			if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
 			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});
@@ -797,6 +799,7 @@ function getcategorypulldowns(site, path)
 
 function preloadcategory(site, path)
 {
+	msg('pre:'+path);
 	var npath = new Array();
 	
 	if (!hash[site]['category']['grandchildren'][0]) npath.push(0);
@@ -812,7 +815,6 @@ function preloadcategory(site, path)
 					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
 					  hash[site]['category'][n] = tmpo;
 				  });
-				  dump(hash[site]['category']);
 			  });
 	
 	return;
@@ -858,7 +860,7 @@ function copyitems()
 
 function refresh()
 {
-	//dump(hash['US']['category']); 
+	dump(hash['US']['category']); return;
 	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
@@ -982,6 +984,11 @@ function showbuttons(detail, buttons)
 	$(buttons, ulbtn).parent().show();
 	
 	return;
+}
+
+function msg(o)
+{
+	$('div#msg').append(o+'<br>');
 }
 
 function dump(o)
