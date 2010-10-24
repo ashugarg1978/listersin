@@ -30,17 +30,18 @@ public class IndexAction extends ActionSupport {
 		DBCollection coll = new DBCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
+		BasicDBObject user  = new BasicDBObject();
 		
 		String email = "";
 		String password = "";
 		if (session.get("email") != null) {
 			query.put("email", session.get("email").toString());
-			BasicDBObject user = (BasicDBObject) coll.findOne(query);
+			user = (BasicDBObject) coll.findOne(query);
 		}
 		if (request.get("email") != null && request.get("password") != null) {
 			query.put("email",    session.get("email").toString());
 			query.put("password", session.get("password").toString());
-			BasicDBObject user = (BasicDBObject) coll.findOne(query);
+			user = (BasicDBObject) coll.findOne(query);
 		}
 		
 		if (email.equals("fd3s.boost@gmail.com")) {
