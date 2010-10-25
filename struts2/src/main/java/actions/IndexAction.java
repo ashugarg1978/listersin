@@ -20,14 +20,14 @@ public class IndexAction extends ActionSupport {
 	/* todo: session management in useraction json request */
 	
 	@Action(value="/", results={@Result(name="loggedin",location="user.jsp")})
-	public String execute() {
+	public String execute() throws Exception {
 		
 		ActionContext context = ActionContext.getContext();
 		Map request = context.getParameters();
 		Map session = context.getSession();
 		
 		DB db = new Mongo().getDB("ebay");
-		DBCollection coll = new DBCollection("users");
+		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject user  = new BasicDBObject();
@@ -37,18 +37,35 @@ public class IndexAction extends ActionSupport {
 		if (session.get("email") != null) {
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
+			
+			session.put("email", user.get("email").toString());
+			
+			return "loggedin";
 		}
 		if (request.get("email") != null && request.get("password") != null) {
-			query.put("email",    session.get("email").toString());
-			query.put("password", session.get("password").toString());
+			email    = ((String[]) request.get("email"))[0];
+			password = ((String[]) request.get("password"))[0];
+			
+			query.put("email", email);
+			//query.put("password", password);
 			user = (BasicDBObject) coll.findOne(query);
-		}
-		
-		if (email.equals("fd3s.boost@gmail.com")) {
+			
+			session.put("email", user.get("email").toString());
+			
 			return "loggedin";
 		}
 		
 		return SUCCESS;
 	}
 	
+	@Action(value="/logout", results={@Result(name="success",location="index.jsp")})
+	public String logout() {
+		
+		ActionContext context = ActionContext.getContext();
+		Map session = context.getSession();
+		
+		session.remove("email");
+		
+		return SUCCESS;
+	}
 }

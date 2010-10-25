@@ -33,14 +33,27 @@ public class UserAction extends ActionSupport {
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
-	public ActionContext context;
-	public Map request;
 	public static DB db;
 	
+	public ActionContext context;
+	public Map request;
+	public Map session;
+	
+	private BasicDBObject user;
+	
 	public UserAction() throws Exception {
+		
 		context = ActionContext.getContext();
 		request = (Map) context.getParameters();
+		session = (Map) context.getSession();
+		
 		db = new Mongo().getDB("ebay");
+		DBCollection coll = db.getCollection("user");
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", session.get("email").toString());
+		
+		user = (BasicDBObject) coll.findOne(query);
 	}
 	
 	private LinkedHashMap<String,Object> json;

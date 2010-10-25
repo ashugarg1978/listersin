@@ -28,7 +28,7 @@ ${json}
 
 <div style="font-size:11px; margin-right:10px;">
 <b>fd3s.boost@gmail.com</b><br>
-<div style="text-align:right;"><a href="/users/logout"><s:text name="signout"/></a></div>
+<div style="text-align:right;"><a href="/logout"><s:text name="signout"/></a></div>
 </div>
 
 <br>
