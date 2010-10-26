@@ -17,6 +17,12 @@ import com.opensymphony.xwork2.ActionSupport;
 
 public class IndexAction extends ActionSupport {
 	
+	public BasicDBObject user;
+
+	public BasicDBObject getUser() {
+		return user;
+	}
+	
 	/* todo: session management in useraction json request */
 	
 	@Action(value="/", results={@Result(name="loggedin",location="user.jsp")})
@@ -30,7 +36,7 @@ public class IndexAction extends ActionSupport {
 		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
-		BasicDBObject user  = new BasicDBObject();
+		user  = new BasicDBObject();
 		
 		String email = "";
 		String password = "";

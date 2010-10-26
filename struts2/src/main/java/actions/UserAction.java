@@ -48,8 +48,8 @@ public class UserAction extends ActionSupport {
 		session = (Map) context.getSession();
 		
 		db = new Mongo().getDB("ebay");
-		DBCollection coll = db.getCollection("user");
-
+		DBCollection coll = db.getCollection("users");
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", session.get("email").toString());
 		
@@ -196,25 +196,22 @@ public class UserAction extends ActionSupport {
 	@Action(value="/summary")
 	public String summary() throws Exception {
 		
+		json = new LinkedHashMap<String,Object>();
+		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
-		String[] userids = {"testuser_aichi",
-							"testuser_hal",
-							"testuser_chiba",
-							"testuser_tokyo",
-							"testuser_kanagawa"};
+		ArrayList<String> userids = new ArrayList<String>();
+		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
+			userids.add(userid.toString());
+		}
 		
-		//Mongo m = new Mongo();
-		//DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
-		
-		json = new LinkedHashMap<String,Object>();
 		
 		LinkedHashMap<String,Long> allsummary = new LinkedHashMap<String,Long>();
 		for (String k : selling.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query = selling.get(k);
-			query.put("UserID", new BasicDBObject("$in", userids));
+			query.put("UserID", new BasicDBObject("$in", ((String[]) userids.toArray())));
 			
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);
