@@ -21,7 +21,6 @@ ${json}
 
 <div id="container">
 
-<s:iterator value="(10).{ #this }">..<s:property/></s:iterator>
 
 <div id="loading"><s:text name="loading"/></div>
 
@@ -235,29 +234,34 @@ style="border:1px solid gray;"></iframe>
 </div>
 <div class="tab">
   <div class="pictures">
-
+	
 	<form method="post" action="/users/upload" target="posttarget" enctype="multipart/form-data">
 	<table>
 	<tr>
-	<?
-	for ($i=1; $i<=12; $i++) {
-		 echo '<td>';
-		 echo '<div class="picdiv">';
-		 echo '<img class="PictureDetails_PictureURL PD_PURL_'.$i.'" src="/img/noimage.jpg">';
-		 echo '</div>';
-		 echo '<input type="file" name="PD_PURL_'.$i.'" size="5">';
-		 echo '</td>';
-		 if ($i == 6) echo '</tr><tr>';
-	}
-	?>
+	  <s:iterator value="{1,2,3,4,5,6}">
+		<td>
+		  <div class="picdiv">
+			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
+		  </div>
+		  <input type="file" name="PD_PURL_<s:property />" size="5">
+		</td>
+	  </s:iterator>
+	</tr>
+	<tr>
+	  <s:iterator value="{7,8,9,10,11,12}">
+		<td>
+		  <div class="picdiv">
+			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
+		  </div>
+		  <input type="file" name="PD_PURL_<s:property />" size="5">
+		</td>
+	  </s:iterator>
 	</tr>
 	</table>
 	</form>
-	<?
-	for ($i=1; $i<=12; $i++) {
-		 echo '<input type="text" name="PictureDetails[PictureURL]['.$i.']" size="40"><br>';
-	}
-	?>
+	<s:iterator value="{1,2,3,4,5,6,7,8,9,10,11,12}">
+	  <input type="text" name="PictureDetails[PictureURL][<s:property />]" size="40"><br>
+	</s:iterator>
   </div>
 </div>
 <div class="tab">

@@ -193,6 +193,18 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	@Action(value="/save")
+	public String save() throws Exception {
+		
+		json = new LinkedHashMap<String,Object>();
+
+		BasicDBObject item = new BasicDBObject(request);
+		
+		json.put("item", item);
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/summary")
 	public String summary() throws Exception {
 		

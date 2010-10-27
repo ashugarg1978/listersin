@@ -18,7 +18,7 @@ $(document).bind({
 		setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		setInterval(refresh, 2000);
+		//setInterval(refresh, 2000);
 		
 		return;
 	}
@@ -709,10 +709,11 @@ function bindevents()
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
 		
-		$.post('/users/save/',
+		$.post('/save',
 			   'id='+id+'&'+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
+				   dump(data);
 				   getdetail(data);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
