@@ -25,9 +25,9 @@
 <div style="font-size:11px; margin-right:10px;">
 <form method="post" action="/">
 Email<br>
-<input type="text" name="email" size="20"><br>
+<input type="text" name="email" size="20" value="fd3s.boost@gmail.com"><br>
 Password<br>
-<input type="password" name="password" size="20"><br>
+<input type="text" name="password" size="20" value="lzF2p4"><br>
 <input type="submit" value="Login">
 </form>
 </div>

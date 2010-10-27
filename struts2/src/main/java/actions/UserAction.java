@@ -211,7 +211,7 @@ public class UserAction extends ActionSupport {
 		for (String k : selling.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query = selling.get(k);
-			query.put("UserID", new BasicDBObject("$in", ((String[]) userids.toArray())));
+			query.put("UserID", new BasicDBObject("$in", userids));
 			
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);

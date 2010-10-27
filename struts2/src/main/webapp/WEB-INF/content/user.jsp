@@ -21,6 +21,8 @@ ${json}
 
 <div id="container">
 
+<s:iterator value="(10).{ #this }">..<s:property/></s:iterator>
+
 <div id="loading"><s:text name="loading"/></div>
 
 <div id="toolbar">
@@ -108,6 +110,9 @@ style="border:1px solid gray;"></iframe>
 <td>
 	<select name="UserID" onchange="filter();">
 	<option value="">User ID</option>
+	<s:iterator value="user.userids.keySet">
+	<option><s:property /></option>
+	</s:iterator>
 	</select>
 </td>
 <td><input type="text" name="ItemID" size="6"></td>
@@ -233,7 +238,8 @@ style="border:1px solid gray;"></iframe>
 
 	<form method="post" action="/users/upload" target="posttarget" enctype="multipart/form-data">
 	<table>
-	<tr><?
+	<tr>
+	<?
 	for ($i=1; $i<=12; $i++) {
 		 echo '<td>';
 		 echo '<div class="picdiv">';
@@ -243,7 +249,8 @@ style="border:1px solid gray;"></iframe>
 		 echo '</td>';
 		 if ($i == 6) echo '</tr><tr>';
 	}
-	?></tr>
+	?>
+	</tr>
 	</table>
 	</form>
 	<?
