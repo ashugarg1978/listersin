@@ -197,8 +197,21 @@ public class UserAction extends ActionSupport {
 	public String save() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
-
+		
+		DBCollection coll = db.getCollection("items");
+		
 		BasicDBObject item = new BasicDBObject(request);
+		
+		String id = ((String[]) request.get("id"))[0];
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(id));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", item);
+		
+		coll.update(query, update);
+		
+		item = (BasicDBObject) coll.findOne(query);
 		
 		json.put("item", item);
 		

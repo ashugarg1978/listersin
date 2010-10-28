@@ -29,6 +29,8 @@ function autoclick()
 {
 	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 	
+	if (id == 'rowtemplate') return;
+	
 	$('a.Title', 'tbody#'+id).click();
 	//setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
 	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
@@ -708,6 +710,7 @@ function bindevents()
 		
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).serialize();
+		alert(postdata);
 		
 		$.post('/save',
 			   'id='+id+'&'+postdata,
