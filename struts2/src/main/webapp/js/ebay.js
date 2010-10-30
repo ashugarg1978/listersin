@@ -2,6 +2,26 @@
 var rowsdata = new Array();
 var hash;
 
+/* 
+http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-object-with-inner-objects 
+*/
+$.fn.extractObject = function() {
+	var accum = {};
+	function add(accum, namev, value) {
+		if (namev.length == 1)
+			accum[namev[0]] = value;
+		else {
+			if (accum[namev[0]] == null)
+				accum[namev[0]] = {};
+			add(accum[namev[0]], namev.slice(1), value);
+		}
+	}; 
+	this.each(function() {
+		add(accum, $(this).attr('name').split('.'), $(this).val());
+	});
+	return accum;
+};
+
 
 /* initialize */
 $(document).bind({
@@ -709,11 +729,12 @@ function bindevents()
 		});
 		
 		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
-					 $(this).closest('div.detail')).serialize();
-		alert(postdata);
+					 $(this).closest('div.detail')).extractObject();
+		
+		postdata = JSON.stringify(postdata);
 		
 		$.post('/save',
-			   'id='+id+'&'+postdata,
+			   'id='+id+'&json='+postdata,
 			   function(data) {
 				   rowsdata[id] = data;
 				   dump(data);

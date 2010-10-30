@@ -13,14 +13,10 @@
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
-
 </head>
 <body>
 
-${json}
-
 <div id="container">
-
 
 <div id="loading"><s:text name="loading"/></div>
 
@@ -272,7 +268,7 @@ style="border:1px solid gray;"></iframe>
 		  <td><s:text name="Shipping type"/></td>
 		  <td class="shippingtype_domestic">
 	 
-			<select name="'ShippingDetails.ShippingType.domestic'">
+			<select name="ShippingDetails.ShippingType.domestic">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="Freight">Freight: large items over 150 lbs.</option>
@@ -307,23 +303,23 @@ style="border:1px solid gray;"></iframe>
 		  <td class="shippingservice">
 			
 			<div class="ShippingService">
-			<select name="ShippingService[1]" class="ShippingService"></select>
+			<select name="ShippingService.1" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="'ShippingCost.1'" type="text" size="5">
+			<input name="ShippingCost.1" type="text" size="5">
 			<input name="ShippingFree" value="1" type="checkbox">Free shipping
 			</div>
 			
 			<div class="ShippingService">
-			<select name="ShippingService[2]" class="ShippingService"></select>
+			<select name="ShippingService.2" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="'ShippingCost.2'" type="text" size="5">
+			<input name="ShippingCost.2" type="text" size="5">
 			<a href="" class="ShippingService2">Remove service</a>
 			</div>
 			
 			<div class="ShippingService">
-			<select name="ShippingService[3]" class="ShippingService"></select>
+			<select name="ShippingService.3" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="'ShippingCost(3)'" type="text" size="5">
+			<input name="ShippingCost.3" type="text" size="5">
 			<a href="" class="ShippingService3">Remove service</a>
 			</div>
 			
@@ -343,7 +339,7 @@ style="border:1px solid gray;"></iframe>
 		  <td><s:text name="Shipping type"/></td>
 		  <td class="shippingtype_international">
 		  	
-			<select name="'ShippingDetails.ShippingType.international'">
+			<select name="ShippingDetails.ShippingType.international">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="NoShipping">No international shipping</option>

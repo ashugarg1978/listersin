@@ -67,11 +67,8 @@ public class GetSellerList extends ApiCall implements Callable {
 			update.put("$set", dbobject);
 			
 			/* insert into mongodb */
-			try {
-				coll.update(query, update, true, true);
-			} catch (Exception e) {
-				System.out.println(e.toString());
-			}
+			coll.findAndRemove(query);
+			coll.update(query, update, true, true);
 		}
 		
 		return responsedbo;
