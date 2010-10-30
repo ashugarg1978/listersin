@@ -198,17 +198,18 @@ public class UserAction extends ActionSupport {
 		
 		json = new LinkedHashMap<String,Object>();
 		
-		DBCollection coll = db.getCollection("items");
+		String id   = ((String[]) request.get("id"))[0];
+		String form = ((String[]) request.get("json"))[0];
 		
-		BasicDBObject item = new BasicDBObject(request);
+		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		
-		String id = ((String[]) request.get("id"))[0];
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);
 		
+		DBCollection coll = db.getCollection("items");
 		coll.update(query, update);
 		
 		item = (BasicDBObject) coll.findOne(query);
