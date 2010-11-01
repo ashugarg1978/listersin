@@ -620,12 +620,11 @@ function bindevents()
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		//dump(item);
 		
-		$('input[name=Title]',      dom).val(item.Title);
-		$('input[name=SubTitle]',   dom).val(item.SubTitle);
+		$('input[name=Title]',            dom).val(item.Title);
+		$('input[name=SubTitle]',         dom).val(item.SubTitle);
 		$('input[name=StartPrice.#text]', dom).val(item.StartPrice['#text']);
-		$('input[name=Quantity]',   dom).val(item.Quantity);
-		
-		$('select[name=Site]',      dom).val(item.Site);
+		$('input[name=Quantity]',         dom).val(item.Quantity);
+		$('select[name=Site]',            dom).val(item.Site);
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
