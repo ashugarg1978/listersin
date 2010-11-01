@@ -242,9 +242,9 @@ function getdetail(row)
 	detail = $('div.detail', '#'+id);
     
 	$('input[name=Title]',    detail).replaceWith(row.Title);
-	$('input[name=Subtitle]', detail).replaceWith(row.SubTitle);
+	$('input[name=SubTitle]', detail).replaceWith(row.SubTitle);
 	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
-	$('input[name=StartPrice]', detail).replaceWith(row.StartPrice['#text']);
+	$('input[name=StartPrice.#text]', detail).replaceWith(row.StartPrice['#text']);
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -622,7 +622,7 @@ function bindevents()
 		
 		$('input[name=Title]',      dom).val(item.Title);
 		$('input[name=SubTitle]',   dom).val(item.SubTitle);
-		$('input[name=StartPrice]', dom).val(item.StartPrice['#text']);
+		$('input[name=StartPrice.#text]', dom).val(item.StartPrice['#text']);
 		$('input[name=Quantity]',   dom).val(item.Quantity);
 		
 		$('select[name=Site]',      dom).val(item.Site);

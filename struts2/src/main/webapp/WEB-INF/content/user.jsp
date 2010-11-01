@@ -192,7 +192,7 @@ style="border:1px solid gray;"></iframe>
 	</tr>
 	<tr>
 	  <td><s:text name="Start Price"/></td>
-	  <td><input name="StartPrice" type="text" size="10"></td>
+	  <td><input name="StartPrice.#text" type="text" size="10"></td>
 	</tr>
 	<tr>
 	  <td><s:text name="Quantity"/></td>
@@ -256,7 +256,7 @@ style="border:1px solid gray;"></iframe>
 	</table>
 	</form>
 	<s:iterator value="{1,2,3,4,5,6,7,8,9,10,11,12}">
-	  <input type="text" name="PictureDetails[PictureURL][<s:property />]" size="40"><br>
+	  <input type="text" name="PictureDetails.PictureURL.<s:property />" size="40"><br>
 	</s:iterator>
   </div>
 </div>
@@ -281,15 +281,15 @@ style="border:1px solid gray;"></iframe>
 		  <td><s:text name="Package type"/></td>
 		  <td class="shippingpackage">
 		  	<select name="ShippingPackage"></select>
-			<input name="" type="checkbox">Irregular package
+			<input name="x" type="checkbox">Irregular package
 		  </td>
 		</tr>
 		<tr>
 		  <td><s:text name="Dimensions"/></td>
 		  <td class="dimensions">
-			<input name="" type="text" size="3">in. x
-			<input name="" type="text" size="3">in. x
-			<input name="" type="text" size="3">in.
+			<input name="x" type="text" size="3">in. x
+			<input name="y" type="text" size="3">in. x
+			<input name="z" type="text" size="3">in.
 		  </td>
 		</tr>
 		<tr>
