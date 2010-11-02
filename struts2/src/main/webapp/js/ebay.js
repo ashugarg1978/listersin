@@ -9,6 +9,7 @@ $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
 		if (namev.length == 1)
+			if (namev[0] == '') return;
 			accum[namev[0]] = value;
 		else {
 			if (accum[namev[0]] == null)
@@ -735,9 +736,9 @@ function bindevents()
 		$.post('/save',
 			   'id='+id+'&json='+postdata,
 			   function(data) {
-				   rowsdata[id] = data;
-				   dump(data);
-				   getdetail(data);
+				   rowsdata[id] = data.json.item;
+				   dump(data.json);
+				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
 			   'json');

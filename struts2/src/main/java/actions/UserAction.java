@@ -25,6 +25,8 @@ import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
+import com.mongodb.WriteResult;
+
 import org.bson.types.ObjectId;
 
 @ParentPackage("json-default")
@@ -208,11 +210,14 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);
+		json.put("update", item);
 		
 		DBCollection coll = db.getCollection("items");
-		coll.update(query, update);
+		WriteResult res = coll.update(query, update);
+		json.put("res", res.toString());
 		
 		item = (BasicDBObject) coll.findOne(query);
+		item.put("id", item.get("_id").toString());
 		
 		json.put("item", item);
 		
