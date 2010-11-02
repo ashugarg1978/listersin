@@ -8,10 +8,10 @@ http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-
 $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
-		if (namev.length == 1)
+		if (namev.length == 1) {
 			if (namev[0] == '') return;
 			accum[namev[0]] = value;
-		else {
+		} else {
 			if (accum[namev[0]] == null)
 				accum[namev[0]] = {};
 			add(accum[namev[0]], namev.slice(1), value);
