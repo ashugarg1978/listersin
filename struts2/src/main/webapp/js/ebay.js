@@ -583,7 +583,7 @@ function bindevents()
 			$.post('/item',
 				   'id='+id,
 				   function(data) {
-					   //dump(data.json.item);
+					   dump(data.json.item);
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   

@@ -189,6 +189,8 @@ public class UserAction extends ActionSupport {
 		List path = categorypath(item.getString("Site"), categoryid);
 		item.put("categorypath", path);
 		
+		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
+		item.put("categorypath2", path2);
 		
 		json.put("item", item);
 		
@@ -309,6 +311,25 @@ public class UserAction extends ActionSupport {
 		selling.put("trash",     trash);
 		
 		return selling;
+	}
+	
+	private LinkedHashMap<Integer,String> categorypath2(String site, Integer categoryid) {
+		
+		LinkedHashMap<Integer,String> path = new LinkedHashMap<Integer,String>();
+		BasicDBObject query = new BasicDBObject();
+		DBCollection coll = db.getCollection("Categories_"+site);
+		
+		while (true) {
+			query.put("CategoryID", categoryid.toString());
+			BasicDBObject row = (BasicDBObject) coll.findOne(query);
+			path.put(Integer.parseInt(row.getString("CategoryID")),
+					 row.getString("CategoryName"));
+			
+			if (row.getString("CategoryLevel").equals("1")) break;
+			categoryid = Integer.parseInt(row.getString("CategoryParentID"));
+		}
+		
+		return path;
 	}
 	
 	private ArrayList categorypath(String site, Integer categoryid) {
