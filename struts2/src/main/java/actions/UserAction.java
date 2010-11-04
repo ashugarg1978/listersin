@@ -1,23 +1,7 @@
 package ebaytool.actions;
 
-import java.util.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import javax.net.ssl.HttpsURLConnection;
-
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
-
-import org.apache.struts2.convention.annotation.Action;
-import org.apache.struts2.convention.annotation.Result;
-import org.apache.struts2.convention.annotation.Results;
-import org.apache.struts2.convention.annotation.ParentPackage;
-
-import org.apache.log4j.Logger;
 
 import com.mongodb.Mongo;
 import com.mongodb.DB;
@@ -27,6 +11,21 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.WriteResult;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import javax.net.ssl.HttpsURLConnection;
+
+import org.apache.log4j.Logger;
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Actions;
+import org.apache.struts2.convention.annotation.ParentPackage;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
 import org.bson.types.ObjectId;
 
 @ParentPackage("json-default")
@@ -166,7 +165,10 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	@Action(value="/item")
+	@Actions({
+		@Action(value="/item"),
+		@Action(value="/save-item")
+	})
 	public String item() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
@@ -190,7 +192,15 @@ public class UserAction extends ActionSupport {
 		item.put("categorypath", path);
 		
 		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
+		
+		String categoryname = "";
+		for (Integer cid : path2.keySet()) {
+			if (!categoryname.equals("")) categoryname += " > ";
+			categoryname += path2.get(cid);
+		}
+		
 		item.put("categorypath2", path2);
+		item.put("categoryname", categoryname);
 		
 		json.put("item", item);
 		
@@ -207,6 +217,18 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		
+		/* CategoryName */
+		Integer categoryid =
+			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+		LinkedHashMap<Integer,String> categorypath =
+			categorypath2(item.getString("Site"), categoryid);
+		String categoryname = "";
+		for (Integer cid : categorypath.keySet()) {
+			if (!categoryname.equals("")) categoryname += ":";
+			categoryname += categorypath.get(cid);
+		}
+		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryName", categoryname);
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
@@ -214,16 +236,8 @@ public class UserAction extends ActionSupport {
 		update.put("$set", item);
 		json.put("update", item);
 		
-		DBCollection coll = db.getCollection("items");
-		WriteResult res = coll.update(query, update);
-		json.put("res", res.toString());
-		
-		item = (BasicDBObject) coll.findOne(query);
-		item.put("id", item.get("_id").toString());
-		
-		json.put("item", item);
-		
-		return SUCCESS;
+		/* chaining action to item() */
+		return "item";
 	}
 	
 	@Action(value="/summary")
@@ -316,20 +330,29 @@ public class UserAction extends ActionSupport {
 	private LinkedHashMap<Integer,String> categorypath2(String site, Integer categoryid) {
 		
 		LinkedHashMap<Integer,String> path = new LinkedHashMap<Integer,String>();
+		LinkedHashMap<Integer,String> pathtmp = new LinkedHashMap<Integer,String>();
+		ArrayList<Integer> cidtmp = new ArrayList<Integer>();
+		
 		BasicDBObject query = new BasicDBObject();
 		DBCollection coll = db.getCollection("Categories_"+site);
 		
 		while (true) {
 			query.put("CategoryID", categoryid.toString());
 			BasicDBObject row = (BasicDBObject) coll.findOne(query);
+			
 			path.put(Integer.parseInt(row.getString("CategoryID")),
 					 row.getString("CategoryName"));
+			cidtmp.add(0, Integer.parseInt(row.getString("CategoryID")));
 			
 			if (row.getString("CategoryLevel").equals("1")) break;
 			categoryid = Integer.parseInt(row.getString("CategoryParentID"));
 		}
+
+		for (Integer cid : cidtmp) {
+			pathtmp.put(cid, path.get(cid));
+		}
 		
-		return path;
+		return pathtmp;
 	}
 	
 	private ArrayList categorypath(String site, Integer categoryid) {
