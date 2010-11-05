@@ -231,7 +231,7 @@ style="border:1px solid gray;"></iframe>
 <div class="tab">
   <div class="pictures">
 	
-	<form method="post" action="/users/upload" target="posttarget" enctype="multipart/form-data">
+	<form method="post" action="/upload" target="posttarget" enctype="multipart/form-data">
 	<table>
 	<tr>
 	  <s:iterator value="{1,2,3,4,5,6}">

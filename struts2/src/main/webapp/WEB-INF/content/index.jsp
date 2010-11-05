@@ -59,5 +59,11 @@ echo $form->end('Register');
 
 </div>
 
+<script language="javascript">
+<!--
+document.form[0].submit();
+-->
+</script>
+
 </body>
 </html>

@@ -1,11 +1,5 @@
 package ebaytool.actions;
 
-import java.util.Map;
-
-import org.apache.struts2.convention.annotation.Action;
-import org.apache.struts2.convention.annotation.Result;
-import org.apache.struts2.convention.annotation.Results;
-
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -14,6 +8,13 @@ import com.mongodb.DBObject;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
+
+import java.io.File;
+import java.util.Map;
+
+import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.Result;
+import org.apache.struts2.convention.annotation.Results;
 
 public class IndexAction extends ActionSupport {
 	
@@ -74,4 +75,5 @@ public class IndexAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
+	
 }
