@@ -239,7 +239,7 @@ style="border:1px solid gray;"></iframe>
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
 		  </div>
-		  <input type="file" name="PD_PURL_<s:property />" size="5">
+		  <input type="file" name="<s:property />" size="5">
 		</td>
 	  </s:iterator>
 	</tr>
@@ -249,7 +249,7 @@ style="border:1px solid gray;"></iframe>
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
 		  </div>
-		  <input type="file" name="PD_PURL_<s:property />" size="5">
+		  <input type="file" name="<s:property />" size="5">
 		</td>
 	  </s:iterator>
 	</tr>

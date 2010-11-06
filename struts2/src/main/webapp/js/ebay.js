@@ -496,8 +496,21 @@ function bindevents()
 	
 	/* Picture */
     $('input:file').live('change', function() {
+
+		id = $(this).closest('tbody.itemrow').attr('id');
+		idform = $('<input>').attr('name', 'id').val(id);
+		$(this).closest('form').append(idform);
+		
+		fileindex = $(this).attr('name');
+		fileindexform = $('<input>').attr('name', 'fileindex').val(fileindex);
+		$(this).closest('form').append(fileindexform);
+		
+		$(this).attr('name', 'uploadfile')
 		$(this).closest('form').submit();
 		$(this).closest('form')[0].reset();
+		
+		$(fileindexform).remove();
+		$(idform).remove();
     });
     
 	/* Site */

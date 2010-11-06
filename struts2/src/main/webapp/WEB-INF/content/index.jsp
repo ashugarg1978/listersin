@@ -61,7 +61,7 @@ echo $form->end('Register');
 
 <script language="javascript">
 <!--
-document.form[0].submit();
+document.forms[0].submit();
 -->
 </script>
 

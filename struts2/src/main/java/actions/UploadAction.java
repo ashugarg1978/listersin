@@ -16,10 +16,16 @@ import org.apache.commons.io.FileUtils;
 
 public class UploadAction extends ActionSupport {
 	
-	private File PD_PURL_1;
+	private File uploadfile;
+	private String savedfilename;
 	
 	@Action(value="/upload", results={@Result(name="success",location="uploaded.jsp")})
 	public String upload() throws Exception {
+		
+		ActionContext context = ActionContext.getContext();
+		Map request = (Map) context.getParameters();
+		String fileindex = ((String[]) request.get("fileindex"))[0];
+		String id = ((String[]) request.get("id"))[0];
 		
 		String basedir = "/usr/local/apache-tomcat-7.0.2/webapps/ROOT";
 		//ActionContext context = ActionContext.getContext();
@@ -27,21 +33,22 @@ public class UploadAction extends ActionSupport {
 		
 		//upload = new File(sc.getRealPath("/WEB-INF/itemimage"));
 		
-		File savefile = new File(basedir + "/");
-		
+		savedfilename = id+"_"+fileindex+".jpg";
+		File savefile = new File(basedir + "/itemimage/" + savedfilename);
+		FileUtils.copyFile(uploadfile, savefile);
 		
 		return SUCCESS;
 	}
 	
-	public File getPD_PURL_1() {
-		return PD_PURL_1;
+	public File getUploadfile() {
+		return uploadfile;
 	}
 	
-	public void setPD_PURL_1(File uploadedfile) {
-		this.PD_PURL_1 = uploadedfile;
+	public void setUploadfile(File uploadedfile) {
+		this.uploadfile = uploadedfile;
 	}
 	
-	public File getUpload() {
-		return upload;
+	public String getSavedfilename() {
+		return savedfilename;
 	}
 }

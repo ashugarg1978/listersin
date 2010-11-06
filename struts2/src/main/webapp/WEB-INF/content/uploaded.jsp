@@ -7,9 +7,11 @@
 </head>
 <body>
 
-file<br>
+<nobr>
+[${uploadfile}]<br>
+[${savedfilename}]<br>
 [${upload}]<br>
-[${PD_PURL_1}]
+</nobr>
 
 </body>
 </html>
