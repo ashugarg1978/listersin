@@ -4,13 +4,18 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script language="javascript">
+<!--
+window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = 'http://localhost:8080/itemimage/${savedfilename}';
+//-->
+</script>
 </head>
-<body>
+<body style="font-size:10px;">
 
 <nobr>
-[${uploadfile}]<br>
-[${savedfilename}]<br>
-[${upload}]<br>
+<s:property value="%{#parameters.id}"/><br>
+<s:property value="%{#parameters.fileindex}"/><br>
+${savedfilename}<br>
 </nobr>
 
 </body>

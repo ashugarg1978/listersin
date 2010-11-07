@@ -648,6 +648,11 @@ function bindevents()
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
 		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
+		/* pictures */
+		for (i=1; i<=12; i++) {
+			$('img.PD_PURL_'+i, dom).attr('id', 'PD_PURL_'+id+'_'+i);
+		}
+		
 		return false;
 		
 		/* pictures */
