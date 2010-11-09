@@ -234,7 +234,7 @@ style="border:1px solid gray;"></iframe>
 	<form method="post" action="/upload" target="posttarget" enctype="multipart/form-data">
 	<table>
 	<tr>
-	  <s:iterator value="{1,2,3,4,5,6}">
+	  <s:iterator value="{0,1,2,3,4,5}">
 		<td>
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
@@ -244,7 +244,7 @@ style="border:1px solid gray;"></iframe>
 	  </s:iterator>
 	</tr>
 	<tr>
-	  <s:iterator value="{7,8,9,10,11,12}">
+	  <s:iterator value="{6,7,8,9,10,11}">
 		<td>
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
@@ -255,7 +255,7 @@ style="border:1px solid gray;"></iframe>
 	</tr>
 	</table>
 	</form>
-	<s:iterator value="{1,2,3,4,5,6,7,8,9,10,11,12}">
+	<s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
 	  <input type="text" name="PictureDetails.PictureURL.<s:property />" size="40"><br>
 	</s:iterator>
   </div>

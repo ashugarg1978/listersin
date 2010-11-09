@@ -234,10 +234,25 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);
+		
+		DBCollection coll = db.getCollection("items");
+		WriteResult result = coll.update(query, update);
+		
+		json.put("result", result);
 		json.put("update", item);
 		
-		/* chaining action to item() */
-		return "item";
+		if (true) {
+			return SUCCESS;
+		} else {
+			/* chaining action to item() */
+			return "item";
+		}
+	}
+	
+	@Action(value="/copy")
+	public String copy() throws Exception {
+		
+		return SUCCESS;
 	}
 	
 	@Action(value="/summary")

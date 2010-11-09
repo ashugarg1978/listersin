@@ -266,6 +266,16 @@ function getdetail(row)
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
+	/* pictures */
+	if (typeof(row.PictureDetails.PictureURL) == 'string') {
+		$('img.PD_PURL_0', detail).attr('src', row.PictureDetails.PictureURL);
+	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
+		$.each(row.PictureDetails.PictureURL, function(i, url) {
+			if (url == '') return;
+			$('img.PD_PURL_'+i, detail).attr('src', url);
+		});
+	}
+	
 	return;
 	
 	if (row.shippingtype) {
@@ -319,15 +329,6 @@ function getdetail(row)
 	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
 	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
-	/* pictures */
-	if (typeof(row.PictureDetails.PictureURL) == 'string') {
-		$('img.PD_PURL_1', detail).attr('src', row.PictureDetails.PictureURL);
-	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
-		$.each(row.PictureDetails.PictureURL, function(i, url) {
-			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
-		});
-	}
-	
 	
 
 	/* preserve selected tab */
@@ -341,7 +342,7 @@ function getdetail(row)
 	
 	if (row['PictureDetails_PictureURL']) {
 		$.each(row['PictureDetails_PictureURL'], function(i, url) {
-			$('img.PD_PURL_'+(i+1), detail).attr('src', url);
+			$('img.PD_PURL_'+i, detail).attr('src', url);
 		});
 	}
 	
@@ -455,8 +456,9 @@ function bindevents()
 			$(this).css('visibility', 'hidden');
 			$(this).parent().addClass('loading');
 		});
+		alert(postdata);
 		
-		$.post('/users/'+action+'/',
+		$.post('/'+action,
 			   postdata,
 			   function(data) {
 				   if (action == 'copy' || action == 'delete') {
@@ -649,26 +651,27 @@ function bindevents()
 		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
 		/* pictures */
-		for (i=1; i<=12; i++) {
+		for (i=0; i<=11; i++) {
 			$('img.PD_PURL_'+i, dom).attr('id', 'PD_PURL_'+id+'_'+i);
 		}
+		if (typeof(item.PictureDetails.PictureURL) == 'string') {
+			$('img.PD_PURL_0', dom).attr('src', item.PictureDetails.PictureURL);
+			$('input[name=PictureDetails.PictureURL.0]', dom).val(item.PictureDetails.PictureURL);
+		} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
+			$.each(item.PictureDetails.PictureURL, function(i, url) {
+				if (url == '') return;
+				$('img.PD_PURL_'+i, dom).attr('src', url);
+				$('input[name=PictureDetails.PictureURL.'+i+']', dom).val(url);
+			});
+		} 
 		
 		return false;
 		
 		/* pictures */
-		if (typeof(item.PictureDetails.PictureURL) == 'string') {
-			$('img.PD_PURL_1', dom).attr('src', item.PictureDetails.PictureURL);
-		} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
-			$.each(item.PictureDetails.PictureURL, function(i, url) {
-				$('img.PD_PURL_'+(i+1), dom).attr('src', url);
-			});
-		} 
-		for (i=1; i<=12; i++) {
+		for (i=0; i<=11; i++) {
 			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
 			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
 		}
-		
-		
 		
 		site = rowsdata[id]['Site'];
 		categoryid = rowsdata[id]['PrimaryCategory_CategoryID'];
@@ -888,8 +891,9 @@ function copyitems()
 {
 	var postdata = "";
 	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
+	alert(postdata);
 	
-	$.post('/users/copy/',
+	$.post('/copy',
 		   postdata,
 		   function(data) {
 			   $("td.loading").removeClass('loading');
