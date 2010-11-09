@@ -44,8 +44,8 @@ public class ThreadPool {
 		
 		//threadpool.getCategories();
 		//threadpool.geteBayDetails();
-		threadpool.getSellerLists();
-		//threadpool.addItems();
+		//threadpool.getSellerLists();
+		threadpool.addItems();
 		
 		threadpool.shutdown();
 		
@@ -94,14 +94,16 @@ public class ThreadPool {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("SellingStatus.ListingStatus", "Completed");
-		query.put("Site", "Canada");
+		query.put("UserID", "testuser_hal");
 		
 		DBCollection coll = db.getCollection("items");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query);
+		DBCursor cur = coll.find(query).limit(30);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
+			
+			/* todo: remove more fields */
 			item.removeField("_id");
 			
 			userid = item.get("UserID").toString();

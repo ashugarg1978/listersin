@@ -251,6 +251,19 @@ public class UserAction extends ActionSupport {
 	
 	@Action(value="/copy")
 	public String copy() throws Exception {
+
+		json = new LinkedHashMap<String,Object>();
+		
+		String[] ids = (String[]) request.get("id");
+		
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBObject query = new BasicDBObject();
+		
+		
+		BasicDBObject field = new BasicDBObject();
+		field.put("ItemID", -1);
+		
 		
 		return SUCCESS;
 	}
