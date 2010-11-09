@@ -439,20 +439,20 @@ function bindevents()
 		action = $(this).attr('class');
 		
 		if (action == 'checkall') {
-			$("input[name='id[]'][value!=on]").attr('checked', 'checked');
+			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			return;
 		} else if (action == 'checkallpage') {
-			$("input[name='id[]'][value!=on]").attr('checked', 'checked');
+			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			return;
 		} else if (action == 'uncheckall') {
-			$("input[name='id[]'][value!=on]").attr('checked', '');
+			$("input[name='id'][value!=on]").attr('checked', '');
 			return;
 		}
 		
 		var postdata = "";
-		postdata = $("input[name='id[]'][value!=on]:checked").serialize();
+		postdata = $("input[name='id'][value!=on]:checked").serialize();
 		
-		$("input[name='id[]']:checked").each(function() {
+		$("input[name='id']:checked").each(function() {
 			$(this).css('visibility', 'hidden');
 			$(this).parent().addClass('loading');
 		});
@@ -463,7 +463,7 @@ function bindevents()
 			   function(data) {
 				   if (action == 'copy' || action == 'delete') {
 					   $("td.loading").removeClass('loading');
-					   $("input[name='id[]'][value!=on]:checked")
+					   $("input[name='id'][value!=on]:checked")
 						   .css('visibility', '')
 						   .attr('checked', '');
 				   }

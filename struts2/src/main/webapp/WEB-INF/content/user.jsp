@@ -118,7 +118,7 @@ style="border:1px solid gray;"></iframe>
 
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
-	<td><input type="checkbox" name="id[]"></td>
+	<td><input type="checkbox" name="id"></td>
 	<td><div style="min-width:100px; overflow:hidden; white-space:nowrap;"><a href="" class="Title"></a></div></td>
 	<td class="UserID"></td>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
