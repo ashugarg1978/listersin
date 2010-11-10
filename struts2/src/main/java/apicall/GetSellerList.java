@@ -52,7 +52,13 @@ public class GetSellerList extends ApiCall implements Callable {
 			return responsedbo;
 		}
 		
-		JSONArray jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
+		// todo : aware whether count is 1.
+		JSONArray jsonarr = null;
+		if (rica == 1) {
+			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
+		} else {
+			jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
+		}
 		for (Object item : jsonarr) {
 			
 			/* convert JSON to DBObject */

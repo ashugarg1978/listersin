@@ -60,8 +60,6 @@ public class ApiCall {
 	
 	public String convertDBObject2XML(DBObject dbobject) {
 		
-		System.out.println(this.getClass());
-		
 		JSONObject jso = JSONObject.fromObject(dbobject.toString());
 		XMLSerializer xmls = new XMLSerializer();
 		xmls.setObjectName("GetSellerListRequest");
