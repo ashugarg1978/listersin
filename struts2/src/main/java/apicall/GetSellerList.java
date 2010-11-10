@@ -1,4 +1,4 @@
-package ebaytool;
+package ebaytool.apicall;
 
 import com.mongodb.Mongo;
 import com.mongodb.DB;
@@ -8,7 +8,7 @@ import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.util.*;
 
-import ebaytool.ApiCall;
+import ebaytool.apicall.ApiCall;
 
 import java.io.*;
 import java.net.URL;

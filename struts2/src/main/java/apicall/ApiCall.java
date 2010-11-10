@@ -1,4 +1,4 @@
-package ebaytool;
+package ebaytool.apicall;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -20,7 +20,7 @@ public class ApiCall {
 		
 		if (siteid == 100) siteid = 0;
 		
-		String callname = this.getClass().toString().replace("class ebaytool.", "");
+		String callname = this.getClass().toString().replace("class ebaytool.apicall.", "");
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -31,7 +31,7 @@ public class ApiCall {
 		
 		/* http request header */
         conn.setRequestProperty("Content-Type", "text/xml");
-        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "691");
+        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "695");
         conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
         conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
         conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");

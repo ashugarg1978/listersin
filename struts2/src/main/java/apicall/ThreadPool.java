@@ -1,4 +1,4 @@
-package ebaytool;
+package ebaytool.apicall;
 
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -19,10 +19,10 @@ import net.sf.json.xml.XMLSerializer;
 import java.util.concurrent.*;
 import java.util.*;
 
-import ebaytool.AddItems;
-import ebaytool.GeteBayDetails;
-import ebaytool.GetSellerList;
-import ebaytool.GetCategories;
+import ebaytool.apicall.AddItems;
+import ebaytool.apicall.GeteBayDetails;
+import ebaytool.apicall.GetSellerList;
+import ebaytool.apicall.GetCategories;
 
 public class ThreadPool {
 	
@@ -40,12 +40,21 @@ public class ThreadPool {
 	
     public static void main(String[] args) throws Exception {
 		
+		String action = args[0];
+		
 		ThreadPool threadpool = new ThreadPool();
 		
-		//threadpool.getCategories();
-		//threadpool.geteBayDetails();
-		//threadpool.getSellerLists();
-		threadpool.addItems();
+		if (action.equals("getCategories")) {
+			threadpool.getCategories();
+		} else if (action.equals("geteBayDetails")) {
+			threadpool.geteBayDetails();
+		} else if (action.equals("getSellerLists")) {
+			threadpool.getSellerLists();
+		} else if (action.equals("addItems")) {
+			threadpool.addItems();
+		} else {
+			System.out.println("no action defined. stop.");
+		}
 		
 		threadpool.shutdown();
 		
@@ -91,15 +100,16 @@ public class ThreadPool {
 		
 		String userid;
 		String site;
+		HashMap<String,String> tokenmap = getUserIdToken();
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Completed");
-		query.put("UserID", "testuser_hal");
+		query.put("SellingStatus.ListingStatus", "Active");
+		//query.put("UserID", "testuser_hal");
 		
 		DBCollection coll = db.getCollection("items");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query).limit(30);
+		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			
@@ -138,7 +148,7 @@ public class ThreadPool {
 					BasicDBObject requestdbo = new BasicDBObject();
 					requestdbo.append("WarningLevel", "High");
 					requestdbo.append("RequesterCredentials",
-									  new BasicDBObject("eBayAuthToken", token));
+									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
 					int messageid = 0;
 					List<DBObject> ldbo = new ArrayList<DBObject>();
@@ -194,13 +204,13 @@ public class ThreadPool {
 		for (Object userid : userids.keySet()) {
 			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
 			String token = json.get("ebaytkn").toString();
-			getSellerList(token);
+			getSellerList(userid.toString(), token);
 		}
 		
 		return;
 	}
 	
-	private void getSellerList(String token) throws Exception {
+	private void getSellerList(String userid, String token) throws Exception {
 		
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("DetailLevel", "ReturnAll");
@@ -216,7 +226,7 @@ public class ThreadPool {
 		
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
 									 .get("TotalNumberOfPages").toString());
-		System.out.println("TotalNumberOfPages : "+pages);
+		System.out.println(userid+" : total "+pages+" page(s).");
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
@@ -226,4 +236,23 @@ public class ThreadPool {
 		return;
 	}
 	
+	private HashMap<String,String> getUserIdToken() throws Exception {
+		
+		HashMap<String,String> hm = new HashMap<String,String>();
+		
+		DBCursor cur = db.getCollection("users").find();
+		while (cur.hasNext()) {
+			DBObject user = cur.next();
+			
+			for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
+				String ebaytkn = 
+					((BasicDBObject) ((BasicDBObject) user.get("userids")).get(userid.toString())).get("ebaytkn").toString();
+				
+				hm.put(userid.toString(), ebaytkn);
+			}
+			
+		}
+		
+		return hm;
+	}
 }
