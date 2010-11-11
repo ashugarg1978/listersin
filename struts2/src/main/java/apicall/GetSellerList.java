@@ -53,14 +53,9 @@ public class GetSellerList extends ApiCall implements Callable {
 		}
 		
 		// todo : aware whether count is 1.
-		JSONArray jsonarr = null;
+		JSONArray jsonarr = new JSONArray();
 		if (rica == 1) {
-			System.out.println(json.getJSONObject("ItemArray").getJSONObject("Item").toString());
-			try {
-				jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
-			} catch (Exception e) {
-				System.out.println(e.toString());
-			}
+			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
 		} else {
 			jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
 		}

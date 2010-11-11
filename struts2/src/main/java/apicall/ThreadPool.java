@@ -23,6 +23,7 @@ import ebaytool.apicall.AddItems;
 import ebaytool.apicall.GeteBayDetails;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetCategories;
+import ebaytool.apicall.GetCategoryFeatures;
 
 public class ThreadPool {
 	
@@ -45,15 +46,29 @@ public class ThreadPool {
 		ThreadPool threadpool = new ThreadPool();
 		
 		if (action.equals("getCategories")) {
+			
 			threadpool.getCategories();
+			
+		} if (action.equals("getCategoryFeatures")) {
+			
+			threadpool.getCategoryFeatures();
+			
 		} else if (action.equals("geteBayDetails")) {
+			
 			threadpool.geteBayDetails();
+			
 		} else if (action.equals("getSellerLists")) {
+			
 			threadpool.getSellerLists();
+			
 		} else if (action.equals("addItems")) {
+			
 			threadpool.addItems();
+			
 		} else {
+			
 			System.out.println("no action defined. stop.");
+			
 		}
 		
 		threadpool.shutdown();
@@ -82,6 +97,23 @@ public class ThreadPool {
 			System.out.println(site+"("+siteid+")");
 			
 			pool.submit(new GetCategories(siteid, site));
+			
+			Thread.sleep(500);
+		}
+		
+		return;
+	}
+	
+	private void getCategoryFeatures() throws Exception {
+		
+		DBCursor cur = db.getCollection("SiteDetails").find();
+		while (cur.hasNext()) {
+			DBObject row = cur.next();
+			
+			String  site   = row.get("Site").toString();
+			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
+			
+			pool.submit(new GetCategoryFeatures(siteid, site));
 			
 			Thread.sleep(500);
 		}
