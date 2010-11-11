@@ -135,18 +135,21 @@ public class ThreadPool {
 		HashMap<String,String> tokenmap = getUserIdToken();
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Active");
+		//query.put("SellingStatus.ListingStatus", "Active");
 		//query.put("UserID", "testuser_hal");
+		query.put("Title", "image test");
 		
 		DBCollection coll = db.getCollection("items");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query);
+		DBCursor cur = coll.find(query).limit(10);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			
 			/* todo: remove more fields */
+			item.put("ConditionID", 1000);
 			item.removeField("_id");
+			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
 			
 			userid = item.get("UserID").toString();
 			site   = item.get("Site").toString();
@@ -198,13 +201,31 @@ public class ThreadPool {
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 					for (Object tmpitem : tmpitems) {
 						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
+						
+						/* expand array elements */
 						if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
 							tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
 						}
+						
 						if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
 							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
+						}
+						
+						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")) {
+							System.out.println("has");
+						} else {
+							System.out.println("no have");
+						}
+						System.out.println(((JSONObject) tmpi.get("PictureDetails"))
+										   .get("PictureURL").getClass().toString());
+						
+						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")
+							&& ((JSONObject) tmpi.get("PictureDetails")).get("PictureURL")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							((JSONObject) tmpi.get("PictureDetails"))
+								.getJSONArray("PictureURL").setExpandElements(true);
 						}
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
@@ -248,8 +269,8 @@ public class ThreadPool {
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2010-09-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2010-11-01 00:00:00");
+		dbobject.put("StartTimeFrom", "2010-06-01 00:00:00");
+		dbobject.put("StartTimeTo",   "2010-09-01 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
 		dbobject.put("Sort", "1");
 		

@@ -12,14 +12,16 @@ import ebaytool.apicall.ApiCall;
 
 import java.io.*;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.*;
+
 import javax.net.ssl.HttpsURLConnection;
+//import javax.xml.validation;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-import java.util.HashMap;
 
 public class AddItems extends ApiCall implements Callable {
 	
@@ -37,9 +39,31 @@ public class AddItems extends ApiCall implements Callable {
 	
 	public BasicDBObject call() throws Exception {
 		
-		writelog("AIs.req."+userid+"."+site+"."+chunkidx+".xml", requestxml);
+		String logfile = "AIs.req."+userid+"."+site+"."+chunkidx+".xml";
+		writelog(logfile, requestxml);
 		
+		/* XML Validation */
+		/*
+		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+logfile));
+		
+		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		
+		Source schemaFile = new StreamSource(new File("/var/www/ebaytool/data/ebaySvc.xsd"));
+		Schema schema = factory.newSchema(schemaFile);
+		
+		Validator validator = schema.newValidator();
+		
+		try {
+			validator.validate(new DOMSource(document));
+		} catch (SAXException e) {
+			System.out.println(e.toString());
+		}
+		*/
+		
+		/* call api */
 		String responsexml = callapi(0, requestxml);
+		
 		
 		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
 		
