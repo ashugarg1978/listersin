@@ -137,7 +137,7 @@ public class ThreadPool {
 		BasicDBObject query = new BasicDBObject();
 		//query.put("SellingStatus.ListingStatus", "Active");
 		//query.put("UserID", "testuser_hal");
-		query.put("Title", "image test");
+		//query.put("Title", "image test");
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -212,14 +212,6 @@ public class ThreadPool {
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
 							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
 						}
-						
-						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")) {
-							System.out.println("has");
-						} else {
-							System.out.println("no have");
-						}
-						System.out.println(((JSONObject) tmpi.get("PictureDetails"))
-										   .get("PictureURL").getClass().toString());
 						
 						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")
 							&& ((JSONObject) tmpi.get("PictureDetails")).get("PictureURL")

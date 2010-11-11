@@ -27,6 +27,8 @@ import org.w3c.dom.*;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.XMLConstants;
 import org.xml.sax.SAXException;
 
 public class AddItems extends ApiCall implements Callable {
