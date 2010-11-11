@@ -16,12 +16,18 @@ import java.util.HashMap;
 import java.util.concurrent.*;
 
 import javax.net.ssl.HttpsURLConnection;
-//import javax.xml.validation;
-
+import javax.xml.validation.*;
+import javax.xml.parsers.*;
+	
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
+import org.w3c.dom.*;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.SAXException;
 
 public class AddItems extends ApiCall implements Callable {
 	
@@ -43,7 +49,6 @@ public class AddItems extends ApiCall implements Callable {
 		writelog(logfile, requestxml);
 		
 		/* XML Validation */
-		/*
 		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+logfile));
 		
@@ -59,7 +64,6 @@ public class AddItems extends ApiCall implements Callable {
 		} catch (SAXException e) {
 			System.out.println(e.toString());
 		}
-		*/
 		
 		/* call api */
 		String responsexml = callapi(0, requestxml);
