@@ -148,7 +148,7 @@ public class ThreadPool {
 			
 			/* todo: remove more fields */
 			item.put("ConditionID", 1000);
-			item.put("ListingDuration", "Days_5");
+			item.put("ListingDuration", "Days_7");
 			item.removeField("_id");
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
