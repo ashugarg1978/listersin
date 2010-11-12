@@ -51,7 +51,9 @@ public class AddItems extends ApiCall implements Callable {
 		writelog(logfile, requestxml);
 		
 		/* XML Validation */
-		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		DocumentBuilder parser = dbf.newDocumentBuilder();
 		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+logfile));
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);

@@ -135,20 +135,23 @@ public class ThreadPool {
 		HashMap<String,String> tokenmap = getUserIdToken();
 		
 		BasicDBObject query = new BasicDBObject();
-		//query.put("SellingStatus.ListingStatus", "Active");
+		query.put("SellingStatus.ListingStatus", "Active");
 		//query.put("UserID", "testuser_hal");
 		//query.put("Title", "image test");
 		
 		DBCollection coll = db.getCollection("items");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query).limit(10);
+		DBCursor cur = coll.find(query).limit(1);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			
 			/* todo: remove more fields */
 			item.put("ConditionID", 1000);
+			item.put("ListingDuration", "Days_5");
 			item.removeField("_id");
+			item.removeField("BuyerProtection");
+			item.removeField("SellingStatus");
 			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
 			
 			userid = item.get("UserID").toString();
@@ -261,8 +264,8 @@ public class ThreadPool {
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2010-06-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2010-09-01 00:00:00");
+		dbobject.put("StartTimeFrom", "2010-09-01 00:00:00");
+		dbobject.put("StartTimeTo",   "2010-12-01 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
 		dbobject.put("Sort", "1");
 		

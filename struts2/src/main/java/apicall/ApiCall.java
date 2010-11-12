@@ -31,7 +31,7 @@ public class ApiCall {
 		
 		/* http request header */
         conn.setRequestProperty("Content-Type", "text/xml");
-        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "695");
+        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "693");
         conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
         conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
         conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
