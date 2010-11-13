@@ -48,10 +48,30 @@
 
 <a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><s:text name="add new account"/></a>
 
-<br><br>
-post target<br>
-<iframe name="posttarget" width="130" height="100" src="blank.html"
-style="border:1px solid gray;"></iframe>
+<div id="debugseparator"></div>
+
+<table id="hiddenforms">
+<tr>
+  <td>offset</td>
+  <td><input type="text" class="filter" name="offset"  value="0"      size="2"></td>
+</tr>
+<tr>
+  <td>limit</td>
+  <td><input type="text" class="filter" name="limit"   value="20"     size="2"></td>
+</tr>
+<tr>
+  <td>selling</td>
+  <td><input type="text" class="filter" name="selling" value="active" size="10"></td>
+</tr>
+<tr>
+  <td>sort</td>
+  <td><input type="text" class="filter" name="sort"    value="ListingDetails_EndTime" size="10"></td>
+</tr>
+</table>
+
+<br>
+
+<iframe name="posttarget" src="blank.html"></iframe>
 
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
@@ -96,14 +116,10 @@ style="border:1px solid gray;"></iframe>
 <tr id="filter">
 <td></td>
 <td>
-	<input type="text" name="Title" size="10">
-	<input type="text" name="offset"  value="0"  size="2">
-	<input type="text" name="limit"   value="20" size="2">
-	<input type="text" name="selling" value="active" size="10" >
-	<input type="text" name="sort"    value="ListingDetails_EndTime" size="10" >
+	<input type="text" class="filter" name="Title"   value=""       size="20">
 </td>
 <td>
-	<select name="UserID" onchange="filter();">
+	<select class="filter" name="UserID" onchange="filter();">
 	<option value="">User ID</option>
 	<s:iterator value="user.userids.keySet">
 	<option><s:property /></option>
@@ -124,7 +140,7 @@ style="border:1px solid gray;"></iframe>
 	<td><a href="" class="ItemID" target="_blank"></a></td>
 	<td class="price"></td>
 	<td class="EndTime"></td>
-	<td align="center" valign="middle"><img class="PictureURL" height="20"></td>
+	<td align="center" valign="middle"><img class="PictureURL" height="15"></td>
 </tr>
 <tr class="row2"><td colspan="7"></td></tr>
 </tbody>

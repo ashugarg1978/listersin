@@ -106,6 +106,10 @@ public class UserAction extends ActionSupport {
 		/* query */
 		BasicDBObject query = new BasicDBObject();
 		query = sellingquery.get(((String[]) request.get("selling"))[0]);
+		if (!((String[]) request.get("UserID"))[0].equals("")) {
+			query.put("UserID", ((String[]) request.get("UserID"))[0]);
+		}
+	
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("UserID", 1);
@@ -137,7 +141,8 @@ public class UserAction extends ActionSupport {
 			/* price */
 			DBObject ss = (DBObject) item.get("SellingStatus");
 			DBObject cp = (DBObject) ss.get("CurrentPrice");
-			item.put("price", cp.get("@currencyID")+" "+cp.get("#text"));
+			Float currentprice = Float.parseFloat(cp.get("#text").toString());
+			item.put("price", cp.get("@currencyID")+" "+currentprice.intValue());
 			
 			/* endtime */
 			sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
@@ -146,7 +151,7 @@ public class UserAction extends ActionSupport {
 			if (dfendtime.equals(now)) {
 				sdf.applyPattern("h:mm a");
 			} else {
-				sdf.applyPattern("MMM d h:mm a");
+				sdf.applyPattern("MMM d");
 			}
 			item.put("endtime", sdf.format(dfendtime));
 			
@@ -254,16 +259,28 @@ public class UserAction extends ActionSupport {
 
 		json = new LinkedHashMap<String,Object>();
 		
-		String[] ids = (String[]) request.get("id");
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) request.get("id")) {
+			ids.add(new ObjectId(id));
+		}
 		
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
-		
+		query.put("_id", new BasicDBObject("$in", ids));
 		
 		BasicDBObject field = new BasicDBObject();
-		field.put("ItemID", -1);
+		field.put("ItemID", 0);
 		
+		// todo: sort result
+		DBCursor cur = coll.find(query, field);
+		while (cur.hasNext()) {
+			DBObject item = cur.next();
+			String id = item.get("_id").toString();
+			item.removeField("_id");
+			
+			coll.insert(item);
+		}
 		
 		return SUCCESS;
 	}

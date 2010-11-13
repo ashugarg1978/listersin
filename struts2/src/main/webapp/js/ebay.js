@@ -105,7 +105,7 @@ function summary()
 function items()
 {
 	$.post('/items',
-		   $('input, select', '#filter').serialize(),
+		   $('input.filter, select.filter').serialize(),
 		   function(data) {
 			   //dump(data);
 			   paging(data.json.cnt);
@@ -456,7 +456,6 @@ function bindevents()
 			$(this).css('visibility', 'hidden');
 			$(this).parent().addClass('loading');
 		});
-		alert(postdata);
 		
 		$.post('/'+action,
 			   postdata,
@@ -470,7 +469,7 @@ function bindevents()
 				   if (action == 'delete') {
 					   items();
 				   }
-				   //dump(data);
+				   dump(data);
 			   });
 		
 		return;
@@ -488,6 +487,8 @@ function bindevents()
 		
 		userid = $(this).attr('class');
 		$('select[name=UserID]').val(userid);
+		$('input[name=selling]').val('allitems');
+		$('input[name=offset]').val(0);
 		items();
 		
 		$('ul.accounts li').removeClass('tabselected');
@@ -620,7 +621,7 @@ function bindevents()
 	$('#paging > a').live('click', function() {
 		limit = $('input[name=limit]').val();
 		if ($(this).html() == '＞') {
-			offset = ($('input[name=offset]').val() + 1) * limit;
+			offset = ($('input[name=offset]').val()-0) + (limit-0);
 		} else {
 			offset = ($(this).html() - 1) * limit;
 		}
