@@ -53,19 +53,19 @@
 <table id="hiddenforms">
 <tr>
   <td>offset</td>
-  <td><input type="text" class="filter" name="offset"  value="0"      size="2"></td>
+  <td><input type="text" class="filter" name="offset" value="0"      size="3"></td>
 </tr>
 <tr>
   <td>limit</td>
-  <td><input type="text" class="filter" name="limit"   value="20"     size="2"></td>
+  <td><input type="text" class="filter" name="limit" value="20"     size="3"></td>
 </tr>
 <tr>
   <td>selling</td>
-  <td><input type="text" class="filter" name="selling" value="active" size="10"></td>
+  <td><input type="text" class="filter" name="selling" value="active" size="13"></td>
 </tr>
 <tr>
   <td>sort</td>
-  <td><input type="text" class="filter" name="sort"    value="ListingDetails_EndTime" size="10"></td>
+  <td><input type="text" class="filter" name="sort" value="ListingDetails_EndTime" size="13"></td>
 </tr>
 </table>
 

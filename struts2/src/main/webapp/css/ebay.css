@@ -375,6 +375,8 @@ div#debug {
 }
 
 iframe[name=posttarget] {
+	width: 161px;
+	height: 50px;
 	margin: 10px 10px 0 0;
 	background-color: #ffffdd;
 	border: 1px solid #999966;
@@ -386,7 +388,11 @@ div#debugseparator {
 	border-bottom: 2px dotted #999999;
 }
 
+table#hiddenforms td:first-child {
+	text-align: right;
+	font-weight: bold;
+}
 table#hiddenforms input {
 	border: 0px none;
-	font-weight: bold;
+	padding: 0px;
 }
