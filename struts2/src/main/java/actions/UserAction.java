@@ -104,12 +104,14 @@ public class UserAction extends ActionSupport {
 		int offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
 		
 		/* query */
+		BasicDBObject query = getFilterQuery();
+		/*
 		BasicDBObject query = new BasicDBObject();
 		query = sellingquery.get(((String[]) request.get("selling"))[0]);
 		if (!((String[]) request.get("UserID"))[0].equals("")) {
 			query.put("UserID", ((String[]) request.get("UserID"))[0]);
 		}
-	
+		*/
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("UserID", 1);
@@ -517,14 +519,23 @@ public class UserAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
-
-	@Action(value="/test")
-	public String test() throws Exception {
+	
+	private BasicDBObject getFilterQuery() {
+		BasicDBObject query = new BasicDBObject();
 		
-		String site = "US";
-		Integer categoryid = 159681;
+		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
+		String selling = ((String[]) request.get("selling"))[0];
+		String userid  = ((String[]) request.get("UserID") )[0];
+		String title   = ((String[]) request.get("Title")  )[0];
+		String itemid  = ((String[]) request.get("ItemID") )[0];
 		
-		return SUCCESS;
+		query = sellingquery.get(selling);
+		
+		if (!userid.equals("")) query.put("UserID", userid);
+		if (!title.equals("") ) query.put("Title",  title);
+		if (!itemid.equals("")) query.put("ItemID", itemid);
+		
+		return query;
 	}
 }

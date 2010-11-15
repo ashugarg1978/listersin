@@ -120,7 +120,7 @@
 <tr id="filter">
 <td></td>
 <td>
-	<input type="text" class="filter" name="Title"   value=""       size="20">
+	<input type="text" class="filter" name="Title" value="" size="40">
 </td>
 <td>
 	<select class="filter" name="UserID" onchange="filter();">
@@ -130,7 +130,7 @@
 	</s:iterator>
 	</select>
 </td>
-<td><input type="text" name="ItemID" size="6"></td>
+<td><input type="text" class="filter" name="ItemID" size="10"></td>
 <td></td>
 <td></td>
 <td></td>
