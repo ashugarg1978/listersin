@@ -107,7 +107,7 @@ function items()
 	$.post('/items',
 		   $('input.filter, select.filter').serialize(),
 		   function(data) {
-			   //dump(data);
+			   dump(data);
 			   paging(data.json.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -602,7 +602,7 @@ function bindevents()
 			$.post('/item',
 				   'id='+id,
 				   function(data) {
-					   dump(data.json.item);
+					   //dump(data.json.item);
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -911,6 +911,7 @@ function copyitems()
 
 function refresh()
 {
+	return;
 	dump(hash['US']['category']); return;
 	
 	loadings = $('td.loading');
@@ -922,6 +923,7 @@ function refresh()
 	$.post('/users/items/',
 		   loadings.serialize(),
 		   function(data) {
+			   dump(data);
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
 				   if (row['status'] == 0) {

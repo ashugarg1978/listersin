@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.regex.Pattern;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.log4j.Logger;
@@ -133,7 +134,7 @@ public class UserAction extends ActionSupport {
         Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Date now = new Date();
-		String today = sdf.format(calendar.getTime());
+		//String today = sdf.format(calendar.getTime());
 		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		while (cur.hasNext()) {
@@ -147,10 +148,12 @@ public class UserAction extends ActionSupport {
 			item.put("price", cp.get("@currencyID")+" "+currentprice.intValue());
 			
 			/* endtime */
-			sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+			sdf.applyPattern("yyyy-MM-dd");
 			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
 			Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-			if (dfendtime.equals(now)) {
+			//item.put("dfnow", sdf.format(now));
+			//item.put("dfend", sdf.format(dfendtime));
+			if (sdf.format(now).equals(sdf.format(dfendtime))) {
 				sdf.applyPattern("h:mm a");
 			} else {
 				sdf.applyPattern("MMM d");
@@ -521,6 +524,7 @@ public class UserAction extends ActionSupport {
 	}
 	
 	private BasicDBObject getFilterQuery() {
+		
 		BasicDBObject query = new BasicDBObject();
 		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
@@ -533,7 +537,13 @@ public class UserAction extends ActionSupport {
 		query = sellingquery.get(selling);
 		
 		if (!userid.equals("")) query.put("UserID", userid);
-		if (!title.equals("") ) query.put("Title",  title);
+		
+		if (!title.equals("") ) {
+			//Pattern ptitle = Pattern.compile(".*"+title+".*");
+			Pattern ptitle = Pattern.compile(title);
+			query.put("Title",  ptitle);
+		}
+		
 		if (!itemid.equals("")) query.put("ItemID", itemid);
 		
 		return query;
