@@ -181,6 +181,17 @@ function getrow(idx, row)
 		$('img.PictureURL', dom).remove();
 	}
 	
+	if (typeof(row.ext) == 'object' && typeof(row.ext.labels) == 'object') {
+		$.each(row.ext.labels, function(k, v) {
+			
+			// todo: appentTo or similar method?
+			$('a.Title', dom).after($('<div>')
+									.css('float', 'right')
+									.css('color', '#009900')
+									.text(v));
+		});
+	}
+	
 	return dom;
 	
 	if (row['status'] == 10) {

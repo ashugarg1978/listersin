@@ -127,6 +127,7 @@ public class UserAction extends ActionSupport {
 		field.put("SellingStatus.CurrentPrice", 1);
 		//field.put("SellingStatus.CurrentPrice@currencyID", 1);
 		field.put("status", 1);
+		field.put("ext", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("ListingDetails.EndTime", -1);
@@ -274,6 +275,9 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
+		//BasicDBObject copiedlabel = new BasicDBObject("labels", "copied");
+		BasicDBObject copiedlabel = new BasicDBObject("ext.labels", "copied");
+		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
 		
@@ -283,6 +287,7 @@ public class UserAction extends ActionSupport {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
 			item.removeField("_id");
+			item.put("ext.labels", "copied");
 			
 			coll.insert(item);
 		}
@@ -303,9 +308,11 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
-		BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
+		//BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
+		BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
 		
 		BasicDBObject update = new BasicDBObject();
+		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
 		update.put("$addToSet", deletedlabel);
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
@@ -387,7 +394,7 @@ public class UserAction extends ActionSupport {
 		saved.put("deleted", 0);
 		saved.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		trash.put("labels", "deleted");
+		trash.put("ext.labels", "deleted");
 		
 		
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
