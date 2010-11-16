@@ -276,7 +276,7 @@ public class UserAction extends ActionSupport {
 		query.put("_id", new BasicDBObject("$in", ids));
 		
 		//BasicDBObject copiedlabel = new BasicDBObject("labels", "copied");
-		BasicDBObject copiedlabel = new BasicDBObject("ext.labels", "copied");
+		BasicDBObject copiedlabel = new BasicDBObject("labels", "copied");
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
@@ -287,7 +287,7 @@ public class UserAction extends ActionSupport {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
 			item.removeField("_id");
-			item.put("ext.labels", "copied");
+			item.put("$set", new BasicDBObject("ext", copiedlabel));
 			
 			coll.insert(item);
 		}
@@ -308,12 +308,12 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
-		//BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
-		BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
+		BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
+		//BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
 		
 		BasicDBObject update = new BasicDBObject();
 		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
-		update.put("$addToSet", deletedlabel);
+		update.put("$set", new BasicDBObject("ext", new BasicDBObject("$addToSet", deletedlabel)));
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
