@@ -290,6 +290,31 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	@Action(value="/delete")
+	public String delete() throws Exception {
+
+		json = new LinkedHashMap<String,Object>();
+		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) request.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		
+		BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$addToSet", deletedlabel);
+		
+		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		
+		json.put("result", result);
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/summary")
 	public String summary() throws Exception {
 		
@@ -362,7 +387,7 @@ public class UserAction extends ActionSupport {
 		saved.put("deleted", 0);
 		saved.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		trash.put("deleted", 1);
+		trash.put("labels", "deleted");
 		
 		
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();

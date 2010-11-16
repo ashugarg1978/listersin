@@ -470,7 +470,7 @@ function bindevents()
 						   .attr('checked', '');
 				   }
 				   if (action == 'delete') {
-					   items();
+					   //items();
 				   }
 				   dump(data);
 			   });

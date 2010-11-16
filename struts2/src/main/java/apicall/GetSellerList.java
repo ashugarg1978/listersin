@@ -61,10 +61,12 @@ public class GetSellerList extends ApiCall implements Callable {
 		}
 		for (Object item : jsonarr) {
 			
+			BasicDBObject ext = new BasicDBObject();
+			ext.put("UserID", userid);
+			
 			/* convert JSON to DBObject */
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
-			dbobject.put("UserID", userid);
-			dbobject.put("deleted", 0);
+			dbobject.put("ext", ext);
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("ItemID", dbobject.get("ItemID").toString());
