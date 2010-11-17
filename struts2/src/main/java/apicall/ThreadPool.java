@@ -9,6 +9,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
+import com.mongodb.WriteResult;
 import com.mongodb.util.*;
 
 import net.sf.json.JSON;
@@ -24,6 +25,8 @@ import ebaytool.apicall.GeteBayDetails;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetCategories;
 import ebaytool.apicall.GetCategoryFeatures;
+
+import org.bson.types.ObjectId;
 
 public class ThreadPool {
 	
@@ -64,6 +67,10 @@ public class ThreadPool {
 		} else if (action.equals("addItems")) {
 			
 			threadpool.addItems();
+			
+		} else if (action.equals("test")) {
+			
+			threadpool.test();
 			
 		} else {
 			
@@ -303,4 +310,39 @@ public class ThreadPool {
 		
 		return hm;
 	}
+	
+	private void test() throws Exception {
+		
+		DB db = new Mongo().getDB("ebay");
+		
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("ItemID", "110050060658");
+		
+		BasicDBObject item = (BasicDBObject) coll.findOne(query);
+		
+		BasicDBObject ext = null;
+		if (item.containsKey("ext")) {
+			ext = (BasicDBObject) item.get("ext");
+		} else {
+			ext = new BasicDBObject();
+		}
+		
+		BasicDBObject update = new BasicDBObject();
+		//update.put("$set", new BasicDBObject("ext.labels", "copied"));
+		update.put("$addToSet", new BasicDBObject("ext.labels", "deleted"));
+		//update.put("$addToSet", new BasicDBObject("ext.labels", "copied"));
+		
+		coll.update(query, update);
+		//WriteResult result = coll.update(query, update);
+		
+		item = (BasicDBObject) coll.findOne(query, new BasicDBObject("ext", 1));
+		
+		//System.out.println(result);
+		System.out.println(item.toString());
+		
+		return;
+	}
+	
 }

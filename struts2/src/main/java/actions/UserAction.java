@@ -6,6 +6,7 @@ import com.opensymphony.xwork2.ActionContext;
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
@@ -287,7 +288,10 @@ public class UserAction extends ActionSupport {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
 			item.removeField("_id");
-			item.put("$set", new BasicDBObject("ext", copiedlabel));
+			
+			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
+			dbl.add("fobar");
+			//item.put("$set", new BasicDBObject("ext", copiedlabel));
 			
 			coll.insert(item);
 		}
@@ -308,12 +312,13 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
-		BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
+		//BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
 		//BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
 		
 		BasicDBObject update = new BasicDBObject();
+		update.put("$addToSet", new BasicDBObject("ext.labels", "deleted"));
 		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
-		update.put("$set", new BasicDBObject("ext", new BasicDBObject("$addToSet", deletedlabel)));
+		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
