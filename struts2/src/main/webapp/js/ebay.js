@@ -187,7 +187,12 @@ function getrow(idx, row)
 			// todo: appentTo or similar method?
 			$('a.Title', dom).after($('<div>')
 									.css('float', 'right')
-									.css('color', '#009900')
+									.css('color', '#ffffff')
+									.css('background-color', '#009900')
+									.css('font-size', '8px')
+									.css('border-radius', '3px')
+									.css('margin-left', '3px')
+									.css('padding', '1px')
 									.text(v));
 		});
 	}
