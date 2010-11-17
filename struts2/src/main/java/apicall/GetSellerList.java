@@ -4,6 +4,7 @@ import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
+import com.mongodb.BasicDBList;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.util.*;
@@ -63,6 +64,7 @@ public class GetSellerList extends ApiCall implements Callable {
 			
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
+			//ext.put("labels", new BasicDBList());
 			
 			/* convert JSON to DBObject */
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());

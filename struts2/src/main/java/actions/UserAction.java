@@ -345,7 +345,7 @@ public class UserAction extends ActionSupport {
 		for (String k : selling.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query = selling.get(k);
-			query.put("UserID", new BasicDBObject("$in", userids));
+			query.put("ext.UserID", new BasicDBObject("$in", userids));
 			
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);
@@ -357,7 +357,7 @@ public class UserAction extends ActionSupport {
 			for (String k : selling.keySet()) {
 				BasicDBObject query = new BasicDBObject();
 				query = selling.get(k);
-				query.put("UserID", u);
+				query.put("ext.UserID", u);
 				
 				Long cnt = coll.count(query);
 				summary.put(k, cnt);
@@ -378,25 +378,25 @@ public class UserAction extends ActionSupport {
 		BasicDBObject saved     = new BasicDBObject();
 		BasicDBObject trash     = new BasicDBObject();
 		
-		allitems.put("deleted", 0);
+		allitems.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		
-		scheduled.put("deleted", 0);
+		scheduled.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		scheduled.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		active.put("deleted", 0);
+		active.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		active.put("ItemID", new BasicDBObject("$exists", 1));
 		active.put("SellingStatus.ListingStatus", "Active");
 		
-		sold.put("deleted", 0);
+		sold.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		sold.put("ItemID", new BasicDBObject("$exists", 1));
 		sold.put("SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
 		
-		unsold.put("deleted", 0);
+		unsold.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		unsold.put("ItemID", new BasicDBObject("$exists", 1));
 		unsold.put("SellingStatus.ListingStatus", "Completed");
 		unsold.put("SellingStatus.QuantitySold", "0");
 		
-		saved.put("deleted", 0);
+		saved.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
 		saved.put("ItemID", new BasicDBObject("$exists", 0));
 		
 		trash.put("ext.labels", "deleted");
@@ -573,7 +573,7 @@ public class UserAction extends ActionSupport {
 		
 		query = sellingquery.get(selling);
 		
-		if (!userid.equals("")) query.put("UserID", userid);
+		if (!userid.equals("")) query.put("ext.UserID", userid);
 		
 		if (!title.equals("") ) {
 			//Pattern ptitle = Pattern.compile(".*"+title+".*");
