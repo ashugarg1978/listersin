@@ -276,9 +276,6 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
-		//BasicDBObject copiedlabel = new BasicDBObject("labels", "copied");
-		BasicDBObject copiedlabel = new BasicDBObject("labels", "copied");
-		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
 		
@@ -290,8 +287,7 @@ public class UserAction extends ActionSupport {
 			item.removeField("_id");
 			
 			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
-			dbl.add("fobar");
-			//item.put("$set", new BasicDBObject("ext", copiedlabel));
+			dbl.add("copied");
 			
 			coll.insert(item);
 		}
@@ -323,6 +319,44 @@ public class UserAction extends ActionSupport {
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
 		json.put("result", result);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/relist")
+	public String relist() throws Exception {
+		
+		json = new LinkedHashMap<String,Object>();
+		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) request.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		query.put("ext.status", new BasicDBObject("$ne", "(re)list"));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("ext.status", "(re)list"));
+		
+		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		
+		json.put("result", result);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/revise")
+	public String revise() throws Exception {
+		
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/end")
+	public String end() throws Exception {
+		
 		
 		return SUCCESS;
 	}
@@ -573,15 +607,14 @@ public class UserAction extends ActionSupport {
 		
 		query = sellingquery.get(selling);
 		
-		if (!userid.equals("")) query.put("ext.UserID", userid);
+		if (!userid.equals(""))
+			query.put("ext.UserID", userid);
 		
-		if (!title.equals("") ) {
-			//Pattern ptitle = Pattern.compile(".*"+title+".*");
-			Pattern ptitle = Pattern.compile(title);
-			query.put("Title",  ptitle);
-		}
+		if (!title.equals(""))
+			query.put("Title", Pattern.compile(title));
 		
-		if (!itemid.equals("")) query.put("ItemID", itemid);
+		if (!itemid.equals(""))
+			query.put("ItemID", itemid);
 		
 		return query;
 	}

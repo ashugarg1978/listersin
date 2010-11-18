@@ -36,12 +36,15 @@ public class AddItems extends ApiCall implements Callable {
 	private String userid;
 	private String site;
 	private String chunkidx;
+	private String[] itemids;
 	private String requestxml;
 	
-	public AddItems (String userid, String site, String chunkidx, String requestxml) {
+	public AddItems (String userid, String site, String chunkidx, String[] itemids, 
+					 String requestxml) {
 		this.userid     = userid;
 		this.site       = site;
 		this.chunkidx   = chunkidx;
+		this.itemids    = itemids;
 		this.requestxml = requestxml;
 	}
 	
@@ -50,6 +53,11 @@ public class AddItems extends ApiCall implements Callable {
 		String logfile = "AIs.req."+userid+"."+site+"."+chunkidx+".xml";
 		writelog(logfile, requestxml);
 		
+		for (int x=0; x<5; x++) {
+			System.out.println("call "+userid+"."+site+"."+chunkidx+"."+x+":"+itemids[x]);
+		}
+		
+		// todo: why Country error occures?
 		/* XML Validation */
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
@@ -69,9 +77,10 @@ public class AddItems extends ApiCall implements Callable {
 			System.out.println(e.toString());
 		}
 		
+		if (true) return null;
+		
 		/* call api */
 		String responsexml = callapi(0, requestxml);
-		
 		
 		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
 		

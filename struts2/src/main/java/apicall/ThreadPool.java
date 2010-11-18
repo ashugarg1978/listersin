@@ -47,6 +47,7 @@ public class ThreadPool {
 		String action = args[0];
 		
 		ThreadPool threadpool = new ThreadPool();
+		//threadpool.run();
 		
 		if (action.equals("getCategories")) {
 			
@@ -83,6 +84,22 @@ public class ThreadPool {
 		return;
     }
 	
+	public void run() throws Exception {
+		
+		while (true) {
+			
+			
+			
+			
+			if (false) break;
+			
+			System.out.println("thread pool is running...");
+			Thread.sleep(2000);
+		}
+		
+		return;
+	}
+	
 	private void shutdown() {
 		
 		pool.shutdown();
@@ -92,10 +109,7 @@ public class ThreadPool {
 	
 	private void getCategories() throws Exception {
 		
-		DBCollection coll = db.getCollection("SiteDetails");
-		
-		//DBCursor cur = coll.find(new BasicDBObject("Site", "US"));
-		DBCursor cur = coll.find();
+		DBCursor cur = db.getCollection("SiteDetails").find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			
@@ -141,28 +155,38 @@ public class ThreadPool {
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken();
 		
-		BasicDBObject query = new BasicDBObject();
-		query.put("SellingStatus.ListingStatus", "Active");
-		//query.put("UserID", "testuser_hal");
-		//query.put("Title", "image test");
-		
 		DBCollection coll = db.getCollection("items");
 		
+		BasicDBObject query = new BasicDBObject();
+		query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		query.put("ext.status", "(re)list");
+		query.put("ItemID", new BasicDBObject("$exists", 0));
+		
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
+		
+		WriteResult result = coll.update(query, update, false, true);
+		System.out.println("WriteResult: "+result);
+		
+		query.put("ext.status", "(re)listing");
+		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query).limit(1);
+		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
+			
+			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
+			site   = item.get("Site").toString();
 			
 			/* todo: remove more fields */
 			item.put("ConditionID", 1000);
 			item.put("ListingDuration", "Days_3");
-			item.removeField("_id");
+			//item.removeField("_id"); // if delete here, can't mapping result data.
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
+			item.removeField("ext");
 			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
-			
-			userid = item.get("UserID").toString();
-			site   = item.get("Site").toString();
 			
 			if (!lhm.containsKey(userid)) {
 				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
@@ -180,13 +204,20 @@ public class ThreadPool {
 																new ArrayList<DBObject>());
 				curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
 			}
+			
+			// add item data to each userid.site.chunk array.
 			((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).add(item);
 		}		
 		
+		// each userid
 		for (String tmpuserid : lhm.keySet()) {
 			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
+			
+			// each site
 			for (Object tmpsite : lhmuserid.keySet()) {
 				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
+				
+				// each chunk
 				for (Object tmpchunk : lhmsite.keySet()) {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
@@ -195,9 +226,20 @@ public class ThreadPool {
 					requestdbo.append("RequesterCredentials",
 									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
+					String[] itemids = new String[5];
 					int messageid = 0;
 					List<DBObject> ldbo = new ArrayList<DBObject>();
 					for (Object tmpidx : litems) {
+						
+						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
+						System.out.println(tmpuserid
+										   +"."+tmpsite
+										   +"."+tmpchunk
+										   +"."+messageid
+										   +":"+itemids[messageid]);
+						
+						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
+						
 						messageid++;
 						ldbo.add(new BasicDBObject("MessageID", messageid).append("Item", tmpidx));
 						
@@ -242,7 +284,11 @@ public class ThreadPool {
 						(new AddItems((String) tmpuserid,
 									  (String) tmpsite,
 									  new Integer(Integer.parseInt(tmpchunk.toString())).toString(),
+									  itemids,
 									  requestxml));
+					
+					// todo: handle result for each items. -> handle in AddItems class.
+					
 				}
 			}
 		}
