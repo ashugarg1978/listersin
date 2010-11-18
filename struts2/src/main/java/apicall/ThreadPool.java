@@ -172,7 +172,7 @@ public class ThreadPool {
 		query.put("ext.status", "(re)listing");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query);
+		DBCursor cur = coll.find(query).limit(10);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			

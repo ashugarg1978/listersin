@@ -3,6 +3,7 @@ package ebaytool.apicall;
 import com.mongodb.Mongo;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
@@ -77,8 +78,6 @@ public class AddItems extends ApiCall implements Callable {
 			System.out.println(e.toString());
 		}
 		
-		if (true) return null;
-		
 		/* call api */
 		String responsexml = callapi(0, requestxml);
 		
@@ -87,6 +86,27 @@ public class AddItems extends ApiCall implements Callable {
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		System.out.println(responsedbo.get("Ack").toString());
+		
+		Mongo m = new Mongo();
+		DB db = m.getDB("ebay");
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
+		for (Object item : dbl) {
+			int correlationid =
+				Integer.parseInt(((BasicDBObject) item).getString("CorrelationID"));
+			String itemid = ((BasicDBObject) item).getString("ItemID");
+			
+			System.out.println(correlationid+" : "+itemid);
+			
+			BasicDBObject query = new BasicDBObject();
+			query.put("_id", new ObjectID(itemids[correlationid-1]));
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("ItemID", itemid);
+			
+			
+		}
 		
 		return responsedbo;
 	}
