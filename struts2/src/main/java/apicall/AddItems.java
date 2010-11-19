@@ -7,6 +7,7 @@ import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
+import com.mongodb.WriteResult;
 import com.mongodb.util.*;
 
 import ebaytool.apicall.ApiCall;
@@ -93,18 +94,28 @@ public class AddItems extends ApiCall implements Callable {
 		
 		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
 		for (Object item : dbl) {
+			
 			int correlationid =
 				Integer.parseInt(((BasicDBObject) item).getString("CorrelationID"));
-			String itemid = ((BasicDBObject) item).getString("ItemID");
 			
+			String itemid    = ((BasicDBObject) item).getString("ItemID");
+			String starttime = ((BasicDBObject) item).getString("StartTime");
+			String endtime   = ((BasicDBObject) item).getString("EndTime");
+			
+			BasicDBObject upditem = new BasicDBObject();
+			upditem.put("ItemID", itemid);
+			upditem.put("ListingDetails.StartTime", starttime);
+			upditem.put("ListingDetails.EndTime", endtime);
+			upditem.put("ext.status", "listed!");
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(itemids[correlationid-1]));
 			
 			BasicDBObject update = new BasicDBObject();
-			update.put("ItemID", itemid);
+			update.put("$set", upditem);
 			
-			System.out.println(correlationid+" : "+itemid+" : "+itemids[correlationid-1]);
+			WriteResult result = coll.update(query, update);
+			System.out.println(correlationid+" : "+result);
 			
 		}
 		
