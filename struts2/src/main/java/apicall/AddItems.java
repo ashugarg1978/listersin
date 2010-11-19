@@ -17,19 +17,19 @@ import java.util.HashMap;
 import java.util.concurrent.*;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.validation.*;
 import javax.xml.parsers.*;
-	
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.*;
+import javax.xml.XMLConstants;
+
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
+import org.bson.types.ObjectId;
 import org.w3c.dom.*;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.XMLConstants;
 import org.xml.sax.SAXException;
 
 public class AddItems extends ApiCall implements Callable {
@@ -97,14 +97,14 @@ public class AddItems extends ApiCall implements Callable {
 				Integer.parseInt(((BasicDBObject) item).getString("CorrelationID"));
 			String itemid = ((BasicDBObject) item).getString("ItemID");
 			
-			System.out.println(correlationid+" : "+itemid);
 			
 			BasicDBObject query = new BasicDBObject();
-			query.put("_id", new ObjectID(itemids[correlationid-1]));
+			query.put("_id", new ObjectId(itemids[correlationid-1]));
 			
 			BasicDBObject update = new BasicDBObject();
 			update.put("ItemID", itemid);
 			
+			System.out.println(correlationid+" : "+itemid+" : "+itemids[correlationid-1]);
 			
 		}
 		
