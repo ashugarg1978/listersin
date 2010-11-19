@@ -39,7 +39,7 @@ $(document).bind({
 		setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		//setInterval(refresh, 2000);
+		setInterval(refresh, 2000);
 		
 		return;
 	}
@@ -447,10 +447,12 @@ function resizediv()
 
 function bindevents()
 {
+	/* Window Resize */
 	$(window).resize(function() {
 		resizediv();
 	});
 	
+	/* Bulk Buttons */
 	$('div#bulkbuttons > input').live('click', function() {
 		action = $(this).attr('class');
 		
@@ -494,7 +496,7 @@ function bindevents()
 		return;
 	});
 	
-	/* Left navi */
+	/* Left Navi */
 	$('ul.accounts > li > a').live('click', function() {
 		
 		if ($(this).closest('li').attr('class') == 'allitems'
@@ -518,7 +520,7 @@ function bindevents()
 	
 	/* Picture */
     $('input:file').live('change', function() {
-
+		
 		id = $(this).closest('tbody.itemrow').attr('id');
 		idform = $('<input>').attr('name', 'id').val(id);
 		$(this).closest('form').append(idform);
@@ -604,6 +606,7 @@ function bindevents()
 		return false;
 	});
 	
+	/* Title */
 	$('a.Title').live('click', function() {
 		
 		var id = $(this).closest('tbody').attr('id');
@@ -637,6 +640,7 @@ function bindevents()
 		return false;
 	});
 	
+	/* Paging */
 	$('#paging > a').live('click', function() {
 		limit = $('input[name=limit]').val();
 		if ($(this).html() == '＞') {
@@ -800,7 +804,7 @@ function bindevents()
 		return false;
 	});
 	
-	
+	/* Editor */
 	$('a.wysiwyg').live('click', function() {
 		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
 		return false;
@@ -927,22 +931,19 @@ function copyitems()
 
 function refresh()
 {
-	return;
-	dump(hash['US']['category']); return;
-	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
 	
 	// todo: check firefox pseudo class .... warning
-	loadings = $('td.loading > input:checkbox[name=id[]][value!=on]');
+	loadings = $('td.loading > input:checkbox[name=id][value!=on]');
 	
-	$.post('/users/items/',
+	$.post('/items',
 		   loadings.serialize(),
 		   function(data) {
 			   dump(data);
 			   $.each(data.res, function(idx, row) {
 				   dom = getrow(row);
-				   if (row['status'] == 0) {
+				   if (row.ext.status == 'listed!') {
 					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
 					   $('input:checkbox', dom).parent().removeClass('loading');
 					   $('tbody#'+row['id']).replaceWith(dom);
