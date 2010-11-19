@@ -106,7 +106,7 @@ public class AddItems extends ApiCall implements Callable {
 			upditem.put("ItemID", itemid);
 			upditem.put("ListingDetails.StartTime", starttime);
 			upditem.put("ListingDetails.EndTime", endtime);
-			upditem.put("ext.status", "listed!");
+			upditem.put("ext.status", "");
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(itemids[correlationid-1]));

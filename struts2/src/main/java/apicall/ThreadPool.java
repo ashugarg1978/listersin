@@ -33,6 +33,7 @@ public class ThreadPool {
 	private ExecutorService pool;
 	private Mongo m;
 	private DB db;
+	private DBCursor cur;
 	
 	private String token = "AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB";
 	
@@ -47,9 +48,12 @@ public class ThreadPool {
 		String action = args[0];
 		
 		ThreadPool threadpool = new ThreadPool();
-		//threadpool.run();
 		
-		if (action.equals("getCategories")) {
+		if (action.equals("run")) {
+			
+			threadpool.run();
+			
+		} else if (action.equals("getCategories")) {
 			
 			threadpool.getCategories();
 			
@@ -86,15 +90,27 @@ public class ThreadPool {
 	
 	public void run() throws Exception {
 		
+		BasicDBObject query = new BasicDBObject();
+		query.put("ext.labels.deleted", new BasicDBObject("$exists", false));
+		query.put("ext.status", "(re)list");
+		query.put("ItemID", new BasicDBObject("$exists", false));
+		
+		DBCollection coll = db.getCollection("items");
+		
+		long cnt = 0;
 		while (true) {
 			
+			cnt = coll.getCount(query);
 			
-			
+			if (cnt > 0) {
+				System.out.println(cnt);
+				addItems();
+			}
 			
 			if (false) break;
 			
-			System.out.println("thread pool is running...");
-			Thread.sleep(2000);
+			//System.out.println("thread pool is running...");
+			Thread.sleep(3000);
 		}
 		
 		return;
@@ -109,7 +125,7 @@ public class ThreadPool {
 	
 	private void getCategories() throws Exception {
 		
-		DBCursor cur = db.getCollection("SiteDetails").find();
+		cur = db.getCollection("SiteDetails").find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			
@@ -127,7 +143,7 @@ public class ThreadPool {
 	
 	private void getCategoryFeatures() throws Exception {
 		
-		DBCursor cur = db.getCollection("SiteDetails").find();
+		cur = db.getCollection("SiteDetails").find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			
@@ -172,7 +188,7 @@ public class ThreadPool {
 		query.put("ext.status", "(re)listing");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query).limit(10);
+		cur = coll.find(query).limit(10);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			
@@ -341,7 +357,7 @@ public class ThreadPool {
 		
 		HashMap<String,String> hm = new HashMap<String,String>();
 		
-		DBCursor cur = db.getCollection("users").find();
+		cur = db.getCollection("users").find();
 		while (cur.hasNext()) {
 			DBObject user = cur.next();
 			

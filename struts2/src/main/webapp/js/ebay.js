@@ -153,8 +153,8 @@ function getrow(idx, row)
 	$.each(row, function(colname, colval) {
 		
 		// todo: why @ mark error?
-		if (colname.match(/\@/)) return;
-		if (colname == 'PictureDetails_PictureURL') return;
+		//if (colname.match(/\@/)) return;
+		//if (colname == 'PictureDetails_PictureURL') return;
 		
 		$('.'+colname, dom).html(colval);
 	});
@@ -197,15 +197,16 @@ function getrow(idx, row)
 		});
 	}
 	
-	return dom;
-	
-	if (row['status'] == 10) {
+	if (row['ext.status'] == 'listing') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
 		$('input:checkbox', dom).parent().addClass('loading');
 	}
 	$('input:checkbox', dom).val(id);
 	
-	$('td.UserID', dom).html(row['UserID']);
+	$('td.UserID', dom).html(row.ext.UserID);
+	
+	return dom;
+	
 	
 	
 	if (row.PictureDetails.PictureURL) {
@@ -946,9 +947,9 @@ function refresh()
 				   if (row.ext.status == 'listed!') {
 					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
 					   $('input:checkbox', dom).parent().removeClass('loading');
-					   $('tbody#'+row['id']).replaceWith(dom);
+					   $('tbody#'+row.id).replaceWith(dom);
 				   }
-				   rowsdata[row['id']] = row;
+				   rowsdata[row.id] = row;
 			   });
 		   },
 		   'json');
