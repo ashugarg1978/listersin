@@ -95,6 +95,7 @@ public class AddItems extends ApiCall implements Callable {
 		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
 		for (Object item : dbl) {
 			
+			System.out.println("chk");
 			int correlationid =
 				Integer.parseInt(((BasicDBObject) item).getString("CorrelationID"));
 			
@@ -118,6 +119,7 @@ public class AddItems extends ApiCall implements Callable {
 			System.out.println(correlationid+" : "+result);
 			
 		}
+		System.out.println("done");
 		
 		return responsedbo;
 	}

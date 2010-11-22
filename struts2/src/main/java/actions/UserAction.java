@@ -102,19 +102,17 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
-		int limit  = Integer.parseInt(((String[]) request.get("limit"))[0]);
-		int offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
+		int limit = 20;
+		int offset = 0;
+		if (request.containsKey("limit"))
+			limit = Integer.parseInt(((String[]) request.get("limit"))[0]);
+		if (request.containsKey("offset"))
+			offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
 		
 		/* query */
 		BasicDBObject query = getFilterQuery();
-		/*
-		BasicDBObject query = new BasicDBObject();
-		query = sellingquery.get(((String[]) request.get("selling"))[0]);
-		if (!((String[]) request.get("UserID"))[0].equals("")) {
-			query.put("UserID", ((String[]) request.get("UserID"))[0]);
-		}
-		*/
 		
+		/* field */
 		BasicDBObject field = new BasicDBObject();
 		field.put("UserID", 1);
 		field.put("ItemID", 1);
@@ -598,23 +596,32 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = new BasicDBObject();
 		
+		String selling = "";
+		String userid  = "";
+		String title   = "";
+		String itemid  = "";
+		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		
-		String selling = ((String[]) request.get("selling"))[0];
-		String userid  = ((String[]) request.get("UserID") )[0];
-		String title   = ((String[]) request.get("Title")  )[0];
-		String itemid  = ((String[]) request.get("ItemID") )[0];
+		if (request.containsKey("selling")) selling = ((String[]) request.get("selling"))[0];
+		if (!selling.equals("")) query = sellingquery.get(selling);
 		
-		query = sellingquery.get(selling);
+		if (request.containsKey("UserID")) userid = ((String[]) request.get("UserID"))[0];
+		if (!userid.equals("")) query.put("ext.UserID", userid);
 		
-		if (!userid.equals(""))
-			query.put("ext.UserID", userid);
+		if (request.containsKey("Title")) title = ((String[]) request.get("Title"))[0];
+		if (!title.equals("")) query.put("Title", Pattern.compile(title));
 		
-		if (!title.equals(""))
-			query.put("Title", Pattern.compile(title));
+		if (request.containsKey("ItemID")) itemid = ((String[]) request.get("ItemID"))[0];
+		if (!itemid.equals("")) query.put("ItemID", itemid);
 		
-		if (!itemid.equals(""))
-			query.put("ItemID", itemid);
+		if (request.containsKey("id")) {
+			for (String id : (String[]) request.get("id")) {
+				ids.add(new ObjectId(id));
+			}
+			query.put("_id", new BasicDBObject("$in", ids));
+		}
 		
 		return query;
 	}

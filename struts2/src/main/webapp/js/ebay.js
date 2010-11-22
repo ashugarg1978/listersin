@@ -937,19 +937,20 @@ function refresh()
 	
 	// todo: check firefox pseudo class .... warning
 	loadings = $('td.loading > input:checkbox[name=id][value!=on]');
+	dump(loadings);
 	
 	$.post('/items',
 		   loadings.serialize(),
 		   function(data) {
 			   dump(data);
-			   $.each(data.res, function(idx, row) {
-				   dom = getrow(row);
-				   if (row.ext.status == 'listed!') {
+			   $.each(data.json, function(idx, row) {
+				   dom = getrow(idx, row);
+				   if (row.ext.status == '') {
 					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
 					   $('input:checkbox', dom).parent().removeClass('loading');
 					   $('tbody#'+row.id).replaceWith(dom);
 				   }
-				   rowsdata[row.id] = row;
+				   rowsdata[idx] = row;
 			   });
 		   },
 		   'json');
