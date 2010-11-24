@@ -948,7 +948,7 @@ function refresh()
 				   if (row.ext.status == '') {
 					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
 					   $('input:checkbox', dom).parent().removeClass('loading');
-					   $('tbody#'+row.id).replaceWith(dom);
+					   $('tbody#'+idx).replaceWith(dom);
 				   }
 				   rowsdata[idx] = row;
 			   });
