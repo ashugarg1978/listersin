@@ -73,6 +73,10 @@ public class ThreadPool {
 			
 			threadpool.addItems();
 			
+		} else if (action.equals("setNotificationPreferences")) {
+			
+			threadpool.setNotificationPreferences();
+			
 		} else if (action.equals("test")) {
 			
 			threadpool.test();
@@ -308,6 +312,44 @@ public class ThreadPool {
 				}
 			}
 		}
+		
+		return;
+	}
+	
+	private void setNotificationPreferences() throws Exception {
+		
+		DBObject user = db.getCollection("users").findOne();
+		
+		Map userids = ((BasicDBObject) user.get("userids")).toMap();
+		for (Object userid : userids.keySet()) {
+			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
+			String token = json.get("ebaytkn").toString();
+			_setNotificationPreferences(userid.toString(), token);
+		}
+		
+		return;
+	}
+	
+	private void _setNotificationPreferences(String userid, String token) throws Exception {
+
+		String events[] = {"ItemListed",
+						   "EndOfAuction",
+						   "ItemClosed",
+						   "ItemExtended",
+						   "ItemRevised",
+						   "ItemSold",
+						   "ItemUnsold"};
+		for (String event : events) {
+			System.out.println(userid+":"+event);
+		}
+		
+		BasicDBObject adp = new BasicDBObject();
+		adp.put("ApplicationEnable", "Enable");
+		adp.put("ApplicationURL", "http://ebaytool.jp:8080/receivenotify");
+		
+		BasicDBObject dbobject = new BasicDBObject();
+		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+		dbobject.put("ApplicationDeliveryPreferences", adp);
 		
 		return;
 	}
