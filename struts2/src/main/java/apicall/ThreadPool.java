@@ -331,7 +331,9 @@ public class ThreadPool {
 	}
 	
 	private void _setNotificationPreferences(String userid, String token) throws Exception {
-
+		
+		ArrayList<BasicDBObject> ane = new ArrayList<BasicDBObject>();
+		
 		String events[] = {"ItemListed",
 						   "EndOfAuction",
 						   "ItemClosed",
@@ -340,7 +342,10 @@ public class ThreadPool {
 						   "ItemSold",
 						   "ItemUnsold"};
 		for (String event : events) {
-			System.out.println(userid+":"+event);
+			BasicDBObject ne = new BasicDBObject();
+			ne.put("EventType", event);
+			ne.put("EventEnable", "Enable");
+			ane.add(ne);
 		}
 		
 		BasicDBObject adp = new BasicDBObject();
@@ -350,6 +355,20 @@ public class ThreadPool {
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put("ApplicationDeliveryPreferences", adp);
+		dbobject.put("UserDeliveryPreferenceArray", new BasicDBObject("NotificationEnable", ane));
+		
+		JSONObject jso = JSONObject.fromObject(dbobject.toString());
+		jso.getJSONObject("UserDeliveryPreferenceArray")
+			.getJSONArray("NotificationEnable").setExpandElements(true);
+		
+		XMLSerializer xmls = new XMLSerializer();
+		xmls.setObjectName("SetNotificationPreferencesRequest");
+		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
+		xmls.setTypeHintsEnabled(false);
+		String requestxml = xmls.write(jso);
+		
+		Future<BasicDBObject> future =
+			pool.submit(new SetNotificationPreferences(userid, requestxml));
 		
 		return;
 	}

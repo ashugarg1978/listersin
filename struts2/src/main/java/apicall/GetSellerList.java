@@ -26,6 +26,7 @@ public class GetSellerList extends ApiCall implements Callable {
 	
 	private String requestxml;
 	
+	// todo: is this constructer thread safe? should I use String arg?
 	public GetSellerList (BasicDBObject requestdbobject) {
 		this.requestxml = convertDBObject2XML(requestdbobject);
 	}

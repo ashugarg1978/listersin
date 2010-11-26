@@ -75,5 +75,15 @@ public class IndexAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
+
+	@Action(value="/receivenotify", results={@Result(name="success",location="receivenotify.jsp")})
+	public String receivenotify() {
+		
+		ActionContext context = ActionContext.getContext();
+		Map session = context.getSession();
+		
+		
+		return SUCCESS;
+	}
 	
 }
