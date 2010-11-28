@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 public class GetSellerList extends ApiCall {
 	
-	public GetSellerList() {
+	public GetSellerList() throws Exception {
 	}
 	
 	public String call() throws Exception {
@@ -55,9 +55,11 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("Sort", "1");
 		
 		String requestxml = convertDBObject2XML(dbobject);
-		
-		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml));
+		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
+		
+		writelog("GSL.req."+userid+".1.xml", requestxml);
+		writelog("GSL.res."+userid+".1.xml", responsexml);
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
@@ -65,20 +67,21 @@ public class GetSellerList extends ApiCall {
 									 .get("TotalNumberOfPages").toString());
 		System.out.println(userid+" : total "+pages+" page(s).");
 		
-		/*
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
-			pool18.submit(new ApiCallTask(0, requestxml));
+			
+			requestxml = convertDBObject2XML(dbobject);
+			future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+			responsexml = future.get();
+			
+			writelog("GSL.req."+userid+"."+i+".xml", requestxml);
+			writelog("GSL.res."+userid+"."+i+".xml", responsexml);
 		}
-		*/
 		
 		return;
 	}
 	
-	private BasicDBObject test() throws Exception {
-		
-		String requestxml = "";
-		String responsexml = "";
+	private BasicDBObject parseresponse(String responsexml) throws Exception {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
@@ -89,10 +92,8 @@ public class GetSellerList extends ApiCall {
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-
+		
 		String pagenumber = responsedbo.get("PageNumber").toString();
-		writelog("GSL.req."+userid+"."+pagenumber+".xml", requestxml);
-		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
 		int rica = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
 		if (rica == 0) {

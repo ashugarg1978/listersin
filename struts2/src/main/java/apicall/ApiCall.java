@@ -18,8 +18,9 @@ public class ApiCall implements Callable {
 	
 	public ApiCall() throws Exception {
 		
-		if (pool18 == null)
+		if (pool18 == null) {
 			pool18 = (ThreadPoolExecutor) Executors.newFixedThreadPool(18);
+		}
 		
 		if (db == null) {
 			Mongo m = new Mongo();

@@ -10,22 +10,20 @@ public class ApiCallTask implements Callable {
 	
 	private Integer siteid;
 	private String requestxml;
+	private String callname; // todo: get from caller class.
 	
-	public ApiCallTask(Integer siteid, String requestxml) throws Exception {
+	public ApiCallTask(Integer siteid, String requestxml, String callname) throws Exception {
 		this.siteid = siteid;
 		this.requestxml = requestxml;
+		this.callname = callname;
 	}
 	
 	public String call() throws Exception {
 		
 		if (siteid == 100) siteid = 0;
 		
-		String callname = this.getClass().toString().replace("class ebaytool.apicall2.", "");
-		
-		if (true) {
-			System.out.println(callname);
-			return "done";
-		}
+		//String callname = this.getClass().toString().replace("class ebaytool.apicall.", "");
+		//callname = new Throwable().getStackTrace()[3].getClassName();
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
