@@ -1,0 +1,52 @@
+package ebaytool.apicall2;
+
+import ebaytool.apicall2.*;
+
+import java.util.concurrent.*;
+import java.util.*;
+
+public class Daemon {
+	
+	private ThreadPoolExecutor pool;
+	
+	public Daemon() throws Exception {
+		pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
+	}
+	
+	public void start() throws Exception {
+		
+		pool.submit(new GetSellerList());
+		pool.submit(new AddItems());
+		
+		Thread.sleep(60000);
+
+		/*
+		for (int j=1; j<=100; j++) {
+			System.out.println(pool.getActiveCount()
+							   + ":" + pool.getCompletedTaskCount()
+							   + ":" + pool.getTaskCount());
+		}
+		*/
+		
+		if (true) return;
+		
+		for (int i=1; i<=100; i++) {
+			Thread.sleep(i*(i%3)+100);
+			System.out.println(pool.getActiveCount()
+							   + ":" + pool.getCompletedTaskCount()
+							   + ":" + pool.getTaskCount());
+		}
+		
+		
+		return;
+	}
+	
+    public static void main(String[] args) throws Exception {
+		
+		Daemon d = new Daemon();
+		d.start();
+		
+		return;
+	}
+	
+}

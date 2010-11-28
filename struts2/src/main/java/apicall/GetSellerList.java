@@ -13,6 +13,8 @@ import ebaytool.apicall.ApiCall;
 
 import java.io.*;
 import java.net.URL;
+import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
 
@@ -22,18 +24,61 @@ import net.sf.json.xml.XMLSerializer;
 
 import java.util.HashMap;
 
-public class GetSellerList extends ApiCall implements Callable {
+public class GetSellerList extends ApiCall {
 	
-	private String requestxml;
-	
-	// todo: is this constructer thread safe? should I use String arg?
-	public GetSellerList (BasicDBObject requestdbobject) {
-		this.requestxml = convertDBObject2XML(requestdbobject);
+	public GetSellerList() {
 	}
 	
-	public BasicDBObject call() throws Exception {
+	public String call() throws Exception {
 		
-		String responsexml = callapi(0, requestxml);
+		DBObject user = db.getCollection("users").findOne();
+		
+		Map userids = ((BasicDBObject) user.get("userids")).toMap();
+		for (Object userid : userids.keySet()) {
+			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
+			String token = json.get("ebaytkn").toString();
+			call2(userid.toString(), token);
+		}
+		
+		return "OK";
+	}
+	
+	private void call2(String userid, String token) throws Exception {
+		
+		BasicDBObject dbobject = new BasicDBObject();
+		dbobject.put("DetailLevel", "ReturnAll");
+		dbobject.put("WarningLevel", "High");
+		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+		dbobject.put("StartTimeFrom", "2010-09-01 00:00:00");
+		dbobject.put("StartTimeTo",   "2010-12-01 00:00:00");
+		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
+		dbobject.put("Sort", "1");
+		
+		String requestxml = convertDBObject2XML(dbobject);
+		
+		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml));
+		String responsexml = future.get();
+		
+		BasicDBObject result = convertXML2DBObject(responsexml);
+		
+		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
+									 .get("TotalNumberOfPages").toString());
+		System.out.println(userid+" : total "+pages+" page(s).");
+		
+		/*
+		for (int i=2; i<=pages; i++) {
+			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
+			pool18.submit(new ApiCallTask(0, requestxml));
+		}
+		*/
+		
+		return;
+	}
+	
+	private BasicDBObject test() throws Exception {
+		
+		String requestxml = "";
+		String responsexml = "";
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
@@ -84,5 +129,4 @@ public class GetSellerList extends ApiCall implements Callable {
 		
 		return responsedbo;
 	}
-	
 }

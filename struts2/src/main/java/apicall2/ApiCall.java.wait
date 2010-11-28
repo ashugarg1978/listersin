@@ -1,0 +1,18 @@
+package ebaytool.apicall2;
+
+import java.util.concurrent.*;
+
+public class ApiCall implements Callable {
+	
+	public static ThreadPoolExecutor pool18;
+	
+	public ApiCall() {
+		if (pool18 == null)
+			pool18 = (ThreadPoolExecutor) Executors.newFixedThreadPool(18);
+	}
+	
+	public String call() throws Exception {
+		return "";
+	}
+	
+}
