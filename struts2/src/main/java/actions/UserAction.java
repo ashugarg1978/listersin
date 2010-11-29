@@ -50,7 +50,9 @@ public class UserAction extends ActionSupport {
 		request = (Map) context.getParameters();
 		session = (Map) context.getSession();
 		
-		db = new Mongo().getDB("ebay");
+		if (db == null) {
+			db = new Mongo().getDB("ebay");
+		}
 		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
