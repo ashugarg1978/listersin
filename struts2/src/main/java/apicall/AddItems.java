@@ -27,6 +27,9 @@ public class AddItems extends ApiCall {
 	private String[] itemids;
 	private String requestxml;
 	
+	public AddItems() throws Exception {
+	}
+	
 	/*
 	public cnstAddItems (String userid, String site, String chunkidx, String[] itemids, 
 					 String requestxml) {
@@ -169,6 +172,12 @@ public class AddItems extends ApiCall {
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
 					
+					writelog("AIs.req"
+							 +"."+((String) tmpuserid)
+							 +"."+((String) tmpsite)
+							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+							 +".xml", requestxml);
+					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
 					
 					/*
@@ -182,6 +191,23 @@ public class AddItems extends ApiCall {
 					
 					// todo: handle result for each items. -> handle in AddItems class.
 					
+				}
+			}
+		}
+		
+		// each userid
+		for (String tmpuserid : lhm.keySet()) {
+			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
+			
+			// each site
+			for (Object tmpsite : lhmuserid.keySet()) {
+				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
+				
+				// each chunk
+				for (Object tmpchunk : lhmsite.keySet()) {
+					List litems = (List) lhmsite.get(tmpchunk);
+					
+					String responsexml = ecs18.take().get();
 				}
 			}
 		}
@@ -219,7 +245,8 @@ public class AddItems extends ApiCall {
 		}
 		
 		/* call api */
-		String responsexml = callapi(0, requestxml);
+		//String responsexml = callapi(0, requestxml);
+		String responsexml = "";
 		
 		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
 		

@@ -1,9 +1,8 @@
 package ebaytool.apicall;
 
 import ebaytool.apicall.*;
-
-import java.util.concurrent.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Daemon {
 	
@@ -15,6 +14,7 @@ public class Daemon {
 	
 	public void start() throws Exception {
 		
+		pool.submit(new AddItems());
 		pool.submit(new GetSellerList());
 		
 		return;
