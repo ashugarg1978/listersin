@@ -1,28 +1,14 @@
 package ebaytool.apicall;
 
-import com.mongodb.Mongo;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBList;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
+import com.mongodb.*;
 import com.mongodb.util.*;
-
 import ebaytool.apicall.ApiCall;
-
 import java.io.*;
-import java.net.URL;
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.concurrent.*;
-import javax.net.ssl.HttpsURLConnection;
-
-import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
-
-import java.util.HashMap;
 
 public class GetSellerList extends ApiCall {
 	
@@ -57,9 +43,9 @@ public class GetSellerList extends ApiCall {
 		String requestxml = convertDBObject2XML(dbobject);
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
+		parseresponse(responsexml);
 		
 		writelog("GSL.req."+userid+".1.xml", requestxml);
-		writelog("GSL.res."+userid+".1.xml", responsexml);
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
@@ -69,13 +55,13 @@ public class GetSellerList extends ApiCall {
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
-			
 			requestxml = convertDBObject2XML(dbobject);
-			future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
-			responsexml = future.get();
-			
-			writelog("GSL.req."+userid+"."+i+".xml", requestxml);
-			writelog("GSL.res."+userid+"."+i+".xml", responsexml);
+			ecs18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+		}
+		
+		for (int i=2; i<=pages; i++) {
+			responsexml = ecs18.take().get();
+			parseresponse(responsexml);
 		}
 		
 		return;
@@ -87,18 +73,17 @@ public class GetSellerList extends ApiCall {
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
-		DBCollection coll = db.getCollection("items");
-		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		String pagenumber = responsedbo.get("PageNumber").toString();
 		
+		System.out.println(userid+" "+pagenumber);
+		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
+		
 		int rica = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
-		if (rica == 0) {
-			return responsedbo;
-		}
+		if (rica == 0) return responsedbo;
+		
+		DBCollection coll = db.getCollection("items");
 		
 		// todo : aware whether count is 1.
 		JSONArray jsonarr = new JSONArray();

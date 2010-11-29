@@ -13,6 +13,7 @@ import net.sf.json.xml.XMLSerializer;
 public class ApiCall implements Callable {
 	
 	public static ThreadPoolExecutor pool18;
+	public static CompletionService<String> ecs18;
 	public static Mongo m;
 	public static DB db;
 	
@@ -20,6 +21,7 @@ public class ApiCall implements Callable {
 		
 		if (pool18 == null) {
 			pool18 = (ThreadPoolExecutor) Executors.newFixedThreadPool(18);
+			ecs18 = new ExecutorCompletionService<String>(pool18);
 		}
 		
 		if (db == null) {
