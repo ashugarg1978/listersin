@@ -9,4 +9,3 @@ done
 
 #/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.ThreadPool $1
 /usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon
-

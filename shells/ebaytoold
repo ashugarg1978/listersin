@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# ebaytoold
+#
+# chkconfig: - 85 15
+# description: ebaytool daemon
+#
+
+CP=/var/www/ebaytool/struts2/target/classes/
+
+for jar in `ls /usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/`
+do
+	CP=$CP:/usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/$jar
+done
+
+start() {
+	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon &
+}
+
+stop() {
+	echo "todo: stop"
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	*)
+		echo $"Usage: $prog {start|stop}"
+esac
