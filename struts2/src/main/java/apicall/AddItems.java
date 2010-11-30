@@ -124,6 +124,7 @@ public class AddItems extends ApiCall {
 					for (Object tmpidx : litems) {
 						
 						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
+						String id = ((BasicDBObject) tmpidx).get("_id").toString();
 						System.out.println(tmpuserid
 										   +"."+tmpsite
 										   +"."+tmpchunk
@@ -132,11 +133,9 @@ public class AddItems extends ApiCall {
 						
 						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
 						
-						messageid++;
-						ldbo.add(new BasicDBObject("MessageID", messageid).append("Item", tmpidx));
+						ldbo.add(new BasicDBObject("MessageID", id).append("Item", tmpidx));
 						
 						String title = ((BasicDBObject) tmpidx).get("Title").toString();
-						//System.out.println(tmpuserid+" "+tmpsite+" "+tmpchunk+" "+title);
 					}
 					
 					requestdbo.append("AddItemRequestContainer", ldbo);
@@ -176,20 +175,9 @@ public class AddItems extends ApiCall {
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", requestxml);
+							 +".req.xml", requestxml);
 					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
-					
-					/*
-					Future<BasicDBObject> future = pool.submit
-						(new AddItems((String) tmpuserid,
-									  (String) tmpsite,
-									  new Integer(Integer.parseInt(tmpchunk.toString())).toString(),
-									  itemids,
-									  requestxml));
-					*/
-					
-					// todo: handle result for each items. -> handle in AddItems class.
 					
 				}
 			}
@@ -208,6 +196,13 @@ public class AddItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					String responsexml = ecs18.take().get();
+					parseresponse(responsexml);
+					
+					writelog("AIs.req"
+							 +"."+((String) tmpuserid)
+							 +"."+((String) tmpsite)
+							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+							 +".res.xml", responsexml);
 				}
 			}
 		}
@@ -215,56 +210,18 @@ public class AddItems extends ApiCall {
 		return "OK";
 	}
 	
-	public BasicDBObject oldcall() throws Exception {
-		
-		String logfile = "AIs.req."+userid+"."+site+"."+chunkidx+".xml";
-		writelog(logfile, requestxml);
-		
-		for (int x=0; x<5; x++) {
-			System.out.println("call "+userid+"."+site+"."+chunkidx+"."+x+":"+itemids[x]);
-		}
-		
-		// todo: why Country error occures?
-		/* XML Validation */
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		dbf.setNamespaceAware(true);
-		DocumentBuilder parser = dbf.newDocumentBuilder();
-		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+logfile));
-		
-		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-		
-		Source schemaFile = new StreamSource(new File("/var/www/ebaytool/data/ebaySvc.xsd"));
-		Schema schema = factory.newSchema(schemaFile);
-		
-		Validator validator = schema.newValidator();
-		
-		try {
-			validator.validate(new DOMSource(document));
-		} catch (SAXException e) {
-			System.out.println(e.toString());
-		}
-		
-		/* call api */
-		//String responsexml = callapi(0, requestxml);
-		String responsexml = "";
-		
-		writelog("AIs.res."+userid+"."+site+"."+chunkidx+".xml", responsexml);
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		System.out.println(responsedbo.get("Ack").toString());
 		
-		Mongo m = new Mongo();
-		DB db = m.getDB("ebay");
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
 		for (Object item : dbl) {
 			
-			System.out.println("chk");
-			int correlationid =
-				Integer.parseInt(((BasicDBObject) item).getString("CorrelationID"));
-			
+			String id        = ((BasicDBObject) item).getString("CorrelationID");
 			String itemid    = ((BasicDBObject) item).getString("ItemID");
 			String starttime = ((BasicDBObject) item).getString("StartTime");
 			String endtime   = ((BasicDBObject) item).getString("EndTime");
@@ -276,16 +233,15 @@ public class AddItems extends ApiCall {
 			upditem.put("ext.status", "");
 			
 			BasicDBObject query = new BasicDBObject();
-			query.put("_id", new ObjectId(itemids[correlationid-1]));
+			query.put("_id", new ObjectId(id));
 			
 			BasicDBObject update = new BasicDBObject();
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
-			System.out.println(correlationid+" : "+result);
+			System.out.println(id+" : "+itemid+" : "+result);
 			
 		}
-		System.out.println("done");
 		
 		return responsedbo;
 	}
@@ -310,6 +266,30 @@ public class AddItems extends ApiCall {
 		}
 		
 		return hm;
+	}
+	
+	/* XML Validation */
+	private void validatexml(String filename) throws Exception {
+		
+		// todo: why Country error occures?
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setNamespaceAware(true);
+		DocumentBuilder parser = dbf.newDocumentBuilder();
+		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+filename));
+		
+		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+		
+		Source schemaFile = new StreamSource(new File("/var/www/ebaytool/data/ebaySvc.xsd"));
+		Schema schema = factory.newSchema(schemaFile);
+		
+		Validator validator = schema.newValidator();
+		
+		try {
+			validator.validate(new DOMSource(document));
+		} catch (SAXException e) {
+			System.out.println(e.toString());
+		}
+		
 	}
 	
 }
