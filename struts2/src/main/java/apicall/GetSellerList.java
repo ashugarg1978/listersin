@@ -115,4 +115,48 @@ public class GetSellerList extends ApiCall {
 		
 		return responsedbo;
 	}
+	
+	
+	/* will be called from IndexAction.receivenotify() */
+	public void parsenotifyxml(String notifyxml) throws Exception {
+		
+		JSONObject json = (JSONObject) new XMLSerializer().read(notifyxml);
+		
+		JSONObject item = json.getJSONObject("soapenv:Body")
+			.getJSONObject("GetItemResponse").getJSONObject("Item");
+		
+		String userid = ((JSONObject) item.get("Seller")).get("UserID").toString();
+		
+		DBCollection coll = db.getCollection("items");
+			
+		if (true) {
+			
+			BasicDBObject ext = new BasicDBObject();
+			ext.put("UserID", userid);
+			ext.put("labels", new BasicDBList());
+			
+			/* convert JSON to DBObject */
+			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
+			dbobject.put("ext", ext);
+			
+			BasicDBObject query = new BasicDBObject();
+			query.put("ItemID", dbobject.get("ItemID").toString());
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("$set", dbobject);
+			
+			/* insert into mongodb */
+			coll.findAndRemove(query);
+			coll.update(query, update, true, true);
+			
+		}
+		
+		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/receivenotify.parsed");
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write("[userid:"+userid+"]\n");
+		out.write(item.toString());
+		out.close();
+		
+		return;
+	}
 }

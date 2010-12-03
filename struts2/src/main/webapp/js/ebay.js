@@ -158,8 +158,12 @@ function getrow(idx, row)
 		
 		$('.'+colname, dom).html(colval);
 	});
-	
-	$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+
+	if (row.ListingDetails.ViewItemURL) {
+		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+	} else {
+		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+	}
 	$('td.EndTime', dom).html(row.endtime);
 	
 	if (typeof(row.status) == 'string') {

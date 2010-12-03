@@ -7,6 +7,7 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
+import ebaytool.apicall.GetSellerList;
 import java.io.*;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -74,34 +75,25 @@ public class IndexAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
-
+	
 	@Action(value="/receivenotify", results={@Result(name="success",location="receivenotify.jsp")})
 	public String receivenotify() throws Exception {
 		
-		String log = "";
-		
-		ActionContext context = ActionContext.getContext();
-		log += context.toString() + "\n";
-		
-        HttpServletRequest request = ServletActionContext.getRequest();
-		log += request.toString() + "\n";
-		
+		String notifyxml = "";
 		String line = "";
-		try {
-			
-			BufferedReader br = request.getReader();
-			while ((line = br.readLine()) != null) {
-				log += line + "\n";
-			}
-			
-			FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/receivenotify.log");
-			BufferedWriter out = new BufferedWriter(fstream);
-			out.write(log);
-			out.close();
-			
-		} catch (Exception e) {
-			System.out.println(e.toString());
+		
+		HttpServletRequest request = ServletActionContext.getRequest();
+		BufferedReader br = request.getReader();
+		
+		//FileReader fr = new FileReader("/var/www/ebaytool/logs/receivenotify.log");
+		//BufferedReader br = new BufferedReader(fr);
+		
+		while ((line = br.readLine()) != null) {
+			notifyxml += line + "\n";
 		}
+		
+		GetSellerList gsl = new GetSellerList();
+		gsl.parsenotifyxml(notifyxml);
 		
 		return SUCCESS;
 	}
