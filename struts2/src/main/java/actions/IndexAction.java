@@ -1,17 +1,16 @@
 package ebaytool.actions;
 
-import com.mongodb.Mongo;
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-
+import com.mongodb.Mongo;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
-
-import java.io.File;
+import java.io.*;
 import java.util.Map;
-
+import javax.servlet.http.HttpServletRequest;
+import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
@@ -77,11 +76,32 @@ public class IndexAction extends ActionSupport {
 	}
 
 	@Action(value="/receivenotify", results={@Result(name="success",location="receivenotify.jsp")})
-	public String receivenotify() {
+	public String receivenotify() throws Exception {
+		
+		String log = "";
 		
 		ActionContext context = ActionContext.getContext();
-		Map session = context.getSession();
+		log += context.toString() + "\n";
 		
+        HttpServletRequest request = ServletActionContext.getRequest();
+		log += request.toString() + "\n";
+		
+		String line = "";
+		try {
+			
+			BufferedReader br = request.getReader();
+			while ((line = br.readLine()) != null) {
+				log += line + "\n";
+			}
+			
+			FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/receivenotify.log");
+			BufferedWriter out = new BufferedWriter(fstream);
+			out.write(log);
+			out.close();
+			
+		} catch (Exception e) {
+			System.out.println(e.toString());
+		}
 		
 		return SUCCESS;
 	}

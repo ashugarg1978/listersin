@@ -23,7 +23,8 @@ public class Daemon {
 		while (true) {
 			
 			Socket s = ss.accept();
-			System.out.println("accept");
+			System.out.println("accept "
+							   + s.getInetAddress().toString());
 			
 			OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream());
 			out.write("welcome to 8181\r\n");
@@ -31,24 +32,36 @@ public class Daemon {
 			
 			BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
 			String message = "";
+			
 			do {
+				
 				try {
 					
 					message = in.readLine();
 					System.out.println("client>" + message);
 					
 					if (message.equals("AddItems")) {
+						
 						pool.submit(new AddItems());
+						
 					} else if (message.equals("GetSellerList")) {
+						
 						pool.submit(new GetSellerList());
-					}
+						
+					} 
 					
 				} catch (Exception e) {
 					System.out.println("client>" + e.toString());
 				}
-			} while (!message.equals("bye"));
+				
+			} while (!message.equals("bye") && !message.equals("shutdown"));
 			
 			s.close();
+			
+			if (message.equals("shutdown")) {
+				System.out.println("shutdown...");
+				break;
+			}
 			
 			if (false) break;
 		}
