@@ -35,8 +35,8 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2010-09-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2010-12-01 00:00:00");
+		dbobject.put("StartTimeFrom", "2010-10-01 00:00:00");
+		dbobject.put("StartTimeTo",   "2011-01-01 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
 		dbobject.put("Sort", "1");
 		

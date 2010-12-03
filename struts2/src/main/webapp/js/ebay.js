@@ -36,7 +36,7 @@ $(document).bind({
 		$('ul.accounts > li > ul:first').slideToggle('fast');
 		$('a.active', $('ul.accountaction:first')).click();
 		
-		setTimeout('autoclick()', 3000);
+		//setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
 		setInterval(refresh, 2000);
