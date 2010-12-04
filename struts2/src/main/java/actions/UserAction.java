@@ -2,26 +2,11 @@ package ebaytool.actions;
 
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
-
-import com.mongodb.Mongo;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.BasicDBList;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.DBCursor;
-import com.mongodb.WriteResult;
-
+import com.mongodb.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.regex.Pattern;
-import javax.net.ssl.HttpsURLConnection;
-
 import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Actions;
@@ -126,8 +111,6 @@ public class UserAction extends ActionSupport {
 		field.put("PictureDetails.PictureURL", 1);
 		field.put("SellingStatus.ListingStatus", 1);
 		field.put("SellingStatus.CurrentPrice", 1);
-		//field.put("SellingStatus.CurrentPrice@currencyID", 1);
-		field.put("status", 1);
 		field.put("ext", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
@@ -222,8 +205,6 @@ public class UserAction extends ActionSupport {
 	@Action(value="/save")
 	public String save() throws Exception {
 		
-		json = new LinkedHashMap<String,Object>();
-		
 		String id   = ((String[]) request.get("id"))[0];
 		String form = ((String[]) request.get("json"))[0];
 		
@@ -250,10 +231,11 @@ public class UserAction extends ActionSupport {
 		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update);
 		
-		json.put("result", result);
-		json.put("update", item);
-		
-		if (true) {
+		if (false) {
+			/* for debug */
+			json = new LinkedHashMap<String,Object>();
+			json.put("result", result);
+			json.put("update", item);
 			return SUCCESS;
 		} else {
 			/* chaining action to item() */

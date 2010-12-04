@@ -568,7 +568,7 @@ function bindevents()
 			$('td.category', '#'+id).append(sel);
 		}
 		$('select.category',      '#'+id).attr('name', '');
-		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory_CategoryID');
+		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
 		
 		return;
 	});
@@ -626,7 +626,7 @@ function bindevents()
 			$.post('/item',
 				   'id='+id,
 				   function(data) {
-					   //dump(data.json.item);
+					   dump(data.json.item);
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
@@ -764,7 +764,7 @@ function bindevents()
 		detail = $(this).closest('div.detail');
 		
 		// todo: varidation check
-		if ($('select[name=PrimaryCategory_CategoryID]', detail).val() == '') {
+		if ($('select[name=PrimaryCategory.CategoryID]', detail).val() == '') {
 			alert('category error.');
 			return false;
 		}
