@@ -187,17 +187,7 @@ function getrow(idx, row)
 	
 	if (typeof(row.ext) == 'object' && typeof(row.ext.labels) == 'object') {
 		$.each(row.ext.labels, function(k, v) {
-			
-			// todo: appentTo or similar method?
-			$('a.Title', dom).after($('<div>')
-									.css('float', 'right')
-									.css('color', '#ffffff')
-									.css('background-color', '#009900')
-									.css('font-size', '8px')
-									.css('border-radius', '3px')
-									.css('margin-left', '3px')
-									.css('padding', '1px')
-									.text(v));
+			$('div.labelwrap', dom).append($('<div>').attr('class', 'label').text(v));
 		});
 	}
 	

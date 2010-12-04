@@ -27,8 +27,6 @@ div#content {
     -moz-border-radius:5px;
 }
 
-
-
 a {
 	color: #000066;
 	text-decoration: none;
@@ -90,6 +88,30 @@ table.items tr.row1 > td {
 table.items tr.row2 > td {
 	font-size: 10pt;
 	padding: 0px 10px 0px 10px;
+}
+
+div.titlewrap {
+	min-width: 300px;
+	overflow: hidden;
+	white-space: nowrap;
+	position: relative;
+}
+
+div.titlewrap > div.labelwrap {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	height: 11px;
+}
+div.titlewrap > div.labelwrap > div.label {
+	float: right;
+	color: #009900;
+	background-color: #aaeeaa;
+	border: 1px solid #99aa99;
+	font-size: 8px;
+	border-radius: 3px;
+	margin-left: 2px;
+	padding: 1px 2px;
 }
 
 table.items td.eimo {
