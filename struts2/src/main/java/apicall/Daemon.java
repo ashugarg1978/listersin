@@ -17,19 +17,19 @@ public class Daemon {
 	
 	public void start() throws Exception {
 		
-		ServerSocket ss = new ServerSocket(8181, 10);
+		ServerSocket serversocket = new ServerSocket(8181, 10);
 		System.out.println("waiting port 8181");
 		
 		while (true) {
 			
-			Socket s = ss.accept();
-			System.out.println("accept from "+s.getInetAddress().toString());
+			Socket socket = serversocket.accept();
+			System.out.println("accept from "+socket.getInetAddress().toString());
 			
-			OutputStreamWriter out = new OutputStreamWriter(s.getOutputStream());
+			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
 			out.write("connected.\r\n");
 			out.flush();
 			
-			BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String message = "";
 			
 			do {
@@ -54,11 +54,11 @@ public class Daemon {
 				
 			} while (!message.equals("bye") && !message.equals("shutdown"));
 			
-			s.close();
+			socket.close();
 			
 			if (message.equals("shutdown")) {
 				System.out.println("shutdown...");
-				ss.close();
+				serversocket.close();
 				break;
 			}
 		}

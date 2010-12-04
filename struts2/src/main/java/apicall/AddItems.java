@@ -30,17 +30,6 @@ public class AddItems extends ApiCall {
 	public AddItems() throws Exception {
 	}
 	
-	/*
-	public cnstAddItems (String userid, String site, String chunkidx, String[] itemids, 
-					 String requestxml) {
-		this.userid     = userid;
-		this.site       = site;
-		this.chunkidx   = chunkidx;
-		this.itemids    = itemids;
-		this.requestxml = requestxml;
-	}
-	*/
-	
 	public String call() throws Exception {
 		
 		String userid;
@@ -54,7 +43,6 @@ public class AddItems extends ApiCall {
 		query.put("ext.status", "(re)list");
 		query.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
 		
@@ -64,7 +52,7 @@ public class AddItems extends ApiCall {
 		query.put("ext.status", "(re)listing");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
-		DBCursor cur = coll.find(query).limit(10);
+		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			
@@ -126,9 +114,8 @@ public class AddItems extends ApiCall {
 						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
 						String id = ((BasicDBObject) tmpidx).get("_id").toString();
 						System.out.println(tmpuserid
-										   +"."+tmpsite
-										   +"."+tmpchunk
-										   +"."+messageid
+										   +" "+tmpsite
+										   +" "+tmpchunk+"."+messageid
 										   +":"+itemids[messageid]);
 						
 						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
@@ -165,11 +152,15 @@ public class AddItems extends ApiCall {
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
 					
+					System.out.println("debug line -1.");
+					
 					XMLSerializer xmls = new XMLSerializer();
 					xmls.setObjectName("AddItemsRequest");
 					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
+					
+					System.out.println("debug line0.");
 					
 					writelog("AIs.req"
 							 +"."+((String) tmpuserid)
@@ -177,7 +168,11 @@ public class AddItems extends ApiCall {
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".req.xml", requestxml);
 					
+					System.out.println("debug line1.");
+					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
+					
+					System.out.println("debug line2.");
 					
 				}
 			}
