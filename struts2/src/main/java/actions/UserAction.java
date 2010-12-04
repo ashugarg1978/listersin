@@ -3,6 +3,8 @@ package ebaytool.actions;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 import com.mongodb.*;
+import java.io.*;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -325,6 +327,13 @@ public class UserAction extends ActionSupport {
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
 		json.put("result", result);
+		
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("AddItems");
+		out.println("bye");
+		out.close();
+		socket.close();
 		
 		return SUCCESS;
 	}

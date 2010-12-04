@@ -58,7 +58,14 @@ public class Daemon {
 			
 			if (message.equals("shutdown")) {
 				System.out.println("shutdown...");
+				
+				ApiCall apicall = new ApiCall();
+				apicall.shutdown();
+				
 				serversocket.close();
+				
+				pool.shutdown();
+				
 				break;
 			}
 		}

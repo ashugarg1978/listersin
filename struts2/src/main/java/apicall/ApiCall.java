@@ -34,6 +34,13 @@ public class ApiCall implements Callable {
 		return "";
 	}
 	
+	public void shutdown() {
+		
+		pool18.shutdown();
+		
+		return;
+	}
+	
 	public String convertDBObject2XML(DBObject dbobject) {
 		
 		JSONObject jso = JSONObject.fromObject(dbobject.toString());

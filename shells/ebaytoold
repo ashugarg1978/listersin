@@ -14,12 +14,14 @@ do
 done
 
 start() {
-	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon \
+	/usr/local/jdk1.6.0_21/bin/java \
+		-cp $CP \
+		ebaytool.apicall.Daemon \
 		> /var/www/ebaytool/logs/daemon.log &
 }
 
 stop() {
-	echo "todo: stop"
+	echo shutdown | telnet localhost 8181
 }
 
 case "$1" in
@@ -29,6 +31,10 @@ case "$1" in
 	stop)
 		stop
 		;;
+	restart)
+		stop
+		start
+		;;
 	*)
-		echo $"Usage: $prog {start|stop}"
+		echo $"Usage: $prog {start|stop|restart}"
 esac

@@ -62,6 +62,7 @@ public class AddItems extends ApiCall {
 			/* todo: remove more fields */
 			item.put("ConditionID", 1000);
 			item.put("ListingDuration", "Days_3");
+			item.put("Title", item.get("_id").toString());
 			//item.removeField("_id"); // if delete here, can't mapping result data.
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
@@ -152,27 +153,19 @@ public class AddItems extends ApiCall {
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
 					
-					System.out.println("debug line -1.");
-					
 					XMLSerializer xmls = new XMLSerializer();
 					xmls.setObjectName("AddItemsRequest");
 					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
 					
-					System.out.println("debug line0.");
-					
 					writelog("AIs.req"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".req.xml", requestxml);
-					
-					System.out.println("debug line1.");
+							 +".xml", requestxml);
 					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
-					
-					System.out.println("debug line2.");
 					
 				}
 			}
@@ -193,11 +186,11 @@ public class AddItems extends ApiCall {
 					String responsexml = ecs18.take().get();
 					parseresponse(responsexml);
 					
-					writelog("AIs.req"
+					writelog("AIs.res"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".res.xml", responsexml);
+							 +".xml", responsexml);
 				}
 			}
 		}
