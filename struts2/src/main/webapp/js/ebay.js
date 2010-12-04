@@ -199,6 +199,14 @@ function getrow(idx, row)
 	
 	$('td.UserID', dom).html(row.ext.UserID);
 	
+	if (row.SellingStatus.ListingStatus == 'Active') {
+		st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
+	} else {
+		st = $(row.SellingStatus.ListingStatus);
+	}
+	$('a.Title', dom).before(st);
+	
+	
 	return dom;
 	
 	
@@ -212,12 +220,6 @@ function getrow(idx, row)
 		$('img.PictureDetails_PictureURL', dom).remove();
 	}
 	
-	if (row['SellingStatus_ListingStatus'] == 'Active') {
-		st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
-	} else {
-		st = $(row['SellingStatus_ListingStatus']);
-	}
-	$('a.Title', dom).before(st);
 	$('a.Title', dom)
 		.prepend('['+row['ShippingDetails_ShippingType']+']')
 		.prepend('['+row['Site']+']');

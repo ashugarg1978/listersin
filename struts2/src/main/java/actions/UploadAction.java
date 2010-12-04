@@ -2,17 +2,12 @@ package ebaytool.actions;
 
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
-
 import java.io.File;
 import java.util.Map;
-
+import org.apache.commons.io.FileUtils;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
-//import org.apache.struts2.StrutsStatics;
-
-//import javax.servlet.ServletContext;
-import org.apache.commons.io.FileUtils;
 
 public class UploadAction extends ActionSupport {
 	
@@ -28,9 +23,10 @@ public class UploadAction extends ActionSupport {
 		String id = ((String[]) request.get("id"))[0];
 		
 		String basedir = "/usr/local/apache-tomcat-7.0.2/webapps/ROOT";
+		
+		// todo: get basedir
 		//ActionContext context = ActionContext.getContext();
 		//ServletContext sc = (ServletContext) context.get(StrutsStatics.SERVLET_CONTEXT);
-		
 		//upload = new File(sc.getRealPath("/WEB-INF/itemimage"));
 		
 		savedfilename = id+"_"+fileindex+".jpg";

@@ -3,6 +3,5 @@
 <!DOCTYPE html>
 <html>
 <body>
-[receivenotify]
 </body>
 </html>

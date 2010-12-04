@@ -348,6 +348,25 @@ public class UserAction extends ActionSupport {
 	@Action(value="/end")
 	public String end() throws Exception {
 		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) request.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("ext.status", "end"));
+		
+		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("EndItems");
+		out.println("bye");
+		out.close();
+		socket.close();
 		
 		return SUCCESS;
 	}
