@@ -64,15 +64,12 @@ public class ApiCall implements Callable {
 		return dbobject;
 	}
 	
-	public void writelog(String filename, String content) {
-		try {
-			FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
-			BufferedWriter out = new BufferedWriter(fstream);
-			out.write(content);
-			out.close();
-		} catch (Exception e) {
-			System.out.println(e.toString());
-		}
+	public void writelog(String filename, String content) throws Exception {
+
+		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(content);
+		out.close();
 		
 		return;
 	}

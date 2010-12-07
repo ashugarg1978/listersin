@@ -150,7 +150,7 @@ public class EndItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					String responsexml = ecs18.take().get();
-					//parseresponse(responsexml);
+					parseresponse(responsexml);
 					
 					writelog("EIs.res"
 							 +"."+((String) tmpuserid)
@@ -172,17 +172,13 @@ public class EndItems extends ApiCall {
 		
 		DBCollection coll = db.getCollection("items");
 		
-		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
+		BasicDBList dbl = (BasicDBList) responsedbo.get("EndItemResponseContainer");
 		for (Object item : dbl) {
 			
 			String id        = ((BasicDBObject) item).getString("CorrelationID");
-			String itemid    = ((BasicDBObject) item).getString("ItemID");
-			String starttime = ((BasicDBObject) item).getString("StartTime");
 			String endtime   = ((BasicDBObject) item).getString("EndTime");
 			
 			BasicDBObject upditem = new BasicDBObject();
-			upditem.put("ItemID", itemid);
-			upditem.put("ListingDetails.StartTime", starttime);
 			upditem.put("ListingDetails.EndTime", endtime);
 			upditem.put("ext.status", "");
 			
@@ -193,7 +189,7 @@ public class EndItems extends ApiCall {
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
-			System.out.println(id+" : "+itemid+" : "+result);
+			System.out.println(id+" : "+result);
 			
 		}
 		

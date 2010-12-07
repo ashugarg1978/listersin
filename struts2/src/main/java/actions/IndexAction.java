@@ -5,8 +5,6 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import ebaytool.apicall.GetSellerList;
 import java.io.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts2.ServletActionContext;
@@ -83,18 +81,9 @@ public class IndexAction extends ActionSupport {
 		HttpServletRequest request = ServletActionContext.getRequest();
 		BufferedReader br = request.getReader();
 		
-		//FileReader fr = new FileReader("/var/www/ebaytool/logs/receivenotify.log");
-		//BufferedReader br = new BufferedReader(fr);
-		
 		while ((line = br.readLine()) != null) {
 			notifyxml += line + "\n";
 		}
-		
-		/* save xml file */
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
-		Date now = new Date();
-		String logfile = "NTF."+sdf.format(now).toString()+".xml";
-		writelog(logfile, notifyxml);
 		
 		GetSellerList gsl = new GetSellerList();
 		gsl.parsenotifyxml(notifyxml);
@@ -102,13 +91,4 @@ public class IndexAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	public void writelog(String filename, String content) throws Exception {
-		
-		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(content);
-		out.close();
-		
-		return;
-	}
 }

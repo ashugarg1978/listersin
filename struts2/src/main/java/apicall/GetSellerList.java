@@ -4,6 +4,8 @@ import com.mongodb.*;
 import com.mongodb.util.*;
 import ebaytool.apicall.ApiCall;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import net.sf.json.JSONArray;
@@ -122,14 +124,31 @@ public class GetSellerList extends ApiCall {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(notifyxml);
 		
-		JSONObject item = json.getJSONObject("soapenv:Body")
-			.getJSONObject("GetItemResponse").getJSONObject("Item");
+		JSONObject item = json
+			.getJSONObject("soapenv:Body")
+			.getJSONObject("GetItemResponse")
+			.getJSONObject("Item");
 		
+		String notificationeventname = json
+			.getJSONObject("soapenv:Body")
+			.getJSONObject("GetItemResponse")
+			.get("NotificationEventName")
+			.toString();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
+		Date now = new Date();
+		String timestamp = sdf.format(now).toString();
+		
+		writelog("NTF."+notificationeventname+"."+timestamp+".xml", notifyxml);
+		
+		
+		// todo: event name operation
+
 		String userid = ((JSONObject) item.get("Seller")).get("UserID").toString();
 		
 		DBCollection coll = db.getCollection("items");
-			
-		if (true) {
+		
+		if (false) {
 			
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
@@ -150,12 +169,6 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 			
 		}
-		
-		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/receivenotify.parsed");
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write("[userid:"+userid+"]\n");
-		out.write(item.toString());
-		out.close();
 		
 		return;
 	}

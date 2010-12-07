@@ -21,7 +21,11 @@ start() {
 }
 
 stop() {
-	echo shutdown | telnet localhost 8181
+	telnet <<EOF
+open localhost 8181
+shutdown
+EOF
+	#echo shutdown | telnet localhost 8181
 }
 
 case "$1" in
