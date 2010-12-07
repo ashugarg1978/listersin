@@ -24,7 +24,6 @@ public class EndItems extends ApiCall {
 	private String userid;
 	private String site;
 	private String chunkidx;
-	private String[] itemids;
 	private String requestxml;
 	
 	public EndItems() throws Exception {
@@ -39,17 +38,17 @@ public class EndItems extends ApiCall {
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
-		query.put("ext.status", "(re)list");
-		query.put("ItemID", new BasicDBObject("$exists", 0));
+		//query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		query.put("ext.status", "end");
+		//query.put("ItemID", new BasicDBObject("$exists", 0));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
+		update.put("$set", new BasicDBObject("ext.status", "ending"));
 		
 		WriteResult result = coll.update(query, update, false, true);
 		System.out.println("WriteResult: "+result);
 		
-		query.put("ext.status", "(re)listing");
+		query.put("ext.status", "ending");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
 		DBCursor cur = coll.find(query);
@@ -58,16 +57,6 @@ public class EndItems extends ApiCall {
 			
 			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
 			site   = item.get("Site").toString();
-			
-			/* todo: remove more fields */
-			item.put("ConditionID", 1000);
-			item.put("ListingDuration", "Days_3");
-			item.put("Title", item.get("_id").toString());
-			//item.removeField("_id"); // if delete here, can't mapping result data.
-			item.removeField("BuyerProtection");
-			item.removeField("SellingStatus");
-			item.removeField("ext");
-			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
 			
 			if (!lhm.containsKey(userid)) {
 				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
@@ -80,7 +69,7 @@ public class EndItems extends ApiCall {
 			
 			int curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
 			int size = ((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).size();
-			if (size >= 5) {
+			if (size >= 10) {
 				((LinkedHashMap) lhm.get(userid).get(site)).put(curidx,
 																new ArrayList<DBObject>());
 				curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
@@ -107,65 +96,42 @@ public class EndItems extends ApiCall {
 					requestdbo.append("RequesterCredentials",
 									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
-					String[] itemids = new String[5];
 					int messageid = 0;
 					List<DBObject> ldbo = new ArrayList<DBObject>();
 					for (Object tmpidx : litems) {
 						
-						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
-						String id = ((BasicDBObject) tmpidx).get("_id").toString();
+						String id     = ((BasicDBObject) tmpidx).get("_id").toString();
+						String itemid = ((BasicDBObject) tmpidx).get("ItemID").toString();
+						
 						System.out.println(tmpuserid
 										   +" "+tmpsite
 										   +" "+tmpchunk+"."+messageid
-										   +":"+itemids[messageid]);
+										   +":"+itemid);
 						
-						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
+						ldbo.add(new BasicDBObject("MessageID", id)
+								 .append("ItemID", itemid)
+								 .append("EndingReason", "NotAvailable"));
 						
-						ldbo.add(new BasicDBObject("MessageID", id).append("Item", tmpidx));
-						
-						String title = ((BasicDBObject) tmpidx).get("Title").toString();
 					}
 					
-					requestdbo.append("AddItemRequestContainer", ldbo);
+					requestdbo.append("EndItemRequestContainer", ldbo);
 					
 					JSONObject jso = JSONObject.fromObject(requestdbo.toString());
-					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
-					for (Object tmpitem : tmpitems) {
-						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
-						
-						/* expand array elements */
-						if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
-						}
-						
-						if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
-						}
-						
-						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")
-							&& ((JSONObject) tmpi.get("PictureDetails")).get("PictureURL")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							((JSONObject) tmpi.get("PictureDetails"))
-								.getJSONArray("PictureURL").setExpandElements(true);
-						}
-					}			
-					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
+					jso.getJSONArray("EndItemRequestContainer").setExpandElements(true);
 					
 					XMLSerializer xmls = new XMLSerializer();
-					xmls.setObjectName("AddItemsRequest");
+					xmls.setObjectName("EndItemsRequest");
 					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
 					
-					writelog("AIs.req"
+					writelog("EIs.req"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".xml", requestxml);
 					
-					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
+					ecs18.submit(new ApiCallTask(0, requestxml, "EndItems"));
 					
 				}
 			}
@@ -184,9 +150,9 @@ public class EndItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					String responsexml = ecs18.take().get();
-					parseresponse(responsexml);
+					//parseresponse(responsexml);
 					
-					writelog("AIs.res"
+					writelog("EIs.res"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()

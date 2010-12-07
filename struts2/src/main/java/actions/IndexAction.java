@@ -5,7 +5,9 @@ import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import ebaytool.apicall.GetSellerList;
 import java.io.*;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
@@ -88,10 +90,25 @@ public class IndexAction extends ActionSupport {
 			notifyxml += line + "\n";
 		}
 		
+		/* save xml file */
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
+		Date now = new Date();
+		String logfile = "NTF."+sdf.format(now).toString()+".xml";
+		writelog(logfile, notifyxml);
+		
 		GetSellerList gsl = new GetSellerList();
 		gsl.parsenotifyxml(notifyxml);
 		
 		return SUCCESS;
 	}
 	
+	public void writelog(String filename, String content) throws Exception {
+		
+		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(content);
+		out.close();
+		
+		return;
+	}
 }

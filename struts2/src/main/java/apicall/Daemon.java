@@ -12,7 +12,7 @@ public class Daemon {
 	private ThreadPoolExecutor pool;
 	
 	public Daemon() throws Exception {
-		pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
+		pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 	}
 	
 	public void start() throws Exception {
@@ -45,6 +45,10 @@ public class Daemon {
 					} else if (message.equals("GetSellerList")) {
 						
 						pool.submit(new GetSellerList());
+						
+					} else if (message.equals("EndItems")) {
+						
+						pool.submit(new EndItems());
 						
 					} 
 					
