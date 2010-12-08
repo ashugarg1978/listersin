@@ -9,70 +9,43 @@ import java.util.concurrent.*;
 
 public class Daemon {
 	
-	private ThreadPoolExecutor pool;
-	
-	public Daemon() throws Exception {
-		pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-	}
-	
 	public void start() throws Exception {
 		
+		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 		ServerSocket serversocket = new ServerSocket(8181, 10);
-		System.out.println("waiting port 8181");
 		
 		while (true) {
 			
 			Socket socket = serversocket.accept();
-			System.out.println("accept from "+socket.getInetAddress().toString());
-			
-			OutputStreamWriter out = new OutputStreamWriter(socket.getOutputStream());
-			out.write("connected.\r\n");
-			out.flush();
-			
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			String message = "";
 			
-			do {
-				try {
-					
-					message = in.readLine();
-					System.out.println("client > "+message);
-					
-					if (message.equals("AddItems")) {
-						
-						pool.submit(new AddItems());
-						
-					} else if (message.equals("GetSellerList")) {
-						
-						pool.submit(new GetSellerList());
-						
-					} else if (message.equals("EndItems")) {
-						
-						pool.submit(new EndItems());
-						
-					} 
-					
-				} catch (Exception e) {
-					System.out.println("client > "+e.toString());
-				}
-				
-			} while (!message.equals("bye") && !message.equals("shutdown"));
+			message = in.readLine();
+			if (message.equals("shutdown")) break;
 			
+			Callable task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();
+			pool.submit(task);
+			
+			in.close();
 			socket.close();
-			
-			if (message.equals("shutdown")) {
-				System.out.println("shutdown...");
-				
-				ApiCall apicall = new ApiCall();
-				apicall.shutdown();
-				
-				serversocket.close();
-				
-				pool.shutdown();
-				
-				break;
-			}
 		}
+		
+		ApiCall apicall = new ApiCall();
+		apicall.shutdown();
+		
+		serversocket.close();
+		pool.shutdown();
+		
+		return;
+	}
+	
+	public void stop() throws Exception {
+		
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("shutdown");
+		out.close();
+		socket.close();
 		
 		return;
 	}
@@ -80,7 +53,12 @@ public class Daemon {
     public static void main(String[] args) throws Exception {
 		
 		Daemon daemon = new Daemon();
-		daemon.start();
+		String action = args[0];
+		if (action.equals("stop")) {
+			daemon.stop();
+		} else {
+			daemon.start();
+		}
 		
 		return;
 	}

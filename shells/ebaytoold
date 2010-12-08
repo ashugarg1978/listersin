@@ -14,18 +14,14 @@ do
 done
 
 start() {
-	/usr/local/jdk1.6.0_21/bin/java \
-		-cp $CP \
-		ebaytool.apicall.Daemon \
+	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon start \
 		> /var/www/ebaytool/logs/daemon.log &
 }
 
 stop() {
-	telnet <<EOF
-open localhost 8181
-shutdown
-EOF
-	#echo shutdown | telnet localhost 8181
+	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon stop
+	sleep 5
+	ps auxw | grep java
 }
 
 case "$1" in

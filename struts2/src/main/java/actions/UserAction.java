@@ -331,7 +331,6 @@ public class UserAction extends ActionSupport {
 		Socket socket = new Socket("localhost", 8181);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("AddItems");
-		out.println("bye");
 		out.close();
 		socket.close();
 		
@@ -364,7 +363,6 @@ public class UserAction extends ActionSupport {
 		Socket socket = new Socket("localhost", 8181);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("EndItems");
-		out.println("bye");
 		out.close();
 		socket.close();
 		
