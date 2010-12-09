@@ -14,6 +14,8 @@ public class Daemon {
 		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 		ServerSocket serversocket = new ServerSocket(8181, 10);
 		
+		pool.submit(new ApiCallMonitor());
+		
 		while (true) {
 			
 			Socket socket = serversocket.accept();

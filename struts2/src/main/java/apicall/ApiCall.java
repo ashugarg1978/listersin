@@ -1,9 +1,6 @@
 package ebaytool.apicall;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
+import com.mongodb.*;
 import com.mongodb.util.*;
 import java.io.*;
 import java.util.concurrent.*;
@@ -65,7 +62,7 @@ public class ApiCall implements Callable {
 	}
 	
 	public void writelog(String filename, String content) throws Exception {
-
+		
 		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(content);
