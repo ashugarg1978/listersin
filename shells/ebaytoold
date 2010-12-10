@@ -6,6 +6,7 @@
 # description: ebaytool daemon
 #
 
+PATH=/usr/local/jdk1.6.0_21/bin:$PATH
 CP=/var/www/ebaytool/struts2/target/classes/
 
 for jar in `ls /usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/`
@@ -14,12 +15,12 @@ do
 done
 
 start() {
-	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon start \
-		> /var/www/ebaytool/logs/daemon.log &
+	java -cp $CP ebaytool.apicall.Daemon start \
+		>> /var/www/ebaytool/logs/daemon.log &
 }
 
 stop() {
-	/usr/local/jdk1.6.0_21/bin/java -cp $CP ebaytool.apicall.Daemon stop
+	java -cp $CP ebaytool.apicall.Daemon stop
 	sleep 5
 	ps auxw | grep java
 }

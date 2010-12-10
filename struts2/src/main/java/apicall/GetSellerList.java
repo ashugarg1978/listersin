@@ -42,7 +42,7 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
 		dbobject.put("Sort", "1");
 		
-		String requestxml = convertDBObject2XML(dbobject);
+		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
 		parseresponse(responsexml);
@@ -57,7 +57,7 @@ public class GetSellerList extends ApiCall {
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
-			requestxml = convertDBObject2XML(dbobject);
+			requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 			ecs18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		}
 		

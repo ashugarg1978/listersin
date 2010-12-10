@@ -14,20 +14,25 @@ public class ApiCallMonitor extends ApiCall {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
+		String logstr = "";
+		String logstrprev = "";
+		
 		while (true) {
 			
 			Date now = new Date();
 			
-			String logstr = sdf.format(now).toString()
-				+ " "+pool18.getTaskCount()
+			logstr = pool18.getTaskCount()
 				+ "/"+pool18.getActiveCount()
 				+ "/"+pool18.getCompletedTaskCount();
 			
-			if (pool18.isShutdown()) logstr += "[shutdown]";
+			if (pool18.isShutdown())    logstr += "[shutdown]";
 			if (pool18.isTerminating()) logstr += "[terminating]";
-			if (pool18.isTerminated()) logstr += "[terminated]";
+			if (pool18.isTerminated())  logstr += "[terminated]";
 			
-			System.out.println(logstr);
+			if (!logstr.equals(logstrprev))
+				System.out.println(sdf.format(now).toString()+" "+logstr);
+			
+			logstrprev = logstr;
 			
 			Thread.sleep(1000);
 			

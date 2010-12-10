@@ -14,6 +14,8 @@ public class ApiCall implements Callable {
 	public static Mongo m;
 	public static DB db;
 	
+	public String admintoken = "AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB";
+	
 	public ApiCall() throws Exception {
 		
 		if (pool18 == null) {
@@ -38,11 +40,11 @@ public class ApiCall implements Callable {
 		return;
 	}
 	
-	public String convertDBObject2XML(DBObject dbobject) {
+	public String convertDBObject2XML(DBObject dbobject, String rootname) {
 		
 		JSONObject jso = JSONObject.fromObject(dbobject.toString());
 		XMLSerializer xmls = new XMLSerializer();
-		xmls.setObjectName("GetSellerListRequest");
+		xmls.setObjectName(rootname);
 		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 		xmls.setTypeHintsEnabled(false);
 		String xml = xmls.write(jso);
