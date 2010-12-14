@@ -29,8 +29,11 @@ public class UploadAction extends ActionSupport {
 		//ServletContext sc = (ServletContext) context.get(StrutsStatics.SERVLET_CONTEXT);
 		//upload = new File(sc.getRealPath("/WEB-INF/itemimage"));
 		
+		// todo: file extension
 		savedfilename = id+"_"+fileindex+".jpg";
+		
 		File savefile = new File(basedir + "/itemimage/" + savedfilename);
+		
 		FileUtils.copyFile(uploadfile, savefile);
 		
 		return SUCCESS;

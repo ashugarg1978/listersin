@@ -247,24 +247,16 @@ public class UserAction extends ActionSupport {
 	
 	@Action(value="/copy")
 	public String copy() throws Exception {
-
+		
 		json = new LinkedHashMap<String,Object>();
 		
-		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-		for (String id : (String[]) request.get("id")) {
-			ids.add(new ObjectId(id));
-		}
-		
-		DBCollection coll = db.getCollection("items");
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("_id", new BasicDBObject("$in", ids));
+		BasicDBObject query = getFilterQuery();
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
 		
 		// todo: sort result
-		DBCursor cur = coll.find(query, field);
+		DBCursor cur = db.getCollection("items").find(query, field);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
@@ -284,13 +276,7 @@ public class UserAction extends ActionSupport {
 
 		json = new LinkedHashMap<String,Object>();
 		
-		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-		for (String id : (String[]) request.get("id")) {
-			ids.add(new ObjectId(id));
-		}
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("_id", new BasicDBObject("$in", ids));
+		BasicDBObject query = getFilterQuery();
 		
 		//BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
 		//BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
@@ -606,31 +592,35 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = new BasicDBObject();
 		
-		String selling = "";
-		String userid  = "";
-		String title   = "";
-		String itemid  = "";
-		
-		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
-		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-		
-		if (request.containsKey("selling")) selling = ((String[]) request.get("selling"))[0];
-		if (!selling.equals("")) query = sellingquery.get(selling);
-		
-		if (request.containsKey("UserID")) userid = ((String[]) request.get("UserID"))[0];
-		if (!userid.equals("")) query.put("ext.UserID", userid);
-		
-		if (request.containsKey("Title")) title = ((String[]) request.get("Title"))[0];
-		if (!title.equals("")) query.put("Title", Pattern.compile(title));
-		
-		if (request.containsKey("ItemID")) itemid = ((String[]) request.get("ItemID"))[0];
-		if (!itemid.equals("")) query.put("ItemID", itemid);
-		
 		if (request.containsKey("id")) {
+			
+			ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 			for (String id : (String[]) request.get("id")) {
 				ids.add(new ObjectId(id));
 			}
 			query.put("_id", new BasicDBObject("$in", ids));
+			
+		} else {
+			
+			String selling = "";
+			String userid  = "";
+			String title   = "";
+			String itemid  = "";
+			
+			LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
+			
+			if (request.containsKey("selling")) selling = ((String[]) request.get("selling"))[0];
+			if (!selling.equals("")) query = sellingquery.get(selling);
+			
+			if (request.containsKey("UserID")) userid = ((String[]) request.get("UserID"))[0];
+			if (!userid.equals("")) query.put("ext.UserID", userid);
+			
+			if (request.containsKey("Title")) title = ((String[]) request.get("Title"))[0];
+			if (!title.equals("")) query.put("Title", Pattern.compile(title));
+			
+			if (request.containsKey("ItemID")) itemid = ((String[]) request.get("ItemID"))[0];
+			if (!itemid.equals("")) query.put("ItemID", itemid);
+			
 		}
 		
 		return query;

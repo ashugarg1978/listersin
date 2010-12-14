@@ -39,7 +39,7 @@ $(document).bind({
 		//setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		setInterval(refresh, 2000);
+		//setInterval(refresh, 2000);
 		
 		return;
 	}
@@ -468,7 +468,12 @@ function bindevents()
 		}
 		
 		var postdata = "";
-		postdata = $("input[name='id'][value!=on]:checked").serialize();
+		if ($("input[name='allpages']").attr('checked')) {
+			alert('apply to all pages?');
+			postdata = $('input.filter, select.filter').serialize();
+		} else {
+			postdata = $("input[name='id'][value!=on]:checked").serialize();
+		}
 		
 		$("input[name='id']:checked").each(function() {
 			$(this).css('visibility', 'hidden');
@@ -908,24 +913,6 @@ function preloadshippingtype(site)
 			  });
 }
 
-function copyitems()
-{
-	var postdata = "";
-	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
-	alert(postdata);
-	
-	$.post('/copy',
-		   postdata,
-		   function(data) {
-			   $("td.loading").removeClass('loading');
-			   $("input[name='id[]'][value!=on]:checked").css('visibility', '').attr('checked', '');
-			   //dump(data);
-		   },
-		   'json');
-	
-	return;
-}
-
 function refresh()
 {
 	loadings = $('td.loading');
@@ -950,45 +937,6 @@ function refresh()
 			   });
 		   },
 		   'json');
-	
-	return;
-}
-
-function additems()
-{
-	var postdata = "";
-	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
-	
-	$("input[name='id[]']:checked").each(function() {
-		$(this).css('visibility', 'hidden');
-		$(this).parent().addClass('loading');
-	});
-	
-	$.post('/users/additems/',
-		   postdata,
-		   function(data) {
-			   $('#debug').html('<pre>'+data+'</pre>');
-		   });
-	
-	return;
-}
-
-// todo: merge with additems
-function enditems()
-{
-	var postdata = "";
-	postdata = $("input[name='id[]'][value!=on]:checked").serialize();
-	
-	$("input[name='id[]']:checked").each(function() {
-		$(this).css('visibility', 'hidden');
-		$(this).parent().addClass('loading');
-	});
-	
-	$.post('/users/enditems/',
-		   postdata,
-		   function(data) {
-			   $('#debug').html('<pre>'+data+'</pre>');
-		   });
 	
 	return;
 }
@@ -1031,16 +979,6 @@ function paging(cnt)
 	$('#paging').html(html);
 	
 	return;
-}
-
-function chkall()
-{
-	$("input:checkbox[value!=on]").attr('checked', 'checked');
-}
-
-function unchkall()
-{
-	$(":checkbox").attr('checked', '');
 }
 
 function showbuttons(detail, buttons)
