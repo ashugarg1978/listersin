@@ -250,13 +250,15 @@ public class UserAction extends ActionSupport {
 		
 		json = new LinkedHashMap<String,Object>();
 		
+		DBCollection coll = db.getCollection("items");
+		
 		BasicDBObject query = getFilterQuery();
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
 		
 		// todo: sort result
-		DBCursor cur = db.getCollection("items").find(query, field);
+		DBCursor cur = coll.find(query, field);
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();

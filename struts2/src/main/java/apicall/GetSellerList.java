@@ -79,7 +79,13 @@ public class GetSellerList extends ApiCall {
 		
 		String pagenumber = responsedbo.get("PageNumber").toString();
 		
-		System.out.println(userid+" "+pagenumber);
+		System.out.println
+			(userid
+			 +" "+responsedbo.get("PageNumber").toString()
+			 +"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
+			 .get("TotalNumberOfPages")
+			 .toString());
+		
 		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
 		int rica = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
