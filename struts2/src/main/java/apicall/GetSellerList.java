@@ -83,8 +83,10 @@ public class GetSellerList extends ApiCall {
 			(userid
 			 +" "+responsedbo.get("PageNumber").toString()
 			 +"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
-			 .get("TotalNumberOfPages")
-			 .toString());
+			 .get("TotalNumberOfPages").toString()
+			 +" "+responsedbo.get("ReturnedItemCountActual").toString()
+			 +"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
+			 .get("TotalNumberOfEntries").toString());
 		
 		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		

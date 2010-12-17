@@ -257,18 +257,25 @@ public class UserAction extends ActionSupport {
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 0);
 		
+		Integer d = 0;
+		
 		// todo: sort result
-		DBCursor cur = coll.find(query, field);
-		while (cur.hasNext()) {
-			DBObject item = cur.next();
+		//DBCursor cur = coll.find(query, field).snapshot();
+		//json.put("count", cur.count());
+		List<DBObject> dblist = coll.find(query, field).snapshot().toArray();
+		//while (cur.hasNext()) {
+		for (DBObject item : dblist) {
+			//DBObject item = cur.next();
 			String id = item.get("_id").toString();
 			item.removeField("_id");
 			
 			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
 			dbl.add("copied");
 			
-			coll.insert(item);
+			coll.insert(item, WriteConcern.SAFE);
+			d++;
 		}
+		json.put("d", d.toString());
 		
 		return SUCCESS;
 	}
