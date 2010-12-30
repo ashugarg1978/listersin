@@ -59,6 +59,8 @@ public class ApiCallTask implements Callable {
 		
         conn.connect();
 		
+		System.out.println(conn.getResponseMessage());
+		
 		/* handle http response */
         InputStreamReader isr = new InputStreamReader(conn.getInputStream());
 		BufferedReader br = new BufferedReader(isr);

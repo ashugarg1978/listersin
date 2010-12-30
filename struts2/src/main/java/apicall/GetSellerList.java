@@ -26,6 +26,7 @@ public class GetSellerList extends ApiCall {
 			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
 			String token = json.get("ebaytkn").toString();
 			call2(userid.toString(), token);
+			break;
 		}
 		
 		return "OK";
@@ -37,10 +38,13 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2010-10-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2011-01-01 00:00:00");
-		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage", 50).append("PageNumber", 1));
+		//dbobject.put("StartTimeFrom", "2010-10-01 00:00:00");
+		//dbobject.put("StartTimeTo",   "2011-01-01 00:00:00");
+		dbobject.put("EndTimeFrom", "2011-01-01 00:00:00");
+		dbobject.put("EndTimeTo",   "2011-03-01 00:00:00");
+		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",200).append("PageNumber",1));
 		dbobject.put("Sort", "1");
+		dbobject.put("UserID", "testuser_sbmsku");
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));

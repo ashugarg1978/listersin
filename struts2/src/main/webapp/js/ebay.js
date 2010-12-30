@@ -289,6 +289,17 @@ function getdetail(row)
 		});
 	}
 	
+	/* description */
+	// todo: check html5 srcdoc attribute
+	iframe = $('<iframe/>')
+		.attr('class', 'description')
+		.attr('src', 'about:blank');
+	
+	iframe.load(function() {
+		$(this).contents().find('body').append(row.Description);
+	});
+	$('textarea[name=Description]', detail).replaceWith(iframe);
+	
 	return;
 	
 	if (row.shippingtype) {
@@ -337,10 +348,6 @@ function getdetail(row)
 		$('td.weight', detail).html(weight);
 	}
 	
-	/* description */
-	// todo: check html5 srcdoc attribute
-	iframe = $('<iframe/>').attr('src', '/users/description/'+id);
-	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
 	
 
