@@ -158,7 +158,7 @@ function getrow(idx, row)
 		
 		$('.'+colname, dom).html(colval);
 	});
-
+	
 	if (row.ListingDetails.ViewItemURL) {
 		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
 	} else {
@@ -635,7 +635,9 @@ function bindevents()
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
 					   preloadcategory(data.json.item.Site, data.json.item.categorypath);
-					   //preloadcategoryfeatures(data.Site, data.PrimaryCategory.CategoryID);
+					   preloadcategoryfeatures(data.json.item.Site,
+											   data.json.item.PrimaryCategory.CategoryID);
+					   
 					   //preloadshippingtype(data.Site);
 					   rowsdata[id] = data.json.item;
 					   
@@ -667,17 +669,21 @@ function bindevents()
 		id = $(this).closest('tbody.itemrow').attr('id');
 		item = rowsdata[id];
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-		//dump(item);
 		
 		$('input[name=Title]',            dom).val(item.Title);
 		$('input[name=SubTitle]',         dom).val(item.SubTitle);
 		$('input[name=StartPrice.#text]', dom).val(item.StartPrice['#text']);
 		$('input[name=Quantity]',         dom).val(item.Quantity);
 		$('select[name=Site]',            dom).val(item.Site);
+		$('select[name=ListingType]',     dom).val(item.ListingType);
+		$('textarea[name=Description]',   dom).val(item.Description);
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
 	    $('input[name=Title]', 'tbody#'+id).focus();
+		
+		// todo: compare to CKEditor
+		$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
 		
 		/* category selector */
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
@@ -716,11 +722,6 @@ function bindevents()
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
-		
-		$('textarea[name=description]', dom).val(rowsdata[id]['Description']);
-		$('select[name=ListingType]',   dom).val(rowsdata[id]['ListingType']);
-		$('select[name=Site]',          dom).val(rowsdata[id]['Site']);
-		
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
@@ -747,15 +748,6 @@ function bindevents()
 			$('td.paymentmethod', dom).append(v+'<br>');
 		});
 		
-		showbuttons(dom, 'save,cancel');
-		
-		$('div.detail', 'tbody#'+id).replaceWith(dom);
-		
-		// todo: compare with CKEditor
-		$('textarea[name=description]', '#'+id).wysiwyg();
-		
-	    $('input[name=Title]', 'tbody#'+id).focus();
-	    
 //		$('td.shippingservice', '#'+id).append(getshippingservice(id));
 		
 		return false;
@@ -903,8 +895,9 @@ function preloadcategoryfeatures(site, categoryid)
 {
 	if (hash[site]['category']['features'][categoryid]) return;
 	
-	$.getJSON('/users/categoryfeatures/'+site+'/'+categoryid,
+	$.getJSON('/categoryfeatures?site='+site+'&categoryid='+categoryid,
 			  function(data) {
+				  dump(data);
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
 				  hash[site]['category']['features'] = tmpo;
 			  });

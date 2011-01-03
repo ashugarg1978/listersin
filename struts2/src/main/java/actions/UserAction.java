@@ -151,14 +151,6 @@ public class UserAction extends ActionSupport {
 			json.put(id, item);
 		}
 		
-		json.put("cnt", cur.count());
-		//json.put("cnt", cur.size());
-		
-		for (Object k : request.keySet()) {
-			json.put(k.toString(), request.get(k));
-		}
-		json.put("selling", request.get("selling"));
-		
 		return SUCCESS;
 	}
 	
@@ -593,6 +585,28 @@ public class UserAction extends ActionSupport {
 		json.put("grandchildren", grandchildren);
 		json.put("children", children);
 		json.put("name", name);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/categoryfeatures")
+	public String categoryfeatures() {
+		json = new LinkedHashMap<String,Object>();
+		
+		/* handling post parameters */
+		String site       = ((String[]) request.get("site"))[0];
+		String categoryid = ((String[]) request.get("categoryid"))[0];
+		
+		
+		BasicDBObject keys = new BasicDBObject();
+		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
+		
+		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
+		DBCursor cursor = collection.find(new BasicDBObject(), keys);
+		while (cursor.hasNext()) {
+			DBObject item = cursor.next();
+			json.put("ld", item);
+		}
 		
 		return SUCCESS;
 	}

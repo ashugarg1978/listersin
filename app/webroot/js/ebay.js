@@ -778,6 +778,7 @@ function preloadcategoryfeatures(site, categoryid)
 			  function(data) {
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
 				  hash[site]['category']['features'] = tmpo;
+				  dump(hash[site]['category']);
 			  });
 }
 
