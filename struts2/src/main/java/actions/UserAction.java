@@ -597,12 +597,14 @@ public class UserAction extends ActionSupport {
 		String site       = ((String[]) request.get("site"))[0];
 		String categoryid = ((String[]) request.get("categoryid"))[0];
 		
+		BasicDBObject query = new BasicDBObject();
+		query.put("FeatureDefinitions.ListingDurations", new BasicDBObject("$exists", 1));
 		
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
 		
 		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
-		DBCursor cursor = collection.find(new BasicDBObject(), keys);
+		DBCursor cursor = collection.find(query);
 		while (cursor.hasNext()) {
 			DBObject item = cursor.next();
 			json.put("ld", item);
