@@ -43,6 +43,17 @@ brabrabra....<br>
 
 <div style="margin:10px;">
 <b>New user registration</b><br><br>
+
+<form method="post" action="/register">
+Email
+<input type="text" name="email" size="20"><br>
+Password
+<input type="text" name="password" size="20"><br>
+Re-type password
+<input type="text" name="password2" size="20"><br>
+<input type="submit" value="Register">
+</form>
+
 </div>
 
 </div>

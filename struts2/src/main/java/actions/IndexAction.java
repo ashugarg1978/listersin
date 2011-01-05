@@ -72,6 +72,27 @@ public class IndexAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	@Action(value="/register", results={@Result(name="success",location="register.jsp")})
+	public String register() throws Exception {
+		ActionContext context = ActionContext.getContext();
+		Map request = context.getParameters();
+		
+		// todo: password validation, check existing user record.
+		if (request.get("email") != null
+			&& request.get("password") != null
+			&& request.get("password2") != null) {
+			
+			BasicDBObject user = new BasicDBObject();
+			user.put("email", request.get("email"));
+			user.put("password", request.get("password"));
+			
+			DB db = new Mongo().getDB("ebay");
+			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
+		}
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/receivenotify", results={@Result(name="success",location="receivenotify.jsp")})
 	public String receivenotify() throws Exception {
 		
