@@ -107,7 +107,7 @@ function items()
 	$.post('/items',
 		   $('input.filter, select.filter').serialize(),
 		   function(data) {
-			   dump(data);
+			   dump(data.json);
 			   paging(data.json.cnt);
 			   $('tbody:gt(2)', 'table#items').remove();
 			   if (data.cnt == 0) {
@@ -118,7 +118,7 @@ function items()
 			   $('tbody#rowloading').hide();
 			   
 			   var tmpids = new Array();
-			   $.each(data.json, function(idx, row) {
+			   $.each(data.json.items, function(idx, row) {
 				   dom = getrow(idx, row);
 				   $('#items').append(dom);
 				   //rowsdata[row['id']] = row;
@@ -925,8 +925,8 @@ function refresh()
 	$.post('/items',
 		   loadings.serialize(),
 		   function(data) {
-			   dump(data);
-			   $.each(data.json, function(idx, row) {
+			   dump(data.json);
+			   $.each(data.json.items, function(idx, row) {
 				   dom = getrow(idx, row);
 				   if (row.ext.status == '') {
 					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');

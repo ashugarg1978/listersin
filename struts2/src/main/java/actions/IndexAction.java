@@ -52,7 +52,7 @@ public class IndexAction extends ActionSupport {
 			password = ((String[]) request.get("password"))[0];
 			
 			query.put("email", email);
-			//query.put("password", password);
+			query.put("password", password);
 			user = (BasicDBObject) coll.findOne(query);
 			
 			session.put("email", user.get("email").toString());

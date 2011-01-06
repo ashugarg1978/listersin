@@ -84,6 +84,7 @@ public class UserAction extends ActionSupport {
 	public String items() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
+		LinkedHashMap<String,Object> items = new LinkedHashMap<String,Object>();
 		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
@@ -148,8 +149,9 @@ public class UserAction extends ActionSupport {
 			item.put("endtime", sdf.format(dfendtime));
 			
 			/* add */
-			json.put(id, item);
+			items.put(id, item);
 		}
+		json.put("items", items);
 		
 		return SUCCESS;
 	}
