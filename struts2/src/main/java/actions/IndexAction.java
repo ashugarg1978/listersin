@@ -9,9 +9,11 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
+import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
 
+@ParentPackage("json-default")
 public class IndexAction extends ActionSupport {
 	
 	public BasicDBObject user;
@@ -72,7 +74,7 @@ public class IndexAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	@Action(value="/register", results={@Result(name="success",location="register.jsp")})
+	@Action(value="/register", results={@Result(name="success",type="json")})
 	public String register() throws Exception {
 		ActionContext context = ActionContext.getContext();
 		Map request = context.getParameters();
@@ -83,8 +85,8 @@ public class IndexAction extends ActionSupport {
 			&& request.get("password2") != null) {
 			
 			BasicDBObject user = new BasicDBObject();
-			user.put("email", request.get("email"));
-			user.put("password", request.get("password"));
+			user.put("email",    ((String[]) request.get("email"))[0]);
+			user.put("password", ((String[]) request.get("password"))[0]);
 			
 			DB db = new Mongo().getDB("ebay");
 			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
