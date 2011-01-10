@@ -627,7 +627,7 @@ public class UserAction extends ActionSupport {
 		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
 		
 		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
-		DBCursor cursor = collection.find(query);
+		DBCursor cursor = collection.find(query, keys);
 		while (cursor.hasNext()) {
 			DBObject item = cursor.next();
 			json.put("ld", item);
