@@ -628,11 +628,13 @@ public class UserAction extends ActionSupport {
 		
 		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
 		DBObject lds = collection.findOne(query, keys);
+		json.put("lds", lds);
 		
-		for (Object ld : lds.get("ListingDurations")) {
+		/*
+		for (Object ld : (BasicDBList) lds.get("ListingDurations")) {
 			json.put(ld.toString(), ld);
 		}
-		/*
+		
 		DBCursor cursor = collection.find(query, keys);
 		while (cursor.hasNext()) {
 			DBObject item = cursor.next();
