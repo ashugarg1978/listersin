@@ -620,6 +620,7 @@ public class UserAction extends ActionSupport {
 		String site       = ((String[]) request.get("site"))[0];
 		String categoryid = ((String[]) request.get("categoryid"))[0];
 		
+		/* DurationSet */
 		BasicDBObject query = new BasicDBObject();
 		query.put("FeatureDefinitions.ListingDurations", new BasicDBObject("$exists", 1));
 		
@@ -627,14 +628,15 @@ public class UserAction extends ActionSupport {
 		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
 		
 		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
-		DBObject lds = collection.findOne(query, keys);
+		DBObject res = collection.findOne(query, keys);
+		BasicDBList lds = (BasicDBList) res.get("FeatureDefinitions");
+		for (Object ld : lds.get("ListingDurations")) {
+			json.put(((BasicDBObject) ld).get("@durationSetID").toString(),
+					 ((BasicDBObject) ld).get("Duration"));
+		}
 		json.put("lds", lds);
 		
 		/*
-		for (Object ld : (BasicDBList) lds.get("ListingDurations")) {
-			json.put(ld.toString(), ld);
-		}
-		
 		DBCursor cursor = collection.find(query, keys);
 		while (cursor.hasNext()) {
 			DBObject item = cursor.next();
