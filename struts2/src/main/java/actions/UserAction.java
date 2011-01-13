@@ -629,12 +629,22 @@ public class UserAction extends ActionSupport {
 		
 		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
 		DBObject res = collection.findOne(query, keys);
-		BasicDBList lds = (BasicDBList) res.get("FeatureDefinitions");
-		for (Object ld : lds.get("ListingDurations")) {
+		BasicDBObject fd  = (BasicDBObject) res.get("FeatureDefinitions");
+		BasicDBObject lds = (BasicDBObject)  fd.get("ListingDurations");
+		BasicDBList   ald = (BasicDBList)   lds.get("ListingDuration");
+
+		LinkedHashMap<Integer,LinkedHashMap> durationset =
+			new LinkedHashMap<Integer,LinkedHashMap>();
+		for (Object ld : ald) {
+			
 			json.put(((BasicDBObject) ld).get("@durationSetID").toString(),
 					 ((BasicDBObject) ld).get("Duration"));
+			for (Object d : ld) {
+				String 
+				LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
+				
+			}
 		}
-		json.put("lds", lds);
 		
 		/*
 		DBCursor cursor = collection.find(query, keys);
