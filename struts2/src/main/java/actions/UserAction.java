@@ -635,16 +635,21 @@ public class UserAction extends ActionSupport {
 
 		LinkedHashMap<Integer,LinkedHashMap> durationset =
 			new LinkedHashMap<Integer,LinkedHashMap>();
-		for (Object ld : ald) {
+		for (BasicDBObject ld : (BasicDBObject[]) ald) {
+			
+			//Integer setid = Integer.parseInt();
+			LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
 			
 			json.put(((BasicDBObject) ld).get("@durationSetID").toString(),
 					 ((BasicDBObject) ld).get("Duration"));
-			for (Object d : ld) {
-				String 
-				LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
-				
+			for (Object d : (BasicDBList) ((BasicDBObject) ld).get("Duration")) {
+				String dname = d.toString();
+				dset.put(dname, dname);
 			}
+			durationset.put(((BasicDBObject) ld).getInt("@durationSetID"), dset);
 		}
+		log.debug(durationset);
+		json.put("d", durationset);
 		
 		/*
 		DBCursor cursor = collection.find(query, keys);
