@@ -632,21 +632,21 @@ public class UserAction extends ActionSupport {
 		BasicDBObject fd  = (BasicDBObject) res.get("FeatureDefinitions");
 		BasicDBObject lds = (BasicDBObject)  fd.get("ListingDurations");
 		BasicDBList   ald = (BasicDBList)   lds.get("ListingDuration");
-
+		
 		LinkedHashMap<Integer,LinkedHashMap> durationset =
 			new LinkedHashMap<Integer,LinkedHashMap>();
-		for (BasicDBObject ld : (BasicDBObject[]) ald) {
+		for (Object ld : ald) {
 			
-			//Integer setid = Integer.parseInt();
+			String durationsetid = ((BasicDBObject) ld).get("@durationSetID").toString();
+			Integer setid = Integer.parseInt(durationsetid);
 			LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
 			
-			json.put(((BasicDBObject) ld).get("@durationSetID").toString(),
-					 ((BasicDBObject) ld).get("Duration"));
 			for (Object d : (BasicDBList) ((BasicDBObject) ld).get("Duration")) {
 				String dname = d.toString();
-				dset.put(dname, dname);
+				String dval = dname.replaceAll("^Days_([\d]+)$", "$1 Days");
+				dset.put(dname, dval);
 			}
-			durationset.put(((BasicDBObject) ld).getInt("@durationSetID"), dset);
+			durationset.put(setid, dset);
 		}
 		log.debug(durationset);
 		json.put("d", durationset);
