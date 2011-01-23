@@ -620,10 +620,9 @@ public class UserAction extends ActionSupport {
 		String site       = ((String[]) request.get("site"))[0];
 		String categoryid = ((String[]) request.get("categoryid"))[0];
 		
+		
 		/* DurationSet */
 		BasicDBObject query = new BasicDBObject();
-		query.put("FeatureDefinitions.ListingDurations", new BasicDBObject("$exists", 1));
-		
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
 		
@@ -643,13 +642,24 @@ public class UserAction extends ActionSupport {
 			
 			for (Object d : (BasicDBList) ((BasicDBObject) ld).get("Duration")) {
 				String dname = d.toString();
-				String dval = dname.replaceAll("^Days_([\d]+)$", "$1 Days");
+				String dval = dname
+					.replaceAll("^Days_([\\d]+)$", "$1 Days")
+					.replace("GTC", "Good 'Til Cancelled");
 				dset.put(dname, dval);
 			}
 			durationset.put(setid, dset);
 		}
 		log.debug(durationset);
 		json.put("d", durationset);
+		
+		
+		/* SiteDefaults */
+		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
+		json.put("dbo", dbo);
+		for (String key : dbo.keySet()) {
+			json.put(key, dbo.get("key"));
+		}
+		
 		
 		/*
 		DBCursor cursor = collection.find(query, keys);
