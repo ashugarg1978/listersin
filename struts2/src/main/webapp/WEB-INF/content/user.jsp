@@ -81,7 +81,7 @@
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
 <br><br><br>
 
-<a href="#" onclick="preloadcategoryfeatures('US', 31387)">features</a>
+<a href="#" onclick="preloadcategoryfeatures('US', 31387); return false;">features</a>
 
 
 <div id="msg"></div>

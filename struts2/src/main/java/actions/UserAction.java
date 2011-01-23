@@ -656,18 +656,15 @@ public class UserAction extends ActionSupport {
 		/* SiteDefaults */
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
 		json.put("dbo", dbo);
-		for (String key : dbo.keySet()) {
-			json.put(key, dbo.get("key"));
+		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
+			json.put("k-"+key, dbo.get("key"));
 		}
 		
 		
-		/*
-		DBCursor cursor = collection.find(query, keys);
-		while (cursor.hasNext()) {
-			DBObject item = cursor.next();
-			json.put("ld", item);
-		}
-		*/
+		/* CategoryPath */
+		LinkedHashMap<Integer,String> path = categorypath2(site, Integer.parseInt(categoryid));
+		json.put("path", path);
+		
 		
 		return SUCCESS;
 	}

@@ -644,7 +644,10 @@ class UsersController extends AppController {
 		//error_log(print_r($data,1));
 		
 		$res['features'][$categoryid] = $data;
-		echo json_encode($res);
+		
+		echo '<pre>'.print_r($res,1).'</pre>';
+		//echo json_encode($res);
+		
 		exit;
 	}
 	
