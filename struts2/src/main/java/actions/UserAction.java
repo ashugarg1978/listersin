@@ -663,6 +663,9 @@ public class UserAction extends ActionSupport {
 		
 		/* CategoryPath */
 		LinkedHashMap<Integer,String> path = categorypath2(site, Integer.parseInt(categoryid));
+		for (Integer cid : path.keySet()) {
+			
+		}
 		json.put("path", path);
 		
 		
