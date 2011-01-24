@@ -655,7 +655,8 @@ public class UserAction extends ActionSupport {
 		
 		/* SiteDefaults */
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
-		json.put("dbo", dbo);
+		Map sd = ((BasicDBObject) dbo.get("SiteDefaults")).toMap();
+		json.put("sd", sd);
 		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
 			json.put("k-"+key, dbo.get("key"));
 		}
@@ -670,6 +671,9 @@ public class UserAction extends ActionSupport {
 		}
 		json.put("path", path);
 		
+		HashMap<String,Map> cf = new HashMap<String,Map>();
+		cf.put(categoryid, sd);
+		json.put("features", cf);
 		
 		return SUCCESS;
 	}
