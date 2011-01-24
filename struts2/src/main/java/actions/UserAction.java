@@ -650,7 +650,7 @@ public class UserAction extends ActionSupport {
 			durationset.put(setid, dset);
 		}
 		log.debug(durationset);
-		json.put("d", durationset);
+		json.put("durationset", durationset);
 		
 		
 		/* SiteDefaults */
@@ -662,9 +662,11 @@ public class UserAction extends ActionSupport {
 		
 		
 		/* CategoryPath */
+		DBCollection coll2 = db.getCollection("CategoryFeatures_"+site+"_Category");
 		LinkedHashMap<Integer,String> path = categorypath2(site, Integer.parseInt(categoryid));
 		for (Integer cid : path.keySet()) {
-			
+			dbo = coll2.findOne(new BasicDBObject("CategoryID", cid.toString()));
+			json.put("p-"+cid.toString(), dbo);
 		}
 		json.put("path", path);
 		
