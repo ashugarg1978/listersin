@@ -657,10 +657,14 @@ public class UserAction extends ActionSupport {
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
 		Map sd = ((BasicDBObject) dbo.get("SiteDefaults")).toMap();
 		json.put("sd", sd);
+		/*
 		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
 			json.put("k-"+key, dbo.get("key"));
 		}
-		
+		*/
+		for (Object ld : (List) sd.get("ListingDuration")) {
+			json.put("ld-"+ld, ld);
+		}
 		
 		/* CategoryPath */
 		DBCollection coll2 = db.getCollection("CategoryFeatures_"+site+"_Category");
