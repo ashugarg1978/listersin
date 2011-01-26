@@ -655,6 +655,11 @@ public class UserAction extends ActionSupport {
 		
 		/* SiteDefaults */
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
+		BasicDBList sdld =
+			(BasicDBList) ((DBObject) dbo.get("SiteDefaults")).get("ListingDuration");
+		for (Object ldo : sdld) {
+			json.put("ldo-"+ldo, ldo.get("@type"));
+		}
 		Map sd = ((BasicDBObject) dbo.get("SiteDefaults")).toMap();
 		json.put("sd", sd);
 		/*
@@ -663,7 +668,7 @@ public class UserAction extends ActionSupport {
 		}
 		*/
 		for (Object ld : (List) sd.get("ListingDuration")) {
-			json.put("ld-"+ld, ld);
+			//json.put("ld-"+ld, ((List) ld).get("@type"));
 		}
 		
 		/* CategoryPath */
