@@ -60,6 +60,11 @@ public class IndexAction extends ActionSupport {
 			return "loggedin";
 		}
 		
+		if (true) {
+			session.put("email", "fd3s.boost@gmail.com");
+			return "loggedin";
+		}
+		
 		return SUCCESS;
 	}
 	

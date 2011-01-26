@@ -44,6 +44,7 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", session.get("email").toString());
+		//query.put("email", "fd3s.boost@gmail.com");
 		
 		user = (BasicDBObject) coll.findOne(query);
 	}
@@ -655,12 +656,12 @@ public class UserAction extends ActionSupport {
 		
 		/* SiteDefaults */
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
-		BasicDBList sdld =
-			(BasicDBList) ((DBObject) dbo.get("SiteDefaults")).get("ListingDuration");
-		for (Object ldo : sdld) {
-			json.put("ldo-"+ldo, ldo.get("@type"));
+		BasicDBObject   sd = (BasicDBObject) dbo.get("SiteDefaults");
+		BasicDBObject sdld = (BasicDBObject)  sd.get("ListingDuration");
+		json.put("sdld", sdld);
+		for (Object ldo : sdld.keySet()) {
+			json.put("ldo-"+ldo, sdld.get(ldo));
 		}
-		Map sd = ((BasicDBObject) dbo.get("SiteDefaults")).toMap();
 		json.put("sd", sd);
 		/*
 		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
