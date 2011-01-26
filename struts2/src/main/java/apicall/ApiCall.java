@@ -55,7 +55,8 @@ public class ApiCall implements Callable {
 	public BasicDBObject convertXML2DBObject(String xml) {
 		
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
-		xmlSerializer.setTypeHintsCompatibility(true);
+		//xmlSerializer.setTypeHintsCompatibility(true);
+		xmlSerializer.setTypeHintsEnabled(false);
 		
 		net.sf.json.JSON json = xmlSerializer.read(xml);
 		
