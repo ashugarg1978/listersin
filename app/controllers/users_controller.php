@@ -27,7 +27,14 @@ class UsersController extends AppController {
 		if (!empty($_POST)) error_log('POST:'.print_r($_POST,1));
 		parent::beforeFilter();
 		
-        $this->Auth->allow('index', 'register', 'receivenotify');
+		if (false) {
+			$query['email'] = 'fd3s.boost@gmail.com';
+			$this->user = $this->mongo->ebay->users->findOne($query);
+			$this->set('user', $this->user);
+			return;
+		}
+		
+        $this->Auth->allow('index', 'register', 'receivenotify', 'categoryfeatures');
 		$this->Auth->loginRedirect = array('controller' => 'users', 'action' => 'home');
 		$this->Auth->fields = array('username' => 'email',  'password' => 'password');
 		

@@ -659,22 +659,25 @@ public class UserAction extends ActionSupport {
 		BasicDBObject   sd = (BasicDBObject) dbo.get("SiteDefaults");
 		BasicDBList   sdld = (BasicDBList)    sd.get("ListingDuration");
 		
-		LinkedHashMap<Integer,LinkedHashMap> durationset =
-			new LinkedHashMap<Integer,LinkedHashMap>();
+		LinkedHashMap<String,Integer> typedefault = new LinkedHashMap<String,Integer>();
+		
+		for (Object ldo : sdld) {
+			String type = ((BasicDBObject) ldo).get("@type").toString();
+			Integer setid = Integer.parseInt(((BasicDBObject) ldo).get("#text").toString());
+			typedefault.put(type, setid);
+		}
 		
 		json.put("sdld", sdld);
-		for (Object ldo : sdld) {
-			json.put("ldo-"+ldo.toString(), ldo);
-		}
 		json.put("sd", sd);
+		json.put("typedefault", typedefault);
 		/*
 		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
 			json.put("k-"+key, dbo.get("key"));
 		}
-		*/
 		for (Object ld : (List) sd.get("ListingDuration")) {
-			//json.put("ld-"+ld, ((List) ld).get("@type"));
+		//json.put("ld-"+ld, ((List) ld).get("@type"));
 		}
+		*/
 		
 		/* CategoryPath */
 		DBCollection coll2 = db.getCollection("CategoryFeatures_"+site+"_Category");
