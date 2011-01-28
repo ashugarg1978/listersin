@@ -657,10 +657,14 @@ public class UserAction extends ActionSupport {
 		/* SiteDefaults */
 		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
 		BasicDBObject   sd = (BasicDBObject) dbo.get("SiteDefaults");
-		BasicDBObject sdld = (BasicDBObject)  sd.get("ListingDuration");
+		BasicDBList   sdld = (BasicDBList)    sd.get("ListingDuration");
+		
+		LinkedHashMap<Integer,LinkedHashMap> durationset =
+			new LinkedHashMap<Integer,LinkedHashMap>();
+		
 		json.put("sdld", sdld);
-		for (Object ldo : sdld.keySet()) {
-			json.put("ldo-"+ldo, sdld.get(ldo));
+		for (Object ldo : sdld) {
+			json.put("ldo-"+ldo.toString(), ldo);
 		}
 		json.put("sd", sd);
 		/*
