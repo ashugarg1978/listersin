@@ -659,12 +659,12 @@ public class UserAction extends ActionSupport {
 		BasicDBObject   sd = (BasicDBObject) dbo.get("SiteDefaults");
 		BasicDBList   sdld = (BasicDBList)    sd.get("ListingDuration");
 		
-		LinkedHashMap<String,Integer> typedefault = new LinkedHashMap<String,Integer>();
+		LinkedHashMap<String,LinkedHashMap> typedefault = new LinkedHashMap<String,LinkedHashMap>();
 		
 		for (Object ldo : sdld) {
-			String type = ((BasicDBObject) ldo).get("@type").toString();
+			String   type = ((BasicDBObject) ldo).get("@type").toString();
 			Integer setid = Integer.parseInt(((BasicDBObject) ldo).get("#text").toString());
-			typedefault.put(type, setid);
+			typedefault.put(type, durationset.get(setid));
 		}
 		
 		json.put("sdld", sdld);
@@ -687,6 +687,7 @@ public class UserAction extends ActionSupport {
 			json.put("p-"+cid.toString(), dbo);
 		}
 		json.put("path", path);
+		
 		
 		HashMap<String,Map> cf = new HashMap<String,Map>();
 		cf.put(categoryid, sd);
