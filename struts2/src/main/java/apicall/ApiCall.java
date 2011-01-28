@@ -75,4 +75,18 @@ public class ApiCall implements Callable {
 		return;
 	}
 	
+	public String readfile(String filename) throws Exception {
+		
+		String data = "";
+		
+		FileReader fr = new FileReader(filename);
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			data = data + line;
+		}
+		br.close();
+		
+		return data;
+	}
 }

@@ -35,6 +35,7 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategoryFeatures");
 			
+			/*
 			Future<String> future =
 				ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategoryFeatures"));
 			
@@ -42,7 +43,9 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			
 			writelog("GCF.req."+site+".xml", requestxml);
 			writelog("GCF.res."+site+".xml", responsexml);
+			*/
 			
+			String responsexml = readfile("/var/www/ebaytool/logs/apixml/GCF.res."+site+".xml");
 			
 			BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 			

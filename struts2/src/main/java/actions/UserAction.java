@@ -688,6 +688,7 @@ public class UserAction extends ActionSupport {
 		}
 		json.put("path", path);
 		
+		sd.put("ListingDuration", typedefault);
 		
 		HashMap<String,Map> cf = new HashMap<String,Map>();
 		cf.put(categoryid, sd);

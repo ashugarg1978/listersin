@@ -10,7 +10,12 @@ $.fn.extractObject = function() {
 	function add(accum, namev, value) {
 		if (namev.length == 1) {
 			if (namev[0] == '') return;
-			accum[namev[0]] = value;
+			// todo: build array. ex:PaymentMethods
+			if (accum[namev[0]] != undefined) {
+				accum[namev[0]] += value;
+			} else {
+				accum[namev[0]] = value;
+			}
 		} else {
 			if (accum[namev[0]] == null)
 				accum[namev[0]] = {};
@@ -704,16 +709,18 @@ function bindevents()
 			});
 		} 
 		
-		return false;
+//		return false;
 		
+		site = item.Site;
+		categoryid = item.PrimaryCategory.CategoryID;
+		
+if (false) {
 		/* pictures */
 		for (i=0; i<=11; i++) {
 			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
 			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
 		}
 		
-		site = rowsdata[id]['Site'];
-		categoryid = rowsdata[id]['PrimaryCategory_CategoryID'];
 		
 	    /* preserve selected tab */
 	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
@@ -725,7 +732,7 @@ function bindevents()
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
-		
+}		
 		
 		/* listing duration */
 		tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
@@ -739,13 +746,16 @@ function bindevents()
 		
 		/* payment method */
 		tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
+		i=0;
 		$.each(tmpo, function(k, v) {
-			chk = $('<input/>').attr('name', 'PaymentMethods[]').attr('type', 'checkbox').val(v);
+			//chk = $('<input/>').attr('name', 'PaymentMethods.'+i).attr('type', 'checkbox').val(v);
+			chk = $('<input/>').attr('name', 'PaymentMethods').attr('type', 'checkbox').val(v);
 			if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
 				chk.attr('checked', 'checked');
 			}
 			$('td.paymentmethod', dom).append(chk);
 			$('td.paymentmethod', dom).append(v+'<br>');
+			i++;
 		});
 		
 //		$('td.shippingservice', '#'+id).append(getshippingservice(id));
@@ -774,9 +784,8 @@ function bindevents()
 			}
 		});
 		
-		postdata = $('input:text, input:checkbox, input:hidden, select, textarea',
+		postdata = $('input:text, input:checked, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).extractObject();
-		
 		postdata = JSON.stringify(postdata);
 		
 		$.post('/save',
@@ -897,9 +906,9 @@ function preloadcategoryfeatures(site, categoryid)
 	
 	$.getJSON('/categoryfeatures?site='+site+'&categoryid='+categoryid,
 			  function(data) {
-				  dump(data);
-				  var tmpo = $.extend({}, hash[site]['category']['features'], data['features']);
+				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 				  hash[site]['category']['features'] = tmpo;
+				  dump(hash[site]['category']['features']);
 			  });
 }
 
