@@ -12,7 +12,13 @@ $.fn.extractObject = function() {
 			if (namev[0] == '') return;
 			// todo: build array. ex:PaymentMethods
 			if (accum[namev[0]] != undefined) {
-				accum[namev[0]] += value;
+				if ($.isArray(accum[namev[0]])) {
+					accum[namev[0]].push(value);
+				} else {
+					tmpvalue = accum[namev[0]];
+					accum[namev[0]] = [tmpvalue];
+					accum[namev[0]].push(value);
+				}
 			} else {
 				accum[namev[0]] = value;
 			}
