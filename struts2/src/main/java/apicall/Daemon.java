@@ -25,6 +25,7 @@ public class Daemon {
 			message = in.readLine();
 			if (message.equals("shutdown")) break;
 			
+			System.out.println(message);
 			Callable task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();
 			pool.submit(task);
 			

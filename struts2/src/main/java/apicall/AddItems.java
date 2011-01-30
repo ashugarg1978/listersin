@@ -32,11 +32,10 @@ public class AddItems extends ApiCall {
 	
 	public String call() throws Exception {
 		
+		System.out.println("AddItems called.");
 		String userid;
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken();
-		
-		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
@@ -46,6 +45,8 @@ public class AddItems extends ApiCall {
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
 		
+		System.out.println("AddItems updating...");
+		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update, false, true);
 		System.out.println("WriteResult: "+result);
 		

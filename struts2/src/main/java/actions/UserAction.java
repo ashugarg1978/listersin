@@ -126,6 +126,7 @@ public class UserAction extends ActionSupport {
 		//String today = sdf.format(calendar.getTime());
 		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
+		json.put("cnt", cur.count());
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
