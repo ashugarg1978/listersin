@@ -60,20 +60,24 @@ public class UserAction extends ActionSupport {
 		
 		json = new LinkedHashMap<String,Object>();
 		
+		// todo: SiteDetails in each country?
 		DBCollection coll = db.getCollection("SiteDetails");
 		DBCursor cur = coll.find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
+			
 			String  site   = row.get("Site").toString();
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
 			
 			LinkedHashMap<String,Object> hash = new LinkedHashMap<String,Object>();
 			
 			hash.put("SiteID", siteid.toString());
-
+			
 			hash.put("category", children(site, 0));
 			((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
 			((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
+			
+			hash.put("ShippingServiceDetails", shippingservicedetails(site));
 			
 			json.put(site, hash);
 		}
@@ -130,12 +134,13 @@ public class UserAction extends ActionSupport {
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			String id = item.get("_id").toString();
+			DBObject ext = (DBObject) item.get("ext");
 			
 			/* price */
 			DBObject ss = (DBObject) item.get("SellingStatus");
 			DBObject cp = (DBObject) ss.get("CurrentPrice");
 			Float currentprice = Float.parseFloat(cp.get("#text").toString());
-			item.put("price", cp.get("@currencyID")+" "+currentprice.intValue());
+			ext.put("price", cp.get("@currencyID")+" "+currentprice.intValue());
 			
 			/* endtime */
 			sdf.applyPattern("yyyy-MM-dd");
@@ -148,7 +153,9 @@ public class UserAction extends ActionSupport {
 			} else {
 				sdf.applyPattern("MMM d");
 			}
-			item.put("endtime", sdf.format(dfendtime));
+			ext.put("endtime", sdf.format(dfendtime));
+			
+			item.removeField("_id");
 			
 			/* add */
 			items.put(id, item);
@@ -283,13 +290,8 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = getFilterQuery();
 		
-		//BasicDBObject deletedlabel = new BasicDBObject("labels", "deleted");
-		//BasicDBObject deletedlabel = new BasicDBObject("ext.labels", "deleted");
-		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$addToSet", new BasicDBObject("ext.labels", "deleted"));
-		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
-		//update.put("ext", new BasicDBObject("$addToSet", deletedlabel));
+		update.put("$set", new BasicDBObject("ext.deleted", 1));
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
@@ -432,28 +434,28 @@ public class UserAction extends ActionSupport {
 		BasicDBObject saved     = new BasicDBObject();
 		BasicDBObject trash     = new BasicDBObject();
 		
-		allitems.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		allitems.put("ext.deleted", new BasicDBObject("$exists", 0));
 		
-		scheduled.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		scheduled.put("ext.deleted", new BasicDBObject("$exists", 0));
 		scheduled.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		active.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		active.put("ext.deleted", new BasicDBObject("$exists", 0));
 		active.put("ItemID", new BasicDBObject("$exists", 1));
 		active.put("SellingStatus.ListingStatus", "Active");
 		
-		sold.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		sold.put("ext.deleted", new BasicDBObject("$exists", 0));
 		sold.put("ItemID", new BasicDBObject("$exists", 1));
 		sold.put("SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
 		
-		unsold.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		unsold.put("ext.deleted", new BasicDBObject("$exists", 0));
 		unsold.put("ItemID", new BasicDBObject("$exists", 1));
 		unsold.put("SellingStatus.ListingStatus", "Completed");
 		unsold.put("SellingStatus.QuantitySold", "0");
 		
-		saved.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		saved.put("ext.deleted", new BasicDBObject("$exists", 0));
 		saved.put("ItemID", new BasicDBObject("$exists", 0));
 		
-		trash.put("ext.labels", "deleted");
+		trash.put("ext.deleted", new BasicDBObject("$exists", 1));
 		
 		
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
@@ -696,6 +698,26 @@ public class UserAction extends ActionSupport {
 		json.put("features", cf);
 		
 		return SUCCESS;
+	}
+	
+	private LinkedHashMap<String,LinkedHashMap> shippingservicedetails(String site) {
+		
+		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
+		
+		DBCollection collection = db.getCollection(site+".eBayDetails.ShippingServiceDetails");
+		DBCursor cursor = collection.find(new BasicDBObject("ValidForSellingFlow", "true"));
+		while (cursor.hasNext()) {
+			DBObject row = cursor.next();
+			
+			String ss = row.get("ShippingService").toString();
+			
+			row.removeField("_id");
+			row.removeField("UpdateTime");
+			
+			map.put(ss, (LinkedHashMap) row.toMap());
+		}
+		
+		return map;
 	}
 	
 	private BasicDBObject getFilterQuery() {

@@ -50,7 +50,7 @@ $(document).bind({
 		//setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 		
-		//setInterval(refresh, 2000);
+		setInterval(refresh, 2000);
 		
 		return;
 	}
@@ -74,15 +74,23 @@ function gethash()
 {
 	$.getJSON('/hash', function(data) {
 		hash = data.json;
-
 		$.each(hash, function(k, v) {
 			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
 		});
 		
-		dump(hash);
 	});
 	
 	return;
+	
+//	$.get('/hash', function(data) {
+//		dump(data);
+//		localStorage.setItem('hashdata', data);
+//		parsed = $.parseJSON(data);
+//		hash = parsed.json;
+//	},
+//		 'html');
+//	tmp = localStorage.getItem('hashdata');
+	
 }
 
 function summary()
@@ -175,7 +183,8 @@ function getrow(idx, row)
 	} else {
 		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
 	}
-	$('td.EndTime', dom).html(row.endtime);
+	$('td.EndTime', dom).html(row.ext.endtime);
+	$('td.price',   dom).html(row.ext.price);
 	
 	if (typeof(row.status) == 'string') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
@@ -196,6 +205,7 @@ function getrow(idx, row)
 		$('img.PictureURL', dom).remove();
 	}
 	
+	/* Labels */
 	if (typeof(row.ext) == 'object' && typeof(row.ext.labels) == 'object') {
 		$.each(row.ext.labels, function(k, v) {
 			$('div.labelwrap', dom).append($('<div>').attr('class', 'label').text(v));
@@ -820,6 +830,11 @@ if (false) {
 		return false;
 	});
 	
+	/* Copy */
+	$('ul.editbuttons > li > a.copy', 'div.detail').live('click', function() {
+		return false;
+	});
+	
 	/* Editor */
 	$('a.wysiwyg').live('click', function() {
 		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
@@ -930,6 +945,8 @@ function preloadshippingtype(site)
 
 function refresh()
 {
+	dump(hash.US); return;
+	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
 	
