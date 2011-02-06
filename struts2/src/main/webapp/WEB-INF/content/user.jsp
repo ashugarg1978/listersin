@@ -50,6 +50,29 @@
 
 <div id="debugseparator"></div>
 
+<div id="importform">
+
+<select name="UserID">
+<option value="">User ID</option>
+<s:iterator value="user.userids.keySet">
+<option><s:property /></option>
+</s:iterator>
+</select><br>
+
+<select name="">
+<option value="">Date range</option>
+<option value="StartTime">StartTime</option>
+<option value="EndTime">EndTime</option>
+</select>
+
+<input type="text" name="From" size="12" value=""><br>
+<input type="text" name="To"   size="12" value=""><br>
+<input type="button" value="Import">
+
+</div>
+
+<div id="debugseparator"></div>
+
 <table id="hiddenforms">
   <tr>
 	<td>offset</td>

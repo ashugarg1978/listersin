@@ -77,6 +77,7 @@ public class UserAction extends ActionSupport {
 			((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
 			((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
 			
+			hash.put("ShippingType", shippingtype(site));
 			hash.put("ShippingServiceDetails", shippingservicedetails(site));
 			
 			json.put(site, hash);
@@ -111,14 +112,15 @@ public class UserAction extends ActionSupport {
 		BasicDBObject field = new BasicDBObject();
 		field.put("UserID", 1);
 		field.put("ItemID", 1);
-		field.put("Title", 1);
-		field.put("Site", 1);
+		field.put("Title",  1);
+		field.put("Site",   1);
 		field.put("StartPrice", 1);
-		field.put("ListingDetails.ViewItemURL", 1);
-		field.put("ListingDetails.EndTime", 1);
-		field.put("PictureDetails.PictureURL", 1);
+		field.put("ListingDetails.ViewItemURL",  1);
+		field.put("ListingDetails.EndTime",      1);
+		field.put("PictureDetails.PictureURL",   1);
+		field.put("PictureDetails.GalleryURL",   1);
 		field.put("SellingStatus.ListingStatus", 1);
-		field.put("SellingStatus.CurrentPrice", 1);
+		field.put("SellingStatus.CurrentPrice",  1);
 		field.put("ext", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
@@ -185,11 +187,13 @@ public class UserAction extends ActionSupport {
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
 		item.put("id", item.get("_id").toString());
 		
+		DBObject ext = (DBObject) item.get("ext");
+		
 		/* categorypath */
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
 		List path = categorypath(item.getString("Site"), categoryid);
-		item.put("categorypath", path);
+		ext.put("categorypath", path);
 		
 		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
 		
@@ -198,9 +202,21 @@ public class UserAction extends ActionSupport {
 			if (!categoryname.equals("")) categoryname += " > ";
 			categoryname += path2.get(cid);
 		}
+		ext.put("categorypath2", path2);
+		ext.put("categoryname", categoryname);
 		
-		item.put("categorypath2", path2);
-		item.put("categoryname", categoryname);
+		/* shipping */
+		
+		if (item.containsField("ShippingDetails")) {
+			BasicDBObject sd = item.get("ShippingDetails");
+			if (sd.containsField("ShippingType")) {
+				String st = sd.get("ShippingType").toString();
+				
+			}
+		}
+		
+		/* remove fields */
+		item.removeField("_id");
 		
 		json.put("item", item);
 		
@@ -333,6 +349,18 @@ public class UserAction extends ActionSupport {
 	@Action(value="/revise")
 	public String revise() throws Exception {
 		
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/import")
+	public String importitems() throws Exception {
+		
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("GetSellerList");
+		out.close();
+		socket.close();
 		
 		return SUCCESS;
 	}
@@ -698,6 +726,42 @@ public class UserAction extends ActionSupport {
 		json.put("features", cf);
 		
 		return SUCCESS;
+	}
+	
+	private LinkedHashMap<String,String[]> shippingmap() {
+		LinkedHashMap<String,String[]> map = new LinkedHashMap<String,String[]>();
+		map.put("Flat"                               , {"Flat"      , "Flat"});
+		map.put("Calculated"                         , {"Calculated", "Calculated"});
+		map.put("FlatDomesticCalculatedInternational", {"Flat"      , "Calculated"});
+		map.put("CalculatedDomesticFlatInternational", {"Calculated", "Flat"});
+		map.put("FreightFlat"                        , {"Freight"   , "???"});
+		return map;
+	}
+	
+	private LinkedHashMap<String,LinkedHashMap> shippingtype(String site) {
+		
+		LinkedHashMap<String,LinkedHashMap>    map = new LinkedHashMap<String,LinkedHashMap>();
+		LinkedHashMap<String,String>      domestic = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String> international = new LinkedHashMap<String,String>();
+		
+		if (site.equals("US")) {
+			domestic.put("Flat"      , "Flat: same cost to all buyers");
+			domestic.put("Calculated", "Calculated: Cost varies by buyer location");
+			domestic.put("Freight"   , "Freight: large items over 150 lbs.");
+		} else {
+			domestic.put("Calculated", "Calculated: Cost varies by buyer location");
+			domestic.put("Flat"      , "Flat: same cost to all buyers");
+		}
+		domestic.put("NoShipping", "No shipping: Local pickup only");
+		
+		international.put("Flat"      , "Flat: same cost to all buyers");
+		international.put("Calculated", "Calculated: Cost varies by buyer location");
+		international.put("NoShipping", "No international shipping");
+		
+		map.put("domestic"     , domestic);
+		map.put("international", international);
+		
+		return map;
 	}
 	
 	private LinkedHashMap<String,LinkedHashMap> shippingservicedetails(String site) {

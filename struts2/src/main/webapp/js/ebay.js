@@ -655,7 +655,7 @@ function bindevents()
 					   getdetail(data.json.item);
 					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 					   
-					   preloadcategory(data.json.item.Site, data.json.item.categorypath);
+					   preloadcategory(data.json.item.Site, data.json.item.ext.categorypath);
 					   preloadcategoryfeatures(data.json.item.Site,
 											   data.json.item.PrimaryCategory.CategoryID);
 					   
@@ -707,7 +707,7 @@ function bindevents()
 		$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
 		
 		/* category selector */
-		$('td.category', dom).html(getcategorypulldowns(item.Site, item.categorypath));
+		$('td.category', dom).html(getcategorypulldowns(item.Site, item.ext.categorypath));
 		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 		
 		/* pictures */
@@ -851,6 +851,15 @@ if (false) {
 		return;
 	});
 	
+	/* Import */
+	$('div#importform input[type=button]').live('click', function() {
+		$.post('/import',
+			   $('select, input', 'div#importform').serialize(),
+			   function(data) {
+				   
+			   });
+	});
+	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
@@ -929,7 +938,7 @@ function preloadcategoryfeatures(site, categoryid)
 			  function(data) {
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 				  hash[site]['category']['features'] = tmpo;
-				  dump(hash[site]['category']['features']);
+				  //dump(hash[site]['category']['features']);
 			  });
 }
 
@@ -945,8 +954,6 @@ function preloadshippingtype(site)
 
 function refresh()
 {
-	dump(hash.US); return;
-	
 	loadings = $('td.loading');
 	if (loadings.length <= 0) return;
 	
