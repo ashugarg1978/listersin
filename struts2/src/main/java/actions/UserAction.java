@@ -758,28 +758,32 @@ public class UserAction extends ActionSupport {
 	private LinkedHashMap<String,LinkedHashMap> shippingmap() {
 		
 		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
-		LinkedHashMap<String,String>     tmpmap = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap1 = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap2 = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap3 = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap4 = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap5 = new LinkedHashMap<String,String>();
 		
-		tmpmap.put("domestic",      "Flat");
-		tmpmap.put("international", "Flat");
-		map.put("Flat"                               , tmpmap);
+		tmpmap1.put("domestic",      "Flat");
+		tmpmap1.put("international", "Flat");
+		map.put("Flat"                               , tmpmap1);
 		
-		tmpmap.put("domestic",      "Calculated");
-		tmpmap.put("international", "Calculated");
-		map.put("Calculated"                         , tmpmap);
+		tmpmap2.put("domestic",      "Calculated");
+		tmpmap2.put("international", "Calculated");
+		map.put("Calculated"                         , tmpmap2);
 		
-		tmpmap.put("domestic",      "Flat");
-		tmpmap.put("international", "Calculated");
-		map.put("FlatDomesticCalculatedInternational", tmpmap);
+		tmpmap3.put("domestic",      "Flat");
+		tmpmap3.put("international", "Calculated");
+		map.put("FlatDomesticCalculatedInternational", tmpmap3);
 		
-		tmpmap.put("domestic",      "Calculated");
-		tmpmap.put("international", "Flat");
-		map.put("CalculatedDomesticFlatInternational", tmpmap);
+		tmpmap4.put("domestic",      "Calculated");
+		tmpmap4.put("international", "Flat");
+		map.put("CalculatedDomesticFlatInternational", tmpmap4);
 		
 		// todo: check "Freight" is only web?
-		tmpmap.put("domestic",      "Freight");
-		tmpmap.put("international", "???");
-		map.put("FreightFlat"                        , tmpmap);
+		tmpmap5.put("domestic",      "Freight");
+		tmpmap5.put("international", "???");
+		map.put("FreightFlat"                        , tmpmap5);
 		
 		return map;
 	}

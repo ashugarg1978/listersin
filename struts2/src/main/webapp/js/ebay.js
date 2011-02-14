@@ -321,12 +321,13 @@ function getdetail(row)
 	});
 	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
+	if (row.ext.shippingtype) {
+		$('td.shippingtype_domestic', detail).html(row.ext.shippingtype.domestic);
+		$('td.shippingtype_international', detail).html(row.ext.shippingtype.international);
+	}
+	
 	return;
 	
-	if (row.shippingtype) {
-		$('td.shippingtype_domestic', detail).html(row.shippingtype.domestic);
-		$('td.shippingtype_international', detail).html(row.shippingtype.international);
-	}
 	if (row.ShippingDetails.ShippingServiceOptions) {
 		sso = '';
 		$.each(row.ShippingDetails.ShippingServiceOptions, function(i, o) {

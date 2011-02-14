@@ -45,7 +45,7 @@ public class GetCategories extends ApiCall implements Callable {
 			
 			BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 			
-			DBCollection coll = db.getCollection("Categories_"+site);
+			DBCollection coll = db.getCollection(site+".Categories");
 			coll.drop();
 			
 			coll.insert

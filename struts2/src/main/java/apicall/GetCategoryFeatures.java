@@ -49,14 +49,14 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			
 			BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 			
-			DBCollection coll1 = db.getCollection("CategoryFeatures_"+site);
-			DBCollection coll2 = db.getCollection("CategoryFeatures_"+site+"_Category");
-			
-			coll1.drop();
+			DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
 			coll2.drop();
-			
-			coll1.insert(responsedbo);
 			coll2.insert((List<DBObject>) responsedbo.get("Category"));
+			
+			DBCollection coll1 = db.getCollection(site+".CategoryFeatures");
+			coll1.drop();
+			responsedbo.removeField("Category");
+			coll1.insert(responsedbo);
 		}
 		
 		return "";
