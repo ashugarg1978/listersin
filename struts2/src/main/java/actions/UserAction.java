@@ -206,12 +206,11 @@ public class UserAction extends ActionSupport {
 		ext.put("categoryname", categoryname);
 		
 		/* shipping */
-		
 		if (item.containsField("ShippingDetails")) {
-			BasicDBObject sd = item.get("ShippingDetails");
+			BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
 			if (sd.containsField("ShippingType")) {
 				String st = sd.get("ShippingType").toString();
-				
+				ext.put("shippingtype", shippingtypelabel(item.getString("Site"), st));
 			}
 		}
 		
@@ -728,16 +727,7 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
-	private LinkedHashMap<String,String[]> shippingmap() {
-		LinkedHashMap<String,String[]> map = new LinkedHashMap<String,String[]>();
-		map.put("Flat"                               , {"Flat"      , "Flat"});
-		map.put("Calculated"                         , {"Calculated", "Calculated"});
-		map.put("FlatDomesticCalculatedInternational", {"Flat"      , "Calculated"});
-		map.put("CalculatedDomesticFlatInternational", {"Calculated", "Flat"});
-		map.put("FreightFlat"                        , {"Freight"   , "???"});
-		return map;
-	}
-	
+	// todo: check UK:courier?
 	private LinkedHashMap<String,LinkedHashMap> shippingtype(String site) {
 		
 		LinkedHashMap<String,LinkedHashMap>    map = new LinkedHashMap<String,LinkedHashMap>();
@@ -762,6 +752,52 @@ public class UserAction extends ActionSupport {
 		map.put("international", international);
 		
 		return map;
+	}
+	
+	// todo: reverse function?
+	private LinkedHashMap<String,LinkedHashMap> shippingmap() {
+		
+		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
+		LinkedHashMap<String,String>     tmpmap = new LinkedHashMap<String,String>();
+		
+		tmpmap.put("domestic",      "Flat");
+		tmpmap.put("international", "Flat");
+		map.put("Flat"                               , tmpmap);
+		
+		tmpmap.put("domestic",      "Calculated");
+		tmpmap.put("international", "Calculated");
+		map.put("Calculated"                         , tmpmap);
+		
+		tmpmap.put("domestic",      "Flat");
+		tmpmap.put("international", "Calculated");
+		map.put("FlatDomesticCalculatedInternational", tmpmap);
+		
+		tmpmap.put("domestic",      "Calculated");
+		tmpmap.put("international", "Flat");
+		map.put("CalculatedDomesticFlatInternational", tmpmap);
+		
+		// todo: check "Freight" is only web?
+		tmpmap.put("domestic",      "Freight");
+		tmpmap.put("international", "???");
+		map.put("FreightFlat"                        , tmpmap);
+		
+		return map;
+	}
+	
+	private LinkedHashMap<String,String> shippingtypelabel(String site, String type) {
+		
+		LinkedHashMap<String,String> label = new LinkedHashMap<String,String>();
+		
+		LinkedHashMap<String,LinkedHashMap> types = shippingtype(site);
+		LinkedHashMap<String,LinkedHashMap> map   = shippingmap();
+		
+		label.put("domestic",
+				  (String) types.get("domestic").get(map.get(type).get("domestic")));
+		
+		label.put("international",
+				  (String) types.get("international").get(map.get(type).get("international")));
+		
+		return label;
 	}
 	
 	private LinkedHashMap<String,LinkedHashMap> shippingservicedetails(String site) {
