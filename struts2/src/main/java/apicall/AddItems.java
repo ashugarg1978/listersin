@@ -32,23 +32,20 @@ public class AddItems extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		System.out.println("AddItems called.");
 		String userid;
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken();
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		query.put("ext.deleted", new BasicDBObject("$exists", 0));
 		query.put("ext.status", "(re)list");
 		query.put("ItemID", new BasicDBObject("$exists", 0));
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
 		
-		System.out.println("AddItems updating...");
 		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update, false, true);
-		System.out.println("WriteResult: "+result);
 		
 		query.put("ext.status", "(re)listing");
 		
@@ -61,9 +58,9 @@ public class AddItems extends ApiCall {
 			site   = item.get("Site").toString();
 			
 			/* todo: remove more fields */
-			item.put("ConditionID", 1000);
-			item.put("ListingDuration", "Days_3");
 			//item.removeField("_id"); // if delete here, can't mapping result data.
+			//item.put("ConditionID", 1000);
+			//item.put("ListingDuration", "Days_3");
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
 			item.removeField("ext");
@@ -184,13 +181,14 @@ public class AddItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					String responsexml = ecs18.take().get();
-					parseresponse(responsexml);
 					
 					writelog("AIs.res"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".xml", responsexml);
+					
+					parseresponse(responsexml);
 				}
 			}
 		}
@@ -202,23 +200,48 @@ public class AddItems extends ApiCall {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
-		System.out.println(responsedbo.get("Ack").toString());
+		String ack = responsedbo.get("Ack").toString();
+		System.out.println("Ack:"+ack);
 		
 		DBCollection coll = db.getCollection("items");
 		
-		BasicDBList dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
-		for (Object item : dbl) {
+		String classname = responsedbo.get("AddItemResponseContainer").getClass().toString();
+		
+		BasicDBList dbl = new BasicDBList();
+		if (classname.equals("class com.mongodb.BasicDBObject")) {
+			dbl.add((BasicDBObject) responsedbo.get("AddItemResponseContainer"));
+		} else if (classname.equals("class com.mongodb.BasicDBList")) {
+			dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
+		} else {
+			System.out.println("Class Error:"+classname);
+			return responsedbo;
+		}
+		
+		for (Object oitem : dbl) {
+			BasicDBObject item = (BasicDBObject) oitem;
 			
-			String id        = ((BasicDBObject) item).getString("CorrelationID");
-			String itemid    = ((BasicDBObject) item).getString("ItemID");
-			String starttime = ((BasicDBObject) item).getString("StartTime");
-			String endtime   = ((BasicDBObject) item).getString("EndTime");
+			String id        = item.getString("CorrelationID");
+			String itemid    = item.getString("ItemID");
+			String starttime = item.getString("StartTime");
+			String endtime   = item.getString("EndTime");
+			
+			String errorclass = item.get("Errors").getClass().toString();
+			BasicDBList errors = new BasicDBList();
+			if (errorclass.equals("class com.mongodb.BasicDBObject")) {
+				errors.add((BasicDBObject) item.get("Errors"));
+			} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
+				errors = (BasicDBList) item.get("Errors");
+			} else {
+				System.out.println("Class Error:"+errorclass);
+				continue;
+			}
 			
 			BasicDBObject upditem = new BasicDBObject();
 			upditem.put("ItemID", itemid);
 			upditem.put("ListingDetails.StartTime", starttime);
 			upditem.put("ListingDetails.EndTime", endtime);
 			upditem.put("ext.status", "");
+			upditem.put("ext.errors", errors);
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(id));
@@ -227,7 +250,7 @@ public class AddItems extends ApiCall {
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
-			System.out.println(id+" : "+itemid+" : "+result);
+			System.out.println("WriteResult:"+id+" : "+itemid+" : "+result);
 			
 		}
 		

@@ -27,7 +27,15 @@ public class Daemon {
 			
 			System.out.println(message);
 			Callable task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();
-			pool.submit(task);
+			//pool.submit(task);
+			
+			Future f = pool.submit(task);
+			
+			try {
+				f.get();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 			in.close();
 			socket.close();
@@ -53,14 +61,19 @@ public class Daemon {
 		return;
 	}
 	
-    public static void main(String[] args) throws Exception {
+    //public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 		
 		Daemon daemon = new Daemon();
 		String action = args[0];
-		if (action.equals("stop")) {
-			daemon.stop();
-		} else {
-			daemon.start();
+		try {
+			if (action.equals("stop")) {
+				daemon.stop();
+			} else {
+				daemon.start();
+			}
+		} catch (Exception e) {
+			System.out.println(e.toString());
 		}
 		
 		return;
