@@ -227,6 +227,14 @@ function getrow(idx, row)
 	}
 	$('a.Title', dom).before(st);
 	
+	if (row.ext.errors) {
+		$.each(row.ext.errors, function(k, v) {
+			if (v != '') {
+				$('a.Title', dom).after('<span class="error">'+v.LongMessage+'</span>');
+				$('a.Title', dom).after('<br>');
+			}
+		});
+	}
 	
 	return dom;
 	
@@ -252,14 +260,6 @@ function getrow(idx, row)
 			.css('color', 'red')
 			.html(row['SellingStatus_QuantitySold']+' sold!');
 		$('a.Title', dom).parent().prepend(sldd);
-	}
-	if (row['Errors_LongMessage']) {
-		$.each(row['Errors_LongMessage'], function(k, v) {
-			if (v != '') {
-				$('a.Title', dom).after('<span class="error">'+v+'</span>');
-				$('a.Title', dom).after('<br>');
-			}
-		});
 	}
 	
 	if (row['schedule']) {

@@ -59,7 +59,7 @@ public class AddItems extends ApiCall {
 			
 			/* todo: remove more fields */
 			//item.removeField("_id"); // if delete here, can't mapping result data.
-			//item.put("ConditionID", 1000);
+			item.put("ConditionID", 1000);
 			//item.put("ListingDuration", "Days_3");
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
@@ -225,23 +225,27 @@ public class AddItems extends ApiCall {
 			String starttime = item.getString("StartTime");
 			String endtime   = item.getString("EndTime");
 			
-			String errorclass = item.get("Errors").getClass().toString();
-			BasicDBList errors = new BasicDBList();
-			if (errorclass.equals("class com.mongodb.BasicDBObject")) {
-				errors.add((BasicDBObject) item.get("Errors"));
-			} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
-				errors = (BasicDBList) item.get("Errors");
-			} else {
-				System.out.println("Class Error:"+errorclass);
-				continue;
+			BasicDBObject upditem = new BasicDBObject();
+			upditem.put("ext.status", "");
+			if (itemid != null) {
+				upditem.put("ItemID", itemid);
+				upditem.put("ListingDetails.StartTime", starttime);
+				upditem.put("ListingDetails.EndTime", endtime);
 			}
 			
-			BasicDBObject upditem = new BasicDBObject();
-			upditem.put("ItemID", itemid);
-			upditem.put("ListingDetails.StartTime", starttime);
-			upditem.put("ListingDetails.EndTime", endtime);
-			upditem.put("ext.status", "");
-			upditem.put("ext.errors", errors);
+			if (item.get("Errors") != null) {
+				String errorclass = item.get("Errors").getClass().toString();
+				BasicDBList errors = new BasicDBList();
+				if (errorclass.equals("class com.mongodb.BasicDBObject")) {
+					errors.add((BasicDBObject) item.get("Errors"));
+				} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
+					errors = (BasicDBList) item.get("Errors");
+				} else {
+					System.out.println("Class Error:"+errorclass);
+					continue;
+				}
+				upditem.put("ext.errors", errors);
+			}
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(id));
