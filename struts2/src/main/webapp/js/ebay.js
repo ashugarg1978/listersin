@@ -692,6 +692,16 @@ function bindevents()
 		item = rowsdata[id];
 		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
+	    /* preserve selected tab */
+	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	    tabnum = tab.parent().prevAll().length + 1;
+		$('.tabNav', dom).children('.current').removeClass('current');
+		$('.tabContainer', dom).children('.current').hide();
+		$('.tabContainer', dom).children('.current').removeClass('current');
+	    $('.tabNav', dom).children('li:nth-child('+tabnum+')').addClass('current');
+	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
+	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
+		
 		$('input[name=Title]',            dom).val(item.Title);
 		$('input[name=SubTitle]',         dom).val(item.SubTitle);
 		$('input[name=StartPrice.#text]', dom).val(item.StartPrice['#text']);
@@ -726,8 +736,6 @@ function bindevents()
 			});
 		} 
 		
-//		return false;
-		
 		site = item.Site;
 		categoryid = item.PrimaryCategory.CategoryID;
 		
@@ -737,15 +745,7 @@ if (false) {
 			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
 			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
 		}
-		
-		
-	    /* preserve selected tab */
-	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	    tabnum = tab.parent().prevAll().length + 1;
-	    $('.tabNav', dom).children('li:nth-child('+tabnum+')').addClass('current');
-	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
-	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
-		
+	
 		$.each(rowsdata[id], function(colname, colval) {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
@@ -1004,16 +1004,18 @@ function paging(cnt)
 	}
 	html += ' of '+cnt+'&nbsp;';
 	
-	for (i=0; i<(cnt/limit); i++) {
-		if (offset/limit < i-5 || i+5 < offset/limit) continue;
-		if (offset == i*limit) {
-			html += '<a href="" style="background-color:#cccccc;">'+(i+1)+'</a>';
-		} else {
-			html += '<a href="">'+(i+1)+'</a>';
+	if (cnt > limit) {
+		for (i=0; i<(cnt/limit); i++) {
+			if (offset/limit < i-5 || i+5 < offset/limit) continue;
+			if (offset == i*limit) {
+				html += '<a href="" style="background-color:#cccccc;">'+(i+1)+'</a>';
+			} else {
+				html += '<a href="">'+(i+1)+'</a>';
+			}
 		}
-	}
-	if (offset+limit<cnt) {
-		html += '<a href="">＞</a>';
+		if (offset+limit<cnt) {
+			html += '<a href="">＞</a>';
+		}
 	}
 	
 	$('#paging').html(html);
