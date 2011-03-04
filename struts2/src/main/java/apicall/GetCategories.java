@@ -18,7 +18,7 @@ public class GetCategories extends ApiCall implements Callable {
 	
 	public String call() throws Exception {
 		
-		DBCursor cur = db.getCollection("SiteDetails").find();
+		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			

@@ -59,7 +59,7 @@ public class AddItems extends ApiCall {
 			
 			/* todo: remove more fields */
 			//item.removeField("_id"); // if delete here, can't mapping result data.
-			item.put("ConditionID", 1000);
+			//item.put("ConditionID", 1000);
 			//item.put("ListingDuration", "Days_3");
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");

@@ -61,7 +61,7 @@ public class UserAction extends ActionSupport {
 		json = new LinkedHashMap<String,Object>();
 		
 		// todo: SiteDetails in each country?
-		DBCollection coll = db.getCollection("SiteDetails");
+		DBCollection coll = db.getCollection("US.eBayDetails.SiteDetails");
 		DBCursor cur = coll.find();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
@@ -504,7 +504,7 @@ public class UserAction extends ActionSupport {
 		ArrayList<Integer> cidtmp = new ArrayList<Integer>();
 		
 		BasicDBObject query = new BasicDBObject();
-		DBCollection coll = db.getCollection("Categories_"+site);
+		DBCollection coll = db.getCollection(site+".Categories");
 		
 		while (true) {
 			query.put("CategoryID", categoryid.toString());
@@ -529,7 +529,7 @@ public class UserAction extends ActionSupport {
 		
 		ArrayList path = new ArrayList();
 		BasicDBObject query = new BasicDBObject();
-		DBCollection coll = db.getCollection("Categories_"+site);
+		DBCollection coll = db.getCollection(site+".Categories");
 		
 		while (true) {
 			query.put("CategoryID", categoryid.toString());
@@ -561,7 +561,7 @@ public class UserAction extends ActionSupport {
 			query.put("CategoryID", new BasicDBObject("$ne", categoryid.toString()));
 		}
 		
-		DBCollection coll = db.getCollection("Categories_"+site);
+		DBCollection coll = db.getCollection(site+".Categories");
 		DBCursor cur = coll.find(query);
 		if (cur.count() > 0) {
 			while (cur.hasNext()) {
@@ -657,7 +657,7 @@ public class UserAction extends ActionSupport {
 		BasicDBObject keys = new BasicDBObject();
 		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
 		
-		DBCollection collection = db.getCollection("CategoryFeatures_"+site);
+		DBCollection collection = db.getCollection(site+".CategoryFeatures");
 		DBObject res = collection.findOne(query, keys);
 		BasicDBObject fd  = (BasicDBObject) res.get("FeatureDefinitions");
 		BasicDBObject lds = (BasicDBObject)  fd.get("ListingDurations");
@@ -710,7 +710,7 @@ public class UserAction extends ActionSupport {
 		*/
 		
 		/* CategoryPath */
-		DBCollection coll2 = db.getCollection("CategoryFeatures_"+site+"_Category");
+		DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
 		LinkedHashMap<Integer,String> path = categorypath2(site, Integer.parseInt(categoryid));
 		for (Integer cid : path.keySet()) {
 			dbo = coll2.findOne(new BasicDBObject("CategoryID", cid.toString()));
