@@ -52,6 +52,7 @@ public class ApiCallTask implements Callable {
         conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8681eef3-fba8-41cf-b2ca-3686152ac1b7");
 		*/
 		
+		// todo: trap network error.
 		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
 		osw.write(requestxml);
 		osw.flush();
