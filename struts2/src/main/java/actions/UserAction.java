@@ -120,7 +120,6 @@ public class UserAction extends ActionSupport {
 		field.put("PictureDetails.PictureURL",   1);
 		field.put("PictureDetails.GalleryURL",   1);
 		field.put("SellingStatus.ListingStatus", 1);
-		field.put("SellingStatus.CurrentPrice",  1);
 		field.put("ext", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
@@ -139,10 +138,9 @@ public class UserAction extends ActionSupport {
 			DBObject ext = (DBObject) item.get("ext");
 			
 			/* price */
-			DBObject ss = (DBObject) item.get("SellingStatus");
-			DBObject cp = (DBObject) ss.get("CurrentPrice");
-			Float currentprice = Float.parseFloat(cp.get("#text").toString());
-			ext.put("price", cp.get("@currencyID")+" "+currentprice.intValue());
+			DBObject sp = (DBObject) item.get("StartPrice");
+			Float startprice = Float.parseFloat(sp.get("#text").toString());
+			ext.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 			
 			/* endtime */
 			sdf.applyPattern("yyyy-MM-dd");
@@ -285,7 +283,9 @@ public class UserAction extends ActionSupport {
 		for (DBObject item : dblist) {
 			//DBObject item = cur.next();
 			String id = item.get("_id").toString();
+			
 			item.removeField("_id");
+			item.removeField("SellingStatus");
 			
 			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
 			dbl.add("copied");

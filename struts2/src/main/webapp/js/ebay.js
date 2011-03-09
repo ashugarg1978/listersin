@@ -220,12 +220,14 @@ function getrow(idx, row)
 	
 	$('td.UserID', dom).html(row.ext.UserID);
 	
-	if (row.SellingStatus.ListingStatus == 'Active') {
-		st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
-	} else {
-		st = $(row.SellingStatus.ListingStatus);
+	if (row.SellingStatus) {
+		if (row.SellingStatus.ListingStatus == 'Active') {
+			st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
+		} else {
+			st = $(row.SellingStatus.ListingStatus);
+		}
+		$('a.Title', dom).before(st);
 	}
-	$('a.Title', dom).before(st);
 	
 	if (row.ext.errors) {
 		$.each(row.ext.errors, function(k, v) {

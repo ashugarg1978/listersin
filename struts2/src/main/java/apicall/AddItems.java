@@ -147,6 +147,13 @@ public class AddItems extends ApiCall {
 							((JSONObject) tmpi.get("PictureDetails"))
 								.getJSONArray("PictureURL").setExpandElements(true);
 						}
+
+						if (((JSONObject) tmpi.get("ShippingDetails")).has("ShippingServiceOptions")
+							&& ((JSONObject) tmpi.get("ShippingDetails")).get("ShippingServiceOptions")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							((JSONObject) tmpi.get("ShippingDetails"))
+								.getJSONArray("ShippingServiceOptions").setExpandElements(true);
+						}
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
 					
