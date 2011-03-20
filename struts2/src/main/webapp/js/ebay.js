@@ -812,6 +812,7 @@ if (false) {
 			   function(data) {
 				   rowsdata[id] = data.json.item;
 				   dump(data.json);
+				   alert(data.json.item.Title);
 				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
