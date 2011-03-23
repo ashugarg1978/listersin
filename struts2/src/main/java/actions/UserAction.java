@@ -110,7 +110,7 @@ public class UserAction extends ActionSupport {
 		
 		/* field */
 		BasicDBObject field = new BasicDBObject();
-		field.put("UserID", 1);
+		field.put("UserID", 1); // todo: use ext.UserID ?
 		field.put("ItemID", 1);
 		field.put("Title",  1);
 		field.put("Site",   1);
