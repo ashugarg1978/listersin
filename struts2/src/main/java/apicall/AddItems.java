@@ -59,8 +59,6 @@ public class AddItems extends ApiCall {
 			
 			/* todo: remove more fields */
 			//item.removeField("_id"); // if delete here, can't mapping result data.
-			//item.put("ConditionID", 1000);
-			//item.put("ListingDuration", "Days_3");
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
 			item.removeField("ext");
@@ -161,6 +159,13 @@ public class AddItems extends ApiCall {
 					xmls.setObjectName("AddItemsRequest");
 					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 					xmls.setTypeHintsEnabled(false);
+					
+					writelog("AIs.jso"
+							 +"."+((String) tmpuserid)
+							 +"."+((String) tmpsite)
+							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+							 +".xml", jso.toString());
+					
 					String requestxml = xmls.write(jso);
 					
 					writelog("AIs.req"

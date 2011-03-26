@@ -20,17 +20,18 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("ext.deleted", new BasicDBObject("$exists", 0));
+		query.put("ItemID", new BasicDBObject("$exists", 1));
 		//query.put("SellingStatus.ListingStatus", "Active");
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 1);
 		
-		DBCursor cur = db.getCollection("items").find(query, field).limit(50);
+		DBCursor cur = db.getCollection("items").find(query, field);
+		Integer cnt = cur.count();
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
 			
 			String itemid  = row.get("ItemID").toString();
-			
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
@@ -41,11 +42,11 @@ public class GetItem extends ApiCall implements Callable {
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			writelog("GI.req."+itemid+".xml", requestxml);
 			
-			Future<String> future = ecs18.submit(new ApiCallTask(0, requestxml, "GetItem"));
-			
-			String responsexml = future.get();
-			writelog("GI.res."+itemid+".xml", responsexml);
-			
+			ecs18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+		}
+		
+		for (int i = 1; i <= cnt; i++) {
+			String responsexml = ecs18.take().get();
 			parseresponse(responsexml);
 		}
 		
@@ -71,7 +72,6 @@ public class GetItem extends ApiCall implements Callable {
 		update.put("$set", upditem);
 		
 		WriteResult result = coll.update(query, update);
-		System.out.println("WriteResult: "+result);
 		
 		return responsedbo;
 	}

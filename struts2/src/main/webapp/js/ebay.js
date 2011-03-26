@@ -806,6 +806,8 @@ if (false) {
 		postdata = $('input:text, input:checked, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).extractObject();
 		postdata = JSON.stringify(postdata);
+		dump(postdata);
+		return false;
 		
 		$.post('/save',
 			   'id='+id+'&json='+postdata,

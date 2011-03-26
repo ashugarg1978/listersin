@@ -182,9 +182,11 @@ public class UserAction extends ActionSupport {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
+		/* execute query */
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
 		item.put("id", item.get("_id").toString());
 		
+		/* extend data */
 		DBObject ext = (DBObject) item.get("ext");
 		
 		/* categorypath */
