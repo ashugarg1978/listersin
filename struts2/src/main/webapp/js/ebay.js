@@ -298,7 +298,9 @@ function getdetail(row)
 	$('td.paymentmethod', detail).html(pmstr);
 	
 	$('td.duration', detail).text(getListingDurationLabel(row.ListingDuration));
-	$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
+	
+	// todo: display categoryname from categorypath2
+	//$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -710,7 +712,10 @@ function bindevents()
 		$('input[name=Quantity]',         dom).val(item.Quantity);
 		$('select[name=Site]',            dom).val(item.Site);
 		$('select[name=ListingType]',     dom).val(item.ListingType);
-		$('textarea[name=Description]',   dom).val(item.Description);
+		
+		if (item.Description != null) {
+			$('textarea[name=Description]',   dom).val(item.Description);
+		}
 		
 		showbuttons(dom, 'save,cancel');
 		$('div.detail', 'tbody#'+id).replaceWith(dom);
@@ -807,14 +812,14 @@ if (false) {
 					 $(this).closest('div.detail')).extractObject();
 		postdata = JSON.stringify(postdata);
 		dump(postdata);
-		return false;
+		//return false;
 		
 		$.post('/save',
 			   'id='+id+'&json='+postdata,
 			   function(data) {
 				   rowsdata[id] = data.json.item;
-				   dump(data.json);
-				   alert(data.json.item.Title);
+				   //dump(data.json);
+				   //alert(data.json.item.Title);
 				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
