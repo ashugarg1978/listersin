@@ -3,6 +3,7 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import com.mongodb.util.*;
 import ebaytool.apicall.ApiCall;
+import ebaytool.apicall.GetItem;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,12 @@ public class GetSellerList extends ApiCall {
 			String token = json.get("ebaytkn").toString();
 			call2(userid.toString(), token);
 		}
+		
+		// todo: call GetItem here.
+		//ecs18.submit(new GetItem());
+		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+		Callable task = new GetItem();
+		pool.submit(task);
 		
 		return "OK";
 	}
@@ -68,7 +75,7 @@ public class GetSellerList extends ApiCall {
 			responsexml = ecs18.take().get();
 			parseresponse(responsexml);
 		}
-		
+
 		return;
 	}
 	
@@ -110,6 +117,7 @@ public class GetSellerList extends ApiCall {
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
 			ext.put("labels", new BasicDBList());
+			ext.put("importstatus", "waiting GetItem");
 			
 			/* convert JSON to DBObject */
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());

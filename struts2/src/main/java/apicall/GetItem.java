@@ -19,8 +19,9 @@ public class GetItem extends ApiCall implements Callable {
 	public String call() throws Exception {
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.deleted", new BasicDBObject("$exists", 0));
-		query.put("ItemID", new BasicDBObject("$exists", 1));
+		query.put("ItemID",           new BasicDBObject("$exists", 1));
+		query.put("ext.deleted",      new BasicDBObject("$exists", 0));
+		query.put("ext.importstatus", "waiting GetItem");
 		//query.put("SellingStatus.ListingStatus", "Active");
 		
 		BasicDBObject field = new BasicDBObject();
@@ -59,6 +60,8 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject item = (BasicDBObject) responsedbo.get("Item");
 		
+		writelog("GI.res."+item.getString("ItemID")+".xml", responsexml);
+		
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
@@ -67,6 +70,7 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject upditem = new BasicDBObject();
 		upditem.put("ConditionID", item.getString("ConditionID"));
 		upditem.put("ProductListingDetails", item.get("ProductListingDetails"));
+		upditem.put("ext.importstatus", "completed");
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", upditem);

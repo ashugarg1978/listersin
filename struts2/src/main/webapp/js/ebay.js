@@ -811,15 +811,15 @@ if (false) {
 		postdata = $('input:text, input:checked, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).extractObject();
 		postdata = JSON.stringify(postdata);
-		dump(postdata);
+		//dump(postdata);
 		//return false;
 		
 		$.post('/save',
 			   'id='+id+'&json='+postdata,
 			   function(data) {
 				   rowsdata[id] = data.json.item;
-				   //dump(data.json);
-				   //alert(data.json.item.Title);
+				   dump(data.json);
+				   alert(data.json.item.Title);
 				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
