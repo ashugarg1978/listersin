@@ -69,7 +69,9 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject upditem = new BasicDBObject();
 		upditem.put("ConditionID", item.getString("ConditionID"));
-		upditem.put("ProductListingDetails", item.get("ProductListingDetails"));
+		if (item.containsKey("ProductListingDetails")) {
+			upditem.put("ProductListingDetails", item.get("ProductListingDetails"));
+		}
 		upditem.put("ext.importstatus", "completed");
 		
 		BasicDBObject update = new BasicDBObject();
