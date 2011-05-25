@@ -9,7 +9,7 @@ mvn archetype:generate
 
 exit
 
-cd /var/www/ebaytool/
+cd /var/www/ebaytool.jp/
 mvn archetype:generate -B \
     -DgroupId=tutorial \
     -DartifactId=tutorial \

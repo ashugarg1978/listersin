@@ -44,7 +44,6 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", session.get("email").toString());
-		//query.put("email", "fd3s.boost@gmail.com");
 		
 		user = (BasicDBObject) coll.findOne(query);
 	}

@@ -39,15 +39,20 @@ public class IndexAction extends ActionSupport {
 		
 		String email = "";
 		String password = "";
+		
 		if (session.get("email") != null) {
+			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
 			
-			session.put("email", user.get("email").toString());
-			
-			return "loggedin";
+			if (user != null) {
+				session.put("email", user.get("email").toString());
+				return "loggedin";
+			}
 		}
+		
 		if (request.get("email") != null && request.get("password") != null) {
+			
 			email    = ((String[]) request.get("email"))[0];
 			password = ((String[]) request.get("password"))[0];
 			
@@ -55,14 +60,10 @@ public class IndexAction extends ActionSupport {
 			query.put("password", password);
 			user = (BasicDBObject) coll.findOne(query);
 			
-			session.put("email", user.get("email").toString());
-			
-			return "loggedin";
-		}
-		
-		if (true) {
-			session.put("email", "fd3s.boost@gmail.com");
-			return "loggedin";
+			if (user != null) {
+				session.put("email", user.get("email").toString());
+				return "loggedin";
+			}
 		}
 		
 		return SUCCESS;
