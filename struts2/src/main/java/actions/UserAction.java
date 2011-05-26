@@ -829,6 +829,13 @@ public class UserAction extends ActionSupport {
 		
 		BasicDBObject query = new BasicDBObject();
 		
+		ArrayList<String> userids = new ArrayList<String>();
+		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
+			userids.add(userid.toString());
+		}
+		query.put("ext.UserID", new BasicDBObject("$in", userids));
+		
+		
 		if (request.containsKey("id")) {
 			
 			ArrayList<ObjectId> ids = new ArrayList<ObjectId>();

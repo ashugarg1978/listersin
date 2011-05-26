@@ -45,7 +45,7 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			writelog("GCF.res."+site+".xml", responsexml);
 			*/
 			
-			String responsexml = readfile("/var/www/ebaytool/logs/apixml/GCF.res."+site+".xml");
+			String responsexml = readfile("/var/www/ebaytool.jp/logs/apixml/GCF.res."+site+".xml");
 			
 			BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 			

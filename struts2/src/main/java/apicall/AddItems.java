@@ -167,12 +167,16 @@ public class AddItems extends ApiCall {
 							 +".xml", jso.toString());
 					
 					String requestxml = xmls.write(jso);
+
+					String requestxmlfilename = "AIs.req"
+						+"."+((String) tmpuserid)
+						+"."+((String) tmpsite)
+						+"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+						+".xml";
 					
-					writelog("AIs.req"
-							 +"."+((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", requestxml);
+					writelog(requestxmlfilename, requestxml);
+					
+					validatexml(requestxmlfilename);
 					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
 					
@@ -275,38 +279,40 @@ public class AddItems extends ApiCall {
 	
 	private HashMap<String,String> getUserIdToken() throws Exception {
 		
-		HashMap<String,String> hm = new HashMap<String,String>();
+		HashMap<String,String> hashmap = new HashMap<String,String>();
 		
 		DBCursor cur = db.getCollection("users").find();
 		while (cur.hasNext()) {
 			DBObject user = cur.next();
-			BasicDBObject userids = (BasicDBObject) user.get("userids");
 			
-			for (Object userid : userids.keySet()) {
-				
-				String ebaytkn = 
-					((BasicDBObject) userids.get(userid.toString())).get("ebaytkn").toString();
-				
-				hm.put(userid.toString(), ebaytkn);
+			if (user.containsKey("userids")) {
+				BasicDBObject userids = (BasicDBObject) user.get("userids");
+				for (Object userid : userids.keySet()) {
+					
+					String ebaytkn = 
+						((BasicDBObject) userids.get(userid.toString())).get("ebaytkn").toString();
+					
+					hashmap.put(userid.toString(), ebaytkn);
+				}
 			}
-			
 		}
 		
-		return hm;
+		return hashmap;
 	}
 	
 	/* XML Validation */
+	// ref: http://java.sun.com/developer/technicalArticles/xml/validationxpath/
 	private void validatexml(String filename) throws Exception {
 		
 		// todo: why Country error occures?
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
 		DocumentBuilder parser = dbf.newDocumentBuilder();
-		Document document = parser.parse(new File("/var/www/ebaytool/logs/apixml/"+filename));
+		Document document = parser.parse(new File("/var/www/ebaytool.jp/logs/apixml/"+filename));
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		
-		Source schemaFile = new StreamSource(new File("/var/www/ebaytool/data/ebaySvc.xsd"));
+		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd"));
 		Schema schema = factory.newSchema(schemaFile);
 		
 		Validator validator = schema.newValidator();

@@ -67,7 +67,7 @@ public class ApiCall implements Callable {
 	
 	public void writelog(String filename, String content) throws Exception {
 		
-		FileWriter fstream = new FileWriter("/var/www/ebaytool/logs/apixml/"+filename);
+		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/apixml/"+filename);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(content);
 		out.close();
