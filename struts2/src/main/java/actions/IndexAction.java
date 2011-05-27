@@ -4,6 +4,7 @@ import com.mongodb.*;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
 import ebaytool.apicall.GetSellerList;
+import ebaytool.apicall.GetSessionID;
 import java.io.*;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
@@ -120,4 +121,16 @@ public class IndexAction extends ActionSupport {
 		return SUCCESS;
 	}
 	
+	@Action(value="addaccount", results={@Result(name="success",location="addaccount.jsp")})
+	public String addaccount() throws Exception {
+		
+		GetSessionID gsi = new GetSessionID();
+		
+		String sessionid = gsi.call();
+		
+		user  = new BasicDBObject();
+		user.put("ebaysessionid", sessionid);
+		
+		return SUCCESS;
+	}
 }
