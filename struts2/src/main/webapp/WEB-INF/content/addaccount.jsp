@@ -4,7 +4,7 @@
 <html>
 <body>
 
-<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc&SessID=${user.ebaysessionid}"><s:text name="add new account"/></a>
+<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc&SessID=${user.sessionid}"><s:text name="add new account"/></a>
 
 </body>
 </html>

@@ -431,27 +431,6 @@ public class UserAction extends ActionSupport {
 		return SUCCESS;
 	}
 
-	@Action(value="/accept", results={@Result(name="success",location="accept.jsp")})
-	public String accept() {
-		
-		String username = ((String[]) request.get("username"))[0];
-		
-		BasicDBObject getval = new BasicDBObject();
-		for (Object key : request.keySet()) {
-			getval.put(key.toString(), ((String[]) request.get(key.toString()))[0]);
-		}
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", session.get("email").toString());
-		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("userids."+username, getval));
-		
-		db.getCollection("users").update(query, update);
-		
-		return SUCCESS;
-	}
-	
 	private LinkedHashMap<String,BasicDBObject> getsellingquery() {
 		
 		BasicDBObject allitems  = new BasicDBObject();

@@ -11,6 +11,8 @@ public class Daemon {
 	
 	public void start() throws Exception {
 		
+		System.out.println("start");
+		
 		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
 		ServerSocket serversocket = new ServerSocket(8181, 10);
 		

@@ -3,6 +3,7 @@ package ebaytool.actions;
 import com.mongodb.*;
 import com.opensymphony.xwork2.ActionContext;
 import com.opensymphony.xwork2.ActionSupport;
+import ebaytool.apicall.FetchToken;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
 import java.io.*;
@@ -17,8 +18,31 @@ import org.apache.struts2.convention.annotation.Results;
 @ParentPackage("json-default")
 public class IndexAction extends ActionSupport {
 	
-	public BasicDBObject user;
-
+	private ActionContext context;
+	private Map request;
+	private Map session;
+	
+	private DB db;
+	
+	private BasicDBObject user;
+	
+	public IndexAction() throws Exception {
+		
+		context = ActionContext.getContext();
+		request = (Map) context.getParameters();
+		session = (Map) context.getSession();
+		
+		if (db == null) {
+			db = new Mongo().getDB("ebay");
+		}
+		
+		if (session.get("email") != null) {
+			BasicDBObject query = new BasicDBObject();
+			query.put("email", session.get("email").toString());
+			user = (BasicDBObject) db.getCollection("users").findOne(query);
+		}
+	}
+	
 	public BasicDBObject getUser() {
 		return user;
 	}
@@ -28,11 +52,6 @@ public class IndexAction extends ActionSupport {
 	@Action(value="/", results={@Result(name="loggedin",location="user.jsp")})
 	public String execute() throws Exception {
 		
-		ActionContext context = ActionContext.getContext();
-		Map request = context.getParameters();
-		Map session = context.getSession();
-		
-		DB db = new Mongo().getDB("ebay");
 		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
@@ -73,9 +92,6 @@ public class IndexAction extends ActionSupport {
 	@Action(value="/logout", results={@Result(name="success",location="index.jsp")})
 	public String logout() {
 		
-		ActionContext context = ActionContext.getContext();
-		Map session = context.getSession();
-		
 		session.remove("email");
 		
 		return SUCCESS;
@@ -83,8 +99,6 @@ public class IndexAction extends ActionSupport {
 	
 	@Action(value="/register", results={@Result(name="success",type="json")})
 	public String register() throws Exception {
-		ActionContext context = ActionContext.getContext();
-		Map request = context.getParameters();
 		
 		// todo: password validation, check existing user record.
 		if (request.get("email") != null
@@ -98,6 +112,41 @@ public class IndexAction extends ActionSupport {
 			DB db = new Mongo().getDB("ebay");
 			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
 		}
+		
+		return SUCCESS;
+	}
+	
+	/* todo: redirect to ebay */
+	@Action(value="addaccount", results={@Result(name="success",location="addaccount.jsp")})
+	public String addaccount() throws Exception {
+		
+		GetSessionID gsi = new GetSessionID();
+		String sessionid = gsi.call();
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", session.get("email").toString());
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("sessionid", sessionid));
+		
+		db.getCollection("users").update(query, update);
+		
+		user  = new BasicDBObject();
+		user.put("sessionid", sessionid);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/accept", results={@Result(name="success",location="user.jsp")})
+	public String accept() throws Exception {
+		
+		String username  = ((String[]) request.get("username"))[0];
+		
+		String email     = user.get("email").toString();
+		String sessionid = user.get("sessionid").toString();
+		
+		FetchToken ft = new FetchToken(email, sessionid, username);
+		String result = ft.call();
 		
 		return SUCCESS;
 	}
@@ -120,17 +169,5 @@ public class IndexAction extends ActionSupport {
 		
 		return SUCCESS;
 	}
-	
-	@Action(value="addaccount", results={@Result(name="success",location="addaccount.jsp")})
-	public String addaccount() throws Exception {
-		
-		GetSessionID gsi = new GetSessionID();
-		
-		String sessionid = gsi.call();
-		
-		user  = new BasicDBObject();
-		user.put("ebaysessionid", sessionid);
-		
-		return SUCCESS;
-	}
+
 }

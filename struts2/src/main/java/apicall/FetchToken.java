@@ -12,8 +12,15 @@ import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
 public class FetchToken extends ApiCall implements Callable {
+
+	private String email;
+	private String sessionid;
+	private String username;
 	
-	public FetchToken() throws Exception {
+	public FetchToken(String email, String sessionid, String username) throws Exception {
+		this.email = email;
+		this.sessionid = sessionid;
+		this.username = username;
 	}
 	
 	public String call() throws Exception {
@@ -21,7 +28,7 @@ public class FetchToken extends ApiCall implements Callable {
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
-		reqdbo.append("SessionID", "");
+		reqdbo.append("SessionID", sessionid);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "FetchToken");
 		
@@ -29,15 +36,21 @@ public class FetchToken extends ApiCall implements Callable {
 		
 		String responsexml = future.get();
 		
-		writelog("GSI.req.xml", requestxml);
-		writelog("GSI.res.xml", responsexml);
+		writelog("FT.req.xml", requestxml);
+		writelog("FT.res.xml", responsexml);
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
-		String sessionid = responsedbo.getString("SessionID");
-		System.out.println(sessionid);
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		query.put("sessionid", sessionid);
+
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("userids."+username, responsedbo));
 		
-		return sessionid;
+		db.getCollection("users").update(query, update);
+		
+		return "";
 	}
 	
 }

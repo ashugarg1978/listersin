@@ -46,7 +46,7 @@
 </li>
 </ul>
 
-<a href="https://signin.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn&runame=Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc"><s:text name="add new account"/></a>
+<a href="/addaccount"><s:text name="add new account"/></a>
 
 <div id="debugseparator"></div>
 
