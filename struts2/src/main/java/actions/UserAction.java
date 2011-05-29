@@ -122,10 +122,11 @@ public class UserAction extends ActionSupport {
 		field.put("ext", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
-		sort.put("ListingDetails.EndTime", -1);
+		sort.put("ListingDetails.EndTime", 1);
 		
         Calendar calendar = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
 		Date now = new Date();
 		//String today = sdf.format(calendar.getTime());
 		
@@ -142,17 +143,17 @@ public class UserAction extends ActionSupport {
 			ext.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 			
 			/* endtime */
-			sdf.applyPattern("yyyy-MM-dd");
+			formatter.applyPattern("yyyy-MM-dd");
 			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
 			Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-			//item.put("dfnow", sdf.format(now));
-			//item.put("dfend", sdf.format(dfendtime));
-			if (sdf.format(now).equals(sdf.format(dfendtime))) {
-				sdf.applyPattern("h:mm a");
+			ext.put("dfnow", sdf.format(now));
+			ext.put("dfend", sdf.format(dfendtime));
+			if (formatter.format(now).equals(formatter.format(dfendtime))) {
+				formatter.applyPattern("h:mm a");
 			} else {
-				sdf.applyPattern("MMM d");
+				formatter.applyPattern("MMM d");
 			}
-			ext.put("endtime", sdf.format(dfendtime));
+			ext.put("endtime", formatter.format(dfendtime));
 			
 			item.removeField("_id");
 			

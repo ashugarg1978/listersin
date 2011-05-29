@@ -19,7 +19,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		Map userids = ((BasicDBObject) user.get("userids")).toMap();
 		for (Object userid : userids.keySet()) {
 			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
-			String token = json.get("ebaytkn").toString();
+			String token = json.get("eBayAuthToken").toString();
 			call2(userid.toString(), token);
 		}
 		
@@ -46,7 +46,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		
 		BasicDBObject adp = new BasicDBObject();
 		adp.put("ApplicationEnable", "Enable");
-		adp.put("ApplicationURL", "http://ebaytool.jp:8080/receivenotify");
+		adp.put("ApplicationURL", "http://ebaytool.jp/receivenotify");
 		
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));

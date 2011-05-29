@@ -290,7 +290,7 @@ public class AddItems extends ApiCall {
 				for (Object userid : userids.keySet()) {
 					
 					String ebaytkn = 
-						((BasicDBObject) userids.get(userid.toString())).get("ebaytkn").toString();
+						((BasicDBObject) userids.get(userid.toString())).get("eBayAuthToken").toString();
 					
 					hashmap.put(userid.toString(), ebaytkn);
 				}
@@ -323,6 +323,7 @@ public class AddItems extends ApiCall {
 			System.out.println(e.toString());
 		}
 		
+		return;
 	}
 	
 }

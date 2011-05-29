@@ -14,22 +14,54 @@ import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
 public class GetSellerList extends ApiCall {
+
+	private String email;
+	private String userid;
+	private String daterange;
+	private String datestart;
+	private String dateend;
 	
 	public GetSellerList() throws Exception {
+		
+	}
+	
+	public GetSellerList(String email, String userid,
+						 String daterange, String datestart, String dateend) throws Exception {
+		
+		this.email     = email;
+		this.userid    = userid;
+		this.daterange = daterange;
+		this.datestart = datestart;
+		this.dateend   = dateend;
+		
 	}
 	
 	public String call() throws Exception {
 		
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+		
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
+		
+		if (true) {
+			System.out.println(user.get("userids").toString());
+			return "OK";
+		}
+		
+		/*
 		DBObject user = db.getCollection("users").findOne();
 		
 		Map userids = ((BasicDBObject) user.get("userids")).toMap();
 		for (Object userid : userids.keySet()) {
 			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
-			String token = json.get("ebaytkn").toString();
+			String token = json.get("eBayAuthToken").toString();
 			call2(userid.toString(), token);
 		}
+		*/
 		
 		// todo: call GetItem here.
+		// todo: Should I replace with GetMultipleItems?
 		//ecs18.submit(new GetItem());
 		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 		Callable task = new GetItem();
@@ -100,14 +132,13 @@ public class GetSellerList extends ApiCall {
 		
 		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
-		int rica = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
-		if (rica == 0) return responsedbo;
+		int itemcount = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
+		if (itemcount == 0) return responsedbo;
 		
 		DBCollection coll = db.getCollection("items");
 		
-		// todo : aware whether count is 1.
 		JSONArray jsonarr = new JSONArray();
-		if (rica == 1) {
+		if (itemcount == 1) {
 			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
 		} else {
 			jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");

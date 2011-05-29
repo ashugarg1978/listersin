@@ -223,9 +223,14 @@ function getrow(idx, row)
 	if (row.SellingStatus) {
 		if (row.SellingStatus.ListingStatus == 'Active') {
 			st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
+		} else if (row.SellingStatus.ListingStatus == 'Completed') {
+			st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
 		} else {
 			st = $(row.SellingStatus.ListingStatus);
 		}
+		$('a.Title', dom).before(st);
+	} else {
+		st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
 		$('a.Title', dom).before(st);
 	}
 	

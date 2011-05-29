@@ -208,7 +208,7 @@ public class EndItems extends ApiCall {
 			for (Object userid : userids.keySet()) {
 				
 				String ebaytkn = 
-					((BasicDBObject) userids.get(userid.toString())).get("ebaytkn").toString();
+					((BasicDBObject) userids.get(userid.toString())).get("eBayAuthToken").toString();
 				
 				hm.put(userid.toString(), ebaytkn);
 			}
