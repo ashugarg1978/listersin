@@ -20,6 +20,7 @@ public class GetSellerList extends ApiCall {
 	private String daterange;
 	private String datestart;
 	private String dateend;
+	private String token;
 	
 	public GetSellerList() throws Exception {
 		
@@ -33,7 +34,6 @@ public class GetSellerList extends ApiCall {
 		this.daterange = daterange;
 		this.datestart = datestart;
 		this.dateend   = dateend;
-		
 	}
 	
 	public String call() throws Exception {
@@ -41,45 +41,22 @@ public class GetSellerList extends ApiCall {
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+
+		BasicDBObject fields = new BasicDBObject();
+		fields.put("userids."+userid, 1);
 		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
 		
-		if (true) {
-			System.out.println(user.get("userids").toString());
-			return "OK";
-		}
-		
-		/*
-		DBObject user = db.getCollection("users").findOne();
-		
-		Map userids = ((BasicDBObject) user.get("userids")).toMap();
-		for (Object userid : userids.keySet()) {
-			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
-			String token = json.get("eBayAuthToken").toString();
-			call2(userid.toString(), token);
-		}
-		*/
-		
-		// todo: call GetItem here.
-		// todo: Should I replace with GetMultipleItems?
-		//ecs18.submit(new GetItem());
-		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-		Callable task = new GetItem();
-		pool.submit(task);
-		
-		return "OK";
-	}
-	
-	private void call2(String userid, String token) throws Exception {
+		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
+		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
+		token = tokendbo.getString("eBayAuthToken");
 		
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-		dbobject.put("StartTimeFrom", "2011-04-01 00:00:00");
-		dbobject.put("StartTimeTo",   "2011-06-01 00:00:00");
-		//dbobject.put("EndTimeFrom", "2011-01-01 00:00:00");
-		//dbobject.put("EndTimeTo",   "2011-03-01 00:00:00");
+		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
+		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",200).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		//dbobject.put("UserID", "testuser_sbmsku");
@@ -107,8 +84,17 @@ public class GetSellerList extends ApiCall {
 			responsexml = ecs18.take().get();
 			parseresponse(responsexml);
 		}
-
-		return;
+		
+		// todo: call GetItem here.
+		// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
+		//ecs18.submit(new GetItem());
+		if (true) {
+			ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+			Callable task = new GetItem();
+			pool.submit(task);
+		}
+		
+		return "OK";
 	}
 	
 	private BasicDBObject parseresponse(String responsexml) throws Exception {
@@ -154,13 +140,37 @@ public class GetSellerList extends ApiCall {
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
 			dbobject.put("ext", ext);
 			
+			String itemid = dbobject.get("ItemID").toString();
+			
+			/* call GetItem */
+			/*
+			BasicDBObject gidbo = new BasicDBObject();
+			gidbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+			gidbo.append("WarningLevel", "High");
+			gidbo.append("DetailLevel", "ReturnAll");
+			gidbo.append("ItemID", itemid);
+			
+			String gireqxml = convertDBObject2XML(gidbo, "GetItem");
+			Future<String> future = ecs18.submit(new ApiCallTask(0, gireqxml, "GetItem"));
+			String giresxml = future.get();
+			
+			writelog("GI.req."+itemid+".xml", gireqxml);
+			writelog("GI.res."+itemid+".xml", giresxml);
+			
+			BasicDBObject giresdbo = convertXML2DBObject(giresxml);
+			dbobject.put("ConditionID", giresdbo.getString("ConditionID"));
+			if (giresdbo.containsKey("ProductListingDetails")) {
+				dbobject.put("ProductListingDetails", giresdbo.get("ProductListingDetails"));
+			}
+			*/
+			
+			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
-			query.put("ItemID", dbobject.get("ItemID").toString());
+			query.put("ItemID", itemid);
 			
 			BasicDBObject update = new BasicDBObject();
 			update.put("$set", dbobject);
 			
-			/* insert into mongodb */
 			coll.findAndRemove(query);
 			coll.update(query, update, true, true);
 		}

@@ -59,14 +59,13 @@
 </s:iterator>
 </select><br>
 
-<select name="">
-<option value="">Date range</option>
-<option value="StartTime">StartTime</option>
-<option value="EndTime">EndTime</option>
+<select name="daterange">
+<option value="Start">StartTime</option>
+<option value="End">EndTime</option>
 </select>
 
-<input type="text" name="From" size="12" value=""><br>
-<input type="text" name="To"   size="12" value=""><br>
+<input type="text" name="from" size="12" value=""><br>
+<input type="text" name="to"   size="12" value=""><br>
 <input type="button" value="Import">
 
 </div>

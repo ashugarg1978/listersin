@@ -36,12 +36,26 @@ public class Daemon {
 			String[] arrmsg = message.split(" ");
 			
 			Callable task = null;
-			if (arrmsg.length == 3) {
+			if (arrmsg.length == 6) {
+				
 				Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
-				Constructor cnst = apiclass.getConstructor(String.class, String.class);
-				task = (Callable) cnst.newInstance(arrmsg[1], arrmsg[2]);
+				
+				Constructor cnst = apiclass.getConstructor(String.class,
+														   String.class,
+														   String.class,
+														   String.class,
+														   String.class);
+				
+				task = (Callable) cnst.newInstance(arrmsg[1],
+												   arrmsg[2],
+												   arrmsg[3],
+												   arrmsg[4],
+												   arrmsg[5]);
+				
 			} else {
+				
 				task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();
+				
 			}
 			
 			Future f = pool.submit(task);
