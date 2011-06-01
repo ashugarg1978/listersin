@@ -23,7 +23,6 @@ public class GetSellerList extends ApiCall {
 	private String token;
 	
 	public GetSellerList() throws Exception {
-		
 	}
 	
 	public GetSellerList(String email, String userid,
@@ -131,38 +130,20 @@ public class GetSellerList extends ApiCall {
 		}
 		for (Object item : jsonarr) {
 			
+			/* convert JSON to DBObject */
+			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
+			
+			String itemid = dbobject.get("ItemID").toString();
+			
+			
+			/* add extended information */
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
 			ext.put("labels", new BasicDBList());
 			ext.put("importstatus", "waiting GetItem");
 			
-			/* convert JSON to DBObject */
-			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
 			dbobject.put("ext", ext);
 			
-			String itemid = dbobject.get("ItemID").toString();
-			
-			/* call GetItem */
-			/*
-			BasicDBObject gidbo = new BasicDBObject();
-			gidbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-			gidbo.append("WarningLevel", "High");
-			gidbo.append("DetailLevel", "ReturnAll");
-			gidbo.append("ItemID", itemid);
-			
-			String gireqxml = convertDBObject2XML(gidbo, "GetItem");
-			Future<String> future = ecs18.submit(new ApiCallTask(0, gireqxml, "GetItem"));
-			String giresxml = future.get();
-			
-			writelog("GI.req."+itemid+".xml", gireqxml);
-			writelog("GI.res."+itemid+".xml", giresxml);
-			
-			BasicDBObject giresdbo = convertXML2DBObject(giresxml);
-			dbobject.put("ConditionID", giresdbo.getString("ConditionID"));
-			if (giresdbo.containsKey("ProductListingDetails")) {
-				dbobject.put("ProductListingDetails", giresdbo.get("ProductListingDetails"));
-			}
-			*/
 			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();

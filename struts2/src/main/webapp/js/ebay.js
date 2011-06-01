@@ -337,10 +337,18 @@ function getdetail(row)
 	}
 	if (row.ShippingDetails.ShippingServiceOptions) {
 		sso = '';
-		$.each(row.ShippingDetails.ShippingServiceOptions, function(i, o) {
-			sso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
-			sso += '<br>';
-		});
+		if ($.isArray(row.ShippingDetails.ShippingServiceOptions)) {
+			
+			$.each(row.ShippingDetails.ShippingServiceOptions, function(i, o) {
+				sso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
+				sso += '<br>';
+			});
+			
+		} else {
+			
+			sso += hash[row.Site]['ShippingServiceDetails'][row.ShippingDetails.ShippingServiceOptions.ShippingService]['Description'];
+			
+		}
 		$('td.shippingservice', detail).html(sso);
 	}
 	

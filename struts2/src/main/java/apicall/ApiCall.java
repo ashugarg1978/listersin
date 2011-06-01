@@ -3,6 +3,9 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import com.mongodb.util.*;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.*;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
@@ -71,6 +74,15 @@ public class ApiCall implements Callable {
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(content);
 		out.close();
+		
+		return;
+	}
+	
+	public void log(String message) {
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date now = new Date();
+		System.out.println(sdf.format(now).toString()+" "+message);
 		
 		return;
 	}
