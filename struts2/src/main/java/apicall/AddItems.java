@@ -247,6 +247,7 @@ public class AddItems extends ApiCall {
 				upditem.put("ItemID", itemid);
 				upditem.put("ListingDetails.StartTime", starttime);
 				upditem.put("ListingDetails.EndTime", endtime);
+				upditem.put("SellingStatus.ListingStatus", "Active");
 			}
 			
 			if (item.get("Errors") != null) {
