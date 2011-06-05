@@ -15,3 +15,4 @@ db.getCollectionNames().forEach(
 		}
 	}
 );
+
