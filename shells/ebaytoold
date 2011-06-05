@@ -6,12 +6,12 @@
 # description: ebaytool daemon
 #
 
-PATH=/usr/local/jdk1.6.0_21/bin:$PATH
+PATH=/usr/local/jdk/bin:$PATH
 CP=/var/www/ebaytool.jp/struts2/target/classes/
 
-for jar in `ls /usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/`
+for jar in `ls /usr/local/apache-tomcat/webapps/ROOT/WEB-INF/lib/`
 do
-	CP=$CP:/usr/local/apache-tomcat-7.0.2/webapps/ROOT/WEB-INF/lib/$jar
+	CP=$CP:/usr/local/apache-tomcat/webapps/ROOT/WEB-INF/lib/$jar
 done
 
 start() {
