@@ -261,6 +261,10 @@
 	  <td><s:text name="Payment Methods"/></td>
 	  <td class="paymentmethod"></td>
 	</tr>
+	<tr>
+	  <td><s:text name="schedule"/></td>
+	  <td><input name="schedule" type="" size="15"></td>
+	</tr>
   </tbody>
 </table>
 </div>

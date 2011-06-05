@@ -38,8 +38,6 @@ public class GetCategories extends ApiCall implements Callable {
 			writelog("GCs.req."+site+".xml", requestxml);
 			
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategories"));
-
-			Thread.sleep(5);
 		}
 		
 		for (int i = 1; i <= cnt; i++) {
