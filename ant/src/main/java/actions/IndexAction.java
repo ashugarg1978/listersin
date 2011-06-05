@@ -8,17 +8,19 @@ import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
 import java.io.*;
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletContext;
 import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
+import org.apache.struts2.util.ServletContextAware;
 
 @ParentPackage("json-default")
-public class IndexAction extends ActionSupport {
+public class IndexAction extends ActionSupport implements ServletContextAware {
 	
-	private ActionContext context;
+	private ServletContext context;
+	//private ActionContext context;
 	private Map request;
 	private Map session;
 	
@@ -26,11 +28,15 @@ public class IndexAction extends ActionSupport {
 	
 	private BasicDBObject user;
 	
+	public void setServletContext(ServletContext context) {
+		this.context = context;
+	}
+	
 	public IndexAction() throws Exception {
 		
-		context = ActionContext.getContext();
-		request = (Map) context.getParameters();
-		session = (Map) context.getSession();
+		//context = ActionContext.getContext();
+		//request = (Map) context.getParameters();
+		//session = (Map) context.getSession();
 		
 		if (db == null) {
 			db = new Mongo().getDB("ebay");
@@ -157,6 +163,7 @@ public class IndexAction extends ActionSupport {
 		String notifyxml = "";
 		String line = "";
 		
+		/*
 		HttpServletRequest request = ServletActionContext.getRequest();
 		BufferedReader br = request.getReader();
 		
@@ -166,6 +173,7 @@ public class IndexAction extends ActionSupport {
 		
 		GetSellerList gsl = new GetSellerList();
 		gsl.parsenotifyxml(notifyxml);
+		*/
 		
 		return SUCCESS;
 	}
