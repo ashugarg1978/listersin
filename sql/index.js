@@ -11,7 +11,7 @@ db.Canada.eBayDetails.ShippingServiceDetails.ensureIndex({ValidForSellingFlow:1}
 db.getCollectionNames().forEach(
 	function(coll) {
 		if (coll.indexOf('Categories') > 0) {
-			print(db[coll].count()+' : '+coll);
+			print('indexing '+coll);
 			db[coll].ensureIndex({CategoryParentID:1});
 		}
 	}
