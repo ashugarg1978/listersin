@@ -237,7 +237,10 @@
 	</tr>
 	<tr>
 	  <td><s:text name="Start Price"/></td>
-	  <td><input name="StartPrice.#text" type="text" size="10"></td>
+	  <td>
+		<input name="StartPrice.@currencyID" type="text" size="3">
+		<input name="StartPrice.#text" type="text" size="10">
+	  </td>
 	</tr>
 	<tr>
 	  <td><s:text name="Quantity"/></td>

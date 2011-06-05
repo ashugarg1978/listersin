@@ -286,6 +286,7 @@ function getdetail(row)
 	$('input[name=Title]',    detail).replaceWith(row.Title);
 	$('input[name=SubTitle]', detail).replaceWith(row.SubTitle);
 	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
+	$('input[name=StartPrice.@currencyID]', detail).replaceWith(row.StartPrice['@currencyID']);
 	$('input[name=StartPrice.#text]', detail).replaceWith(row.StartPrice['#text']);
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
@@ -304,8 +305,7 @@ function getdetail(row)
 	
 	$('td.duration', detail).text(getListingDurationLabel(row.ListingDuration));
 	
-	// todo: display categoryname from categorypath2
-	//$('td.category', detail).html(row.PrimaryCategory.CategoryName.replace(/:/g, ' &gt; '));
+	$('td.category', detail).html(row.ext.categoryname);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -719,12 +719,13 @@ function bindevents()
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
-		$('input[name=Title]',            dom).val(item.Title);
-		$('input[name=SubTitle]',         dom).val(item.SubTitle);
-		$('input[name=StartPrice.#text]', dom).val(item.StartPrice['#text']);
-		$('input[name=Quantity]',         dom).val(item.Quantity);
-		$('select[name=Site]',            dom).val(item.Site);
-		$('select[name=ListingType]',     dom).val(item.ListingType);
+		$('input[name=Title]',                  dom).val(item.Title);
+		$('input[name=SubTitle]',               dom).val(item.SubTitle);
+		$('input[name=StartPrice.@currencyID]', dom).val(item.StartPrice['@currencyID']);
+		$('input[name=StartPrice.#text]',       dom).val(item.StartPrice['#text']);
+		$('input[name=Quantity]',               dom).val(item.Quantity);
+		$('select[name=Site]',                  dom).val(item.Site);
+		$('select[name=ListingType]',           dom).val(item.ListingType);
 		
 		if (item.Description != null) {
 			$('textarea[name=Description]',   dom).val(item.Description);
