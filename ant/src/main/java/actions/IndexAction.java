@@ -1,8 +1,7 @@
 package ebaytool.actions;
 
 import com.mongodb.*;
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.ActionSupport;
+import ebaytool.actions.BaseAction;
 import ebaytool.apicall.FetchToken;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
@@ -17,12 +16,12 @@ import org.apache.struts2.convention.annotation.Results;
 import org.apache.struts2.util.ServletContextAware;
 
 @ParentPackage("json-default")
-public class IndexAction extends ActionSupport implements ServletContextAware {
+public class IndexAction extends BaseAction implements ServletContextAware {
 	
-	private ServletContext context;
+	//private ServletContext context;
 	//private ActionContext context;
-	private Map request;
-	private Map session;
+	//private Map request;
+	//private Map session;
 	
 	private DB db;
 	

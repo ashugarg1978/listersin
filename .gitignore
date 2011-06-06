@@ -6,3 +6,5 @@ app/tmp
 app/webroot/itemimg
 logs
 struts2/target
+ant/build
+ant/dist
