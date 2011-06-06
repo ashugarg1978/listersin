@@ -1,6 +1,6 @@
 # To ignore files already trucked by git.
 # git update-index --assume-unchanged
 
-build
-dist
-logs
+build/*
+dist/*
+logs/*
