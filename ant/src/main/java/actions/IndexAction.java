@@ -7,45 +7,23 @@ import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
 import java.io.*;
 import java.util.*;
-import javax.servlet.ServletContext;
-import org.apache.struts2.ServletActionContext;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
-import org.apache.struts2.util.ServletContextAware;
 
 @ParentPackage("json-default")
-public class IndexAction extends BaseAction implements ServletContextAware {
-	
-	//private ServletContext context;
-	//private ActionContext context;
-	//private Map request;
-	//private Map session;
+public class IndexAction extends BaseAction {
 	
 	private DB db;
-	
 	private BasicDBObject user;
 	
-	public void setServletContext(ServletContext context) {
-		this.context = context;
-	}
-	
 	public IndexAction() throws Exception {
-		
-		//context = ActionContext.getContext();
-		//request = (Map) context.getParameters();
-		//session = (Map) context.getSession();
 		
 		if (db == null) {
 			db = new Mongo().getDB("ebay");
 		}
 		
-		if (session.get("email") != null) {
-			BasicDBObject query = new BasicDBObject();
-			query.put("email", session.get("email").toString());
-			user = (BasicDBObject) db.getCollection("users").findOne(query);
-		}
 	}
 	
 	public BasicDBObject getUser() {
@@ -76,10 +54,10 @@ public class IndexAction extends BaseAction implements ServletContextAware {
 			}
 		}
 		
-		if (request.get("email") != null && request.get("password") != null) {
+		if (parameters.get("email") != null && parameters.get("password") != null) {
 			
-			email    = ((String[]) request.get("email"))[0];
-			password = ((String[]) request.get("password"))[0];
+			email    = ((String[]) parameters.get("email"))[0];
+			password = ((String[]) parameters.get("password"))[0];
 			
 			query.put("email", email);
 			query.put("password", password);
@@ -106,13 +84,13 @@ public class IndexAction extends BaseAction implements ServletContextAware {
 	public String register() throws Exception {
 		
 		// todo: password validation, check existing user record.
-		if (request.get("email") != null
-			&& request.get("password") != null
-			&& request.get("password2") != null) {
+		if (parameters.get("email") != null
+			&& parameters.get("password") != null
+			&& parameters.get("password2") != null) {
 			
 			BasicDBObject user = new BasicDBObject();
-			user.put("email",    ((String[]) request.get("email"))[0]);
-			user.put("password", ((String[]) request.get("password"))[0]);
+			user.put("email",    ((String[]) parameters.get("email"))[0]);
+			user.put("password", ((String[]) parameters.get("password"))[0]);
 			
 			DB db = new Mongo().getDB("ebay");
 			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
@@ -145,7 +123,7 @@ public class IndexAction extends BaseAction implements ServletContextAware {
 	@Action(value="/accept", results={@Result(name="success",location="user.jsp")})
 	public String accept() throws Exception {
 		
-		String username  = ((String[]) request.get("username"))[0];
+		String username  = ((String[]) parameters.get("username"))[0];
 		
 		String email     = user.get("email").toString();
 		String sessionid = user.get("sessionid").toString();
