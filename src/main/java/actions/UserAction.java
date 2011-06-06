@@ -222,9 +222,20 @@ public class UserAction extends BaseAction {
 		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryName", categoryname);
 		
 		/* ShippingType */
+		BasicDBObject ssd =
+			(BasicDBObject) ((BasicDBObject) item.get("ShippingDetails")).get("ShippingType");
 		LinkedHashMap<String,LinkedHashMap> smap = shippingmap();
 		for (String st : smap.keySet()) {
-			log.debug("st:"+st);
+			
+			String dmst = ((Map) smap.get(st)).get("domestic").toString();
+			String intl = ((Map) smap.get(st)).get("international").toString();
+			
+			if (ssd.getString("domestic").equals(dmst)
+				&& ssd.getString("international").equals(intl)) {
+				
+				((BasicDBObject) item.get("ShippingDetails")).put("ShippingType", st);
+				break;
+			}
 		}
 		
 		

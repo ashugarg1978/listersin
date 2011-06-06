@@ -17,6 +17,10 @@
 	<level value="DEBUG" />
   </logger>
   
+  <logger name="ebaytool">
+	<level value="DEBUG" />
+  </logger>
+  
   <root>
 	<priority value="INFO"/> 
 	<appender-ref ref="STDOUT" /> 

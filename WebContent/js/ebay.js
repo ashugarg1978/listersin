@@ -833,7 +833,6 @@ if (false) {
 			   function(data) {
 				   rowsdata[id] = data.json.item;
 				   dump(data.json);
-				   alert(data.json.item.Title);
 				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
@@ -868,6 +867,7 @@ if (false) {
 	
 	/* ShippingType */
 	// todo: check all browsers can detect [domestic] selector
+	/*
 	$('select[name=ShippingDetails_ShippingType[domestic]]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		sel = getshippingservice(id);
@@ -875,6 +875,7 @@ if (false) {
 		
 		return;
 	});
+	*/
 	
 	/* Import */
 	$('div#importform input[type=button]').live('click', function() {
