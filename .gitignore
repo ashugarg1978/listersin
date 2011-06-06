@@ -1,10 +1,6 @@
 # To ignore files already trucked by git.
 # git update-index --assume-unchanged
 
-app/config/database.php
-app/tmp
-app/webroot/itemimg
+build
+dist
 logs
-struts2/target
-ant/build
-ant/dist
