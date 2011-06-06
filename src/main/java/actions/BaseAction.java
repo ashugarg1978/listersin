@@ -1,5 +1,6 @@
 package ebaytool.actions;
  
+import com.mongodb.*;
 import com.opensymphony.xwork2.ActionSupport;
 import java.util.Map;
 import javax.servlet.ServletContext;
@@ -23,6 +24,15 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
     protected HttpServletRequest request = null;
     protected HttpServletResponse response = null;
 	
+	protected DB db;
+	protected BasicDBObject user;
+	
+	public BaseAction() throws Exception {
+		if (db == null) {
+			db = new Mongo().getDB("ebay");
+		}
+	}
+	
     @Override
 	public void setServletContext(ServletContext context) {
         this.context = context;
@@ -31,6 +41,12 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
     @Override
 	public void setSession(Map<String, Object> session) {
         this.session = session;
+		
+		if (session.get("email") != null) {
+			BasicDBObject query = new BasicDBObject();
+			query.put("email", session.get("email").toString());
+			user = (BasicDBObject) db.getCollection("users").findOne(query);
+		}
     }
 	
     @Override

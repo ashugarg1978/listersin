@@ -3,6 +3,7 @@ package ebaytool.actions;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 import com.mongodb.*;
+import ebaytool.actions.BaseAction;
 import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -19,33 +20,11 @@ import org.bson.types.ObjectId;
 
 @ParentPackage("json-default")
 @Result(name="success",type="json")
-public class UserAction extends ActionSupport {
+public class UserAction extends BaseAction {
 	
 	//protected Logger log = Logger.getLogger(this.getClass());
 	
-	public static DB db;
-	
-	public ActionContext context;
-	public Map request;
-	public Map session;
-	
-	private BasicDBObject user;
-	
 	public UserAction() throws Exception {
-		
-		context = ActionContext.getContext();
-		request = (Map) context.getParameters();
-		session = (Map) context.getSession();
-		
-		if (db == null) {
-			db = new Mongo().getDB("ebay");
-		}
-		DBCollection coll = db.getCollection("users");
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", session.get("email").toString());
-		
-		user = (BasicDBObject) coll.findOne(query);
 	}
 	
 	private LinkedHashMap<String,Object> json;
@@ -99,10 +78,10 @@ public class UserAction extends ActionSupport {
 		/* handling post parameters */
 		int limit = 20;
 		int offset = 0;
-		if (request.containsKey("limit"))
-			limit = Integer.parseInt(((String[]) request.get("limit"))[0]);
-		if (request.containsKey("offset"))
-			offset = Integer.parseInt(((String[]) request.get("offset"))[0]);
+		if (parameters.containsKey("limit"))
+			limit = Integer.parseInt(((String[]) parameters.get("limit"))[0]);
+		if (parameters.containsKey("offset"))
+			offset = Integer.parseInt(((String[]) parameters.get("offset"))[0]);
 		
 		/* query */
 		BasicDBObject query = getFilterQuery();
@@ -172,11 +151,11 @@ public class UserAction extends ActionSupport {
 	public String item() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
-
+		
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
-		String id = ((String[]) request.get("id"))[0];
+		String id = parameters.get("id")[0];
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
@@ -225,8 +204,8 @@ public class UserAction extends ActionSupport {
 	@Action(value="/save")
 	public String save() throws Exception {
 		
-		String id   = ((String[]) request.get("id"))[0];
-		String form = ((String[]) request.get("json"))[0];
+		String id   = ((String[]) parameters.get("id"))[0];
+		String form = ((String[]) parameters.get("json"))[0];
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		
@@ -330,7 +309,7 @@ public class UserAction extends ActionSupport {
 		json = new LinkedHashMap<String,Object>();
 		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-		for (String id : (String[]) request.get("id")) {
+		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
 		
@@ -377,7 +356,7 @@ public class UserAction extends ActionSupport {
 	public String end() throws Exception {
 		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-		for (String id : (String[]) request.get("id")) {
+		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
 		
@@ -587,8 +566,8 @@ public class UserAction extends ActionSupport {
 		LinkedHashMap<Integer,Integer> grandchildren = new LinkedHashMap<Integer,Integer>();
 		
 		/* handling post parameters */
-		String site    = ((String[]) request.get("site"))[0];
-		String pathstr = ((String[]) request.get("pathstr"))[0];
+		String site    = ((String[]) parameters.get("site"))[0];
+		String pathstr = ((String[]) parameters.get("pathstr"))[0];
 		
 		String[] arrs = pathstr.split("\\.");
 		for (String s : arrs) {
@@ -636,8 +615,8 @@ public class UserAction extends ActionSupport {
 		json = new LinkedHashMap<String,Object>();
 		
 		/* handling post parameters */
-		String site       = ((String[]) request.get("site"))[0];
-		String categoryid = ((String[]) request.get("categoryid"))[0];
+		String site       = ((String[]) parameters.get("site"))[0];
+		String categoryid = ((String[]) parameters.get("categoryid"))[0];
 		
 		
 		/* DurationSet */
@@ -823,10 +802,10 @@ public class UserAction extends ActionSupport {
 		query.put("ext.UserID", new BasicDBObject("$in", userids));
 		
 		
-		if (request.containsKey("id")) {
+		if (parameters.containsKey("id")) {
 			
 			ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
-			for (String id : (String[]) request.get("id")) {
+			for (String id : (String[]) parameters.get("id")) {
 				ids.add(new ObjectId(id));
 			}
 			query.put("_id", new BasicDBObject("$in", ids));
@@ -840,16 +819,16 @@ public class UserAction extends ActionSupport {
 			
 			LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 			
-			if (request.containsKey("selling")) selling = ((String[]) request.get("selling"))[0];
+			if (parameters.containsKey("selling")) selling = ((String[]) parameters.get("selling"))[0];
 			if (!selling.equals("")) query = sellingquery.get(selling);
 			
-			if (request.containsKey("UserID")) userid = ((String[]) request.get("UserID"))[0];
+			if (parameters.containsKey("UserID")) userid = ((String[]) parameters.get("UserID"))[0];
 			if (!userid.equals("")) query.put("ext.UserID", userid);
 			
-			if (request.containsKey("Title")) title = ((String[]) request.get("Title"))[0];
+			if (parameters.containsKey("Title")) title = ((String[]) parameters.get("Title"))[0];
 			if (!title.equals("")) query.put("Title", Pattern.compile(title));
 			
-			if (request.containsKey("ItemID")) itemid = ((String[]) request.get("ItemID"))[0];
+			if (parameters.containsKey("ItemID")) itemid = ((String[]) parameters.get("ItemID"))[0];
 			if (!itemid.equals("")) query.put("ItemID", itemid);
 			
 		}

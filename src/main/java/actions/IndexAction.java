@@ -15,15 +15,7 @@ import org.apache.struts2.convention.annotation.Results;
 @ParentPackage("json-default")
 public class IndexAction extends BaseAction {
 	
-	private DB db;
-	private BasicDBObject user;
-	
 	public IndexAction() throws Exception {
-		
-		if (db == null) {
-			db = new Mongo().getDB("ebay");
-		}
-		
 	}
 	
 	public BasicDBObject getUser() {
