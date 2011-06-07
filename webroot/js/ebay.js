@@ -29,7 +29,9 @@ $.fn.extractObject = function() {
 		}
 	}; 
 	this.each(function() {
-		add(accum, $(this).attr('name').split('.'), $(this).val());
+		if ($(this).attr('name') != undefined) {
+			add(accum, $(this).attr('name').split('.'), $(this).val());
+		}
 	});
 	return accum;
 };
@@ -72,7 +74,7 @@ function autoclick()
 
 function gethash()
 {
-	$.getJSON('/hash', function(data) {
+	$.getJSON('/json/hash', function(data) {
 		hash = data.json;
 		$.each(hash, function(k, v) {
 			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
@@ -82,7 +84,7 @@ function gethash()
 	
 	return;
 	
-//	$.get('/hash', function(data) {
+//	$.get('/json/hash', function(data) {
 //		dump(data);
 //		localStorage.setItem('hashdata', data);
 //		parsed = $.parseJSON(data);
@@ -97,7 +99,7 @@ function summary()
 {
 	ulorg = $('ul.accounts').clone();
 	
-	$.getJSON('/summary', function(data) {
+	$.getJSON('/json/summary', function(data) {
 		
 		$('ul.accounts > li.allitems > a.allitems').append(' ('+data.json.alluserids.allitems+')');
 		$.each(data.json.alluserids, function(k, v) {
@@ -123,7 +125,7 @@ function summary()
 /* list items */
 function items()
 {
-	$.post('/items',
+	$.post('/json/items',
 		   $('input.filter, select.filter').serialize(),
 		   function(data) {
 			   dump(data.json);
@@ -150,7 +152,7 @@ function items()
 	
 	// todo: get detail of each items
 	/*
-	$.post('/users/items/',
+	$.post('/json/users/items/',
 		   $('input, select', '#filter').serialize(),
 		   function(data) {
 		   },
@@ -286,8 +288,8 @@ function getdetail(row)
 	$('input[name=Title]',    detail).replaceWith(row.Title);
 	$('input[name=SubTitle]', detail).replaceWith(row.SubTitle);
 	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
-	$('input[name=StartPrice.@currencyID]', detail).replaceWith(row.StartPrice['@currencyID']);
-	$('input[name=StartPrice.#text]', detail).replaceWith(row.StartPrice['#text']);
+	$('input[name="StartPrice.@currencyID"]', detail).replaceWith(row.StartPrice['@currencyID']);
+	$('input[name="StartPrice.#text"]', detail).replaceWith(row.StartPrice['#text']);
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -526,7 +528,7 @@ function bindevents()
 			$(this).parent().addClass('loading');
 		});
 		
-		$.post('/'+action,
+		$.post('/json/'+action,
 			   postdata,
 			   function(data) {
 				   if (action == 'copy' || action == 'delete') {
@@ -666,7 +668,7 @@ function bindevents()
 			$('tr.row2 td', '#'+id).html(detail);
 			$('div.detail', '#'+id).slideToggle('fast');
 			
-			$.post('/item',
+			$.post('/json/item',
 				   'id='+id,
 				   function(data) {
 					   dump(data.json.item);
@@ -719,13 +721,13 @@ function bindevents()
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 		
-		$('input[name=Title]',                  dom).val(item.Title);
-		$('input[name=SubTitle]',               dom).val(item.SubTitle);
-		$('input[name=StartPrice.@currencyID]', dom).val(item.StartPrice['@currencyID']);
-		$('input[name=StartPrice.#text]',       dom).val(item.StartPrice['#text']);
-		$('input[name=Quantity]',               dom).val(item.Quantity);
-		$('select[name=Site]',                  dom).val(item.Site);
-		$('select[name=ListingType]',           dom).val(item.ListingType);
+		$('input[name=Title]',                    dom).val(item.Title);
+		$('input[name=SubTitle]',                 dom).val(item.SubTitle);
+		$('input[name="StartPrice.@currencyID"]', dom).val(item.StartPrice['@currencyID']);
+		$('input[name="StartPrice.#text"]',       dom).val(item.StartPrice['#text']);
+		$('input[name=Quantity]',                 dom).val(item.Quantity);
+		$('select[name=Site]',                    dom).val(item.Site);
+		$('select[name=ListingType]',             dom).val(item.ListingType);
 		
 		if (item.Description != null) {
 			$('textarea[name=Description]',   dom).val(item.Description);
@@ -808,7 +810,7 @@ if (false) {
 		detail = $(this).closest('div.detail');
 		
 		// todo: varidation check
-		if ($('select[name=PrimaryCategory.CategoryID]', detail).val() == '') {
+		if ($('select[name="PrimaryCategory.CategoryID"]', detail).val() == '') {
 			alert('category error.');
 			return false;
 		}
@@ -828,12 +830,11 @@ if (false) {
 		//dump(postdata);
 		//return false;
 		
-		$.post('/save',
+		$.post('/json/save',
 			   'id='+id+'&json='+postdata,
 			   function(data) {
 				   rowsdata[id] = data.json.item;
 				   dump(data.json);
-				   alert(data.json.item.Title);
 				   getdetail(data.json.item);
 				   showbuttons(detail, 'edit,copy,delete');
 			   },
@@ -868,7 +869,7 @@ if (false) {
 	
 	/* ShippingType */
 	// todo: check all browsers can detect [domestic] selector
-	$('select[name=ShippingDetails_ShippingType[domestic]]').live('change', function() {
+	$('select[name="ShippingDetails.ShippingType.domestic"]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		sel = getshippingservice(id);
 		$('td.shippingservice', '#'+id).html(sel);
@@ -878,7 +879,7 @@ if (false) {
 	
 	/* Import */
 	$('div#importform input[type=button]').live('click', function() {
-		$.post('/import',
+		$.post('/json/import',
 			   $('select, input', 'div#importform').serialize(),
 			   function(data) {
 				   
@@ -944,7 +945,7 @@ function preloadcategory(site, path)
 		npath.push(categoryid);
 	});
 	
-	$.getJSON('/grandchildren?site='+site+'&pathstr='+npath.join('.'),
+	$.getJSON('/json/grandchildren?site='+site+'&pathstr='+npath.join('.'),
 			  function(data) {
 				  $.each(hash[site]['category'], function(n, a) {
 					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
@@ -959,7 +960,7 @@ function preloadcategoryfeatures(site, categoryid)
 {
 	if (hash[site]['category']['features'][categoryid]) return;
 	
-	$.getJSON('/categoryfeatures?site='+site+'&categoryid='+categoryid,
+	$.getJSON('/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
 			  function(data) {
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 				  hash[site]['category']['features'] = tmpo;
@@ -971,7 +972,7 @@ function preloadshippingtype(site)
 {
 	if (hash[site]['ShippingType']) return;
 	
-	$.getJSON('/users/getShippingType/'+site,
+	$.getJSON('/json/getShippingType/'+site,
 			  function(data) {
 				  hash[site]['ShippingType'] = data;
 			  });
@@ -986,7 +987,7 @@ function refresh()
 	loadings = $('td.loading > input:checkbox[name=id][value!=on]');
 	dump(loadings);
 	
-	$.post('/items',
+	$.post('/json/items',
 		   loadings.serialize(),
 		   function(data) {
 			   dump(data.json);
