@@ -54,7 +54,11 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			coll2.insert((List<DBObject>) resdbo.get("Category"));
 			
 			DBCollection coll1 = db.getCollection(site+".CategoryFeatures");
-			coll1.drop();
+			
+			if (db.collectionExists(site+".CategoryFeatures")) {
+				coll1.drop();
+			}
+			
 			resdbo.removeField("Category");
 			coll1.insert(resdbo);
 		}

@@ -43,6 +43,8 @@ public class GeteBayDetails extends ApiCall implements Callable {
 			site   = row.get("Site").toString();
 			siteid = Integer.parseInt(row.get("SiteID").toString());
 			
+			reqdbo.put("MessageID", site);
+			
 			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
 			
@@ -67,7 +69,10 @@ public class GeteBayDetails extends ApiCall implements Callable {
 			String classname = resdbo.get(idx).getClass().toString();
 			
 			DBCollection coll = db.getCollection(site+".eBayDetails."+idx.toString());
-			coll.drop();
+			
+			if (db.collectionExists(site+".eBayDetails."+idx.toString())) {
+				coll.drop();
+			}
 			
 			if (classname.equals("class com.mongodb.BasicDBList")) {
 				
