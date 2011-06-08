@@ -243,38 +243,44 @@
 	  </td>
 	</tr>
 	<tr>
-	  <td><s:text name="Quantity"/></td>
-	  <td><input name="Quantity" type="text" size="5"></td>
+	  <td>
+		<s:text name="Quantity"/>
+	  </td>
+	  <td>
+		<input name="Quantity" type="text" size="5">
+	  </td>
 	</tr>
 	<tr>
-	  <td><s:text name="Listing Type"/></td>
+	  <td>
+		<s:text name="Listing Type"/>
+	  </td>
 	  <td>
 		<select name="ListingType">
-		<option value="Chinese">Online Auction</option>  
-		<option value="FixedPriceItem">Fixed Price</option>
-		<option value="LeadGeneration">Classified Ad</option>
+		  <option value="Chinese">Online Auction</option>  
+		  <option value="FixedPriceItem">Fixed Price</option>
+		  <option value="LeadGeneration">Classified Ad</option>
 		</select>
 	  </td>
 	</tr>
 	<tr>
-	  <td><s:text name="Listing Duration"/></td>
+	  <td>
+		<s:text name="Listing Duration"/>
+	  </td>
 	  <td class="duration"></td>
 	</tr>
 	<tr>
-	  <td><s:text name="Payment Methods"/></td>
+	  <td>
+		<s:text name="Payment Methods"/>
+	  </td>
 	  <td class="paymentmethod"></td>
-	</tr>
-	<tr>
-	  <td><s:text name="schedule"/></td>
-	  <td><input name="schedule" type="" size="15"></td>
 	</tr>
   </tbody>
 </table>
 </div>
 <div class="tab">
-	<div class="description">
-		<textarea name="Description" cols="100" rows="10"></textarea>
-	</div>
+  <div class="description">
+	<textarea name="Description" cols="100" rows="10"></textarea>
+  </div>
 </div>
 <div class="tab">
   <div class="pictures">
@@ -313,35 +319,44 @@
 	<table class="detail">
 	  <tbody>
 		<tr>
-		  <td><s:text name="Shipping type"/></td>
+		  <td>
+			<s:text name="Shipping type"/>
+		  </td>
 		  <td class="shippingtype_domestic">
-	 
 			<select name="ShippingDetails.ShippingType.domestic">
 			  <option value="Flat">Flat: same cost to all buyers</option>
 			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 			  <option value="Freight">Freight: large items over 150 lbs.</option>
 			  <option value="NoShipping">No shipping: Local pickup only</option>
 			</select>
-			
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Package type"/></td>
+		  <td>
+			<s:text name="Package type"/>
+		  </td>
 		  <td class="shippingpackage">
 		  	<select name="ShippingPackage"></select>
 			<input name="x" type="checkbox">Irregular package
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Dimensions"/></td>
+		  <td>
+			<s:text name="Dimensions"/>
+		  </td>
 		  <td class="dimensions">
-			<input name="x" type="text" size="3">in. x
-			<input name="y" type="text" size="3">in. x
-			<input name="z" type="text" size="3">in.
+			<input name="ShippingDetails.CalculatedShippingRate.PackageLength.#text"
+				   type="text" size="3">in. x
+			<input name="ShippingDetails.CalculatedShippingRate.PackageWidth.#text"
+				   type="text" size="3">in. x
+			<input name="ShippingDetails.CalculatedShippingRate.PackageDepth.#text"
+				   type="text" size="3">in.
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Weight"/></td>
+		  <td>
+			<s:text name="Weight"/>
+		  </td>
 		  <td class="weight">
 			
 		  </td>
@@ -374,8 +389,10 @@
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Handling time"/></td>
-		  
+		  <td>
+			<s:text name="Handling time"/>
+		  </td>
+		  <td>
 		  </td>
 		</tr>
 		<tr>

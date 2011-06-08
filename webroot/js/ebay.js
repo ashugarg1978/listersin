@@ -378,14 +378,15 @@ function getdetail(row)
 		if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
 		$('td.shippingpackage', detail).html(sp);
 		
-		dm = csro.PackageLength + csro['PackageLength@unit']
-			+ ' x ' + csro.PackageWidth + csro['PackageWidth@unit']
-			+ ' x ' + csro.PackageDepth + csro['PackageDepth@unit'];
-		$('td.dimensions', detail).html(dm);
+		dimensions = csro.PackageLength['#text'] + ' ' + csro.PackageLength['@unit']
+			+ ' x ' + csro.PackageWidth['#text'] + ' ' + csro.PackageWidth['@unit']
+			+ ' x ' + csro.PackageDepth['#text'] + ' ' + csro.PackageDepth['@unit'];
+		$('td.dimensions', detail).html(dimensions);
 		
-		weight = csro.WeightMajor + csro['WeightMajor@unit']
-			+ ' ' + csro.WeightMinor + csro['WeightMinor@unit'];
+		weight = csro.WeightMajor['#text'] + ' ' + csro.WeightMajor['@unit']
+			+ ' ' + csro.WeightMinor['#text'] + ' ' + csro.WeightMinor['@unit'];
 		$('td.weight', detail).html(weight);
+		
 	}
 	
 	return;
