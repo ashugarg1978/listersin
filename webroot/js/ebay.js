@@ -74,12 +74,19 @@ function autoclick()
 
 function gethash()
 {
+	tmp = localStorage.getItem('hash');
+	if (tmp != undefined) {
+		hash = JSON.parse(tmp);
+		return;
+	}
+	
 	$.getJSON('/json/hash', function(data) {
 		hash = data.json;
 		$.each(hash, function(k, v) {
 			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
 		});
 		
+		localStorage.setItem('hash', JSON.stringify(hash));
 	});
 	
 	return;
@@ -309,8 +316,6 @@ function getdetail(row)
 	
 	$('td.category', detail).html(row.ext.categoryname);
 	
-	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
-	
 	/* pictures */
 	if (typeof(row.PictureDetails.PictureURL) == 'string') {
 		$('img.PD_PURL_0', detail).attr('src', row.PictureDetails.PictureURL);
@@ -356,25 +361,42 @@ function getdetail(row)
 	
 	if (row.ShippingDetails.InternationalShippingServiceOption) {
 		isso = '';
-		$.each(row.ShippingDetails.InternationalShippingServiceOption, function(i, o) {
-			isso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
-			if (o.ShippingServiceCost) {
-				isso += ' '+o['ShippingServiceCost@currencyID']+o.ShippingServiceCost;
-			}
-			if (typeof(o.ShipToLocation == 'string')) {
-				isso += '<br>Ship to ' + o.ShipToLocation;
-			} else if (typeof(o.ShipToLocation == 'object')) {
-				isso += '<br>Ship to ' + o.ShipToLocation.join(' / ');
-			}
-			isso += '<br>';
-		});
+		if ($.isArray(row.ShippingDetails.InternationalShippingServiceOption)) {
+			
+			$.each(row.ShippingDetails.InternationalShippingServiceOption, function(i, o) {
+				isso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
+				if (o.ShippingServiceCost) {
+					isso += ' '+o['ShippingServiceCost@currencyID']+o.ShippingServiceCost;
+				}
+				if (typeof(o.ShipToLocation == 'string')) {
+					isso += '<br>Ship to ' + o.ShipToLocation;
+				} else if (typeof(o.ShipToLocation == 'object')) {
+					isso += '<br>Ship to ' + o.ShipToLocation.join(' / ');
+				}
+				isso += '<br>';
+			});
+			
+		} else {
+			
+			isso += hash[row.Site]['ShippingServiceDetails'][row.ShippingDetails.InternationalShippingServiceOption.ShippingService]['Description'];
+			
+		}
 		$('td.intlshippingservice', detail).html(isso);
+
+		stl = '';
+		if ($.isArray(row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation)) {
+			
+		} else {
+			stl = row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation;
+		}
+		$('td.shopto', detail).html(stl);
+		
 	}
 	
 	if (row.ShippingDetails.CalculatedShippingRate) {
 		csro = row.ShippingDetails.CalculatedShippingRate;
 		
-		sp = csro.ShippingPackage;
+		sp = hash[row.Site]['ShippingPackageDetails'][csro.ShippingPackage]['Description'];
 		if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
 		$('td.shippingpackage', detail).html(sp);
 		
@@ -388,6 +410,12 @@ function getdetail(row)
 		$('td.weight', detail).html(weight);
 		
 	}
+	
+	tmp = hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax];
+	$('select[name=DispatchTimeMax]', detail).replaceWith(tmp);
+	
+	
+	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
 	return;
 	
@@ -751,12 +779,12 @@ function bindevents()
 		}
 		if (typeof(item.PictureDetails.PictureURL) == 'string') {
 			$('img.PD_PURL_0', dom).attr('src', item.PictureDetails.PictureURL);
-			$('input[name=PictureDetails.PictureURL.0]', dom).val(item.PictureDetails.PictureURL);
+			$('input[name="PictureDetails.PictureURL.0"]', dom).val(item.PictureDetails.PictureURL);
 		} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
 			$.each(item.PictureDetails.PictureURL, function(i, url) {
 				if (url == '') return;
 				$('img.PD_PURL_'+i, dom).attr('src', url);
-				$('input[name=PictureDetails.PictureURL.'+i+']', dom).val(url);
+				$('input[name="PictureDetails.PictureURL.'+i+'"]', dom).val(url);
 			});
 		} 
 		

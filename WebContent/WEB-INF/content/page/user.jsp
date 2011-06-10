@@ -266,13 +266,15 @@
 	  <td>
 		<s:text name="Listing Duration"/>
 	  </td>
-	  <td class="duration"></td>
+	  <td class="duration">
+	  </td>
 	</tr>
 	<tr>
 	  <td>
 		<s:text name="Payment Methods"/>
 	  </td>
-	  <td class="paymentmethod"></td>
+	  <td class="paymentmethod">
+	  </td>
 	</tr>
   </tbody>
 </table>
@@ -346,11 +348,20 @@
 		  </td>
 		  <td class="dimensions">
 			<input name="ShippingDetails.CalculatedShippingRate.PackageLength.#text"
-				   type="text" size="3">in. x
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.PackageLength.@unit"
+				   type="text" size="3">
+			x
 			<input name="ShippingDetails.CalculatedShippingRate.PackageWidth.#text"
-				   type="text" size="3">in. x
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.PackageWidth.@unit"
+				   type="text" size="3">
+			x
 			<input name="ShippingDetails.CalculatedShippingRate.PackageDepth.#text"
-				   type="text" size="3">in.
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.PackageDepth.@unit"
+				   type="text" size="3">
+			
 		  </td>
 		</tr>
 		<tr>
@@ -358,7 +369,14 @@
 			<s:text name="Weight"/>
 		  </td>
 		  <td class="weight">
-			
+			<input name="ShippingDetails.CalculatedShippingRate.WeightMajor.#text"
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.WeightMajor.@unit"
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.WeightMinor.#text"
+				   type="text" size="3">
+			<input name="ShippingDetails.CalculatedShippingRate.WeightMinor.@unit"
+				   type="text" size="3">
 		  </td>
 		</tr>
 		<tr>
@@ -393,6 +411,9 @@
 			<s:text name="Handling time"/>
 		  </td>
 		  <td>
+			<select name="DispatchTimeMax">
+			  <option value=""></option>
+			</select>
 		  </td>
 		</tr>
 		<tr>
@@ -415,7 +436,11 @@
 		<tr>
 		  <td><s:text name="Services"/></td>
 		  <td class="intlshippingservice">
-			
+		  </td>
+		</tr>
+		<tr>
+		  <td><s:text name="Ship to"/></td>
+		  <td class="shipto">
 			
 		  </td>
 		</tr>

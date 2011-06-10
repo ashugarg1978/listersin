@@ -57,6 +57,8 @@ public class JsonAction extends BaseAction {
 			
 			hash.put("ShippingType", shippingtype(site));
 			hash.put("ShippingServiceDetails", shippingservicedetails(site));
+			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
+			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
 			
 			json.put(site, hash);
 		}
@@ -782,6 +784,24 @@ public class JsonAction extends BaseAction {
 		return label;
 	}
 	
+	private LinkedHashMap<String,String> dispatchtimemaxdetails(String site) {
+		
+		LinkedHashMap<String,String> map = new LinkedHashMap<String,String>();
+		
+		DBCollection collection = db.getCollection(site+".eBayDetails.DispatchTimeMaxDetails");
+		DBCursor cursor = collection.find();
+		while (cursor.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cursor.next();
+			
+			String k = row.getString("DispatchTimeMax");
+			String v = row.getString("Description");
+			
+			map.put(k, v);
+		}
+		
+		return map;
+	}
+	
 	private LinkedHashMap<String,LinkedHashMap> shippingservicedetails(String site) {
 		
 		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
@@ -797,6 +817,26 @@ public class JsonAction extends BaseAction {
 			row.removeField("UpdateTime");
 			
 			map.put(ss, (LinkedHashMap) row.toMap());
+		}
+		
+		return map;
+	}
+	
+	private LinkedHashMap<String,LinkedHashMap> shippingpackagedetails(String site) {
+		
+		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
+		
+		DBCollection collection = db.getCollection(site+".eBayDetails.ShippingPackageDetails");
+		DBCursor cursor = collection.find();
+		while (cursor.hasNext()) {
+			DBObject row = cursor.next();
+			
+			String id = row.get("ShippingPackage").toString();
+			
+			row.removeField("_id");
+			row.removeField("UpdateTime");
+			
+			map.put(id, (LinkedHashMap) row.toMap());
 		}
 		
 		return map;

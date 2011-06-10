@@ -63,7 +63,7 @@ public class ApiCallTask implements Callable {
 		//System.out.println(conn.getResponseMessage());
 		
 		/* handle http response */
-        InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+        InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		String responsexml = "";
