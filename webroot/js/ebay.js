@@ -385,11 +385,11 @@ function getdetail(row)
 
 		stl = '';
 		if ($.isArray(row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation)) {
-			
+			stl = row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation.join(', ');
 		} else {
 			stl = row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation;
 		}
-		$('td.shopto', detail).html(stl);
+		$('td.shipto', detail).html(stl);
 		
 	}
 	
