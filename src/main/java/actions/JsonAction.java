@@ -276,6 +276,25 @@ public class JsonAction extends BaseAction {
 		
 		Integer d = 0;
 		
+		ArrayList<DBObject> newdblist = new ArrayList<DBObject>();
+		//DBCursor cur = coll.find(query, field).snapshot();
+		DBCursor cur = coll.find(query).snapshot();
+		while (cur.hasNext()) {
+			DBObject item = cur.next();
+			
+			item.removeField("_id");
+			item.removeField("ItemID");
+			item.removeField("SellingStatus");
+			
+			newdblist.add(item);
+		}
+		
+		coll.insert(newdblist, WriteConcern.SAFE);
+		
+		if (true) {
+			return SUCCESS;
+		}
+		
 		// todo: sort result
 		//DBCursor cur = coll.find(query, field).snapshot();
 		//json.put("count", cur.count());
@@ -290,6 +309,11 @@ public class JsonAction extends BaseAction {
 			
 			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
 			dbl.add("copied");
+
+			if (true) {
+				json.put("item", item);
+				return SUCCESS;
+			}
 			
 			coll.insert(item, WriteConcern.SAFE);
 			d++;
