@@ -52,6 +52,16 @@ public class Daemon {
 												   arrmsg[4],
 												   arrmsg[5]);
 				
+			} else if (arrmsg.length == 3) {
+				
+				Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
+				
+				Constructor cnst = apiclass.getConstructor(String.class,
+														   String.class);
+				
+				task = (Callable) cnst.newInstance(arrmsg[1],
+												   arrmsg[2]);
+				
 			} else {
 				
 				task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();

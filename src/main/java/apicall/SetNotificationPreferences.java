@@ -9,25 +9,34 @@ import net.sf.json.xml.XMLSerializer;
 
 public class SetNotificationPreferences extends ApiCall implements Callable {
 	
+	private String email;
+	private String userid;
+	
 	public SetNotificationPreferences() throws Exception {
+	}
+	
+	public SetNotificationPreferences(String email, String userid) throws Exception {
+		this.email  = email;
+		this.userid = userid;
 	}
 	
 	public String call() throws Exception {
 		
-		DBObject user = db.getCollection("users").findOne();
+		/* get token from db */
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+
+		BasicDBObject fields = new BasicDBObject();
+		fields.put("userids."+userid, 1);
 		
-		Map userids = ((BasicDBObject) user.get("userids")).toMap();
-		for (Object userid : userids.keySet()) {
-			JSONObject json = JSONObject.fromObject(userids.get(userid).toString());
-			String token = json.get("eBayAuthToken").toString();
-			call2(userid.toString(), token);
-		}
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
 		
-		return "";
-	}
-	
-	private void call2(String userid, String token) throws Exception {
+		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
+		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
+		String token = tokendbo.getString("eBayAuthToken");
 		
+		/* SetNotificationPreferences */
 		ArrayList<BasicDBObject> ane = new ArrayList<BasicDBObject>();
 		
 		String events[] = {"ItemListed",
@@ -46,7 +55,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		
 		BasicDBObject adp = new BasicDBObject();
 		adp.put("ApplicationEnable", "Enable");
-		adp.put("ApplicationURL", "http://ebaytool.jp/receivenotify");
+		adp.put("ApplicationURL", "http://ebaytool.jp/page/receivenotify");
 		
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
@@ -62,14 +71,15 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
-		writelog("SNP.req."+userid+".xml", requestxml);
 		
 		Future<String> future =
 			ecs18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
 		
 		String responsexml = future.get();
+		
+		writelog("SNP.req."+userid+".xml", requestxml);
 		writelog("SNP.res."+userid+".xml", responsexml);
 		
-		return;
+		return "";
 	}
 }

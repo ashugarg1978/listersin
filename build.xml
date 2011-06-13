@@ -30,6 +30,8 @@
 		  <fileset dir="${lib.external}" />
 		</path>
 	  </classpath>
+      <compilerarg value="-Xlint:deprecation" />
+      <!--compilerarg value="-Xlint:unchecked" /-->
 	</javac>
   </target>
   

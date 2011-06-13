@@ -132,8 +132,7 @@ public class PageAction extends BaseAction {
 		String notifyxml = "";
 		String line = "";
 		
-		/*
-		HttpServletRequest request = ServletActionContext.getRequest();
+		//HttpServletRequest request = ServletActionContext.getRequest();
 		BufferedReader br = request.getReader();
 		
 		while ((line = br.readLine()) != null) {
@@ -142,7 +141,6 @@ public class PageAction extends BaseAction {
 		
 		GetSellerList gsl = new GetSellerList();
 		gsl.parsenotifyxml(notifyxml);
-		*/
 		
 		return SUCCESS;
 	}

@@ -250,6 +250,7 @@ public class AddItems extends ApiCall {
 				upditem.put("SellingStatus.ListingStatus", "Active");
 			}
 			
+			// todo: aware <SeverityCode>Warning</SeverityCode>
 			if (item.get("Errors") != null) {
 				String errorclass = item.get("Errors").getClass().toString();
 				BasicDBList errors = new BasicDBList();

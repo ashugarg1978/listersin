@@ -13,16 +13,39 @@ import net.sf.json.xml.XMLSerializer;
 
 public class GetItem extends ApiCall implements Callable {
 	
+	private String email;
+	private String userid;
+	
 	public GetItem() throws Exception {
+	}
+	
+	public GetItem(String email, String userid) throws Exception {
+		this.email  = email;
+		this.userid = userid;
 	}
 	
 	public String call() throws Exception {
 		
+		/* get token from db */
 		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+
+		BasicDBObject fields = new BasicDBObject();
+		fields.put("userids."+userid, 1);
+		
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
+		
+		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
+		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
+		String token = tokendbo.getString("eBayAuthToken");
+		
+		/* GetItem */
+		query = new BasicDBObject();
 		query.put("ItemID",           new BasicDBObject("$exists", 1));
 		query.put("ext.deleted",      new BasicDBObject("$exists", 0));
 		query.put("ext.importstatus", "waiting GetItem");
-		//query.put("SellingStatus.ListingStatus", "Active");
+		query.put("ext.UserID",       userid);
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 1);
@@ -35,13 +58,12 @@ public class GetItem extends ApiCall implements Callable {
 			String itemid  = row.get("ItemID").toString();
 			
 			BasicDBObject reqdbo = new BasicDBObject();
-			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
+			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("DetailLevel", "ReturnAll");
 			reqdbo.append("ItemID", itemid);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
-			writelog("GI.req."+itemid+".xml", requestxml);
 			
 			ecs18.submit(new ApiCallTask(0, requestxml, "GetItem"));
 		}

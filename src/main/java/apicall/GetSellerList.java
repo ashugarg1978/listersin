@@ -37,6 +37,7 @@ public class GetSellerList extends ApiCall {
 	
 	public String call() throws Exception {
 		
+		/* get token from db */
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("userids."+userid, new BasicDBObject("$exists", 1));
@@ -50,6 +51,7 @@ public class GetSellerList extends ApiCall {
 		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
 		token = tokendbo.getString("eBayAuthToken");
 		
+		/* GetSellerList */
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
@@ -89,7 +91,7 @@ public class GetSellerList extends ApiCall {
 		//ecs18.submit(new GetItem());
 		if (true) {
 			ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-			Callable task = new GetItem();
+			Callable task = new GetItem(email, userid);
 			pool.submit(task);
 		}
 		
