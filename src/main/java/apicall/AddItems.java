@@ -287,7 +287,7 @@ public class AddItems extends ApiCall {
 		while (cur.hasNext()) {
 			DBObject user = cur.next();
 			
-			if (user.containsKey("userids")) {
+			if (user.containsField("userids")) {
 				BasicDBObject userids = (BasicDBObject) user.get("userids");
 				for (Object userid : userids.keySet()) {
 					
