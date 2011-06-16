@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ParameterAware;
 import org.apache.struts2.interceptor.ServletRequestAware;
 import org.apache.struts2.interceptor.ServletResponseAware;
@@ -26,6 +27,8 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	
 	protected DB db;
 	protected BasicDBObject user;
+	
+	protected Logger log = Logger.getLogger(this.getClass());
 	
 	public BaseAction() throws Exception {
 		if (db == null) {

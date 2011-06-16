@@ -27,6 +27,8 @@ public class PageAction extends BaseAction {
 	@Action(value="/page/index", results={@Result(name="loggedin",location="user.jsp")})
 	public String execute() throws Exception {
 		
+		log.debug("index A");
+		
 		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
@@ -35,10 +37,15 @@ public class PageAction extends BaseAction {
 		String email = "";
 		String password = "";
 		
+		
 		if (session.get("email") != null) {
+			
+			log.debug("index B");
 			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
+			
+			log.debug("index C");
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
@@ -132,7 +139,6 @@ public class PageAction extends BaseAction {
 		String notifyxml = "";
 		String line = "";
 		
-		//HttpServletRequest request = ServletActionContext.getRequest();
 		BufferedReader br = request.getReader();
 		
 		while ((line = br.readLine()) != null) {
