@@ -46,7 +46,7 @@
 </li>
 </ul>
 
-<a href="/page/addaccount"><s:text name="add new account"/></a>
+<a href="/page/addaccount"><s:text name="addnewaccount"/></a>
 
 <div id="debugseparator"></div>
 
@@ -177,7 +177,7 @@
 <tbody id="rowloading">
 <tr>
 	<td colspan="8" align="center" style="height:200px;">
-		<s:text name="Loading Item Data ..."/>
+		<s:text name="LoadingItemData"/>
 	</td>
 </tr>
 </tbody>
@@ -236,7 +236,7 @@
 	  </td>
 	</tr>
 	<tr>
-	  <td><s:text name="Start Price"/></td>
+	  <td><s:text name="StartPrice"/></td>
 	  <td>
 		<input name="StartPrice.@currencyID" type="text" size="3">
 		<input name="StartPrice.#text" type="text" size="10">
@@ -252,7 +252,7 @@
 	</tr>
 	<tr>
 	  <td>
-		<s:text name="Listing Type"/>
+		<s:text name="ListingType"/>
 	  </td>
 	  <td>
 		<select name="ListingType">
@@ -264,14 +264,14 @@
 	</tr>
 	<tr>
 	  <td>
-		<s:text name="Listing Duration"/>
+		<s:text name="ListingDuration"/>
 	  </td>
 	  <td class="duration">
 	  </td>
 	</tr>
 	<tr>
 	  <td>
-		<s:text name="Payment Methods"/>
+		<s:text name="PaymentMethods"/>
 	  </td>
 	  <td class="paymentmethod">
 	  </td>
@@ -322,7 +322,7 @@
 	  <tbody>
 		<tr>
 		  <td>
-			<s:text name="Shipping type"/>
+			<s:text name="Shippingtype"/>
 		  </td>
 		  <td class="shippingtype_domestic">
 			<select name="ShippingDetails.ShippingType.domestic">
@@ -335,7 +335,7 @@
 		</tr>
 		<tr>
 		  <td>
-			<s:text name="Package type"/>
+			<s:text name="Packagetype"/>
 		  </td>
 		  <td class="shippingpackage">
 		  	<select name="ShippingPackage"></select>
@@ -408,7 +408,7 @@
 		</tr>
 		<tr>
 		  <td>
-			<s:text name="Handling time"/>
+			<s:text name="Handlingtime"/>
 		  </td>
 		  <td>
 			<select name="DispatchTimeMax">
@@ -422,7 +422,7 @@
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Shipping type"/></td>
+		  <td><s:text name="Shippingtype"/></td>
 		  <td class="shippingtype_international">
 		  	
 			<select name="ShippingDetails.ShippingType.international">
@@ -439,7 +439,7 @@
 		  </td>
 		</tr>
 		<tr>
-		  <td><s:text name="Ship to"/></td>
+		  <td><s:text name="Shipto"/></td>
 		  <td class="shipto">
 			
 		  </td>

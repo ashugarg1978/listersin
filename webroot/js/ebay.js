@@ -532,15 +532,18 @@ function bindevents()
 		
 		if (action == 'checkall') {
 			$("input[name='id'][value!=on]").attr('checked', 'checked');
-			$("input[name='allpages']").attr('checked', '');
+			//$("input[name='allpages']").attr('checked', '');
+			$("input[name='allpages']").removeAttr('checked');
 			return;
 		} else if (action == 'checkallpage') {
 			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			$("input[name='allpages']").attr('checked', 'checked');
 			return;
 		} else if (action == 'uncheckall') {
-			$("input[name='id'][value!=on]").attr('checked', '');
-			$("input[name='allpages']").attr('checked', '');
+			//$("input[name='id'][value!=on]").attr('checked', '');
+			//$("input[name='allpages']").attr('checked', '');
+			$("input[name='id'][value!=on]").removeAttr('checked');
+			$("input[name='allpages']").removeAttr('checked');
 			return;
 		}
 		
