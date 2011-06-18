@@ -176,7 +176,7 @@ public class AddItems extends ApiCall {
 					
 					writelog(requestxmlfilename, requestxml);
 					
-					validatexml(requestxmlfilename);
+					//validatexml(requestxmlfilename);
 					
 					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
 					
