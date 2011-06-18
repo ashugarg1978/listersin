@@ -56,6 +56,7 @@ public class GetItem extends ApiCall implements Callable {
 			DBObject row = cur.next();
 			
 			String itemid  = row.get("ItemID").toString();
+			log("GetItem "+userid+" "+itemid);
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
@@ -68,7 +69,10 @@ public class GetItem extends ApiCall implements Callable {
 			ecs18.submit(new ApiCallTask(0, requestxml, "GetItem"));
 		}
 		
+		// todo: check mixing other user's items
+		log("item count "+cnt);
 		for (int i = 1; i <= cnt; i++) {
+			log("parse response "+i);
 			String responsexml = ecs18.take().get();
 			parseresponse(responsexml);
 		}
@@ -100,6 +104,7 @@ public class GetItem extends ApiCall implements Callable {
 		update.put("$set", upditem);
 		
 		WriteResult result = coll.update(query, update);
+		log("import? "+result.toString());
 		
 		return responsedbo;
 	}

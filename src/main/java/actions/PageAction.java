@@ -6,6 +6,7 @@ import ebaytool.apicall.FetchToken;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
 import java.io.*;
+import java.net.Socket;
 import java.util.*;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
@@ -121,8 +122,16 @@ public class PageAction extends BaseAction {
 		String email     = user.get("email").toString();
 		String sessionid = user.get("sessionid").toString();
 		
+		// todo: call via ebaytoold
 		FetchToken ft = new FetchToken(email, sessionid, username);
 		String result = ft.call();
+		
+		/* SetNotificationPreferences */
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("SetNotificationPreferences "+email+" "+username);
+		out.close();
+		socket.close();
 		
 		return SUCCESS;
 	}
