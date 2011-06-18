@@ -27,8 +27,10 @@ public class GeteBayDetails extends ApiCall {
 		reqdbo.append("WarningLevel", "High");
 		reqdbo.append("MessageID", site);
 		
+		/* at first, get only US */
 		String requestxml = convertDBObject2XML(reqdbo, "GeteBayDetails");
-		Future<String> future = ecs18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
+		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
+		String responsexml = future.get();
 		
 		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
 		Integer cnt = cur.count() - 1;
@@ -38,6 +40,7 @@ public class GeteBayDetails extends ApiCall {
 			
 			site   = row.get("Site").toString();
 			siteid = Integer.parseInt(row.get("SiteID").toString());
+			log(site);
 			
 			reqdbo.put("MessageID", site);
 			

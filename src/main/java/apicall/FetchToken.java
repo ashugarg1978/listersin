@@ -39,18 +39,23 @@ public class FetchToken extends ApiCall implements Callable {
 		writelog("FT.req.xml", requestxml);
 		writelog("FT.res.xml", responsexml);
 		
-		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		
+		return "";
+	}
+	
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
+		
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("sessionid", sessionid);
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("userids."+username, responsedbo));
+		update.put("$set", new BasicDBObject("userids."+username, resdbo));
 		
 		db.getCollection("users").update(query, update);
 		
-		return "";
+		return resdbo;
 	}
-	
 }

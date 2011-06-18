@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-public class GetCategories extends ApiCall implements Callable {
+public class GetCategories extends ApiCall {
 	
 	public GetCategories() throws Exception {
 	}
@@ -35,32 +35,25 @@ public class GetCategories extends ApiCall implements Callable {
 			reqdbo.append("MessageID",      site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategories");
-			
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategories"));
-		}
-		
-		for (int i = 1; i <= cnt; i++) {
-			String responsexml = ecs18.take().get();
-			writelog("GCs.res.i"+i+".xml", responsexml);
-			
-			BasicDBObject resdbo = convertXML2DBObject(responsexml);
-			
-			String site = resdbo.getString("CorrelationID");
-			
-			log("res["+site+"]");
-			writelog("GCs.res."+site+".xml", responsexml);
-			
-			DBCollection coll = db.getCollection(site+".Categories");
-			
-			if (db.collectionExists(site+".Categories")) {
-				coll.drop();
-			}
-			
-			coll.insert
-				((List<DBObject>) ((BasicDBObject) resdbo.get("CategoryArray")).get("Category"));
 		}
 		
 		return "";
 	}
 	
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
+		
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		String site = resdbo.getString("CorrelationID");
+		writelog("GCs."+site+".xml", responsexml);
+		
+		DBCollection coll = db.getCollection(site+".Categories");
+		if (db.collectionExists(site+".Categories")) {
+			coll.drop();
+		}
+		
+		coll.insert((List<DBObject>) ((BasicDBObject) resdbo.get("CategoryArray")).get("Category"));
+		
+		return resdbo;
+	}
 }

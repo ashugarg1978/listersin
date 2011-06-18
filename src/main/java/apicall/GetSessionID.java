@@ -11,9 +11,15 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-public class GetSessionID extends ApiCall implements Callable {
+public class GetSessionID extends ApiCall {
+	
+	private String email;
 	
 	public GetSessionID() throws Exception {
+	}
+	
+	public GetSessionID(String email) throws Exception {
+		this.email  = email;
 	}
 	
 	public String call() throws Exception {
@@ -25,19 +31,26 @@ public class GetSessionID extends ApiCall implements Callable {
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetSessionID");
 		
-		Future<String> future = ecs18.submit(new ApiCallTask(0, requestxml, "GetSessionID"));
+		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSessionID"));
+		future.get();
 		
-		String responsexml = future.get();
-		
-		writelog("GSI.req.xml", requestxml);
-		writelog("GSI.res.xml", responsexml);
-		
-		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-		
-		String sessionid = responsedbo.getString("SessionID");
-		System.out.println(sessionid);
-		
-		return sessionid;
+		return "";
 	}
 	
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
+		
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		
+		String sessionid = resdbo.getString("SessionID");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("sessionid", sessionid));
+		
+		db.getCollection("users").update(query, update);
+		
+		return resdbo;
+	}
 }

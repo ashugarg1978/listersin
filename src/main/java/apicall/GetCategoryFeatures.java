@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-public class GetCategoryFeatures extends ApiCall implements Callable {
+public class GetCategoryFeatures extends ApiCall {
 	
 	public GetCategoryFeatures() throws Exception {
 	}
@@ -27,7 +27,6 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
 			log(site+"("+siteid+")");
 			
-			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 			reqdbo.append("WarningLevel", "High");
@@ -37,33 +36,29 @@ public class GetCategoryFeatures extends ApiCall implements Callable {
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategoryFeatures");
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategoryFeatures"));
-			
-			//writelog("GCF.req."+site+".xml", requestxml);
-		}
-		
-		/* parse response */
-		for (int i = 1; i <= cnt; i++) {
-			String responsexml = ecs18.take().get();
-			BasicDBObject resdbo = convertXML2DBObject(responsexml);
-			String site = resdbo.getString("CorrelationID");
-			
-			writelog("GCF.res."+site+".xml", responsexml);
-			
-			DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
-			coll2.drop();
-			coll2.insert((List<DBObject>) resdbo.get("Category"));
-			
-			DBCollection coll1 = db.getCollection(site+".CategoryFeatures");
-			
-			if (db.collectionExists(site+".CategoryFeatures")) {
-				coll1.drop();
-			}
-			
-			resdbo.removeField("Category");
-			coll1.insert(resdbo);
 		}
 		
 		return "";
 	}
 	
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
+		
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		String site = resdbo.getString("CorrelationID");
+		writelog("GCF."+site+".xml", responsexml);
+		
+		DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
+		coll2.drop();
+		coll2.insert((List<DBObject>) resdbo.get("Category"));
+		
+		DBCollection coll1 = db.getCollection(site+".CategoryFeatures");
+		if (db.collectionExists(site+".CategoryFeatures")) {
+			coll1.drop();
+		}
+		
+		resdbo.removeField("Category");
+		coll1.insert(resdbo);
+		
+		return resdbo;
+	}
 }

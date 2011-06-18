@@ -26,10 +26,12 @@ public class ApiCallTask implements Callable {
 		//String callname = this.getClass().toString().replace("class ebaytool.apicall.", "");
 		//callname = new Throwable().getStackTrace()[3].getClassName();
 		
+		/*
 		StackTraceElement[] ste = new Throwable().getStackTrace();
 		for (StackTraceElement st : ste) {
 			System.out.println(st.getClassName());
 		}
+		*/
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
@@ -71,6 +73,7 @@ public class ApiCallTask implements Callable {
 		/* parse response */
 		ApiCall task = (ApiCall) Class.forName("ebaytool.apicall."+callname).newInstance();
 		task.parseresponse(responsexml);
+		System.out.println("ApiCallTask "+callname+" parsed response.");
 		
 		return responsexml;
 	}
