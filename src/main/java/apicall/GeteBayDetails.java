@@ -12,7 +12,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-public class GeteBayDetails extends ApiCall implements Callable {
+public class GeteBayDetails extends ApiCall {
 	
 	public GeteBayDetails() throws Exception {
 	}
@@ -29,10 +29,6 @@ public class GeteBayDetails extends ApiCall implements Callable {
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GeteBayDetails");
 		Future<String> future = ecs18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
-		String responsexml = future.get();
-		parseresponse(responsexml);
-		
-		//writelog("GeD.req."+site+".xml", requestxml);
 		
 		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
 		Integer cnt = cur.count() - 1;
@@ -47,47 +43,31 @@ public class GeteBayDetails extends ApiCall implements Callable {
 			
 			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
-			
-			//writelog("GeD.req."+site+".xml", requestxml);
-		}
-		
-		for (int i = 1; i <= cnt; i++) {
-			responsexml = ecs18.take().get();
-			parseresponse(responsexml);
 		}
 		
 		return "";
 	}
 	
-	private BasicDBObject parseresponse(String responsexml) throws Exception {
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GeD.res."+site+".xml", responsexml);
+		writelog("GeD."+site+".xml", responsexml);
 		
 		for (Object idx : resdbo.keySet()) {
-			String classname = resdbo.get(idx).getClass().toString();
 			
 			DBCollection coll = db.getCollection(site+".eBayDetails."+idx.toString());
-			
 			if (db.collectionExists(site+".eBayDetails."+idx.toString())) {
 				coll.drop();
 			}
 			
+			String classname = resdbo.get(idx).getClass().toString();
 			if (classname.equals("class com.mongodb.BasicDBList")) {
-				
-				//log("List ["+idx.toString()+"]");
 				coll.insert((List<DBObject>) resdbo.get(idx));
-				
 			} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-				
-				//log("Object ["+idx.toString()+"]");
 				coll.insert((DBObject) resdbo.get(idx));
-				
 			} else {
-				
 				//log("SKIP "+classname+" "+idx.toString());
-				
 			}
 		}
 		

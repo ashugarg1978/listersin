@@ -79,15 +79,17 @@ public class GetSellerList extends ApiCall {
 			ecs18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		}
 		
-		for (int i=2; i<=pages; i++) {
-			responsexml = ecs18.take().get();
-			parseresponse(responsexml);
+		if (false) {
+			for (int i=2; i<=pages; i++) {
+				responsexml = ecs18.take().get();
+				parseresponse(responsexml);
+			}
 		}
 		
 		// todo: call GetItem here.
 		// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
 		//ecs18.submit(new GetItem());
-		if (true) {
+		if (false) {
 			log("Calling GetItem from GetSellerList.");
 			ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 			Callable task = new GetItem(email, userid);
@@ -97,7 +99,7 @@ public class GetSellerList extends ApiCall {
 		return "OK";
 	}
 	
-	private BasicDBObject parseresponse(String responsexml) throws Exception {
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		

@@ -36,6 +36,11 @@ public class ApiCall implements Callable {
 		return "";
 	}
 	
+	// todo: Should I create an interface class?
+	public BasicDBObject parseresponse(String responsexml) throws Exception {
+		return null;
+	}
+	
 	public void shutdown() {
 		
 		pool18.shutdown();

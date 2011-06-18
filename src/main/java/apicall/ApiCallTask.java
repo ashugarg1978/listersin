@@ -56,10 +56,7 @@ public class ApiCallTask implements Callable {
 		osw.write(requestxml);
 		osw.flush();
 		osw.close();
-		
         conn.connect();
-		
-		//System.out.println(conn.getResponseMessage());
 		
 		/* handle http response */
         InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
@@ -71,8 +68,9 @@ public class ApiCallTask implements Callable {
 		}
 		br.close();
 		
-		Class apiclass = Class.forName("ebaytool.apicall."+callname);
-		
+		/* parse response */
+		ApiCall task = (ApiCall) Class.forName("ebaytool.apicall."+callname).newInstance();
+		task.parseresponse(responsexml);
 		
 		return responsexml;
 	}
