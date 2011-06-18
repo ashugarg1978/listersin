@@ -44,7 +44,7 @@ public class FetchToken extends ApiCall implements Callable {
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("sessionid", sessionid);
-
+		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("userids."+username, responsedbo));
 		

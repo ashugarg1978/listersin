@@ -67,13 +67,11 @@ public class GetSellerList extends ApiCall {
 		String responsexml = future.get();
 		parseresponse(responsexml);
 		
-		writelog("GSL.req."+userid+".1.xml", requestxml);
-		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
 									 .get("TotalNumberOfPages").toString());
-		System.out.println(userid+" : total "+pages+" page(s).");
+		log(userid+" : total "+pages+" page(s).");
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
@@ -90,6 +88,7 @@ public class GetSellerList extends ApiCall {
 		// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
 		//ecs18.submit(new GetItem());
 		if (true) {
+			log("Calling GetItem from GetSellerList.");
 			ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
 			Callable task = new GetItem(email, userid);
 			pool.submit(task);

@@ -35,13 +35,13 @@ public class GetCategories extends ApiCall implements Callable {
 			reqdbo.append("MessageID",      site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategories");
-			//writelog("GCs.req."+site+".xml", requestxml);
 			
 			ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategories"));
 		}
 		
 		for (int i = 1; i <= cnt; i++) {
 			String responsexml = ecs18.take().get();
+			writelog("GCs.res.i"+i+".xml", responsexml);
 			
 			BasicDBObject resdbo = convertXML2DBObject(responsexml);
 			
