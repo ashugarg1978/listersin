@@ -28,6 +28,7 @@ public class GetSessionID extends ApiCall {
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
 		reqdbo.append("RuName", "Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc");
+		reqdbo.append("MessageID", email);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetSessionID");
 		
@@ -42,6 +43,8 @@ public class GetSessionID extends ApiCall {
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
 		String sessionid = resdbo.getString("SessionID");
+		email = resdbo.getString("CorrelationID");
+		log("GetSessionID parse response. "+email);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
