@@ -97,28 +97,19 @@ public class PageAction extends BaseAction {
 	@Action(value="/page/addaccount", results={@Result(name="success",location="addaccount.jsp")})
 	public String addaccount() throws Exception {
 		
-		/* todo: call via ebaytoold */
-		Socket socket = new Socket("localhost", 8181);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("GetSessionID "+session.get("email").toString());
-		out.close();
-		socket.close();
-		
-		/*
-		GetSessionID gsi = new GetSessionID();
-		String sessionid = gsi.call();
+		GetSessionID gsi = new GetSessionID(session.get("email").toString());
+		gsi.call();
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", session.get("email").toString());
 		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("sessionid", sessionid));
+		BasicDBObject field = new BasicDBObject();
+		field.put("sessionid", 1);
 		
-		db.getCollection("users").update(query, update);
+		BasicDBObject row = (BasicDBObject) db.getCollection("users").findOne(query, field);
 		
-		user  = new BasicDBObject();
-		user.put("sessionid", sessionid);
-		*/
+		user = new BasicDBObject();
+		user.put("sessionid", row.getString("sessionid"));
 		
 		return SUCCESS;
 	}
