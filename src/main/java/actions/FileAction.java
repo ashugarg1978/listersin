@@ -1,7 +1,8 @@
 package ebaytool.actions;
 
-import com.opensymphony.xwork2.ActionContext;
-import com.opensymphony.xwork2.ActionSupport;
+//import com.opensymphony.xwork2.ActionContext;
+//import com.opensymphony.xwork2.ActionSupport;
+import ebaytool.actions.BaseAction;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -9,20 +10,21 @@ import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Result;
 import org.apache.struts2.convention.annotation.Results;
 
-public class UploadAction extends ActionSupport {
+public class FileAction extends BaseAction {
 	
 	private File uploadfile;
 	private String savedfilename;
 	
-	@Action(value="/upload", results={@Result(name="success",location="uploaded.jsp")})
+	public FileAction() throws Exception {
+	}
+	
+	@Action(value="/file/upload", results={@Result(name="success",location="uploaded.jsp")})
 	public String upload() throws Exception {
 		
-		ActionContext context = ActionContext.getContext();
-		Map request = (Map) context.getParameters();
-		String fileindex = ((String[]) request.get("fileindex"))[0];
-		String id = ((String[]) request.get("id"))[0];
+		String fileindex = ((String[]) parameters.get("fileindex"))[0];
+		String id = ((String[]) parameters.get("id"))[0];
 		
-		String basedir = "/usr/local/apache-tomcat-7.0.2/webapps/ROOT";
+		String savedir = "/var/www/ebaytool.jp/webroot/itemimage";
 		
 		// todo: get basedir
 		//ActionContext context = ActionContext.getContext();
@@ -32,7 +34,7 @@ public class UploadAction extends ActionSupport {
 		// todo: file extension
 		savedfilename = id+"_"+fileindex+".jpg";
 		
-		File savefile = new File(basedir + "/itemimage/" + savedfilename);
+		File savefile = new File(savedir + "/" + savedfilename);
 		
 		FileUtils.copyFile(uploadfile, savefile);
 		

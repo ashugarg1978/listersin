@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <script language="javascript">
 <!--
-window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = 'http://localhost:8080/itemimage/${savedfilename}';
+window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = '/itemimage/${savedfilename}';
 //-->
 </script>
 </head>
