@@ -5,6 +5,7 @@ import ebaytool.actions.BaseAction;
 import ebaytool.apicall.FetchToken;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
+import ebaytool.apicall.SetNotificationPreferences;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
@@ -82,11 +83,11 @@ public class PageAction extends BaseAction {
 			&& parameters.get("password") != null
 			&& parameters.get("password2") != null) {
 			
+			// todo: password encryption
 			BasicDBObject user = new BasicDBObject();
 			user.put("email",    ((String[]) parameters.get("email"))[0]);
 			user.put("password", ((String[]) parameters.get("password"))[0]);
 			
-			DB db = new Mongo().getDB("ebay");
 			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
 		}
 		
@@ -97,9 +98,19 @@ public class PageAction extends BaseAction {
 	@Action(value="/page/addaccount", results={@Result(name="success",location="addaccount.jsp")})
 	public String addaccount() throws Exception {
 		
+		/* GetSessionID */
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("GetSessionID "+session.get("email").toString());
+		out.close();
+		socket.close();
+		
+		/*
 		GetSessionID gsi = new GetSessionID(session.get("email").toString());
 		gsi.call();
+		*/
 		
+		/* get session id from mongodb */
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", session.get("email").toString());
 		
@@ -122,16 +133,13 @@ public class PageAction extends BaseAction {
 		String email     = user.get("email").toString();
 		String sessionid = user.get("sessionid").toString();
 		
-		// todo: call via ebaytoold
+		/* FetchToken */
 		FetchToken ft = new FetchToken(email, sessionid, username);
-		String result = ft.call();
+		ft.call();
 		
 		/* SetNotificationPreferences */
-		Socket socket = new Socket("localhost", 8181);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("SetNotificationPreferences "+email+" "+username);
-		out.close();
-		socket.close();
+		SetNotificationPreferences nsp = new SetNotificationPreferences(email, username);
+		nsp.call();
 		
 		return SUCCESS;
 	}

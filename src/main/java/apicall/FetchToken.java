@@ -11,7 +11,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.xml.XMLSerializer;
 
-public class FetchToken extends ApiCall implements Callable {
+public class FetchToken extends ApiCall {
 
 	private String email;
 	private String sessionid;
@@ -29,16 +29,12 @@ public class FetchToken extends ApiCall implements Callable {
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
 		reqdbo.append("SessionID", sessionid);
+		reqdbo.append("MessageID", email);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "FetchToken");
 		
-		Future<String> future = ecs18.submit(new ApiCallTask(0, requestxml, "FetchToken"));
-		
-		String responsexml = future.get();
-		
-		writelog("FT.req.xml", requestxml);
-		writelog("FT.res.xml", responsexml);
-		
+		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "FetchToken"));
+		future.get();
 		
 		return "";
 	}
@@ -49,7 +45,7 @@ public class FetchToken extends ApiCall implements Callable {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
-		query.put("sessionid", sessionid);
+		//query.put("sessionid", sessionid);
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("userids."+username, resdbo));

@@ -6,18 +6,19 @@
 # description: ebaytool daemon
 #
 
+# todo: which is better? pool18 count.
+#CPBASE=/var/www/ebaytool.jp/build/WEB-INF
+CPBASE=/usr/local/apache-tomcat/webapps/ROOT/WEB-INF
+
 PATH=/usr/local/jdk/bin:$PATH
-CP=/var/www/ebaytool.jp/build/WEB-INF/classes
-CP=$CP:/var/www/ebaytool.jp/build/WEB-INF/lib/*
+export CLASSPATH=$CPBASE/classes:$CPBASE/lib/*
 
 start() {
-	java -cp $CP ebaytool.apicall.Daemon start \
-		>> /var/www/ebaytool.jp/logs/daemon.log &
+	java ebaytool.apicall.Daemon start >> /var/www/ebaytool.jp/logs/daemon.log &
 }
 
 stop() {
-	java -cp $CP ebaytool.apicall.Daemon stop
-	ps auxw | grep java | grep Daemon
+	java ebaytool.apicall.Daemon stop
 }
 
 case "$1" in

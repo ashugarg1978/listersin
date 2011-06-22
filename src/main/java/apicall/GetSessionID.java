@@ -3,13 +3,9 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import ebaytool.apicall.ApiCall;
 import java.io.*;
-import java.net.URL;
-import java.util.*;
+import java.net.Socket;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
-import net.sf.json.xml.XMLSerializer;
 
 public class GetSessionID extends ApiCall {
 	
@@ -24,6 +20,7 @@ public class GetSessionID extends ApiCall {
 	
 	public String call() throws Exception {
 		
+		log("Called GetSessionID");
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
@@ -31,6 +28,16 @@ public class GetSessionID extends ApiCall {
 		reqdbo.append("MessageID", email);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetSessionID");
+		writelog("GSI.req."+email+".xml", requestxml);
+		
+		/*
+		Socket socket = new Socket("localhost", 8282);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("1");
+		out.println(requestxml);
+		out.close();
+		socket.close();
+		*/
 		
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSessionID"));
 		future.get();
@@ -45,6 +52,8 @@ public class GetSessionID extends ApiCall {
 		String sessionid = resdbo.getString("SessionID");
 		email = resdbo.getString("CorrelationID");
 		log("GetSessionID parse response. "+email);
+		
+		writelog("GSI."+email+".xml", responsexml);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);

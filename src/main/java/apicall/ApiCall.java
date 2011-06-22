@@ -21,14 +21,17 @@ public class ApiCall implements Callable {
 	
 	public ApiCall() throws Exception {
 		
+		System.out.println("ApiCall() constructor.");
 		if (pool18 == null) {
 			pool18 = (ThreadPoolExecutor) Executors.newFixedThreadPool(18);
 			ecs18 = new ExecutorCompletionService<String>(pool18);
+			System.out.println("-> pool18");
 		}
 		
 		if (db == null) {
 			Mongo m = new Mongo();
 			db = m.getDB("ebay");
+			System.out.println("-> db");
 		}
 	}
 	

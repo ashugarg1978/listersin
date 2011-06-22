@@ -29,6 +29,10 @@ public class Daemon {
 			String message = "";
 			
 			message = in.readLine();
+
+			in.close();
+			socket.close();
+			
 			if (message.equals("shutdown")) break;
 			
 			System.out.println(sdf.format(new Date()).toString()+" "+message);
@@ -83,9 +87,6 @@ public class Daemon {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
-			in.close();
-			socket.close();
 		}
 		
 		ApiCall apicall = new ApiCall();

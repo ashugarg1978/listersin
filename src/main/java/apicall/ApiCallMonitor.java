@@ -21,9 +21,10 @@ public class ApiCallMonitor extends ApiCall {
 			
 			Date now = new Date();
 			
-			logstr = pool18.getTaskCount()
-				+ "/"+pool18.getActiveCount()
-				+ "/"+pool18.getCompletedTaskCount();
+			logstr = pool18.getPoolSize()
+				+ " => "+pool18.getActiveCount()
+				+ " => "+pool18.getCompletedTaskCount()
+				+ " : "+pool18.getTaskCount();
 			
 			if (pool18.isShutdown())    logstr += "[shutdown]";
 			if (pool18.isTerminating()) logstr += "[terminating]";
