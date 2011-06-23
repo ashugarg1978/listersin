@@ -39,19 +39,21 @@ public class FetchToken extends ApiCall {
 		return "";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		email = resdbo.getString("CorrelationID");
+		log("FetchToken callback : "+email);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		//query.put("sessionid", sessionid);
 		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("userids."+username, resdbo));
+		//BasicDBObject update = new BasicDBObject();
+		//update.put("$set", new BasicDBObject("userids."+username, resdbo));
 		
-		db.getCollection("users").update(query, update);
+		//db.getCollection("users").update(query, update);
 		
-		return resdbo;
+		return "";
 	}
 }

@@ -100,27 +100,18 @@ public class PageAction extends BaseAction {
 		
 		/* GetSessionID */
 		Socket socket = new Socket("localhost", 8181);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
 		out.println("GetSessionID "+session.get("email").toString());
+		String sessionid = in.readLine();
+		
 		out.close();
+		in.close();
 		socket.close();
 		
-		/*
-		GetSessionID gsi = new GetSessionID(session.get("email").toString());
-		gsi.call();
-		*/
-		
-		/* get session id from mongodb */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", session.get("email").toString());
-		
-		BasicDBObject field = new BasicDBObject();
-		field.put("sessionid", 1);
-		
-		BasicDBObject row = (BasicDBObject) db.getCollection("users").findOne(query, field);
-		
 		user = new BasicDBObject();
-		user.put("sessionid", row.getString("sessionid"));
+		user.put("sessionid", sessionid);
 		
 		return SUCCESS;
 	}
@@ -129,17 +120,32 @@ public class PageAction extends BaseAction {
 	public String accept() throws Exception {
 		
 		String username  = ((String[]) parameters.get("username"))[0];
-		
 		String email     = user.get("email").toString();
 		String sessionid = user.get("sessionid").toString();
 		
 		/* FetchToken */
-		FetchToken ft = new FetchToken(email, sessionid, username);
-		ft.call();
+		Socket socket = new Socket("localhost", 8181);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("FetchToken "+email+" "+sessionid+" "+username);
+		in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
 		
 		/* SetNotificationPreferences */
-		SetNotificationPreferences nsp = new SetNotificationPreferences(email, username);
-		nsp.call();
+		socket = new Socket("localhost", 8181);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("SetNotificationPreferences "+email+" "+username);
+		in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
 		
 		return SUCCESS;
 	}

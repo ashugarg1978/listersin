@@ -45,13 +45,13 @@ public class GeteBayDetails extends ApiCall {
 			reqdbo.put("MessageID", site);
 			
 			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
-			ecs18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
+			pool18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
 		}
 		
 		return "";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
@@ -74,6 +74,6 @@ public class GeteBayDetails extends ApiCall {
 			}
 		}
 		
-		return resdbo;
+		return responsexml;
 	}
 }

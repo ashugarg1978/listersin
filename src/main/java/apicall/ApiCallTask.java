@@ -72,10 +72,9 @@ public class ApiCallTask implements Callable {
 		
 		/* parse response */
 		ApiCall task = (ApiCall) Class.forName("ebaytool.apicall."+callname).newInstance();
-		task.parseresponse(responsexml);
-		System.out.println("ApiCallTask "+callname+" parsed response.");
+		String result = task.callback(responsexml);
 		
-		return responsexml;
+		return result;
 	}
 	
 }

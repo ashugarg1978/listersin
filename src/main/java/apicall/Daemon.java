@@ -26,13 +26,12 @@ public class Daemon {
 			
 			Socket socket = serversocket.accept();
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+			
 			String message = "";
 			
 			message = in.readLine();
 
-			in.close();
-			socket.close();
-			
 			if (message.equals("shutdown")) break;
 			
 			System.out.println(sdf.format(new Date()).toString()+" "+message);
@@ -40,9 +39,9 @@ public class Daemon {
 			String[] arrmsg = message.split(" ");
 			
 			Callable task = null;
+			Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
+			
 			if (arrmsg.length == 6) {
-				
-				Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
 				
 				Constructor cnst = apiclass.getConstructor(String.class,
 														   String.class,
@@ -56,17 +55,17 @@ public class Daemon {
 												   arrmsg[4],
 												   arrmsg[5]);
 				
-			} else if (arrmsg.length == 2) {
+			} else if (arrmsg.length == 4) {
 				
-				Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
+				Constructor cnst = apiclass.getConstructor(String.class,
+														   String.class,
+														   String.class);
 				
-				Constructor cnst = apiclass.getConstructor(String.class);
-				
-				task = (Callable) cnst.newInstance(arrmsg[1]);
+				task = (Callable) cnst.newInstance(arrmsg[1],
+												   arrmsg[2],
+												   arrmsg[3]);
 				
 			} else if (arrmsg.length == 3) {
-				
-				Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
 				
 				Constructor cnst = apiclass.getConstructor(String.class,
 														   String.class);
@@ -74,19 +73,33 @@ public class Daemon {
 				task = (Callable) cnst.newInstance(arrmsg[1],
 												   arrmsg[2]);
 				
+			} else if (arrmsg.length == 2) {
+				
+				Constructor cnst = apiclass.getConstructor(String.class);
+				
+				task = (Callable) cnst.newInstance(arrmsg[1]);
+				
 			} else {
 				
-				task = (Callable) Class.forName("ebaytool.apicall."+message).newInstance();
+				Constructor cnst = apiclass.getConstructor();
+				
+				task = (Callable) cnst.newInstance();
 				
 			}
 			
-			Future f = pool.submit(task);
+			Future<String> f = pool.submit(task);
+			String result = "";
 			
 			try {
-				f.get();
+				result = f.get();
+				out.println(result);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			out.close();
+			in.close();
+			socket.close();
 		}
 		
 		ApiCall apicall = new ApiCall();

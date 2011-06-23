@@ -204,7 +204,7 @@ public class AddItems extends ApiCall {
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".xml", responsexml);
 					
-					parseresponse(responsexml);
+					callback(responsexml);
 				}
 			}
 		}
@@ -212,7 +212,7 @@ public class AddItems extends ApiCall {
 		return "OK";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
@@ -230,7 +230,7 @@ public class AddItems extends ApiCall {
 			dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
 		} else {
 			System.out.println("Class Error:"+classname);
-			return responsedbo;
+			return "";
 		}
 		
 		for (Object oitem : dbl) {
@@ -276,7 +276,7 @@ public class AddItems extends ApiCall {
 			
 		}
 		
-		return responsedbo;
+		return "";
 	}
 	
 	private HashMap<String,String> getUserIdToken() throws Exception {

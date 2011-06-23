@@ -20,7 +20,6 @@ public class GetSessionID extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		log("Called GetSessionID");
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
@@ -30,28 +29,19 @@ public class GetSessionID extends ApiCall {
 		String requestxml = convertDBObject2XML(reqdbo, "GetSessionID");
 		writelog("GSI.req."+email+".xml", requestxml);
 		
-		/*
-		Socket socket = new Socket("localhost", 8282);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("1");
-		out.println(requestxml);
-		out.close();
-		socket.close();
-		*/
-		
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSessionID"));
-		future.get();
+		String result = future.get();
 		
-		return "";
+		return result;
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
 		String sessionid = resdbo.getString("SessionID");
 		email = resdbo.getString("CorrelationID");
-		log("GetSessionID parse response. "+email);
+		log("GetSessionID callback : "+email);
 		
 		writelog("GSI."+email+".xml", responsexml);
 		
@@ -63,6 +53,6 @@ public class GetSessionID extends ApiCall {
 		
 		db.getCollection("users").update(query, update);
 		
-		return resdbo;
+		return sessionid;
 	}
 }

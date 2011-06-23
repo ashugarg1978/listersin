@@ -74,13 +74,13 @@ public class GetItem extends ApiCall implements Callable {
 		for (int i = 1; i <= cnt; i++) {
 			log("parse response "+i);
 			String responsexml = ecs18.take().get();
-			parseresponse(responsexml);
+			callback(responsexml);
 		}
 		
 		return "";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
@@ -106,6 +106,6 @@ public class GetItem extends ApiCall implements Callable {
 		WriteResult result = coll.update(query, update);
 		log("import? "+result.toString());
 		
-		return responsedbo;
+		return "";
 	}
 }

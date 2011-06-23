@@ -35,13 +35,13 @@ public class GetCategoryFeatures extends ApiCall {
 			reqdbo.append("MessageID",    site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategoryFeatures");
-			ecs18.submit(new ApiCallTask(siteid, requestxml, "GetCategoryFeatures"));
+			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategoryFeatures"));
 		}
 		
 		return "";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
@@ -59,6 +59,6 @@ public class GetCategoryFeatures extends ApiCall {
 		resdbo.removeField("Category");
 		coll1.insert(resdbo);
 		
-		return resdbo;
+		return "";
 	}
 }

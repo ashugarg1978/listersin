@@ -150,7 +150,7 @@ public class EndItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					String responsexml = ecs18.take().get();
-					parseresponse(responsexml);
+					callback(responsexml);
 					
 					writelog("EIs.res"
 							 +"."+((String) tmpuserid)
@@ -164,7 +164,7 @@ public class EndItems extends ApiCall {
 		return "OK";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
@@ -193,7 +193,7 @@ public class EndItems extends ApiCall {
 			
 		}
 		
-		return responsedbo;
+		return "";
 	}
 	
 	private HashMap<String,String> getUserIdToken() throws Exception {

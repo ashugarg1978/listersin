@@ -65,7 +65,7 @@ public class GetSellerList extends ApiCall {
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
-		parseresponse(responsexml);
+		callback(responsexml);
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
@@ -82,7 +82,7 @@ public class GetSellerList extends ApiCall {
 		if (false) {
 			for (int i=2; i<=pages; i++) {
 				responsexml = ecs18.take().get();
-				parseresponse(responsexml);
+				callback(responsexml);
 			}
 		}
 		
@@ -99,7 +99,7 @@ public class GetSellerList extends ApiCall {
 		return "OK";
 	}
 	
-	public BasicDBObject parseresponse(String responsexml) throws Exception {
+	public String callback(String responsexml) throws Exception {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
@@ -121,7 +121,7 @@ public class GetSellerList extends ApiCall {
 		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
 		int itemcount = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
-		if (itemcount == 0) return responsedbo;
+		if (itemcount == 0) return "";
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -159,7 +159,7 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 		}
 		
-		return responsedbo;
+		return "";
 	}
 	
 	

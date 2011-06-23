@@ -7,8 +7,8 @@
 #
 
 # todo: which is better? pool18 count.
-#CPBASE=/var/www/ebaytool.jp/build/WEB-INF
-CPBASE=/usr/local/apache-tomcat/webapps/ROOT/WEB-INF
+CPBASE=/var/www/ebaytool.jp/build/WEB-INF
+#CPBASE=/usr/local/apache-tomcat/webapps/ROOT/WEB-INF
 
 PATH=/usr/local/jdk/bin:$PATH
 export CLASSPATH=$CPBASE/classes:$CPBASE/lib/*
