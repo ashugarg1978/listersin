@@ -61,6 +61,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put("ApplicationDeliveryPreferences", adp);
 		dbobject.put("UserDeliveryPreferenceArray", new BasicDBObject("NotificationEnable", ane));
+		dbobject.put("MessageID", email+" "+userid);
 		
 		JSONObject jso = JSONObject.fromObject(dbobject.toString());
 		jso.getJSONObject("UserDeliveryPreferenceArray")
@@ -73,12 +74,17 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		String requestxml = xmls.write(jso);
 		
 		Future<String> future =
-			ecs18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
+			pool18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
+		future.get();
 		
-		String responsexml = future.get();
+		writelog("SNP.req."+email+"."+userid+".xml", requestxml);
 		
-		writelog("SNP.req."+userid+".xml", requestxml);
-		writelog("SNP.res."+userid+".xml", responsexml);
+		return "";
+	}
+	
+	public String callback(String responsexml) throws Exception {
+		
+		writelog("SNP.res.xml", responsexml);
 		
 		return "";
 	}

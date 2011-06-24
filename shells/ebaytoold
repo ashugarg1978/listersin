@@ -14,7 +14,7 @@ PATH=/usr/local/jdk/bin:$PATH
 export CLASSPATH=$CPBASE/classes:$CPBASE/lib/*
 
 start() {
-	java ebaytool.apicall.Daemon start >> /var/www/ebaytool.jp/logs/daemon.log &
+	java ebaytool.apicall.Daemon start >> /var/www/ebaytool.jp/logs/daemon.log 2>&1 &
 }
 
 stop() {

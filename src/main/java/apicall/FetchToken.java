@@ -17,6 +17,9 @@ public class FetchToken extends ApiCall {
 	private String sessionid;
 	private String username;
 	
+	public FetchToken() throws Exception {
+	}
+	
 	public FetchToken(String email, String sessionid, String username) throws Exception {
 		this.email = email;
 		this.sessionid = sessionid;
@@ -29,9 +32,11 @@ public class FetchToken extends ApiCall {
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
 		reqdbo.append("SessionID", sessionid);
-		reqdbo.append("MessageID", email);
+		reqdbo.append("MessageID", email+" "+username);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "FetchToken");
+		
+		writelog("FT.req."+email+"."+username+".xml", requestxml);
 		
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "FetchToken"));
 		future.get();
@@ -42,17 +47,19 @@ public class FetchToken extends ApiCall {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		email = resdbo.getString("CorrelationID");
-		log("FetchToken callback : "+email);
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
+		email    = messages[0];
+		username = messages[1];
+		
+		writelog("FT."+email+"."+username+".xml", responsexml);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
-		//query.put("sessionid", sessionid);
 		
-		//BasicDBObject update = new BasicDBObject();
-		//update.put("$set", new BasicDBObject("userids."+username, resdbo));
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("userids."+username, resdbo));
 		
-		//db.getCollection("users").update(query, update);
+		db.getCollection("users").update(query, update);
 		
 		return "";
 	}
