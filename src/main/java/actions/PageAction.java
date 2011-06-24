@@ -8,6 +8,8 @@ import ebaytool.apicall.GetSessionID;
 import ebaytool.apicall.SetNotificationPreferences;
 import java.io.*;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
@@ -129,7 +131,7 @@ public class PageAction extends BaseAction {
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
 		out.println("FetchToken "+email+" "+sessionid+" "+username);
-		in.readLine();
+		in.readLine(); // DO WAIT
 		
 		out.close();
 		in.close();
@@ -141,7 +143,27 @@ public class PageAction extends BaseAction {
 		out = new PrintWriter(socket.getOutputStream(), true);
 		
 		out.println("SetNotificationPreferences "+email+" "+username);
-		in.readLine();
+		//in.readLine(); // don't wait
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Date now = new Date();
+		String end   = formatter.format(now);
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -119);
+		String start = formatter.format(cal.getTime());
+		
+		/* GetSellerList */
+		socket = new Socket("localhost", 8181);
+		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("GetSellerList "+email+" "+username+" Start "+start+" "+end);
+		//in.readLine(); // don't wait
 		
 		out.close();
 		in.close();

@@ -63,9 +63,9 @@ public class GetSellerList extends ApiCall {
 		//dbobject.put("UserID", "testuser_sbmsku");
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
+		writelog("GSL.req."+email+"."+userid+".xml", requestxml);
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
-		callback(responsexml);
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
@@ -100,6 +100,8 @@ public class GetSellerList extends ApiCall {
 	}
 	
 	public String callback(String responsexml) throws Exception {
+		
+		writelog("GSL.xml", responsexml);
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
@@ -159,7 +161,7 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 		}
 		
-		return "";
+		return responsexml;
 	}
 	
 	
