@@ -15,6 +15,7 @@ public class GetItem extends ApiCall implements Callable {
 	
 	private String email;
 	private String userid;
+	private String itemid;
 	
 	public GetItem() throws Exception {
 	}
@@ -22,6 +23,12 @@ public class GetItem extends ApiCall implements Callable {
 	public GetItem(String email, String userid) throws Exception {
 		this.email  = email;
 		this.userid = userid;
+	}
+	
+	public GetItem(String email, String userid, String itemid) throws Exception {
+		this.email  = email;
+		this.userid = userid;
+		this.itemid = itemid;
 	}
 	
 	public String call() throws Exception {
@@ -46,6 +53,9 @@ public class GetItem extends ApiCall implements Callable {
 		query.put("ext.deleted",      new BasicDBObject("$exists", 0));
 		query.put("ext.importstatus", "waiting GetItem");
 		query.put("ext.UserID",       userid);
+		if (itemid != null) {
+			query.put("ItemID",       itemid);
+		}
 		
 		BasicDBObject field = new BasicDBObject();
 		field.put("ItemID", 1);
@@ -66,16 +76,18 @@ public class GetItem extends ApiCall implements Callable {
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			
-			ecs18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
 		}
 		
 		// todo: check mixing other user's items
 		log("item count "+cnt);
+		/*
 		for (int i = 1; i <= cnt; i++) {
 			log("parse response "+i);
 			String responsexml = ecs18.take().get();
 			callback(responsexml);
 		}
+		*/
 		
 		return "";
 	}

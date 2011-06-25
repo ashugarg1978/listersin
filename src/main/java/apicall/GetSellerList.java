@@ -63,7 +63,7 @@ public class GetSellerList extends ApiCall {
 		//dbobject.put("UserID", "testuser_sbmsku");
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
-		writelog("GSL.req."+email+"."+userid+".xml", requestxml);
+		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
 		
@@ -76,14 +76,7 @@ public class GetSellerList extends ApiCall {
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
 			requestxml = convertDBObject2XML(dbobject, "GetSellerList");
-			ecs18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
-		}
-		
-		if (false) {
-			for (int i=2; i<=pages; i++) {
-				responsexml = ecs18.take().get();
-				callback(responsexml);
-			}
+			pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		}
 		
 		// todo: call GetItem here.
@@ -101,24 +94,23 @@ public class GetSellerList extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		writelog("GSL.xml", responsexml);
-		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
+		//String userid = ((BasicDBObject) responsedbo.get("Seller")).get("UserID").toString();
+		
 		String pagenumber = responsedbo.get("PageNumber").toString();
 		
-		System.out.println
-			(userid
-			 +" "+responsedbo.get("PageNumber").toString()
-			 +"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
-			 .get("TotalNumberOfPages").toString()
-			 +" "+responsedbo.get("ReturnedItemCountActual").toString()
-			 +"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
-			 .get("TotalNumberOfEntries").toString());
+		log(userid
+			+" "+responsedbo.get("PageNumber").toString()
+			+"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
+			.get("TotalNumberOfPages").toString()
+			+" "+responsedbo.get("ReturnedItemCountActual").toString()
+			+"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
+			.get("TotalNumberOfEntries").toString());
 		
 		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
 		
@@ -137,18 +129,14 @@ public class GetSellerList extends ApiCall {
 			
 			/* convert JSON to DBObject */
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
-			
 			String itemid = dbobject.get("ItemID").toString();
-			
 			
 			/* add extended information */
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
 			ext.put("labels", new BasicDBList());
 			ext.put("importstatus", "waiting GetItem");
-			
 			dbobject.put("ext", ext);
-			
 			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
@@ -159,9 +147,13 @@ public class GetSellerList extends ApiCall {
 			
 			coll.findAndRemove(query);
 			coll.update(query, update, true, true);
+			
+			/* GetItem */
+			Callable task = new GetItem(email, userid, itemid);
+			pool18.submit(task);
 		}
 		
-		return responsexml;
+		return "";
 	}
 	
 	
