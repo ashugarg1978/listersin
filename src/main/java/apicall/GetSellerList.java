@@ -58,7 +58,7 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
-		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",200).append("PageNumber",1));
+		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",7).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		//dbobject.put("UserID", "testuser_sbmsku");
 		
@@ -153,7 +153,7 @@ public class GetSellerList extends ApiCall {
 			pool18.submit(task);
 		}
 		
-		return "";
+		return responsexml;
 	}
 	
 	
