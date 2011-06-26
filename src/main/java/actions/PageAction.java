@@ -150,10 +150,9 @@ public class PageAction extends BaseAction {
 		socket.close();
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		Date now = new Date();
-		String end   = formatter.format(now);
-		
 		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 1);
+		String end   = formatter.format(cal.getTime());
 		cal.add(Calendar.DATE, -119);
 		String start = formatter.format(cal.getTime());
 		

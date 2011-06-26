@@ -108,4 +108,22 @@ public class ApiCall implements Callable {
 		
 		return data;
 	}
+	
+	public String gettoken(String email, String userid) throws Exception {
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+		
+		BasicDBObject fields = new BasicDBObject();
+		fields.put("userids."+userid, 1);
+		
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
+		
+		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
+		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
+		String token = tokendbo.getString("eBayAuthToken");
+		
+		return token;
+	}
 }

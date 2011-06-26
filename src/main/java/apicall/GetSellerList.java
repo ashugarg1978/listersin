@@ -20,7 +20,6 @@ public class GetSellerList extends ApiCall {
 	private String daterange;
 	private String datestart;
 	private String dateend;
-	private String token;
 	
 	public GetSellerList() throws Exception {
 	}
@@ -38,6 +37,7 @@ public class GetSellerList extends ApiCall {
 	public String call() throws Exception {
 		
 		/* get token from db */
+		/*
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("userids."+userid, new BasicDBObject("$exists", 1));
@@ -49,7 +49,9 @@ public class GetSellerList extends ApiCall {
 		
 		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
 		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		token = tokendbo.getString("eBayAuthToken");
+		String token = tokendbo.getString("eBayAuthToken");
+		*/
+		String token = gettoken(email, userid);
 		
 		/* GetSellerList */
 		BasicDBObject dbobject = new BasicDBObject();
@@ -60,6 +62,7 @@ public class GetSellerList extends ApiCall {
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",7).append("PageNumber",1));
 		dbobject.put("Sort", "1");
+		dbobject.put("MessageID", email+" "+userid);
 		//dbobject.put("UserID", "testuser_sbmsku");
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
@@ -99,6 +102,11 @@ public class GetSellerList extends ApiCall {
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		
+		String[] messages = responsedbo.getString("CorrelationID").split(" ");
+		email  = messages[0];
+		userid = messages[1];
+		String token = gettoken(email, userid);
 		
 		//String userid = ((BasicDBObject) responsedbo.get("Seller")).get("UserID").toString();
 		
@@ -149,8 +157,16 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 			
 			/* GetItem */
-			Callable task = new GetItem(email, userid, itemid);
-			pool18.submit(task);
+			BasicDBObject reqdbo = new BasicDBObject();
+			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+			reqdbo.append("WarningLevel", "High");
+			reqdbo.append("DetailLevel", "ReturnAll");
+			reqdbo.append("ItemID", itemid);
+			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
+			
+			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+			//Callable task = new GetItem(email, userid, itemid);
+			//pool18.submit(task);
 		}
 		
 		return responsexml;
