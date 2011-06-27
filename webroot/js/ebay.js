@@ -2,9 +2,30 @@
 var rowsdata = new Array();
 var hash;
 
-/* 
-http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-object-with-inner-objects 
-*/
+/* initialize */
+$(document).bind({
+	ready: function(event) {
+		
+		resizediv();
+		bindevents();
+		summary();
+		gethash();
+		
+		$('ul.accounts > li > ul:first').slideToggle('fast');
+		$('a.active', $('ul.accountaction:first')).click();
+		
+		//setTimeout('autoclick()', 3000);
+		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
+		
+		setInterval(refresh, 2000);
+		
+		return;
+	}
+});
+
+/**
+ * http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-object-with-inner-objects 
+ */
 $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
@@ -36,27 +57,6 @@ $.fn.extractObject = function() {
 	return accum;
 };
 
-
-/* initialize */
-$(document).bind({
-	ready: function(event) {
-		
-		resizediv();
-		bindevents();
-		summary();
-		gethash();
-		
-		$('ul.accounts > li > ul:first').slideToggle('fast');
-		$('a.active', $('ul.accountaction:first')).click();
-		
-		//setTimeout('autoclick()', 3000);
-		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
-		
-		setInterval(refresh, 2000);
-		
-		return;
-	}
-});
 
 /* auto click for debug */
 function autoclick()

@@ -178,12 +178,13 @@ public class AddItems extends ApiCall {
 					
 					//validatexml(requestxmlfilename);
 					
-					ecs18.submit(new ApiCallTask(0, requestxml, "AddItems"));
+					pool18.submit(new ApiCallTask(0, requestxml, "AddItems"));
 					
 				}
 			}
 		}
 		
+		/*
 		// each userid
 		for (String tmpuserid : lhm.keySet()) {
 			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
@@ -208,8 +209,9 @@ public class AddItems extends ApiCall {
 				}
 			}
 		}
+		*/
 		
-		return "OK";
+		return "";
 	}
 	
 	public String callback(String responsexml) throws Exception {
