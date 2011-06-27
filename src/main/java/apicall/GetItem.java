@@ -113,8 +113,7 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", upditem);
 		
-		WriteResult result = coll.update(query, update);
-		log("import? "+result.toString());
+		coll.update(query, update);
 		
 		return "";
 	}

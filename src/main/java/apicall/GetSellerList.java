@@ -120,7 +120,7 @@ public class GetSellerList extends ApiCall {
 			+"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
 			.get("TotalNumberOfEntries").toString());
 		
-		writelog("GSL.res."+userid+"."+pagenumber+".xml", responsexml);
+		writelog("GSL."+email+"."+userid+"."+pagenumber+".xml", responsexml);
 		
 		int itemcount = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
 		if (itemcount == 0) return "";
@@ -163,10 +163,7 @@ public class GetSellerList extends ApiCall {
 			reqdbo.append("DetailLevel", "ReturnAll");
 			reqdbo.append("ItemID", itemid);
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
-			
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
-			//Callable task = new GetItem(email, userid, itemid);
-			//pool18.submit(task);
 		}
 		
 		return responsexml;
