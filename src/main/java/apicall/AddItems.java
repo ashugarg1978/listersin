@@ -135,7 +135,7 @@ public class AddItems extends ApiCall {
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", jss);
+							 +".js", jss);
 					
 					JSONObject jso = JSONObject.fromObject(jss);
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
@@ -178,7 +178,7 @@ public class AddItems extends ApiCall {
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", jso.toString());
+							 +".js", jso.toString());
 					
 					String requestxml = xmls.write(jso);
 					

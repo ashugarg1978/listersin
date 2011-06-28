@@ -29,7 +29,10 @@ $(document).bind({
 $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
+		
 		if (value == null) return;
+		if (value == '') return;
+		
 		if (namev.length == 1) {
 			if (namev[0] == '') return;
 			
