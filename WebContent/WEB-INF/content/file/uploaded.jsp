@@ -8,15 +8,13 @@
 <script language="javascript">
 <!--
 
-$('#PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>', window.parent.document).attr('src', '/itemimage/${savedfilename}');
+id        = '<s:property value="%{#parameters.id}"/>';
+fileindex = <s:property value="%{#parameters.fileindex}"/>;
+filename  = '/itemimage/${savedfilename}';
+itemrow   = $('tbody#'+id, window.parent.document);
 
-//window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = '/itemimage/${savedfilename}';
-
-itemrow = $('tbody#<s:property value="%{#parameters.id}"/>', window.parent.document);
-$('input[name="PictureDetails.PictureURL.<s:property value="%{#parameters.fileindex}"/>"]', itemrow).val('http://ebaytool.jp/itemimage/${savedfilename}');
-
-$('#PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>', window.parent.document).attr('src', '/itemimage/${savedfilename}');
-
+$('#PD_PURL_'+id+'_'+fileindex, itemrow).attr('src', filename);
+$('input[name="PictureDetails.PictureURL.'+fileindex+'"]', itemrow).val('http://ebaytool.jp'+filename);
 
 //-->
 </script>

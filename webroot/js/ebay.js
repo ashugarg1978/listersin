@@ -29,8 +29,10 @@ $(document).bind({
 $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
+		if (value == null) return;
 		if (namev.length == 1) {
 			if (namev[0] == '') return;
+			
 			// todo: build array. ex:PaymentMethods
 			if (accum[namev[0]] != undefined) {
 				if ($.isArray(accum[namev[0]])) {
@@ -77,11 +79,19 @@ function gethash()
 	tmp = localStorage.getItem('hash');
 	if (tmp != undefined) {
 		hash = JSON.parse(tmp);
+		
+		// todo: same code
+		$.each(hash, function(k, v) {
+			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
+		});
+		
 		return;
 	}
 	
 	$.getJSON('/json/hash', function(data) {
 		hash = data.json;
+		
+		// todo: same code
 		$.each(hash, function(k, v) {
 			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
 		});
@@ -396,7 +406,10 @@ function getdetail(row)
 	if (row.ShippingDetails.CalculatedShippingRate) {
 		csro = row.ShippingDetails.CalculatedShippingRate;
 		
-		sp = hash[row.Site]['ShippingPackageDetails'][csro.ShippingPackage]['Description'];
+		sp = "";
+		if (csro.ShippingPackage) {
+			sp = hash[row.Site]['ShippingPackageDetails'][csro.ShippingPackage]['Description'];
+		}
 		if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
 		$('td.shippingpackage', detail).html(sp);
 		
@@ -942,7 +955,6 @@ function getcategorypulldowns(site, path)
 {
 	tmpid = 0;
 	ctgr = hash[site]['category'];
-	alert(hash[site]['category']['children'][0]);
 	
 	sels = $('<div/>');
 	$.each(path, function(i, categoryid) {

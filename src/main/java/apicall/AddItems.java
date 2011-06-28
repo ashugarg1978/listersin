@@ -129,7 +129,15 @@ public class AddItems extends ApiCall {
 					reqdbo.append("AddItemRequestContainer", ldbo);
 					
 					/* each item */
-					JSONObject jso = JSONObject.fromObject(reqdbo.toString());
+					String jss = reqdbo.toString();
+					//jss = jss.replaceAll("null", "\"\"");
+					writelog("AIs.jss"
+							 +"."+((String) tmpuserid)
+							 +"."+((String) tmpsite)
+							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+							 +".xml", jss);
+					
+					JSONObject jso = JSONObject.fromObject(jss);
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 					for (Object tmpitem : tmpitems) {
 						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
