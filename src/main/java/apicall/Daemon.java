@@ -1,6 +1,5 @@
 package ebaytool.apicall;
 
-import ebaytool.apicall.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.net.ServerSocket;

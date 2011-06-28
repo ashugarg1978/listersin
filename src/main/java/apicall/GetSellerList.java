@@ -2,8 +2,6 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import com.mongodb.util.*;
-import ebaytool.apicall.ApiCall;
-import ebaytool.apicall.GetItem;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

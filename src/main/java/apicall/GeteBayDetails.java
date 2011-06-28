@@ -2,7 +2,6 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import com.mongodb.util.*;
-import ebaytool.apicall.ApiCall;
 import java.io.*;
 import java.net.URL;
 import java.util.*;

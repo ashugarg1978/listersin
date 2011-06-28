@@ -1,7 +1,6 @@
 package ebaytool.apicall;
 
 import com.mongodb.*;
-import ebaytool.apicall.ApiCall;
 import java.util.*;
 import java.util.concurrent.*;
 import net.sf.json.JSONObject;
