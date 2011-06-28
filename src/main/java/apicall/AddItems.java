@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 public class AddItems extends ApiCall {
 	
+	private String email;
 	private String userid;
 	private String site;
 	private String chunkidx;
@@ -29,11 +30,15 @@ public class AddItems extends ApiCall {
 	public AddItems() throws Exception {
 	}
 	
+	public AddItems(String email) throws Exception {
+		this.email = email;
+	}
+	
 	public String call() throws Exception {
 		
 		String userid;
 		String site;
-		HashMap<String,String> tokenmap = getUserIdToken();
+		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("ext.deleted", new BasicDBObject("$exists", 0));
@@ -48,6 +53,7 @@ public class AddItems extends ApiCall {
 		
 		query.put("ext.status", "(re)listing");
 		
+		/* build userid.site.chunk array */
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
 		DBCursor cur = coll.find(query);
 		while (cur.hasNext()) {
@@ -56,7 +62,7 @@ public class AddItems extends ApiCall {
 			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
 			site   = item.get("Site").toString();
 			
-			/* todo: remove more fields */
+			// todo: remove more fields
 			//item.removeField("_id"); // if delete here, can't mapping result data.
 			item.removeField("BuyerProtection");
 			item.removeField("SellingStatus");
@@ -84,22 +90,22 @@ public class AddItems extends ApiCall {
 			((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).add(item);
 		}		
 		
-		// each userid
+		/* each userid */
 		for (String tmpuserid : lhm.keySet()) {
 			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
 			
-			// each site
+			/* each site */
 			for (Object tmpsite : lhmuserid.keySet()) {
 				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
 				
-				// each chunk
+				/* each chunk */
 				for (Object tmpchunk : lhmsite.keySet()) {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
-					BasicDBObject requestdbo = new BasicDBObject();
-					requestdbo.append("WarningLevel", "High");
-					requestdbo.append("RequesterCredentials",
-									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
+					BasicDBObject reqdbo = new BasicDBObject();
+					reqdbo.append("WarningLevel", "High");
+					reqdbo.append("RequesterCredentials",
+								  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
 					String[] itemids = new String[5];
 					int messageid = 0;
@@ -108,10 +114,10 @@ public class AddItems extends ApiCall {
 						
 						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
 						String id = ((BasicDBObject) tmpidx).get("_id").toString();
-						System.out.println(tmpuserid
-										   +" "+tmpsite
-										   +" "+tmpchunk+"."+messageid
-										   +":"+itemids[messageid]);
+						log(tmpuserid
+							+" "+tmpsite
+							+" "+tmpchunk+"."+messageid
+							+":"+itemids[messageid]);
 						
 						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
 						
@@ -120,9 +126,10 @@ public class AddItems extends ApiCall {
 						String title = ((BasicDBObject) tmpidx).get("Title").toString();
 					}
 					
-					requestdbo.append("AddItemRequestContainer", ldbo);
+					reqdbo.append("AddItemRequestContainer", ldbo);
 					
-					JSONObject jso = JSONObject.fromObject(requestdbo.toString());
+					/* each item */
+					JSONObject jso = JSONObject.fromObject(reqdbo.toString());
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 					for (Object tmpitem : tmpitems) {
 						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
@@ -144,7 +151,7 @@ public class AddItems extends ApiCall {
 							((JSONObject) tmpi.get("PictureDetails"))
 								.getJSONArray("PictureURL").setExpandElements(true);
 						}
-
+						
 						if (((JSONObject) tmpi.get("ShippingDetails")).has("ShippingServiceOptions")
 							&& ((JSONObject) tmpi.get("ShippingDetails")).get("ShippingServiceOptions")
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
@@ -166,7 +173,7 @@ public class AddItems extends ApiCall {
 							 +".xml", jso.toString());
 					
 					String requestxml = xmls.write(jso);
-
+					
 					String requestxmlfilename = "AIs.req"
 						+"."+((String) tmpuserid)
 						+"."+((String) tmpsite)
@@ -178,37 +185,9 @@ public class AddItems extends ApiCall {
 					//validatexml(requestxmlfilename);
 					
 					pool18.submit(new ApiCallTask(0, requestxml, "AddItems"));
-					
 				}
 			}
 		}
-		
-		/*
-		// each userid
-		for (String tmpuserid : lhm.keySet()) {
-			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
-			
-			// each site
-			for (Object tmpsite : lhmuserid.keySet()) {
-				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
-				
-				// each chunk
-				for (Object tmpchunk : lhmsite.keySet()) {
-					List litems = (List) lhmsite.get(tmpchunk);
-					
-					String responsexml = ecs18.take().get();
-					
-					writelog("AIs.res"
-							 +"."+((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", responsexml);
-					
-					callback(responsexml);
-				}
-			}
-		}
-		*/
 		
 		return "";
 	}
@@ -218,7 +197,7 @@ public class AddItems extends ApiCall {
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		String ack = responsedbo.get("Ack").toString();
-		System.out.println("Ack:"+ack);
+		log("Ack:"+ack);
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -230,7 +209,7 @@ public class AddItems extends ApiCall {
 		} else if (classname.equals("class com.mongodb.BasicDBList")) {
 			dbl = (BasicDBList) responsedbo.get("AddItemResponseContainer");
 		} else {
-			System.out.println("Class Error:"+classname);
+			log("Class Error:"+classname);
 			return "";
 		}
 		
@@ -260,7 +239,7 @@ public class AddItems extends ApiCall {
 				} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
 					errors = (BasicDBList) item.get("Errors");
 				} else {
-					System.out.println("Class Error:"+errorclass);
+					log("Class Error:"+errorclass);
 					continue;
 				}
 				upditem.put("ext.errors", errors);
@@ -273,38 +252,38 @@ public class AddItems extends ApiCall {
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
-			System.out.println("WriteResult:"+id+" : "+itemid+" : "+result);
-			
 		}
 		
 		return "";
 	}
 	
-	private HashMap<String,String> getUserIdToken() throws Exception {
+	private HashMap<String,String> getUserIdToken(String email) throws Exception {
 		
 		HashMap<String,String> hashmap = new HashMap<String,String>();
 		
-		DBCursor cur = db.getCollection("users").find();
-		while (cur.hasNext()) {
-			DBObject user = cur.next();
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
 			
-			if (user.containsField("userids")) {
-				BasicDBObject userids = (BasicDBObject) user.get("userids");
-				for (Object userid : userids.keySet()) {
-					
-					String ebaytkn = 
-						((BasicDBObject) userids.get(userid.toString())).get("eBayAuthToken").toString();
-					
-					hashmap.put(userid.toString(), ebaytkn);
-				}
+		if (user.containsField("userids")) {
+			BasicDBObject userids = (BasicDBObject) user.get("userids");
+			for (Object userid : userids.keySet()) {
+				
+				String token =
+					((BasicDBObject) userids.get(userid.toString())).getString("eBayAuthToken");
+				
+				hashmap.put(userid.toString(), token);
 			}
 		}
 		
 		return hashmap;
 	}
 	
-	/* XML Validation */
-	// ref: http://java.sun.com/developer/technicalArticles/xml/validationxpath/
+	/**
+	 * XML Validation
+	 * ref: http://java.sun.com/developer/technicalArticles/xml/validationxpath/
+	 */
 	private void validatexml(String filename) throws Exception {
 		
 		// todo: why Country error occures?
@@ -328,5 +307,4 @@ public class AddItems extends ApiCall {
 		
 		return;
 	}
-	
 }

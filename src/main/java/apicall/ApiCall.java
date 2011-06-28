@@ -24,13 +24,13 @@ public class ApiCall implements Callable {
 		if (pool18 == null) {
 			pool18 = (ThreadPoolExecutor) Executors.newFixedThreadPool(18);
 			ecs18 = new ExecutorCompletionService<String>(pool18);
-			System.out.println("ApiCall() constructor. pool18");
+			log("ApiCall() constructor. pool18");
 		}
 		
 		if (db == null) {
 			Mongo m = new Mongo();
 			db = m.getDB("ebay");
-			System.out.println("ApiCall() constructor. db");
+			log("ApiCall() constructor. db");
 		}
 	}
 	

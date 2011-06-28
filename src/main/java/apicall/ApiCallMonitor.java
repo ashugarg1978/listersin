@@ -1,6 +1,5 @@
 package ebaytool.apicall;
 
-import ebaytool.apicall.ApiCall;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,17 +20,18 @@ public class ApiCallMonitor extends ApiCall {
 			
 			Date now = new Date();
 			
-			logstr = pool18.getPoolSize()
-				+ " => "+pool18.getActiveCount()
-				+ " => "+pool18.getCompletedTaskCount()
-				+ " : "+pool18.getTaskCount();
+			logstr = pool18.getActiveCount()
+				+ " : "+pool18.getCompletedTaskCount()
+				+ " : "+pool18.getTaskCount()
+				+ " thread(s).";
 			
-			if (pool18.isShutdown())    logstr += "[shutdown]";
-			if (pool18.isTerminating()) logstr += "[terminating]";
-			if (pool18.isTerminated())  logstr += "[terminated]";
+			if (pool18.isShutdown())    logstr += " shutdown";
+			if (pool18.isTerminating()) logstr += " terminating";
+			if (pool18.isTerminated())  logstr += " terminated";
 			
-			if (!logstr.equals(logstrprev))
-				System.out.println(sdf.format(now).toString()+" "+logstr);
+			if (!logstr.equals(logstrprev)) {
+				log(logstr);
+			}
 			
 			logstrprev = logstr;
 			
@@ -42,5 +42,4 @@ public class ApiCallMonitor extends ApiCall {
 		
 		return "";
 	}
-	
 }

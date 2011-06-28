@@ -34,21 +34,6 @@ public class GetSellerList extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		/* get token from db */
-		/*
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
-
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
-		*/
 		String token = gettoken(email, userid);
 		
 		/* GetSellerList */
@@ -80,16 +65,6 @@ public class GetSellerList extends ApiCall {
 			pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
 		}
 		
-		// todo: call GetItem here.
-		// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
-		//ecs18.submit(new GetItem());
-		if (false) {
-			log("Calling GetItem from GetSellerList.");
-			ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
-			Callable task = new GetItem(email, userid);
-			pool.submit(task);
-		}
-		
 		return "OK";
 	}
 	
@@ -99,29 +74,32 @@ public class GetSellerList extends ApiCall {
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
-		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
-		String[] messages = responsedbo.getString("CorrelationID").split(" ");
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
 		userid = messages[1];
 		String token = gettoken(email, userid);
 		
-		//String userid = ((BasicDBObject) responsedbo.get("Seller")).get("UserID").toString();
+		//String userid = ((BasicDBObject) resdbo.get("Seller")).get("UserID").toString();
 		
-		String pagenumber = responsedbo.get("PageNumber").toString();
-		
-		log(userid
-			+" "+responsedbo.get("PageNumber").toString()
-			+"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
-			.get("TotalNumberOfPages").toString()
-			+" "+responsedbo.get("ReturnedItemCountActual").toString()
-			+"/"+((BasicDBObject) responsedbo.get("PaginationResult"))
-			.get("TotalNumberOfEntries").toString());
+		int pagenumber = Integer.parseInt(resdbo.getString("PageNumber"));
+		int itemcount  = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
 		
 		writelog("GSL."+email+"."+userid+"."+pagenumber+".xml", responsexml);
 		
-		int itemcount = Integer.parseInt(json.get("ReturnedItemCountActual").toString());
-		if (itemcount == 0) return "";
+		if (itemcount == 0) {
+			log(userid+" no items.");
+			return responsexml;
+		}
+		
+		log(userid
+			+" "+pagenumber
+			+"/"+((BasicDBObject) resdbo.get("PaginationResult"))
+			.get("TotalNumberOfPages").toString()
+			+" "+itemcount
+			+"/"+((BasicDBObject) resdbo.get("PaginationResult"))
+			.get("TotalNumberOfEntries").toString());
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -155,6 +133,7 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 			
 			/* GetItem */
+			// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 			reqdbo.append("WarningLevel", "High");

@@ -363,7 +363,7 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", 8181);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("AddItems");
+		out.println("AddItems "+session.get("email"));
 		out.close();
 		socket.close();
 		
@@ -870,13 +870,6 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject query = new BasicDBObject();
 		
-		ArrayList<String> userids = new ArrayList<String>();
-		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
-			userids.add(userid.toString());
-		}
-		query.put("ext.UserID", new BasicDBObject("$in", userids));
-		
-		
 		if (parameters.containsKey("id")) {
 			
 			ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
@@ -894,19 +887,38 @@ public class JsonAction extends BaseAction {
 			
 			LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 			
-			if (parameters.containsKey("selling")) selling = ((String[]) parameters.get("selling"))[0];
-			if (!selling.equals("")) query = sellingquery.get(selling);
+			if (parameters.containsKey("selling"))
+				selling = ((String[]) parameters.get("selling"))[0];
 			
-			if (parameters.containsKey("UserID")) userid = ((String[]) parameters.get("UserID"))[0];
-			if (!userid.equals("")) query.put("ext.UserID", userid);
+			if (!selling.equals(""))
+				query = sellingquery.get(selling);
 			
-			if (parameters.containsKey("Title")) title = ((String[]) parameters.get("Title"))[0];
-			if (!title.equals("")) query.put("Title", Pattern.compile(title));
+			if (parameters.containsKey("UserID"))
+				userid = ((String[]) parameters.get("UserID"))[0];
 			
-			if (parameters.containsKey("ItemID")) itemid = ((String[]) parameters.get("ItemID"))[0];
-			if (!itemid.equals("")) query.put("ItemID", itemid);
+			if (!userid.equals(""))
+				query.put("ext.UserID", userid);
+			
+			if (parameters.containsKey("Title"))
+				title = ((String[]) parameters.get("Title"))[0];
+			
+			if (!title.equals(""))
+				query.put("Title", Pattern.compile(title));
+			
+			if (parameters.containsKey("ItemID")) 
+				itemid = ((String[]) parameters.get("ItemID"))[0];
+			
+			if (!itemid.equals(""))
+				query.put("ItemID", itemid);
 			
 		}
+		
+		/* allways filter with userids */
+		ArrayList<String> userids = new ArrayList<String>();
+		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
+			userids.add(userid.toString());
+		}
+		query.put("ext.UserID", new BasicDBObject("$in", userids));
 		
 		return query;
 	}
