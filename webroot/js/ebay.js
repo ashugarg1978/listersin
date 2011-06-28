@@ -942,6 +942,7 @@ function getcategorypulldowns(site, path)
 {
 	tmpid = 0;
 	ctgr = hash[site]['category'];
+	alert(hash[site]['category']['children'][0]);
 	
 	sels = $('<div/>');
 	$.each(path, function(i, categoryid) {

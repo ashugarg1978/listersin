@@ -201,14 +201,14 @@
 </ul>
 
 <ul class="editbuttons">
-<li><a href="" class="edit"  >Edit</a></li>
-<li><a href="" class="copy"  >Copy</a></li>
-<li><a href="" class="delete">Delete</a></li>
-<li><a href="" class="relist">(Re)List</a></li>
-<li><a href="" class="revise">Revise</a></li>
-<li><a href="" class="end"   >End</a></li>
-<li style="display:none;"><a href="" class="save">Save</a></li>
-<li style="display:none;"><a href="" class="cancel">Cancel</a></li>
+<li><a href="#" class="edit"  >Edit</a></li>
+<li><a href="#" class="copy"  >Copy</a></li>
+<li><a href="#" class="delete">Delete</a></li>
+<li><a href="#" class="relist">(Re)List</a></li>
+<li><a href="#" class="revise">Revise</a></li>
+<li><a href="#" class="end"   >End</a></li>
+<li style="display:none;"><a href="#" class="save">Save</a></li>
+<li style="display:none;"><a href="#" class="cancel">Cancel</a></li>
 </ul>
  
 <div class="tabContainer">
