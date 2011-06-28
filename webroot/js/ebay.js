@@ -770,7 +770,7 @@ function bindevents()
 	    $('input[name=Title]', 'tbody#'+id).focus();
 		
 		// todo: compare to CKEditor
-		$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
+		//$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
 		
 		/* category selector */
 		$('td.category', dom).html(getcategorypulldowns(item.Site, item.ext.categorypath));
