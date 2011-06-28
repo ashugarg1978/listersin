@@ -4,9 +4,20 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script type="text/javascript" src="/js/jquery-1.6.1.min.js"></script>
 <script language="javascript">
 <!--
-window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = '/itemimage/${savedfilename}';
+
+$('#PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>', window.parent.document).attr('src', '/itemimage/${savedfilename}');
+
+//window.parent.document.getElementById('PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>').src = '/itemimage/${savedfilename}';
+
+itemrow = $('tbody#<s:property value="%{#parameters.id}"/>', window.parent.document);
+$('input[name="PictureDetails.PictureURL.<s:property value="%{#parameters.fileindex}"/>"]', itemrow).val('http://ebaytool.jp/itemimage/${savedfilename}');
+
+$('#PD_PURL_<s:property value="%{#parameters.id}"/>_<s:property value="%{#parameters.fileindex}"/>', window.parent.document).attr('src', '/itemimage/${savedfilename}');
+
+
 //-->
 </script>
 </head>

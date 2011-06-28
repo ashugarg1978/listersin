@@ -409,7 +409,7 @@ div#debug {
 
 iframe[name=posttarget] {
 	width: 161px;
-	height: 50px;
+	height:200px;
 	margin: 10px 10px 0 0;
 	background-color: #ffffdd;
 	border: 1px solid #999966;
