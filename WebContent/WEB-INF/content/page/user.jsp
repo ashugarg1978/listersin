@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+acs<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="/struts-tags" prefix="s" %>
 <!DOCTYPE html>
 <html>
@@ -384,23 +384,23 @@
 		  <td class="shippingservice">
 			
 			<div class="ShippingService">
-			<select name="ShippingService.1" class="ShippingService"></select>
+			<select name="ShippingDetails.ShippingServiceOptions.1.ShippingService" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="ShippingCost.1" type="text" size="5">
+			<input name="ShippingDetails.ShippingServiceOptions.1.ShippingServiceCost.@currencyID" type="text" size="5">
 			<input name="ShippingFree" value="1" type="checkbox">Free shipping
 			</div>
 			
 			<div class="ShippingService">
-			<select name="ShippingService.2" class="ShippingService"></select>
+			<select name="ShippingDetails.ShippingServiceOptions.2.ShippingService" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="ShippingCost.2" type="text" size="5">
+			<input name="ShippingDetails.ShippingServiceOptions.2.ShippingServiceCost.@currencyID" type="text" size="5">
 			<a href="" class="ShippingService2">Remove service</a>
 			</div>
 			
 			<div class="ShippingService">
-			<select name="ShippingService.3" class="ShippingService"></select>
+			<select name="ShippingDetails.ShippingServiceOptions.3.ShippingService" class="ShippingService"></select>
 			<b><s:text name="Cost"/></b>
-			<input name="ShippingCost.3" type="text" size="5">
+			<input name="ShippingDetails.ShippingServiceOptions.3.ShippingServiceCost.@currencyID" type="text" size="5">
 			<a href="" class="ShippingService3">Remove service</a>
 			</div>
 			

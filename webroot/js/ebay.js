@@ -48,8 +48,9 @@ $.fn.extractObject = function() {
 				accum[namev[0]] = value;
 			}
 		} else {
-			if (accum[namev[0]] == null)
+			if (accum[namev[0]] == null) {
 				accum[namev[0]] = {};
+			}
 			add(accum[namev[0]], namev.slice(1), value);
 		}
 	}; 
@@ -885,9 +886,13 @@ if (false) {
 		// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
 		postdata = $('input:text, input:checked, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).extractObject();
+		
+		postdata = $('select[name^=Shipping]',
+					 $(this).closest('div.detail')).extractObject();
+		
 		postdata = JSON.stringify(postdata);
-		//dump(postdata);
-		//return false;
+		dump(postdata);
+		return false;
 		
 		$.post('/json/save',
 			   'id='+id+'&json='+postdata,
