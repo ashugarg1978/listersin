@@ -2,13 +2,7 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import java.io.*;
-import java.net.URL;
 import java.util.*;
-import java.util.concurrent.*;
-import javax.net.ssl.HttpsURLConnection;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
-import net.sf.json.xml.XMLSerializer;
 
 public class GetCategoryFeatures extends ApiCall {
 	
@@ -24,7 +18,6 @@ public class GetCategoryFeatures extends ApiCall {
 			
 			String  site   = row.get("Site").toString();
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
-			log(site+"("+siteid+")");
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));

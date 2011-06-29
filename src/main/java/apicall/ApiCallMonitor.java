@@ -11,14 +11,12 @@ public class ApiCallMonitor extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		log("ApiCallMonitor start.");
 		
 		String logstr = "";
 		String logstrprev = "";
 		
 		while (true) {
-			
-			Date now = new Date();
 			
 			logstr = pool18.getActiveCount()
 				+ " : "+pool18.getCompletedTaskCount()
@@ -37,7 +35,10 @@ public class ApiCallMonitor extends ApiCall {
 			
 			Thread.sleep(1000);
 			
-			if (pool18.isTerminated()) break;
+			if (pool18.isTerminated()) {
+				log("ApiCallMonitor stop.");
+				break;
+			}
 		}
 		
 		return "";

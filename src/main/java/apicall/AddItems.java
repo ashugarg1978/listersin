@@ -265,29 +265,6 @@ public class AddItems extends ApiCall {
 		return "";
 	}
 	
-	private HashMap<String,String> getUserIdToken(String email) throws Exception {
-		
-		HashMap<String,String> hashmap = new HashMap<String,String>();
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
-			
-		if (user.containsField("userids")) {
-			BasicDBObject userids = (BasicDBObject) user.get("userids");
-			for (Object userid : userids.keySet()) {
-				
-				String token =
-					((BasicDBObject) userids.get(userid.toString())).getString("eBayAuthToken");
-				
-				hashmap.put(userid.toString(), token);
-			}
-		}
-		
-		return hashmap;
-	}
-	
 	/**
 	 * XML Validation
 	 * ref: http://java.sun.com/developer/technicalArticles/xml/validationxpath/

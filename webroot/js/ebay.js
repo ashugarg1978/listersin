@@ -29,9 +29,8 @@ $(document).bind({
 $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
-		
-		if (value == null) return;
-		if (value == '') return;
+		//if (value == null) return;
+		//if (value == '') return;
 		
 		if (namev.length == 1) {
 			if (namev[0] == '') return;
@@ -872,6 +871,18 @@ if (false) {
 			}
 		});
 		
+		/*
+		tmpdmp = '';
+		$('input:text, input:checked, input:hidden, select, textarea',
+		  $(this).closest('div.detail')).each(function(k, v) {
+			  tmpdmp += $(v).attr('name')+'<br>';
+			  dump(tmpdmp);
+		  });
+		return false;
+		*/
+		
+		// todo: Why Opera can't include <select> tags?
+		// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
 		postdata = $('input:text, input:checked, input:hidden, select, textarea',
 					 $(this).closest('div.detail')).extractObject();
 		postdata = JSON.stringify(postdata);

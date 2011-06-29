@@ -1,15 +1,9 @@
 package ebaytool.apicall;
 
 import com.mongodb.*;
-import com.mongodb.util.*;
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
-import javax.net.ssl.HttpsURLConnection;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONArray;
-import net.sf.json.xml.XMLSerializer;
 
 public class GeteBayDetails extends ApiCall {
 	

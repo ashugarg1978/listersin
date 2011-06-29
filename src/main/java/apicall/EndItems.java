@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 public class EndItems extends ApiCall {
 	
+	private String email;
 	private String userid;
 	private String site;
 	private String chunkidx;
@@ -28,24 +29,26 @@ public class EndItems extends ApiCall {
 	public EndItems() throws Exception {
 	}
 	
+	public EndItems(String email) throws Exception {
+		this.email = email;
+	}
+	
 	public String call() throws Exception {
 		
 		String userid;
 		String site;
-		HashMap<String,String> tokenmap = getUserIdToken();
-		
-		DBCollection coll = db.getCollection("items");
+		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
 		BasicDBObject query = new BasicDBObject();
-		//query.put("ext.labels.deleted", new BasicDBObject("$exists", 0));
+		query.put("ext.deleted", new BasicDBObject("$exists", 0));
 		query.put("ext.status", "end");
-		//query.put("ItemID", new BasicDBObject("$exists", 0));
+		query.put("ItemID", new BasicDBObject("$exists", 1));
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("ext.status", "ending"));
 		
+		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update, false, true);
-		System.out.println("WriteResult: "+result);
 		
 		query.put("ext.status", "ending");
 		
@@ -102,15 +105,14 @@ public class EndItems extends ApiCall {
 						String id     = ((BasicDBObject) tmpidx).get("_id").toString();
 						String itemid = ((BasicDBObject) tmpidx).get("ItemID").toString();
 						
-						System.out.println(tmpuserid
-										   +" "+tmpsite
-										   +" "+tmpchunk+"."+messageid
-										   +":"+itemid);
+						log(tmpuserid
+							+" "+tmpsite
+							+" "+tmpchunk+"."+messageid
+							+":"+itemid);
 						
 						ldbo.add(new BasicDBObject("MessageID", id)
 								 .append("ItemID", itemid)
 								 .append("EndingReason", "NotAvailable"));
-						
 					}
 					
 					requestdbo.append("EndItemRequestContainer", ldbo);
@@ -124,38 +126,13 @@ public class EndItems extends ApiCall {
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
 					
-					writelog("EIs.req"
+					writelog("EIs"
 							 +"."+((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".xml", requestxml);
 					
-					ecs18.submit(new ApiCallTask(0, requestxml, "EndItems"));
-					
-				}
-			}
-		}
-		
-		// each userid
-		for (String tmpuserid : lhm.keySet()) {
-			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
-			
-			// each site
-			for (Object tmpsite : lhmuserid.keySet()) {
-				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
-				
-				// each chunk
-				for (Object tmpchunk : lhmsite.keySet()) {
-					List litems = (List) lhmsite.get(tmpchunk);
-					
-					String responsexml = ecs18.take().get();
-					callback(responsexml);
-					
-					writelog("EIs.res"
-							 +"."+((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", responsexml);
+					pool18.submit(new ApiCallTask(0, requestxml, "EndItems"));
 				}
 			}
 		}
@@ -167,15 +144,15 @@ public class EndItems extends ApiCall {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
-		System.out.println(responsedbo.get("Ack").toString());
+		log(responsedbo.get("Ack").toString());
 		
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBList dbl = (BasicDBList) responsedbo.get("EndItemResponseContainer");
 		for (Object item : dbl) {
 			
-			String id        = ((BasicDBObject) item).getString("CorrelationID");
-			String endtime   = ((BasicDBObject) item).getString("EndTime");
+			String id      = ((BasicDBObject) item).getString("CorrelationID");
+			String endtime = ((BasicDBObject) item).getString("EndTime");
 			
 			BasicDBObject upditem = new BasicDBObject();
 			upditem.put("ListingDetails.EndTime", endtime);
@@ -188,33 +165,8 @@ public class EndItems extends ApiCall {
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
-			System.out.println(id+" : "+result);
-			
 		}
 		
 		return "";
 	}
-	
-	private HashMap<String,String> getUserIdToken() throws Exception {
-		
-		HashMap<String,String> hm = new HashMap<String,String>();
-		
-		DBCursor cur = db.getCollection("users").find();
-		while (cur.hasNext()) {
-			DBObject user = cur.next();
-			BasicDBObject userids = (BasicDBObject) user.get("userids");
-			
-			for (Object userid : userids.keySet()) {
-				
-				String ebaytkn = 
-					((BasicDBObject) userids.get(userid.toString())).get("eBayAuthToken").toString();
-				
-				hm.put(userid.toString(), ebaytkn);
-			}
-			
-		}
-		
-		return hm;
-	}
-	
 }
