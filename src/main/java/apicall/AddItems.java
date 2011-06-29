@@ -202,6 +202,8 @@ public class AddItems extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
+		writelog("AIs.xml", responsexml);
+		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		String ack = responsedbo.get("Ack").toString();

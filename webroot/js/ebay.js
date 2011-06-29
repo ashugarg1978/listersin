@@ -30,9 +30,10 @@ $.fn.extractObject = function() {
 	var accum = {};
 	function add(accum, namev, value) {
 		//if (value == null) return;
-		//if (value == '') return;
+		if (value == '') return;
 		
 		if (namev.length == 1) {
+			
 			if (namev[0] == '') return;
 			
 			// todo: build array. ex:PaymentMethods
@@ -47,10 +48,23 @@ $.fn.extractObject = function() {
 			} else {
 				accum[namev[0]] = value;
 			}
+			
 		} else {
-			if (accum[namev[0]] == null) {
-				accum[namev[0]] = {};
+			
+			/*
+			if ($.isArray(accum)) {
+				msg('A:'+namev);
 			}
+			*/
+			
+			if (accum[namev[0]] == null) {
+				if (namev[1].match(/^[0-9]+$/)) {
+					accum[namev[0]] = new Array();
+				} else {
+					accum[namev[0]] = {};
+				}
+			}
+			
 			add(accum[namev[0]], namev.slice(1), value);
 		}
 	}; 
@@ -847,6 +861,16 @@ if (false) {
 		});
 		
 //		$('td.shippingservice', '#'+id).append(getshippingservice(id));
+
+		/* Handling time */
+		$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
+			option = $('<option/>').val(k).text(v);
+			if (item.DispatchTimeMax == k) {
+				option.attr('selected', 'selected');
+			}
+			$('select[name=DispatchTimeMax]').append(option);
+		});
+		
 		
 		return false;
 	});
@@ -884,15 +908,13 @@ if (false) {
 		
 		// todo: Why Opera can't include <select> tags?
 		// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
-		postdata = $('input:text, input:checked, input:hidden, select, textarea',
+		//postdata = $('input:text, input:checked, input:hidden, select, textarea',
+		postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 					 $(this).closest('div.detail')).extractObject();
 		
-		postdata = $('select[name^=Shipping]',
-					 $(this).closest('div.detail')).extractObject();
-		
+		//dump(postdata);
 		postdata = JSON.stringify(postdata);
-		dump(postdata);
-		return false;
+		//return false;
 		
 		$.post('/json/save',
 			   'id='+id+'&json='+postdata,
