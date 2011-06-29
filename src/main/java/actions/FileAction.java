@@ -1,7 +1,5 @@
 package ebaytool.actions;
 
-//import com.opensymphony.xwork2.ActionContext;
-//import com.opensymphony.xwork2.ActionSupport;
 import ebaytool.actions.BaseAction;
 import java.io.File;
 import java.util.Map;
@@ -22,7 +20,7 @@ public class FileAction extends BaseAction {
 	public String upload() throws Exception {
 		
 		String fileindex = ((String[]) parameters.get("fileindex"))[0];
-		String id = ((String[]) parameters.get("id"))[0];
+		String id        = ((String[]) parameters.get("id"))[0];
 		
 		String savedir = "/var/www/ebaytool.jp/webroot/itemimage";
 		

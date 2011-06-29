@@ -115,6 +115,10 @@ public class PageAction extends BaseAction {
 		user = new BasicDBObject();
 		user.put("sessionid", sessionid);
 		
+		// todo: redirect
+		//@Result(location="${url}", type="redirect")                                       
+		//The ${url} means "use the value of the getUrl method"                             
+								
 		return SUCCESS;
 	}
 	

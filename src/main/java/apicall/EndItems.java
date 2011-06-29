@@ -40,9 +40,9 @@ public class EndItems extends ApiCall {
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
 		BasicDBObject query = new BasicDBObject();
+		query.put("ItemID",      new BasicDBObject("$exists", 1));
 		query.put("ext.deleted", new BasicDBObject("$exists", 0));
 		query.put("ext.status", "end");
-		query.put("ItemID", new BasicDBObject("$exists", 1));
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("ext.status", "ending"));
