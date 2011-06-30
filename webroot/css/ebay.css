@@ -218,16 +218,16 @@ div#paging a {
 }
 
 tbody#rowtemplate {
-	/* display: none; */
+  display: none;
 }
 
 div.detail {
-	/* display: none; */
-	margin-bottom: 10px;
+  display: none;
+  margin-bottom: 10px;
 }
 
 div#editform {
-	/* display: none; */
+  display: none;
 }
 
 iframe.description {
@@ -350,11 +350,11 @@ div.tabContainer {
 }
 
 div.tabContainer div.tab {
-	/* display: none; */
+  display: none;
 }
 
 div.tabContainer div.current {
-	display: block;
+  display: block;
 }
 
 img.PictureDetails_PictureURL {

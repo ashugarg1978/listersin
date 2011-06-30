@@ -32,6 +32,7 @@ $.fn.extractObject = function() {
 	
 	function add(accum, namev, value) {
 		if (value == '') return;
+		if (value == null) return;
 		
 		if (namev.length == 1) {
 			
@@ -852,9 +853,19 @@ var clickEdit = function() {
 	getshippingservice(id)
 	if ($.isArray(item.ShippingDetails.ShippingServiceOptions)) {
 		
+		$.each(item.ShippingDetails.ShippingServiceOptions, function(i, o) {
+			//$('input[name="ShippingDetails.ShippingServiceOptions.'+i+'.ShippingServiceCost.@currencyID"]')
+		});
+		
 	} else {
+		sdsso = item.ShippingDetails.ShippingServiceOptions;
+		
+		$('input[name="ShippingDetails.ShippingServiceOptions.0.ShippingServiceCost.@currencyID"]', dom).val(sdsso.ShippingServiceCost['@currencyID']);
+		
+		$('input[name="ShippingDetails.ShippingServiceOptions.0.ShippingServiceCost.#text"]', dom).val(sdsso.ShippingServiceCost['#text']);
 		
 	}
+	
 	
 	/* Handling time */
 	$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
