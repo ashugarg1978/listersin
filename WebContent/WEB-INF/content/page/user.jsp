@@ -25,7 +25,9 @@
 
 <div style="font-size:11px; margin-right:10px;">
 <b>${user.email}</b><br>
-<div style="text-align:right;"><a href="/page/logout"><s:text name="signout"/></a></div>
+<div style="text-align:right;">
+  <a href="/page/logout"><s:text name="signout"/></a>
+</div>
 </div>
 
 <br>
@@ -55,13 +57,13 @@
 <select name="UserID">
 <option value="">User ID</option>
 <s:iterator value="user.userids.keySet">
-<option><s:property /></option>
+  <option><s:property /></option>
 </s:iterator>
 </select><br>
 
 <select name="daterange">
-<option value="Start">StartTime</option>
-<option value="End">EndTime</option>
+  <option value="Start">StartTime</option>
+  <option value="End">EndTime</option>
 </select>
 
 <input type="text" name="from" size="12" value=""><br>
@@ -73,26 +75,26 @@
 <div id="debugseparator"></div>
 
 <table id="hiddenforms">
-  <tr>
-	<td>offset</td>
-	<td><input type="text" class="filter" name="offset" value="0" size="3"></td>
-  </tr>
-  <tr>
-	<td>limit</td>
-	<td><input type="text" class="filter" name="limit" value="20" size="3"></td>
-  </tr>
-  <tr>
-	<td>selling</td>
-	<td><input type="text" class="filter" name="selling" value="active" size="13"></td>
-  </tr>
-  <tr>
-	<td>sort</td>
-	<td><input type="text" class="filter" name="sort" value="ListingDetails_EndTime" size="13"></td>
-  </tr>
-  <tr>
-	<td>allpages</td>
-	<td><input type="checkbox" class="filter" name="allpages" value="1"></td>
-  </tr>
+<tr>
+  <td>offset</td>
+  <td><input type="text" class="filter" name="offset" value="0" size="3"></td>
+</tr>
+<tr>
+  <td>limit</td>
+  <td><input type="text" class="filter" name="limit" value="20" size="3"></td>
+</tr>
+<tr>
+  <td>selling</td>
+  <td><input type="text" class="filter" name="selling" value="active" size="13"></td>
+</tr>
+<tr>
+  <td>sort</td>
+  <td><input type="text" class="filter" name="sort" value="ListingDetails_EndTime" size="13"></td>
+</tr>
+<tr>
+  <td>allpages</td>
+  <td><input type="checkbox" class="filter" name="allpages" value="1"></td>
+</tr>
 </table>
 
 <br>
@@ -114,15 +116,15 @@
 <div id="content">
 
 <div id="bulkbuttons" style="float:left; margin:10px;">
-<input  type="button" class="checkall"     value="<s:text name="checkall"/>"
-><input type="button" class="checkallpage" value="<s:text name="checkallpage"/>"
-><input type="button" class="uncheckall"   value="<s:text name="uncheckall"/>">&nbsp;
-<input  type="button" class="edit"         value="<s:text name="edit"/>"
-><input type="button" class="copy"         value="<s:text name="copy"/>"
-><input type="button" class="delete"       value="<s:text name="delete"/>">&nbsp;
-<input  type="button" class="relist"       value="<s:text name="relist"/>"
-><input type="button" class="revise"       value="<s:text name="revise"/>"
-><input type="button" class="end"          value="<s:text name="end"/>">
+<input type="button" class="checkall"     value="<s:text name="checkall"/>">
+<input type="button" class="checkallpage" value="<s:text name="checkallpage"/>">
+<input type="button" class="uncheckall"   value="<s:text name="uncheckall"/>">
+<input type="button" class="edit"         value="<s:text name="edit"/>">
+<input type="button" class="copy"         value="<s:text name="copy"/>">
+<input type="button" class="delete"       value="<s:text name="delete"/>">
+<input type="button" class="relist"       value="<s:text name="relist"/>">
+<input type="button" class="revise"       value="<s:text name="revise"/>">
+<input type="button" class="end"          value="<s:text name="end"/>">
 </div>
 
 <div id="paging"></div>
@@ -132,28 +134,28 @@
 <table id="items" class="items">
 <thead>
 <tr>
-	<th></th>
-	<th align="left"><s:text name="title"/></th>
-	<th align="left"><s:text name="account"/></th>
-	<th align="left"><s:text name="itemid"/></th>
-	<th align="right"><s:text name="now"/></th>
-	<th align="right"><s:text name="end"/></th>
-	<th align="left"><s:text name="pict"/></th>
+  <th></th>
+  <th align="left"><s:text name="title"/></th>
+  <th align="left"><s:text name="account"/></th>
+  <th align="left"><s:text name="itemid"/></th>
+  <th align="right"><s:text name="now"/></th>
+  <th align="right"><s:text name="end"/></th>
+  <th align="left"><s:text name="pict"/></th>
 </tr>
 </thead>
 
 <tr id="filter">
 <td></td>
 <td>
-	<input type="text" class="filter" name="Title" value="" size="40">
+  <input type="text" class="filter" name="Title" value="" size="40">
 </td>
 <td>
-	<select class="filter" name="UserID" onchange="filter();">
+  <select class="filter" name="UserID" onchange="filter();">
 	<option value="">User ID</option>
 	<s:iterator value="user.userids.keySet">
-	<option><s:property /></option>
+	  <option><s:property /></option>
 	</s:iterator>
-	</select>
+  </select>
 </td>
 <td><input type="text" class="filter" name="ItemID" size="10"></td>
 <td></td>
@@ -163,22 +165,22 @@
 
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
-	<td><input type="checkbox" name="id"></td>
-	<td><div class="titlewrap"><a href="" class="Title"></a><div class="labelwrap"></div></div></td>
-	<td class="UserID"></td>
-	<td><a href="" class="ItemID" target="_blank"></a></td>
-	<td class="price"></td>
-	<td class="EndTime"></td>
-	<td align="center" valign="middle"><img class="PictureURL" height="15"></td>
+  <td><input type="checkbox" name="id"></td>
+  <td><div class="titlewrap"><a href="" class="Title"></a><div class="labelwrap"></div></div></td>
+  <td class="UserID"></td>
+  <td><a href="" class="ItemID" target="_blank"></a></td>
+  <td class="price"></td>
+  <td class="EndTime"></td>
+  <td align="center" valign="middle"><img class="PictureURL" height="15"></td>
 </tr>
 <tr class="row2"><td colspan="7"></td></tr>
 </tbody>
 
 <tbody id="rowloading">
 <tr>
-	<td colspan="8" align="center" style="height:200px;">
-		<s:text name="LoadingItemData"/>
-	</td>
+  <td colspan="8" align="center" style="height:200px;">
+	<s:text name="LoadingItemData"/>
+  </td>
 </tr>
 </tbody>
 
@@ -201,84 +203,73 @@
 </ul>
 
 <ul class="editbuttons">
-<li><a href="#" class="edit"  >Edit</a></li>
-<li><a href="#" class="copy"  >Copy</a></li>
+<li><a href="#" class="edit">Edit</a></li>
+<li><a href="#" class="copy">Copy</a></li>
 <li><a href="#" class="delete">Delete</a></li>
 <li><a href="#" class="relist">(Re)List</a></li>
 <li><a href="#" class="revise">Revise</a></li>
-<li><a href="#" class="end"   >End</a></li>
+<li><a href="#" class="end">End</a></li>
 <li style="display:none;"><a href="#" class="save">Save</a></li>
 <li style="display:none;"><a href="#" class="cancel">Cancel</a></li>
 </ul>
  
 <div class="tabContainer">
+
 <div class="tab current">
 <table class="detail">
-  <tbody>
-	<tr>
-	  <td><s:text name="title"/></td>
-	  <td><input name="Title" type="text" size="60"></td>
-	</tr>
-	<tr>
-	  <td><s:text name="subtitle"/></td>
-	  <td><input name="SubTitle" type="text" size="60"></td>
-	</tr>
-	<tr>
-	  <td><s:text name="Site"/></td>
-	  <td>
-		<select name="Site"></select>
-	  </td>
-	</tr>
-	<tr>
-	  <td><s:text name="Category"/></td>
-	  <td class="category">
-		<select class="category"></select>
-	  </td>
-	</tr>
-	<tr>
-	  <td><s:text name="StartPrice"/></td>
-	  <td>
-		<input name="StartPrice.@currencyID" type="text" size="3">
-		<input name="StartPrice.#text" type="text" size="10">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		<s:text name="Quantity"/>
-	  </td>
-	  <td>
-		<input name="Quantity" type="text" size="5">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		<s:text name="ListingType"/>
-	  </td>
-	  <td>
-		<select name="ListingType">
-		  <option value="Chinese">Online Auction</option>  
-		  <option value="FixedPriceItem">Fixed Price</option>
-		  <option value="LeadGeneration">Classified Ad</option>
-		</select>
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		<s:text name="ListingDuration"/>
-	  </td>
-	  <td class="duration">
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-		<s:text name="PaymentMethods"/>
-	  </td>
-	  <td class="paymentmethod">
-	  </td>
-	</tr>
-  </tbody>
+<tbody>
+<tr>
+  <td><s:text name="title"/></td>
+  <td><input name="Title" type="text" size="60"></td>
+</tr>
+<tr>
+  <td><s:text name="subtitle"/></td>
+  <td><input name="SubTitle" type="text" size="60"></td>
+</tr>
+<tr>
+  <td><s:text name="Site"/></td>
+  <td><select name="Site"></select></td>
+</tr>
+<tr>
+  <td><s:text name="Category"/></td>
+  <td class="category">
+	<select name="PrimaryCategory.CategoryID"></select>
+  </td>
+</tr>
+<tr>
+  <td><s:text name="StartPrice"/></td>
+  <td>
+	<input name="StartPrice.@currencyID" type="text" size="3">
+	<input name="StartPrice.#text" type="text" size="10">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Quantity"/></td>
+  <td><input name="Quantity" type="text" size="5"></td>
+</tr>
+<tr>
+  <td><s:text name="ListingType"/></td>
+  <td>
+	<select name="ListingType">
+	  <option value="Chinese">Online Auction</option>  
+	  <option value="FixedPriceItem">Fixed Price</option>
+	  <option value="LeadGeneration">Classified Ad</option>
+	</select>
+  </td>
+</tr>
+<tr>
+  <td><s:text name="ListingDuration"/></td>
+  <td><select name="ListingDuration"></select></td>
+</tr>
+<tr>
+  <td><s:text name="PaymentMethods"/></td>
+  <td class="paymentmethod">
+  </td>
+</tr>
+</tbody>
 </table>
 </div>
+
 <div class="tab">
   <div class="description">
 	<textarea name="Description" cols="100" rows="10"></textarea>
@@ -311,147 +302,115 @@
 	</tr>
 	</table>
 	</form>
+	
 	<s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
 	  <input type="text" name="PictureDetails.PictureURL" size="40"><br>
 	</s:iterator>
   </div>
 </div>
+
 <div class="tab">
-  <div class="shipping">
-	<table class="detail">
-	  <tbody>
-		<tr>
-		  <td>
-			<s:text name="Shippingtype"/>
-		  </td>
-		  <td class="shippingtype_domestic">
-			<select name="ShippingDetails.ShippingType.domestic">
-			  <option value="Flat">Flat: same cost to all buyers</option>
-			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
-			  <option value="Freight">Freight: large items over 150 lbs.</option>
-			  <option value="NoShipping">No shipping: Local pickup only</option>
-			</select>
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<s:text name="Packagetype"/>
-		  </td>
-		  <td class="shippingpackage">
-		  	<select name="ShippingPackage"></select>
-			<input name="x" type="checkbox">Irregular package
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<s:text name="Dimensions"/>
-		  </td>
-		  <td class="dimensions">
-			<input name="ShippingDetails.CalculatedShippingRate.PackageLength.#text"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.PackageLength.@unit"
-				   type="text" size="3">
-			x
-			<input name="ShippingDetails.CalculatedShippingRate.PackageWidth.#text"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.PackageWidth.@unit"
-				   type="text" size="3">
-			x
-			<input name="ShippingDetails.CalculatedShippingRate.PackageDepth.#text"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.PackageDepth.@unit"
-				   type="text" size="3">
-			
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<s:text name="Weight"/>
-		  </td>
-		  <td class="weight">
-			<input name="ShippingDetails.CalculatedShippingRate.WeightMajor.#text"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.WeightMajor.@unit"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.WeightMinor.#text"
-				   type="text" size="3">
-			<input name="ShippingDetails.CalculatedShippingRate.WeightMinor.@unit"
-				   type="text" size="3">
-		  </td>
-		</tr>
-		<tr>
-		  <td><s:text name="Services"/></td>
-		  <td class="shippingservice">
-			
-			<div class="ShippingService">
-			<select name="ShippingDetails.ShippingServiceOptions.0.ShippingService" class="ShippingService"></select>
-			<b><s:text name="Cost"/></b>
-			<input name="ShippingDetails.ShippingServiceOptions.0.ShippingServiceCost.@currencyID" type="text" size="5">
-			<input name="ShippingFree" value="1" type="checkbox">Free shipping
-			</div>
-			
-			<div class="ShippingService">
-			<select name="ShippingDetails.ShippingServiceOptions.1.ShippingService" class="ShippingService"></select>
-			<b><s:text name="Cost"/></b>
-			<input name="ShippingDetails.ShippingServiceOptions.1.ShippingServiceCost.@currencyID" type="text" size="5">
-			<a href="" class="ShippingService2">Remove service</a>
-			</div>
-			
-			<div class="ShippingService">
-			<select name="ShippingDetails.ShippingServiceOptions.2.ShippingService" class="ShippingService"></select>
-			<b><s:text name="Cost"/></b>
-			<input name="ShippingDetails.ShippingServiceOptions.2.ShippingServiceCost.@currencyID" type="text" size="5">
-			<a href="" class="ShippingService3">Remove service</a>
-			</div>
-			
-		  </td>
-		</tr>
-		<tr>
-		  <td>
-			<s:text name="Handlingtime"/>
-		  </td>
-		  <td>
-			<select name="DispatchTimeMax">
-			  <option value=""></option>
-			</select>
-		  </td>
-		</tr>
-		<tr>
-		  <td colspan="2" style="text-align:left;">
-			International shipping
-		  </td>
-		</tr>
-		<tr>
-		  <td><s:text name="Shippingtype"/></td>
-		  <td class="shippingtype_international">
-		  	
-			<select name="ShippingDetails.ShippingType.international">
-			  <option value="Flat">Flat: same cost to all buyers</option>
-			  <option value="Calculated">Calculated: Cost varies by buyer location</option>
-			  <option value="NoShipping">No international shipping</option>
-			</select>
-			
-		  </td>
-		</tr>
-		<tr>
-		  <td><s:text name="Services"/></td>
-		  <td class="intlshippingservice">
-		  </td>
-		</tr>
-		<tr>
-		  <td><s:text name="Shipto"/></td>
-		  <td class="shipto">
-			
-		  </td>
-		</tr>
-	  </tbody>
-	</table>
-  </div>
+<div class="shipping">
+<table class="detail">
+<tbody>
+<tr>
+  <td><s:text name="Shippingtype"/></td>
+  <td class="shippingtype_domestic">
+	<select name="ShippingDetails.ShippingType.domestic">
+	  <option value="Flat">Flat: same cost to all buyers</option>
+	  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+	  <option value="Freight">Freight: large items over 150 lbs.</option>
+	  <option value="NoShipping">No shipping: Local pickup only</option>
+	</select>
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Packagetype"/></td>
+  <td class="shippingpackage">
+	<select name="ShippingPackage"></select>
+	<input name="irregularpackage" type="checkbox">Irregular package
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Dimensions"/></td>
+  <td class="dimensions">
+	<input name="<s:text name="_SDCSR"/>.PackageLength.#text" type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.PackageLength.@unit" type="text" size="3"> x
+	<input name="<s:text name="_SDCSR"/>.PackageWidth.#text"  type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.PackageWidth.@unit"  type="text" size="3"> x
+	<input name="<s:text name="_SDCSR"/>.PackageDepth.#text"  type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.PackageDepth.@unit"  type="text" size="3">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Weight"/></td>
+  <td class="weight">
+	<input name="<s:text name="_SDCSR"/>.WeightMajor.#text" type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.WeightMajor.@unit" type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.WeightMinor.#text" type="text" size="3">
+	<input name="<s:text name="_SDCSR"/>.WeightMinor.@unit" type="text" size="3">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Services"/></td>
+  <td class="shippingservice">
+	
+	<s:iterator value="{0,1,2}">
+	  <div class="ShippingService">
+		<select name="<s:text name="_SDSSO"/>.<s:property />.ShippingService"
+				class="ShippingService"></select>
+		<s:text name="Cost"/>
+		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.@currencyID"
+			   type="text" size="5">
+		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.#text"
+			   type="text" size="5">
+		<input name="ShippingFree" value="1" type="checkbox">Free shipping
+	  </div>
+	</s:iterator>
+	
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Handlingtime"/></td>
+  <td><select name="DispatchTimeMax"></select></td>
+</tr>
+<tr>
+  <td colspan="2" style="text-align:left;">
+	International shipping
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Shippingtype"/></td>
+  <td class="shippingtype_international">
+	
+	<select name="ShippingDetails.ShippingType.international">
+	  <option value="Flat">Flat: same cost to all buyers</option>
+	  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+	  <option value="NoShipping">No international shipping</option>
+	</select>
+	
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Services"/></td>
+  <td class="intlshippingservice">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Shipto"/></td>
+  <td class="shipto">
+  </td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 
 </div>
 </div>
+
+<div style="clear:both;"></div>
 
 <div id="debug"></div>
 

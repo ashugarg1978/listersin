@@ -24,12 +24,13 @@ $(document).bind({
 });
 
 /**
+ * Convert form elements into json format.
  * http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-object-with-inner-objects 
  */
 $.fn.extractObject = function() {
 	var accum = {};
+	
 	function add(accum, namev, value) {
-		//if (value == null) return;
 		if (value == '') return;
 		
 		if (namev.length == 1) {
@@ -51,12 +52,6 @@ $.fn.extractObject = function() {
 			
 		} else {
 			
-			/*
-			if ($.isArray(accum)) {
-				msg('A:'+namev);
-			}
-			*/
-			
 			if (accum[namev[0]] == null) {
 				if (namev[1].match(/^[0-9]+$/)) {
 					accum[namev[0]] = new Array();
@@ -68,11 +63,13 @@ $.fn.extractObject = function() {
 			add(accum[namev[0]], namev.slice(1), value);
 		}
 	}; 
+	
 	this.each(function() {
 		if ($(this).attr('name') != undefined) {
 			add(accum, $(this).attr('name').split('.'), $(this).val());
 		}
 	});
+	
 	return accum;
 };
 
@@ -339,7 +336,8 @@ function getdetail(row)
 	pmstr = pmstr.replace(/PayPal/, 'PayPal ('+row.PayPalEmailAddress+')');
 	$('td.paymentmethod', detail).html(pmstr);
 	
-	$('td.duration', detail).text(getListingDurationLabel(row.ListingDuration));
+	$('select[name=ListingDuration]', detail)
+		.replaceWith(getListingDurationLabel(row.ListingDuration));
 	
 	$('td.category', detail).html(row.ext.categoryname);
 	
@@ -551,10 +549,18 @@ function resizediv()
 
 function bindevents()
 {
-	/* Window Resize */
-	$(window).resize(function() {
-		resizediv();
-	});
+	$(window).resize(resizediv);
+	
+	$('a.Title').live('click', clickTitle);
+	
+	$('select[name=Site]').live('change', changeSite);
+	$('select.category').live('change', changeCategory);
+	
+	$('ul.editbuttons > li > a.edit',   'div.detail').live('click', clickEdit);
+	$('ul.editbuttons > li > a.save',   'div.detail').live('click', clickSave);
+	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', clickCancel);
+	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', clickDelete);
+	$('ul.editbuttons > li > a.copy',   'div.detail').live('click', clickCopy);
 	
 	/* Bulk Buttons */
 	$('div#bulkbuttons > input').live('click', function() {
@@ -649,37 +655,6 @@ function bindevents()
 		$(idform).remove();
     });
     
-	/* Site */
-	$('select[name=Site]').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		site = $(this).val();
-		
-		sel = getcategorypulldown(site, 0);
-		$('td.category', '#'+id).html(sel);
-		
-		if (!hash[site]['category']['grandchildren'][0]) preloadcategory(site, []);
-		
-		return;
-	});
-	
-	/* Category */
-	$('select.category').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		site = $('select[name=Site]', '#'+id).val();
-		
-		$(this).nextAll().remove();
-		msg(hash[site]['category']['children'][$(this).val()]);
-		if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
-			preloadcategory(site, [$(this).val()]);
-			sel = getcategorypulldown(site, $(this).val());
-			$('td.category', '#'+id).append(sel);
-		}
-		$('select.category',      '#'+id).attr('name', '');
-		$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
-		
-		return;
-	});
-	
 	$('select[name=ListingType]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		updateduration(id);
@@ -718,41 +693,6 @@ function bindevents()
 		return false;
 	});
 	
-	/* Title */
-	$('a.Title').live('click', function() {
-		
-		var id = $(this).closest('tbody').attr('id');
-		
-		if (!$('tr.row2 td', '#'+id).html().match(/^<div/i)) {
-			
-			detail = $('div.detail', 'div#detailtemplate').clone();
-			$('td:nth-child(2)', detail).hide();
-			$('tr.row2 td', '#'+id).html(detail);
-			$('div.detail', '#'+id).slideToggle('fast');
-			
-			$.post('/json/item',
-				   'id='+id,
-				   function(data) {
-					   dump(data.json.item);
-					   getdetail(data.json.item);
-					   $('td:nth-child(2)', '#'+id).fadeIn('fast');
-					   
-					   preloadcategory(data.json.item.Site, data.json.item.ext.categorypath);
-					   preloadcategoryfeatures(data.json.item.Site,
-											   data.json.item.PrimaryCategory.CategoryID);
-					   
-					   //preloadshippingtype(data.Site);
-					   rowsdata[id] = data.json.item;
-					   
-					   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
-				   },
-				   'json');
-		} else {	
-			$('div.detail', '#'+id).slideToggle('fast');
-		}
-		
-		return false;
-	});
 	
 	/* Paging */
 	$('#paging > a').live('click', function() {
@@ -764,194 +704,6 @@ function bindevents()
 		}
 		$('input[name=offset]').val(offset);
 		items();
-		return false;
-	});
-	
-	/* Edit */
-	$('ul.editbuttons > li > a.edit', 'div.detail').live('click', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		item = rowsdata[id];
-		dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
-		
-	    /* preserve selected tab */
-	    tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	    tabnum = tab.parent().prevAll().length + 1;
-		$('.tabNav', dom).children('.current').removeClass('current');
-		$('.tabContainer', dom).children('.current').hide();
-		$('.tabContainer', dom).children('.current').removeClass('current');
-	    $('.tabNav', dom).children('li:nth-child('+tabnum+')').addClass('current');
-	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
-	    $('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
-		
-		$('input[name=Title]',                    dom).val(item.Title);
-		$('input[name=SubTitle]',                 dom).val(item.SubTitle);
-		$('input[name="StartPrice.@currencyID"]', dom).val(item.StartPrice['@currencyID']);
-		$('input[name="StartPrice.#text"]',       dom).val(item.StartPrice['#text']);
-		$('input[name=Quantity]',                 dom).val(item.Quantity);
-		$('select[name=Site]',                    dom).val(item.Site);
-		$('select[name=ListingType]',             dom).val(item.ListingType);
-		
-		if (item.Description != null) {
-			$('textarea[name=Description]',   dom).val(item.Description);
-		}
-		
-		showbuttons(dom, 'save,cancel');
-		$('div.detail', 'tbody#'+id).replaceWith(dom);
-	    $('input[name=Title]', 'tbody#'+id).focus();
-		
-		// todo: compare to CKEditor
-		//$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
-		
-		/* category selector */
-		$('td.category', dom).html(getcategorypulldowns(item.Site, item.ext.categorypath));
-		$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
-		
-		/* pictures */
-		for (i=0; i<=11; i++) {
-			$('img.PD_PURL_'+i, dom).attr('id', 'PD_PURL_'+id+'_'+i);
-		}
-		if (typeof(item.PictureDetails.PictureURL) == 'string') {
-			$('img.PD_PURL_0', dom).attr('src', item.PictureDetails.PictureURL);
-			$('input[name="PictureDetails.PictureURL.0"]', dom).val(item.PictureDetails.PictureURL);
-		} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
-			$.each(item.PictureDetails.PictureURL, function(i, url) {
-				if (url == '') return;
-				$('img.PD_PURL_'+i, dom).attr('src', url);
-				$('input[name="PictureDetails.PictureURL.'+i+'"]', dom).val(url);
-			});
-		} 
-		
-		site = item.Site;
-		categoryid = item.PrimaryCategory.CategoryID;
-		
-if (false) {
-		/* pictures */
-		for (i=0; i<=11; i++) {
-			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
-			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
-		}
-	
-		$.each(rowsdata[id], function(colname, colval) {
-			$('input:text[name='+colname+']', dom).val(colval+'');
-		});
-}		
-		
-		/* listing duration */
-		tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
-		sel = $('<select/>').attr('name', 'ListingDuration');
-		$.each(tmpo[rowsdata[id]['ListingType']], function(k, v) {
-			opt = $('<option/>').val(k).text(v);
-			if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
-			sel.append(opt);
-		});
-		$('td.duration', dom).html(sel);
-		
-		/* payment method */
-		tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
-		i=0;
-		$.each(tmpo, function(k, v) {
-			//chk = $('<input/>').attr('name', 'PaymentMethods.'+i).attr('type', 'checkbox').val(v);
-			chk = $('<input/>').attr('name', 'PaymentMethods').attr('type', 'checkbox').val(v);
-			if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
-				chk.attr('checked', 'checked');
-			}
-			$('td.paymentmethod', dom).append(chk);
-			$('td.paymentmethod', dom).append(v+'<br>');
-			i++;
-		});
-		
-//		$('td.shippingservice', '#'+id).append(getshippingservice(id));
-		
-		/* Shipping */
-		getshippingservice(id)
-		if ($.isArray(item.ShippingDetails.ShippingServiceOptions)) {
-			
-		} else {
-			
-		}
-		
-		/* Handling time */
-		$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
-			option = $('<option/>').val(k).text(v);
-			if (item.DispatchTimeMax == k) {
-				option.attr('selected', 'selected');
-			}
-			$('select[name=DispatchTimeMax]').append(option);
-		});
-		
-		
-		return false;
-	});
-	
-	/* Save */
-	$('ul.editbuttons > li > a.save', 'div.detail').live('click', function() {
-		
-		id = $(this).closest('tbody.itemrow').attr('id');
-		detail = $(this).closest('div.detail');
-		
-		// todo: varidation check
-		if ($('select[name="PrimaryCategory.CategoryID"]', detail).val() == '') {
-			alert('category error.');
-			return false;
-		}
-		
-		$.each($('img.PictureDetails_PictureURL', detail), function(i, imgelm) {
-			imgsrc = $(imgelm).attr('src');
-			if (imgsrc == '/img/noimage.jpg') {
-				$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).remove();
-			} else {
-				$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).val(imgsrc);
-			}
-		});
-		
-		/*
-		tmpdmp = '';
-		$('input:text, input:checked, input:hidden, select, textarea',
-		  $(this).closest('div.detail')).each(function(k, v) {
-			  tmpdmp += $(v).attr('name')+'<br>';
-			  dump(tmpdmp);
-		  });
-		return false;
-		*/
-		
-		// todo: Why Opera can't include <select> tags?
-		// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
-		//postdata = $('input:text, input:checked, input:hidden, select, textarea',
-		postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
-					 $(this).closest('div.detail')).extractObject();
-		
-		//dump(postdata);
-		postdata = JSON.stringify(postdata);
-		//return false;
-		
-		$.post('/json/save',
-			   'id='+id+'&json='+postdata,
-			   function(data) {
-				   rowsdata[id] = data.json.item;
-				   dump(data.json);
-				   getdetail(data.json.item);
-				   showbuttons(detail, 'edit,copy,delete');
-			   },
-			   'json');
-		
-		return false;
-	});
-	
-	/* Cancel */
-	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		getdetail(rowsdata[id]);
-		showbuttons(detail, 'edit,copy,delete');
-		return false;
-	});
-	
-	/* Delete */
-	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', function() {
-		return false;
-	});
-	
-	/* Copy */
-	$('ul.editbuttons > li > a.copy', 'div.detail').live('click', function() {
 		return false;
 	});
 	
@@ -983,6 +735,245 @@ if (false) {
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
+
+var changeCategory = function() {
+	id = $(this).closest('tbody.itemrow').attr('id');
+	site = $('select[name=Site]', '#'+id).val();
+	
+	$(this).nextAll().remove();
+	msg(hash[site]['category']['children'][$(this).val()]);
+	if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
+		preloadcategory(site, [$(this).val()]);
+		sel = getcategorypulldown(site, $(this).val());
+		$('td.category', '#'+id).append(sel);
+	}
+	$('select.category',      '#'+id).attr('name', '');
+	$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
+	
+	return;
+}
+
+var clickEdit = function() {
+	
+	id = $(this).closest('tbody.itemrow').attr('id');
+	item = rowsdata[id];
+	dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+	
+	/* preserve selected tab */
+	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
+	tabnum = tab.parent().prevAll().length + 1;
+	$('.tabNav',       dom).children('.current').removeClass('current');
+	$('.tabContainer', dom).children('.current').hide();
+	$('.tabContainer', dom).children('.current').removeClass('current');
+	$('.tabNav',       dom).children('li:nth-child('+tabnum+')').addClass('current');
+	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
+	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
+	
+	$('input[name=Title]',                    dom).val(item.Title);
+	$('input[name=SubTitle]',                 dom).val(item.SubTitle);
+	$('input[name="StartPrice.@currencyID"]', dom).val(item.StartPrice['@currencyID']);
+	$('input[name="StartPrice.#text"]',       dom).val(item.StartPrice['#text']);
+	$('input[name=Quantity]',                 dom).val(item.Quantity);
+	$('select[name=Site]',                    dom).val(item.Site);
+	$('select[name=ListingType]',             dom).val(item.ListingType);
+	
+	if (item.Description != null) {
+		$('textarea[name=Description]',   dom).val(item.Description);
+	}
+	
+	showbuttons(dom, 'save,cancel');
+	$('div.detail', 'tbody#'+id).replaceWith(dom);
+	$('input[name=Title]', 'tbody#'+id).focus();
+	
+	// todo: compare to CKEditor
+	//$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
+	
+	/* category selector */
+	$('td.category', dom).html(getcategorypulldowns(item.Site, item.ext.categorypath));
+	$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
+	
+	/* pictures */
+	for (i=0; i<=11; i++) {
+		$('img.PD_PURL_'+i, dom).attr('id', 'PD_PURL_'+id+'_'+i);
+	}
+	if (typeof(item.PictureDetails.PictureURL) == 'string') {
+		$('img.PD_PURL_0', dom).attr('src', item.PictureDetails.PictureURL);
+		$('input[name="PictureDetails.PictureURL.0"]', dom).val(item.PictureDetails.PictureURL);
+	} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
+		$.each(item.PictureDetails.PictureURL, function(i, url) {
+			if (url == '') return;
+			$('img.PD_PURL_'+i, dom).attr('src', url);
+			$('input[name="PictureDetails.PictureURL.'+i+'"]', dom).val(url);
+		});
+	} 
+	
+	site = item.Site;
+	categoryid = item.PrimaryCategory.CategoryID;
+	
+	if (false) {
+		/* pictures */
+		for (i=0; i<=11; i++) {
+			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
+			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
+		}
+		
+		$.each(rowsdata[id], function(colname, colval) {
+			$('input:text[name='+colname+']', dom).val(colval+'');
+		});
+	}		
+	
+	/* listing duration */
+	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
+	sel = $('<select/>').attr('name', 'ListingDuration');
+	$.each(tmpo[rowsdata[id]['ListingType']], function(k, v) {
+		opt = $('<option/>').val(k).text(v);
+		if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
+		sel.append(opt);
+	});
+	$('td.duration', dom).html(sel);
+	
+	/* payment method */
+	tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
+	i=0;
+	$.each(tmpo, function(k, v) {
+		//chk = $('<input/>').attr('name', 'PaymentMethods.'+i).attr('type', 'checkbox').val(v);
+		chk = $('<input/>').attr('name', 'PaymentMethods').attr('type', 'checkbox').val(v);
+		if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
+			chk.attr('checked', 'checked');
+		}
+		$('td.paymentmethod', dom).append(chk);
+		$('td.paymentmethod', dom).append(v+'<br>');
+		i++;
+	});
+	
+	//$('td.shippingservice', '#'+id).append(getshippingservice(id));
+	
+	/* Shipping */
+	getshippingservice(id)
+	if ($.isArray(item.ShippingDetails.ShippingServiceOptions)) {
+		
+	} else {
+		
+	}
+	
+	/* Handling time */
+	$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
+		option = $('<option/>').val(k).text(v);
+		if (item.DispatchTimeMax == k) {
+			option.attr('selected', 'selected');
+		}
+		$('select[name=DispatchTimeMax]').append(option);
+	});
+	
+	return false;
+}
+
+var clickSave = function() {
+	
+	id = $(this).closest('tbody.itemrow').attr('id');
+	detail = $(this).closest('div.detail');
+	
+	// todo: varidation check
+	if ($('select[name="PrimaryCategory.CategoryID"]', detail).val() == '') {
+		alert('category error.');
+		return false;
+	}
+	
+	$.each($('img.PictureDetails_PictureURL', detail), function(i, imgelm) {
+		imgsrc = $(imgelm).attr('src');
+		if (imgsrc == '/img/noimage.jpg') {
+			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).remove();
+		} else {
+			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).val(imgsrc);
+		}
+	});
+	
+	// todo: Why Opera can't include <select> tags?
+	// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
+	
+	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
+				 $(this).closest('div.detail')).extractObject();
+	
+	//dump(postdata);
+	//return false;
+	
+	postdata = JSON.stringify(postdata);
+	
+	$.post('/json/save',
+		   'id='+id+'&json='+postdata,
+		   function(data) {
+			   rowsdata[id] = data.json.item;
+			   dump(data.json);
+			   getdetail(data.json.item);
+			   showbuttons(detail, 'edit,copy,delete');
+		   },
+		   'json');
+	
+	return false;
+}
+
+var clickCancel = function() {
+	
+	id = $(this).closest('tbody.itemrow').attr('id');
+	getdetail(rowsdata[id]);
+	showbuttons(detail, 'edit,copy,delete');
+	
+	return false;
+}
+
+var clickDelete = function() {
+	return false;
+}
+
+var clickCopy = function() {
+	return false;
+}
+
+
+var changeSite = function() {
+	id = $(this).closest('tbody.itemrow').attr('id');
+	site = $(this).val();
+	
+	sel = getcategorypulldown(site, 0);
+	$('td.category', '#'+id).html(sel);
+	
+	if (!hash[site]['category']['grandchildren'][0]) preloadcategory(site, []);
+	
+	return;
+}
+
+var clickTitle = function() {
+	var id = $(this).closest('tbody').attr('id');
+	
+	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
+		$('div.detail', '#'+id).slideToggle('fast');
+		return false;
+	}
+	
+	detail = $('div.detail', 'div#detailtemplate').clone();
+	$('td:nth-child(2)', detail).hide();
+	$('tr.row2 td', '#'+id).html(detail);
+	$('div.detail', '#'+id).slideToggle('fast');
+	
+	$.post('/json/item',
+		   'id='+id,
+		   function(data) {
+			   item = data.json.item;
+			   dump(item);
+			   getdetail(item);
+			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
+			   
+			   preloadcategory(item.Site, item.ext.categorypath);
+			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
+			   //preloadshippingtype(item.Site);
+			   rowsdata[id] = item;
+			   
+			   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
+		   },
+		   'json');
+	
+	return false;
+}
 
 function getcategorypulldown(site, categoryid)
 {
