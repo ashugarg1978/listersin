@@ -861,7 +861,15 @@ if (false) {
 		});
 		
 //		$('td.shippingservice', '#'+id).append(getshippingservice(id));
-
+		
+		/* Shipping */
+		getshippingservice(id)
+		if ($.isArray(item.ShippingDetails.ShippingServiceOptions)) {
+			
+		} else {
+			
+		}
+		
 		/* Handling time */
 		$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
 			option = $('<option/>').val(k).text(v);
@@ -1174,8 +1182,9 @@ function updateduration(id)
 function getshippingservice(id)
 {
 	site = $('select[name=Site]', '#'+id).val();
-	type = $('select[name=ShippingDetails_ShippingType[domestic]]', '#'+id).val();
+	type = $('select[name="ShippingDetails.ShippingType.domestic"]', '#'+id).val();
 	
+	/*
 	if (type == 'Calculated') {
 		sel = $('<select class="ShippingPackage"/>');
 		$.each(hash[site]['ShippingPackageDetails'], function(i, o) {
@@ -1188,19 +1197,20 @@ function getshippingservice(id)
 		$('td.shippingpackage', '#'+id).children().hide();
 		$('td.dimensions',      '#'+id).children().hide();
 	}
+	*/
 	
-	
-	sel = $('<select class="ShippingService"/>');
+	select = $('<select/>');
 	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
 		if (o['ValidForSellingFlow'] != 'true') return;
 		if (o['ShippingServiceID'] >= 50000) return;
 		
 		if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
-			$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(sel);
+			$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(select);
 		}
 	});
-	$('select.ShippingService', '#'+id).html(sel.html());
-	//$('td.shippingservice', '#'+id).html(sel);
+	$('select[name="ShippingDetails.ShippingServiceOptions.0.ShippingService"]', '#'+id)
+		.html(select.html());
+	//$('td.shippingservice', '#'+id).html(select);
 	
 	return;
 }
