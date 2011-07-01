@@ -507,23 +507,6 @@ function getdetail(row)
 		$('td.intlshippingservice', detail).html(ssstr);
 	}	
 	
-	/* dimensions */
-	dmstr = '';
-	alert(row['ShippingDetails_CalculatedShippingRate_PackageDepth']);
-	if (row['ShippingDetails_CalculatedShippingRate_PackageDepth']) {
-		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageDepth']
-			+ row['ShippingDetails_CalculatedShippingRate_PackageDepth@unit'] + ' x ';
-	}
-	if (row['ShippingDetails_CalculatedShippingRate_PackageLength']) {
-		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageLength']
-			+ row['ShippingDetails_CalculatedShippingRate_PackageLength@unit'] + ' x ';
-	}
-	if (row['ShippingDetails_CalculatedShippingRate_PackageWidth']) {
-		dmstr += row['ShippingDetails_CalculatedShippingRate_PackageWidth']
-			+ row['ShippingDetails_CalculatedShippingRate_PackageWidth@unit'];
-	}
-	$('td.dimensions', detail).html(dmstr);
-	
 	
 	$.each(row, function(colname, colval) {
 		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
@@ -825,13 +808,9 @@ var clickEdit = function() {
 	
 	/* listing duration */
 	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
-	sel = $('<select/>').attr('name', 'ListingDuration');
-	$.each(tmpo[rowsdata[id]['ListingType']], function(k, v) {
-		opt = $('<option/>').val(k).text(v);
-		if (rowsdata[id]['ListingDuration'] == k) opt.attr('selected', 'selected');
-		sel.append(opt);
-	});
-	$('td.duration', dom).html(sel);
+	setoptiontags('ListingDuration',
+				  tmpo[rowsdata[id]['ListingType']],
+				  item.DispatchTimeMax);
 	
 	/* payment method */
 	tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
@@ -849,32 +828,53 @@ var clickEdit = function() {
 	
 	//$('td.shippingservice', '#'+id).append(getshippingservice(id));
 	
-	/* Shipping */
+	/* ShippingDetails */
+	sdsso = item.ShippingDetails.ShippingServiceOptions;
+	_sdsso = 'ShippingDetails.ShippingServiceOptions';
 	getshippingservice(id)
-	if ($.isArray(item.ShippingDetails.ShippingServiceOptions)) {
+	if ($.isArray(sdsso)) {
 		
-		$.each(item.ShippingDetails.ShippingServiceOptions, function(i, o) {
-			//$('input[name="ShippingDetails.ShippingServiceOptions.'+i+'.ShippingServiceCost.@currencyID"]')
+		$.each(sdsso, function(i, o) {
+			
+			if (o.ShippingServiceCost != null) {
+				$('input[name="'+_sdsso+'.'+i+'.ShippingServiceCost.@currencyID"]', dom)
+					.val(o.ShippingServiceCost['@currencyID']);
+				
+				$('input[name="'+_sdsso+'.'+i+'.ShippingServiceCost.#text"]', dom)
+					.val(o.ShippingServiceCost['#text']);
+			}
 		});
 		
 	} else {
-		sdsso = item.ShippingDetails.ShippingServiceOptions;
 		
-		$('input[name="ShippingDetails.ShippingServiceOptions.0.ShippingServiceCost.@currencyID"]', dom).val(sdsso.ShippingServiceCost['@currencyID']);
-		
-		$('input[name="ShippingDetails.ShippingServiceOptions.0.ShippingServiceCost.#text"]', dom).val(sdsso.ShippingServiceCost['#text']);
-		
+		if (sdsso.ShippingServiceCost != null) {
+			$('input[name="'+_sdsso+'.0.ShippingServiceCost.@currencyID"]', dom)
+				.val(sdsso.ShippingServiceCost['@currencyID']);
+			
+			$('input[name="'+_sdsso+'.0.ShippingServiceCost.#text"]', dom)
+				.val(sdsso.ShippingServiceCost['#text']);
+		}
 	}
 	
+	/* Dimensions */
+	sdcsr = item.ShippingDetails.CalculatedShippingRate;
+	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
+	$('input[name="'+_sdcsr+'.PackageLength.@unit"]').val(sdcsr.PackageLength['@unit']);
+	$('input[name="'+_sdcsr+'.PackageLength.#text"]').val(sdcsr.PackageLength['#text']);
+	$('input[name="'+_sdcsr+'.PackageWidth.@unit"]').val(sdcsr.PackageWidth['@unit']);
+	$('input[name="'+_sdcsr+'.PackageWidth.#text"]').val(sdcsr.PackageWidth['#text']);
+	$('input[name="'+_sdcsr+'.PackageDepth.@unit"]').val(sdcsr.PackageDepth['@unit']);
+	$('input[name="'+_sdcsr+'.PackageDepth.#text"]').val(sdcsr.PackageDepth['#text']);
+	$('input[name="'+_sdcsr+'.WeightMajor.@unit"]').val(sdcsr.WeightMajor['@unit']);
+	$('input[name="'+_sdcsr+'.WeightMajor.#text"]').val(sdcsr.WeightMajor['#text']);
+	$('input[name="'+_sdcsr+'.WeightMinor.@unit"]').val(sdcsr.WeightMinor['@unit']);
+	$('input[name="'+_sdcsr+'.WeightMinor.#text"]').val(sdcsr.WeightMinor['#text']);
 	
+
 	/* Handling time */
-	$.each(hash[site]['DispatchTimeMaxDetails'], function(k, v) {
-		option = $('<option/>').val(k).text(v);
-		if (item.DispatchTimeMax == k) {
-			option.attr('selected', 'selected');
-		}
-		$('select[name=DispatchTimeMax]').append(option);
-	});
+	setoptiontags('DispatchTimeMax',
+				  hash[site]['DispatchTimeMaxDetails'],
+				  item.DispatchTimeMax);
 	
 	return false;
 }
@@ -1227,4 +1227,15 @@ function getListingDurationLabel(str)
 		str = str.replace(/^Days_([\d]+)$/, "$1 Days");
 	}
 	return str;
+}
+
+function setoptiontags(formname, optionvalues, selectedvalue)
+{
+	$.each(optionvalues, function(k, v) {
+		option = $('<option/>').val(k).text(v);
+		if (selectedvalue == k) option.attr('selected', 'selected');
+		$('select[name='+formname+']').append(option);
+	});
+	
+	return;
 }
