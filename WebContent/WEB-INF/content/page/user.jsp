@@ -326,9 +326,9 @@
 </tr>
 <tr>
   <td><s:text name="Packagetype"/></td>
-  <td class="shippingpackage">
-	<select name="ShippingPackage"></select>
-	<input name="irregularpackage" type="checkbox">Irregular package
+  <td>
+	<select name="<s:text name="_SDCSR"/>.ShippingPackage"></select>
+	<input name="<s:text name="_SDCSR"/>.ShippingIrregular" type="checkbox">Irregular package
   </td>
 </tr>
 <tr>
@@ -353,9 +353,8 @@
 </tr>
 <tr>
   <td><s:text name="Services"/></td>
-  <td class="shippingservice">
-	
-	<s:iterator value="{0,1,2}">
+  <td>
+	<s:iterator value="{0,1,2,3}" status="rowstatus">
 	  <div class="ShippingService">
 		<select name="<s:text name="_SDSSO"/>.<s:property />.ShippingService"
 				class="ShippingService"></select>
@@ -364,10 +363,16 @@
 			   type="text" size="5">
 		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.#text"
 			   type="text" size="5">
-		<input name="ShippingFree" value="1" type="checkbox">Free shipping
+		
+		<s:if test="%{#rowstatus.index == 0}">
+		  <input name="<s:text name="_SDSSO"/>.<s:property />.FreeShipping"
+				 value="true" type="checkbox">Free shipping
+		</s:if>
+		
+		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
+			   type="text" size="1">
 	  </div>
 	</s:iterator>
-	
   </td>
 </tr>
 <tr>
