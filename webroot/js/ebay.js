@@ -317,11 +317,12 @@ function getdetail(row)
 	id = row.id;
 	detail = $('div.detail', '#'+id);
     
-	$('input[name=Title]',    detail).replaceWith(row.Title);
-	$('input[name=SubTitle]', detail).replaceWith(row.SubTitle);
-	$('input[name=Quantity]', detail).replaceWith(row.Quantity);
-	$('input[name="StartPrice.@currencyID"]', detail).replaceWith(row.StartPrice['@currencyID']);
-	$('input[name="StartPrice.#text"]', detail).replaceWith(row.StartPrice['#text']);
+	dsp(row, 'Title');
+	dsp(row, 'SubTitle');
+	dsp(row, 'Quantity');
+	dsp(row, 'StartPrice.@currencyID');
+	dsp(row, 'StartPrice.#text');
+	
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -429,19 +430,23 @@ function getdetail(row)
 		if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
 		$('td.shippingpackage', detail).html(sp);
 		
-		dimensions = csro.PackageLength['#text'] + ' ' + csro.PackageLength['@unit']
-			+ ' x ' + csro.PackageWidth['#text'] + ' ' + csro.PackageWidth['@unit']
-			+ ' x ' + csro.PackageDepth['#text'] + ' ' + csro.PackageDepth['@unit'];
-		$('td.dimensions', detail).html(dimensions);
-		
-		weight = csro.WeightMajor['#text'] + ' ' + csro.WeightMajor['@unit']
-			+ ' ' + csro.WeightMinor['#text'] + ' ' + csro.WeightMinor['@unit'];
-		$('td.weight', detail).html(weight);
-		
+		if (row.ShippingDetails.CalculatedShippingRate) {
+			_sdcsr = 'ShippingDetails.CalculatedShippingRate';
+			dsp(row, _sdcsr+'.PackageLength.#text');
+			dsp(row, _sdcsr+'.PackageLength.@unit');
+			dsp(row, _sdcsr+'.PackageWidth.#text');
+			dsp(row, _sdcsr+'.PackageWidth.@unit');
+			dsp(row, _sdcsr+'.PackageDepth.#text');
+			dsp(row, _sdcsr+'.PackageDepth.@unit');
+			dsp(row, _sdcsr+'.WeightMajor.#text');
+			dsp(row, _sdcsr+'.WeightMajor.@unit');
+			dsp(row, _sdcsr+'.WeightMinor.#text');
+			dsp(row, _sdcsr+'.WeightMinor.@unit');
+		}
 	}
 	
 	tmp = hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax];
-	$('select[name=DispatchTimeMax]', detail).replaceWith(tmp);
+	dsp(row, 'DispatchTimeMax');
 	
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
@@ -1238,4 +1243,13 @@ function setoptiontags(formname, optionvalues, selectedvalue)
 	});
 	
 	return;
+}
+
+function dsp(item, str)
+{
+	jstr = "['"+str.replace(/\./g, "']['")+"']";
+	eval("val = item"+jstr);
+	$('input[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
+	
+	msg(str);
 }
