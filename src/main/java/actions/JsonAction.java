@@ -243,6 +243,7 @@ public class JsonAction extends BaseAction {
 		}
 		
 		DBCollection coll = db.getCollection("items");
+		DBCollection coll2 = db.getCollection("diffitems");
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
@@ -254,7 +255,10 @@ public class JsonAction extends BaseAction {
 		
 		WriteResult result = coll.update(query, update);
 		
-		BasicDBObject after  = (BasicDBObject) coll.findOne(query);
+		item.put("_id", new ObjectId(id));
+		coll2.insert(item);
+		
+		BasicDBObject after  = (BasicDBObject) coll2.findOne(query);
 		
 		/* save before and after file for diff */
 		DiffLogger dl = new DiffLogger();
