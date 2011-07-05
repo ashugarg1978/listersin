@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import net.sf.json.JSONObject;
+//import org.json.JSONObject;
 //import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Actions;
@@ -256,6 +257,10 @@ public class JsonAction extends BaseAction {
 		BasicDBObject after  = (BasicDBObject) coll.findOne(query);
 		
 		/* save before and after file for diff */
+		DiffLogger dl = new DiffLogger();
+		dl.savediff(id, before.toString(), after.toString());
+		
+		/*
 		JSONObject jsobefore = JSONObject.fromObject(before.toString());
 		JSONObject jsoafter  = JSONObject.fromObject(after.toString());
 		
@@ -268,7 +273,7 @@ public class JsonAction extends BaseAction {
 		out = new BufferedWriter(fstream);
 		out.write(jsoafter.toString(2));
 		out.close();
-		
+		*/
 		
 		if (false) {
 			/* for debug */
