@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import net.sf.json.JSONObject;
 //import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Actions;
@@ -240,15 +241,34 @@ public class JsonAction extends BaseAction {
 			}
 		}
 		
+		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
+		BasicDBObject before = (BasicDBObject) coll.findOne(query);
+		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);
 		
-		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update);
+		
+		BasicDBObject after  = (BasicDBObject) coll.findOne(query);
+		
+		/* save before and after file for diff */
+		JSONObject jsobefore = JSONObject.fromObject(before.toString());
+		JSONObject jsoafter  = JSONObject.fromObject(after.toString());
+		
+		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".before.js");
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(jsobefore.toString(2));
+		out.close();
+		
+		fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".after.js");
+		out = new BufferedWriter(fstream);
+		out.write(jsoafter.toString(2));
+		out.close();
+		
 		
 		if (false) {
 			/* for debug */

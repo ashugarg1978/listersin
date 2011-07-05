@@ -40,6 +40,7 @@ public class AddItems extends ApiCall {
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
+		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
 		query.put("ext.deleted", new BasicDBObject("$exists", 0));
 		query.put("ext.status", "(re)list");
@@ -51,6 +52,7 @@ public class AddItems extends ApiCall {
 		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update, false, true);
 		
+		/* re-query */
 		query.put("ext.status", "(re)listing");
 		
 		/* build userid.site.chunk array */
