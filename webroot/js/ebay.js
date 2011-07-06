@@ -451,6 +451,7 @@ function getdetail(row)
 	tmp = hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax];
 	dsp(row, 'DispatchTimeMax');
 	
+	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -802,6 +803,11 @@ var clickEdit = function() {
 	site = item.Site;
 	categoryid = item.PrimaryCategory.CategoryID;
 	
+	setoptiontags('Country',
+				  hash[site]['CountryDetails'],
+				  item.Country);
+	
+
 	if (false) {
 		/* pictures */
 		for (i=0; i<=11; i++) {

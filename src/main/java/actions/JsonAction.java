@@ -700,18 +700,34 @@ public class JsonAction extends BaseAction {
 		LinkedHashMap<Integer,LinkedHashMap> durationset =
 			new LinkedHashMap<Integer,LinkedHashMap>();
 		for (Object ld : ald) {
+			BasicDBObject lddbo = (BasicDBObject) ld;
 			
-			String durationsetid = ((BasicDBObject) ld).get("@durationSetID").toString();
+			String durationsetid = lddbo.get("@durationSetID").toString();
 			Integer setid = Integer.parseInt(durationsetid);
 			LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
 			
-			for (Object d : (BasicDBList) ((BasicDBObject) ld).get("Duration")) {
-				String dname = d.toString();
-				String dval = dname
-					.replaceAll("^Days_([\\d]+)$", "$1 Days")
-					.replace("GTC", "Good 'Til Cancelled");
-				dset.put(dname, dval);
+			// todo: more easy way to handle string or array
+			String classname = lddbo.get("Duration").getClass().toString();
+			if (classname.equals("class java.lang.String")) {
+				
+				dset.put(lddbo.getString("Duration"),
+						 lddbo.getString("Duration"));
+				
+			} else {
+				
+				for (Object d : (BasicDBList) lddbo.get("Duration")) {
+					String dname = d.toString();
+					String dval = dname
+						.replaceAll("^Days_([\\d]+)$", "$1 Days")
+						.replace("GTC", "Good 'Til Cancelled");
+					dset.put(dname, dval);
+				}
+				
 			}
+			
+			// todo: only chinese auction?
+			dset.put("Days_1", "1 Day");
+			
 			durationset.put(setid, dset);
 		}
 		//log.debug(durationset);
