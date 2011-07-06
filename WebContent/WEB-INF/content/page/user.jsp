@@ -266,6 +266,37 @@
   <td class="paymentmethod">
   </td>
 </tr>
+
+
+<tr>
+  <td><s:text name="AutoPay"/></td>
+  <td>
+	<input name="AutoPay" type="checkbox" value="true">[AutoPay]
+  </td>
+</tr>
+<tr>
+  <td><s:text name="BuyItNowPrice"/></td>
+  <td>
+	<input name="BuyItNowPrice.@currencyID" type="text" size="3">
+	<input name="BuyItNowPrice.#text" type="text" size="10">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="BuyerGuaranteePrice"/></td>
+  <td>
+	<input name="BuyerGuaranteePrice.@currencyID" type="text" size="3">
+	<input name="BuyerGuaranteePrice.#text" type="text" size="10">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Country"/></td>
+  <td><select name="Country"></select></td>
+</tr>
+<tr>
+  <td><s:text name="Currency"/></td>
+  <td><select name="Currency"></select></td>
+</tr>
+
 </tbody>
 </table>
 </div>

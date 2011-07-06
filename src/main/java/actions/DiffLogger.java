@@ -14,12 +14,12 @@ public class DiffLogger {
 		
 		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".0.js");
 		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(before.toString(2));
+		out.write(before.toString(4));
 		out.close();
 		
 		fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".1.js");
 		out = new BufferedWriter(fstream);
-		out.write(after.toString(2));
+		out.write(after.toString(4));
 		out.close();
 		
 		return;

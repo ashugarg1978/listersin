@@ -323,6 +323,11 @@ function getdetail(row)
 	dsp(row, 'StartPrice.@currencyID');
 	dsp(row, 'StartPrice.#text');
 	
+	dsp(row, 'BuyItNowPrice.@currencyID');
+	dsp(row, 'BuyItNowPrice.#text');
+	dsp(row, 'BuyerGuaranteePrice.@currencyID');
+	dsp(row, 'BuyerGuaranteePrice.#text');
+	
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
