@@ -92,7 +92,7 @@ function autoclick()
 function gethash()
 {
 	tmp = localStorage.getItem('hash');
-	if (tmp != undefined) {
+	if (false && tmp != undefined) {
 		hash = JSON.parse(tmp);
 		
 		// todo: same code

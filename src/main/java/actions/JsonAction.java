@@ -61,6 +61,7 @@ public class JsonAction extends BaseAction {
 			hash.put("ShippingServiceDetails", shippingservicedetails(site));
 			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
 			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
+			hash.put("CountryDetails", countrydetails(site));
 			
 			json.put(site, hash);
 		}
@@ -819,6 +820,28 @@ public class JsonAction extends BaseAction {
 		map.put("FreightFlat"                        , tmpmap5);
 		
 		return map;
+	}
+	
+	private LinkedHashMap<String,String> countrydetails(String site) {
+		
+		LinkedHashMap<String,String> hash = new LinkedHashMap<String,String>();
+		
+		BasicDBObject query = new BasicDBObject();
+		
+		BasicDBObject field = new BasicDBObject();
+		field.put("Country", 1);
+		field.put("Description", 1);
+		
+		DBCollection collection = db.getCollection(site+".eBayDetails.CountryDetails");
+		DBCursor cursor = collection.find(query, field);
+		while (cursor.hasNext()) {
+			BasicDBObject row  = (BasicDBObject) cursor.next();
+			
+			hash.put(row.getString("Country"),
+					 row.getString("Description"));
+		}
+		
+		return hash;
 	}
 	
 	private LinkedHashMap<String,String> shippingtypelabel(String site, String type) {
