@@ -322,7 +322,6 @@ function getdetail(row)
 	dsp(row, 'Quantity');
 	dsp(row, 'StartPrice.@currencyID');
 	dsp(row, 'StartPrice.#text');
-	
 	dsp(row, 'BuyItNowPrice.@currencyID');
 	dsp(row, 'BuyItNowPrice.#text');
 	dsp(row, 'BuyerGuaranteePrice.@currencyID');
@@ -424,18 +423,18 @@ function getdetail(row)
 		
 	}
 	
-	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
 	
 	if (row.ShippingDetails.CalculatedShippingRate) {
-		sdcsr = row.ShippingDetails.CalculatedShippingRate;
 		
-		dspv(row, _sdcsr+'.ShippingPackage',
+		sdcsr = row.ShippingDetails.CalculatedShippingRate;
+		_sdcsr = 'ShippingDetails.CalculatedShippingRate';
+		
+		dspv(row,
+			 _sdcsr+'.ShippingPackage',
 			 hash[row.Site]['ShippingPackageDetails'][sdcsr.ShippingPackage]['Description']);
 		
 		//if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
-	}
-	
-	if (row.ShippingDetails.CalculatedShippingRate) {
+		
 		dsp(row, _sdcsr+'.PackageLength.#text');
 		dsp(row, _sdcsr+'.PackageLength.@unit');
 		dsp(row, _sdcsr+'.PackageWidth.#text');
@@ -448,9 +447,7 @@ function getdetail(row)
 		dsp(row, _sdcsr+'.WeightMinor.@unit');
 	}
 	
-	tmp = hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax];
-	dsp(row, 'DispatchTimeMax');
-	
+	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
 	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
@@ -762,13 +759,30 @@ var clickEdit = function() {
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 	
-	$('input[name=Title]',                    dom).val(item.Title);
-	$('input[name=SubTitle]',                 dom).val(item.SubTitle);
-	$('input[name="StartPrice.@currencyID"]', dom).val(item.StartPrice['@currencyID']);
-	$('input[name="StartPrice.#text"]',       dom).val(item.StartPrice['#text']);
-	$('input[name=Quantity]',                 dom).val(item.Quantity);
-	$('select[name=Site]',                    dom).val(item.Site);
-	$('select[name=ListingType]',             dom).val(item.ListingType);
+	fval(dom, item, 'Title');
+	fval(dom, item, 'SubTitle');
+	fval(dom, item, 'StartPrice.@currencyID');
+	fval(dom, item, 'StartPrice.#text');
+	fval(dom, item, 'Quantity');
+	fval(dom, item, 'Site');
+	fval(dom, item, 'ListingType');
+	fval(dom, item, 'BuyItNowPrice.@currencyID');
+	fval(dom, item, 'BuyItNowPrice.#text');
+	fval(dom, item, 'BuyerGuaranteePrice.@currencyID');
+	fval(dom, item, 'BuyerGuaranteePrice.#text');
+	
+	/* Dimensions */
+	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
+	fval(dom, item, _sdcsr+'.PackageLength.@unit');
+	fval(dom, item, _sdcsr+'.PackageLength.#text');
+	fval(dom, item, _sdcsr+'.PackageWidth.@unit');
+	fval(dom, item, _sdcsr+'.PackageWidth.#text');
+	fval(dom, item, _sdcsr+'.PackageDepth.@unit');
+	fval(dom, item, _sdcsr+'.PackageDepth.#text');
+	fval(dom, item, _sdcsr+'.WeightMajor.@unit');
+	fval(dom, item, _sdcsr+'.WeightMajor.#text');
+	fval(dom, item, _sdcsr+'.WeightMinor.@unit');
+	fval(dom, item, _sdcsr+'.WeightMinor.#text');
 	
 	if (item.Description != null) {
 		$('textarea[name=Description]',   dom).val(item.Description);
@@ -803,11 +817,22 @@ var clickEdit = function() {
 	site = item.Site;
 	categoryid = item.PrimaryCategory.CategoryID;
 	
+	/* Country */
 	setoptiontags('Country',
 				  hash[site]['CountryDetails'],
 				  item.Country);
 	
-
+	/* Handling time */
+	setoptiontags('DispatchTimeMax',
+				  hash[site]['DispatchTimeMaxDetails'],
+				  item.DispatchTimeMax);
+	
+	/* Listing duration */
+	setoptiontags
+	('ListingDuration',
+	 hash[site]['category']['features'][categoryid]['ListingDuration'][item.ListingType],
+	 item.DispatchTimeMax);
+	
 	if (false) {
 		/* pictures */
 		for (i=0; i<=11; i++) {
@@ -819,12 +844,6 @@ var clickEdit = function() {
 			$('input:text[name='+colname+']', dom).val(colval+'');
 		});
 	}		
-	
-	/* listing duration */
-	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
-	setoptiontags('ListingDuration',
-				  tmpo[rowsdata[id]['ListingType']],
-				  item.DispatchTimeMax);
 	
 	/* payment method */
 	tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
@@ -870,25 +889,6 @@ var clickEdit = function() {
 		}
 	}
 	
-	/* Dimensions */
-	sdcsr = item.ShippingDetails.CalculatedShippingRate;
-	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
-	$('input[name="'+_sdcsr+'.PackageLength.@unit"]').val(sdcsr.PackageLength['@unit']);
-	$('input[name="'+_sdcsr+'.PackageLength.#text"]').val(sdcsr.PackageLength['#text']);
-	$('input[name="'+_sdcsr+'.PackageWidth.@unit"]').val(sdcsr.PackageWidth['@unit']);
-	$('input[name="'+_sdcsr+'.PackageWidth.#text"]').val(sdcsr.PackageWidth['#text']);
-	$('input[name="'+_sdcsr+'.PackageDepth.@unit"]').val(sdcsr.PackageDepth['@unit']);
-	$('input[name="'+_sdcsr+'.PackageDepth.#text"]').val(sdcsr.PackageDepth['#text']);
-	$('input[name="'+_sdcsr+'.WeightMajor.@unit"]').val(sdcsr.WeightMajor['@unit']);
-	$('input[name="'+_sdcsr+'.WeightMajor.#text"]').val(sdcsr.WeightMajor['#text']);
-	$('input[name="'+_sdcsr+'.WeightMinor.@unit"]').val(sdcsr.WeightMinor['@unit']);
-	$('input[name="'+_sdcsr+'.WeightMinor.#text"]').val(sdcsr.WeightMinor['#text']);
-	
-
-	/* Handling time */
-	setoptiontags('DispatchTimeMax',
-				  hash[site]['DispatchTimeMaxDetails'],
-				  item.DispatchTimeMax);
 	
 	return false;
 }
@@ -1257,24 +1257,6 @@ function setoptiontags(formname, optionvalues, selectedvalue)
 	return;
 }
 
-function dsp(item, str)
-{
-	jstr = "['"+str.replace(/\./g, "']['")+"']";
-	try {
-		eval("val = item"+jstr);
-		$('input[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-		msg(str);
-	} catch (err) {
-		msg(err.description);
-	}
-}
-
-function dspv(item, str, val)
-{
-	$('input[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-	$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-}
-
 function arrayize(object)
 {
 	if ($.isArray(object)) {
@@ -1287,4 +1269,36 @@ function arrayize(object)
 	}
 	
 	return result;
+}
+
+function dsp(item, str)
+{
+	jstr = "['"+str.replace(/\./g, "']['")+"']";
+	try {
+		eval("val = item"+jstr);
+		$('input[name="'+str+'"]',  'tbody#'+item.id).replaceWith(val);
+		$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
+		msg(str);
+	} catch (err) {
+		msg(err.description);
+	}
+}
+
+function dspv(item, str, val)
+{
+	$('input[name="'+str+'"]',  'tbody#'+item.id).replaceWith(val);
+	$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
+}
+
+function fval(dom, item, str)
+{
+	jstr = "['"+str.replace(/\./g, "']['")+"']";
+	try {
+		eval("val = item"+jstr);
+		$('input[name="'+str+'"]',  dom).val(val);
+		$('select[name="'+str+'"]', dom).val(val);
+		msg('fval:'+str);
+	} catch (err) {
+		msg(err.description);
+	}
 }

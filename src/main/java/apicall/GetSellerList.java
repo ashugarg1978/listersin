@@ -122,6 +122,11 @@ public class GetSellerList extends ApiCall {
 			ext.put("importstatus", "waiting GetItem");
 			dbobject.put("ext", ext);
 			
+			/* move some fields which is not necessary in AddItem families */
+			// BuyerGuaranteePrice
+			// BuyerProtection
+			
+			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
 			query.put("ItemID", itemid);
