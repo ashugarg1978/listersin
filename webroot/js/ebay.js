@@ -1072,9 +1072,9 @@ function preloadcategoryfeatures(site, categoryid)
 	
 	$.getJSON('/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
 			  function(data) {
+				  dump(data);
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 				  hash[site]['category']['features'] = tmpo;
-				  //dump(hash[site]['category']['features']);
 			  });
 }
 

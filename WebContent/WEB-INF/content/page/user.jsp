@@ -296,6 +296,10 @@
   <td><s:text name="Currency"/></td>
   <td><select name="Currency"></select></td>
 </tr>
+<tr>
+  <td><s:text name="Condition"/></td>
+  <td><select name="ConditionID"></select></td>
+</tr>
 
 </tbody>
 </table>

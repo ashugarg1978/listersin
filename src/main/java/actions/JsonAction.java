@@ -706,6 +706,9 @@ public class JsonAction extends BaseAction {
 			Integer setid = Integer.parseInt(durationsetid);
 			LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
 			
+			// todo: only chinese auction?
+			dset.put("Days_1", "1 Day");
+			
 			// todo: more easy way to handle string or array
 			String classname = lddbo.get("Duration").getClass().toString();
 			if (classname.equals("class java.lang.String")) {
@@ -724,9 +727,6 @@ public class JsonAction extends BaseAction {
 				}
 				
 			}
-			
-			// todo: only chinese auction?
-			dset.put("Days_1", "1 Day");
 			
 			durationset.put(setid, dset);
 		}
@@ -765,6 +765,9 @@ public class JsonAction extends BaseAction {
 		for (Integer cid : path.keySet()) {
 			dbo = coll2.findOne(new BasicDBObject("CategoryID", cid.toString()));
 			json.put("p-"+cid.toString(), dbo);
+			if (dbo != null && dbo.containsField("ConditionValues")) {
+				sd.put("ConditionValues", dbo.get("ConditionValues"));
+			}
 		}
 		json.put("path", path);
 		
