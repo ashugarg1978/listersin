@@ -143,6 +143,11 @@ public class GetSellerList extends ApiCall {
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("DetailLevel", "ReturnAll");
+			reqdbo.append("IncludeCrossPromotion",        "true");
+			reqdbo.append("IncludeItemCompatibilityList", "true");
+			reqdbo.append("IncludeItemSpecifics",         "true");
+			reqdbo.append("IncludeTaxTable",              "true");
+			reqdbo.append("IncludeWatchCount",            "true");
 			reqdbo.append("ItemID", itemid);
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));

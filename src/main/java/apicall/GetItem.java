@@ -71,6 +71,11 @@ public class GetItem extends ApiCall implements Callable {
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("DetailLevel", "ReturnAll");
+			reqdbo.append("IncludeCrossPromotion",        "true");
+			reqdbo.append("IncludeItemCompatibilityList", "true");
+			reqdbo.append("IncludeItemSpecifics",         "true");
+			reqdbo.append("IncludeTaxTable",              "true");
+			reqdbo.append("IncludeWatchCount",            "true");
 			reqdbo.append("ItemID", itemid);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
@@ -95,7 +100,7 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		BasicDBObject item = (BasicDBObject) responsedbo.get("Item");
-		writelog("GI.res."+item.getString("ItemID")+".xml", responsexml);
+		writelog("GI."+item.getString("ItemID")+".xml", responsexml);
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -106,6 +111,9 @@ public class GetItem extends ApiCall implements Callable {
 		upditem.put("ConditionID", item.getString("ConditionID"));
 		if (item.containsField("ProductListingDetails")) {
 			upditem.put("ProductListingDetails", item.get("ProductListingDetails"));
+		}
+		if (item.containsField("ItemSpecifics")) {
+			upditem.put("ItemSpecifics", item.get("ItemSpecifics"));
 		}
 		upditem.put("ext.importstatus", "completed");
 		

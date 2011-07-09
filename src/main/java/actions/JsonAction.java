@@ -62,6 +62,7 @@ public class JsonAction extends BaseAction {
 			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
 			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
 			hash.put("CountryDetails", countrydetails(site));
+			hash.put("CurrencyDetails", currencydetails(site));
 			
 			json.put(site, hash);
 		}
@@ -766,6 +767,15 @@ public class JsonAction extends BaseAction {
 			dbo = coll2.findOne(new BasicDBObject("CategoryID", cid.toString()));
 			json.put("p-"+cid.toString(), dbo);
 			if (dbo != null && dbo.containsField("ConditionValues")) {
+				
+				BasicDBObject cv = (BasicDBObject) dbo.get("ConditionValues");
+				LinkedHashMap<Integer,String> cvl = new LinkedHashMap<Integer,String>();
+				for (Object cvo : (BasicDBList) cv.get("Condition")) {
+					cvl.put(Integer.parseInt(((BasicDBObject) cvo).getString("ID")),
+							((BasicDBObject) cvo).getString("DisplayName"));
+				}
+				
+				((BasicDBObject) dbo.get("ConditionValues")).put("Condition", cvl);
 				sd.put("ConditionValues", dbo.get("ConditionValues"));
 			}
 		}
@@ -863,6 +873,28 @@ public class JsonAction extends BaseAction {
 		return hash;
 	}
 	
+	private LinkedHashMap<String,String> currencydetails(String site) {
+		
+		LinkedHashMap<String,String> hash = new LinkedHashMap<String,String>();
+		
+		BasicDBObject query = new BasicDBObject();
+		
+		BasicDBObject field = new BasicDBObject();
+		field.put("Currency", 1);
+		field.put("Description", 1);
+		
+		DBCollection collection = db.getCollection(site+".eBayDetails.CurrencyDetails");
+		DBCursor cursor = collection.find(query, field);
+		while (cursor.hasNext()) {
+			BasicDBObject row  = (BasicDBObject) cursor.next();
+			
+			hash.put(row.getString("Currency"),
+					 row.getString("Description"));
+		}
+		
+		return hash;
+	}
+	
 	private LinkedHashMap<String,String> shippingtypelabel(String site, String type) {
 		
 		LinkedHashMap<String,String> label = new LinkedHashMap<String,String>();
@@ -939,6 +971,12 @@ public class JsonAction extends BaseAction {
 	
 	private BasicDBObject getFilterQuery() {
 		
+		/* allways filter with userids */
+		ArrayList<String> userids = new ArrayList<String>();
+		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
+			userids.add(userid.toString());
+		}
+		
 		BasicDBObject query = new BasicDBObject();
 		
 		if (parameters.containsKey("id")) {
@@ -948,6 +986,7 @@ public class JsonAction extends BaseAction {
 				ids.add(new ObjectId(id));
 			}
 			query.put("_id", new BasicDBObject("$in", ids));
+			query.put("ext.UserID", new BasicDBObject("$in", userids));
 			
 		} else {
 			
@@ -964,6 +1003,10 @@ public class JsonAction extends BaseAction {
 			if (!selling.equals(""))
 				query = sellingquery.get(selling);
 			
+			// notice: put UserID here, because sellingquery above.
+			query.put("ext.UserID", new BasicDBObject("$in", userids));
+			
+			// todo: check the UserID exists in users collection.
 			if (parameters.containsKey("UserID"))
 				userid = ((String[]) parameters.get("UserID"))[0];
 			
@@ -983,13 +1026,6 @@ public class JsonAction extends BaseAction {
 				query.put("ItemID", itemid);
 			
 		}
-		
-		/* allways filter with userids */
-		ArrayList<String> userids = new ArrayList<String>();
-		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
-			userids.add(userid.toString());
-		}
-		query.put("ext.UserID", new BasicDBObject("$in", userids));
 		
 		return query;
 	}

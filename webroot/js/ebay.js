@@ -449,6 +449,8 @@ function getdetail(row)
 	
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
 	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
+	dspv(row, 'Currency', hash[row.Site]['CurrencyDetails'][row.Currency]);
+	dspv(row, 'ConditionID', hash[row.Site]['category']['features'][row.PrimaryCategory.CategoryID]['ConditionValues']['Condition'][row.ConditionID]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -822,6 +824,10 @@ var clickEdit = function() {
 				  hash[site]['CountryDetails'],
 				  item.Country);
 	
+	setoptiontags('Currency',
+				  hash[site]['CurrencyDetails'],
+				  item.Currency);
+	
 	/* Handling time */
 	setoptiontags('DispatchTimeMax',
 				  hash[site]['DispatchTimeMaxDetails'],
@@ -832,6 +838,11 @@ var clickEdit = function() {
 	('ListingDuration',
 	 hash[site]['category']['features'][categoryid]['ListingDuration'][item.ListingType],
 	 item.DispatchTimeMax);
+
+	setoptiontags
+	('ConditionID',
+	 hash[site]['category']['features'][categoryid]['ConditionValues']['Condition'],
+	 item.ConditionID);
 	
 	if (false) {
 		/* pictures */
@@ -880,6 +891,7 @@ var clickEdit = function() {
 		
 	} else {
 		
+		$('select[name="'+_sdsso+'.0.ShippingService"]', dom).val(sdsso.ShippingService);
 		if (sdsso.ShippingServiceCost != null) {
 			$('input[name="'+_sdsso+'.0.ShippingServiceCost.@currencyID"]', dom)
 				.val(sdsso.ShippingServiceCost['@currencyID']);
@@ -984,14 +996,17 @@ var clickTitle = function() {
 		   'id='+id,
 		   function(data) {
 			   item = data.json.item;
-			   dump(item);
+			   
+			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
+			   preloadcategory(item.Site, item.ext.categorypath);
+			   
 			   getdetail(item);
 			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 			   
-			   preloadcategory(item.Site, item.ext.categorypath);
-			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
 			   //preloadshippingtype(item.Site);
+			   
 			   rowsdata[id] = item;
+			   dump(item);
 			   
 			   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 		   },
@@ -1069,13 +1084,26 @@ function preloadcategory(site, path)
 function preloadcategoryfeatures(site, categoryid)
 {
 	if (hash[site]['category']['features'][categoryid]) return;
+
+	$.ajax({
+		url: '/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
+		async: false,
+		success: function(data) {
+			dump(data);
+			var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
+			hash[site]['category']['features'] = tmpo;
+		}
+	});
 	
+	/*
 	$.getJSON('/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
 			  function(data) {
 				  dump(data);
 				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 				  hash[site]['category']['features'] = tmpo;
 			  });
+	*/
+	
 }
 
 function preloadshippingtype(site)
@@ -1216,6 +1244,7 @@ function getshippingservice(id)
 	*/
 	
 	select = $('<select/>');
+	$('<option/>').appendTo(select);
 	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
 		if (o['ValidForSellingFlow'] != 'true') return;
 		if (o['ShippingServiceID'] >= 50000) return;
