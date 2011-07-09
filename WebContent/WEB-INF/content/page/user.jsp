@@ -219,6 +219,12 @@
 <table class="detail">
 <tbody>
 <tr>
+  <td><s:text name="Category"/></td>
+  <td class="category">
+	<select name="PrimaryCategory.CategoryID"></select>
+  </td>
+</tr>
+<tr>
   <td><s:text name="title"/></td>
   <td><input name="Title" type="text" size="60"></td>
 </tr>
@@ -227,14 +233,19 @@
   <td><input name="SubTitle" type="text" size="60"></td>
 </tr>
 <tr>
-  <td><s:text name="Site"/></td>
-  <td><select name="Site"></select></td>
+  <td><s:text name="Condition"/></td>
+  <td><select name="ConditionID"></select></td>
 </tr>
 <tr>
-  <td><s:text name="Category"/></td>
-  <td class="category">
-	<select name="PrimaryCategory.CategoryID"></select>
+  <td><s:text name="ItemSpecifics"/></td>
+  <td>
+	<input name="ItemSpecifics.NameValueList.Name" type="text" size="10">
+	<input name="ItemSpecifics.NameValueList.Value" type="text" size="10">
   </td>
+</tr>
+<tr>
+  <td><s:text name="Site"/></td>
+  <td><select name="Site"></select></td>
 </tr>
 <tr>
   <td><s:text name="StartPrice"/></td>
@@ -295,10 +306,6 @@
 <tr>
   <td><s:text name="Currency"/></td>
   <td><select name="Currency"></select></td>
-</tr>
-<tr>
-  <td><s:text name="Condition"/></td>
-  <td><select name="ConditionID"></select></td>
 </tr>
 
 </tbody>
