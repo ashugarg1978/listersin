@@ -238,10 +238,7 @@
 </tr>
 <tr>
   <td><s:text name="ItemSpecifics"/></td>
-  <td>
-	<input name="ItemSpecifics.NameValueList.Name" type="text" size="10">
-	<input name="ItemSpecifics.NameValueList.Value" type="text" size="10">
-  </td>
+  <td class="ItemSpecifics"></td>
 </tr>
 <tr>
   <td><s:text name="Site"/></td>

@@ -368,6 +368,13 @@ function getdetail(row)
 	});
 	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
+	// todo: arrayize if size = 1
+	if (row.ItemSpecifics) {
+		$.each(row.ItemSpecifics.NameValueList, function(k, v) {
+			$('td.ItemSpecifics', detail).append(v.Name+' : '+v.Value+'<br />');
+		});
+	}
+	
 	/* shippingtype */
 	if (row.ext.shippingtype) {
 		$('td.shippingtype_domestic', detail).html(row.ext.shippingtype.domestic);
@@ -901,6 +908,23 @@ var clickEdit = function() {
 		}
 	}
 	
+	if (item.ItemSpecifics) {
+		$.each(item.ItemSpecifics.NameValueList, function(k, v) {
+			inputname = $('<input/>')
+				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Name')
+				.attr('type', 'text')
+				.val(v.Name);
+			inputvalue = $('<input/>')
+				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Value')
+				.attr('type', 'text')
+				.val(v.Value);
+			
+			$('td.ItemSpecifics', dom).append(inputname);
+			$('td.ItemSpecifics', dom).append(' : ');
+			$('td.ItemSpecifics', dom).append(inputvalue);
+			$('td.ItemSpecifics', dom).append('<br />');
+		});
+	}
 	
 	return false;
 }
