@@ -54,8 +54,16 @@ $.fn.extractObject = function() {
 		} else {
 			
 			if (accum[namev[0]] == null) {
-				if (namev[1].match(/^[0-9]+$/)) {
-					accum[namev[0]] = new Array();
+				//if (namev[1].match(/^[0-9]+$/)) {
+				//	accum[namev[0]] = new Array();
+				if (namev[1] == '0') {
+					msg(namev);
+					accum[namev[0]] = {};
+					namev = namev.slice(1);
+					msg('->'+namev);
+				} else if (namev[1] == '1') {
+					tmpvalue = accum[namev[0]];
+					accum[namev[0]] = [tmpvalue];
 				} else {
 					accum[namev[0]] = {};
 				}
