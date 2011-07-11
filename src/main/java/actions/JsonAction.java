@@ -245,7 +245,7 @@ public class JsonAction extends BaseAction {
 		}
 		
 		DBCollection coll = db.getCollection("items");
-		DBCollection coll2 = db.getCollection("diffitems");
+		DBCollection coll2 = db.getCollection("itemsdiff");
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));

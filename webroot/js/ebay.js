@@ -914,14 +914,17 @@ var clickEdit = function() {
 				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Name')
 				.attr('type', 'text')
 				.val(v.Name);
-			inputvalue = $('<input/>')
-				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Value')
-				.attr('type', 'text')
-				.val(v.Value);
-			
 			$('td.ItemSpecifics', dom).append(inputname);
 			$('td.ItemSpecifics', dom).append(' : ');
-			$('td.ItemSpecifics', dom).append(inputvalue);
+			
+			$.each(arrayize(v.Value), function(i, f) {
+				inputvalue = $('<input/>')
+					.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Value')
+					.attr('type', 'text')
+					.val(f);
+				$('td.ItemSpecifics', dom).append(inputvalue);
+			});
+			
 			$('td.ItemSpecifics', dom).append('<br />');
 		});
 	}
