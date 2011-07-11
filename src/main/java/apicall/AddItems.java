@@ -150,6 +150,11 @@ public class AddItems extends ApiCall {
 							tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
 						}
 						
+						if (tmpi.has("ListingEnhancement") && tmpi.get("ListingEnhancement")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							tmpi.getJSONArray("ListingEnhancement").setExpandElements(true);
+						}
+						
 						if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
 							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
@@ -162,17 +167,22 @@ public class AddItems extends ApiCall {
 								.getJSONArray("PictureURL").setExpandElements(true);
 						}
 						
-						JSONObject tmpis = (JSONObject) tmpi.get("ItemSpecifics");
-						if (tmpis.has("NameValueList")
-							&& tmpis.get("NameValueList")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpis.getJSONArray("NameValueList").setExpandElements(true);
-
-							JSONObject tmpisnvl = (JSONObject) tmpis.get("NameValueList");
-							if (tmpisnvl.has("Value")
-								&& tmpisnvl.get("Value")
+						if (tmpi.has("ItemSpecifics")) {
+							JSONObject tmpis = (JSONObject) tmpi.get("ItemSpecifics");
+							if (tmpis.has("NameValueList")
+								&& tmpis.get("NameValueList")
 								.getClass().toString().equals("class net.sf.json.JSONArray")) {
-								tmpisnvl.getJSONArray("Value").setExpandElements(true);
+								
+								tmpis.getJSONArray("NameValueList").setExpandElements(true);
+								
+								for (Object nvl : (JSONArray) tmpis.get("NameValueList")) {
+									JSONObject tmpnvl = (JSONObject) nvl;
+									if (tmpnvl.has("Value")
+										&& tmpnvl.get("Value").getClass().toString()
+										.equals("class net.sf.json.JSONArray")) {
+										tmpnvl.getJSONArray("Value").setExpandElements(true);
+									}
+								}
 							}
 						}
 						
@@ -206,9 +216,10 @@ public class AddItems extends ApiCall {
 					
 					writelog(requestxmlfilename, requestxml);
 					
-					//validatexml(requestxmlfilename);
+					validatexml(requestxmlfilename);
 					
-					pool18.submit(new ApiCallTask(0, requestxml, "AddItems"));
+					pool18.submit(new ApiCallTask(getSiteID(tmpsite.toString()),
+												  requestxml, "AddItems"));
 				}
 			}
 		}
@@ -297,7 +308,7 @@ public class AddItems extends ApiCall {
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		
-		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd.725"));
+		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd.727"));
 		Schema schema = factory.newSchema(schemaFile);
 		
 		Validator validator = schema.newValidator();
@@ -309,5 +320,19 @@ public class AddItems extends ApiCall {
 		}
 		
 		return;
+	}
+
+	private int getSiteID(String site) throws Exception {
+
+		DBCollection coll = db.getCollection(site+".eBayDetails.SiteDetails");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("Site", site);
+		
+		BasicDBObject row = (BasicDBObject) coll.findOne(query);
+		
+		int result = Integer.parseInt(row.get("SiteID").toString());
+		
+		return result;
 	}
 }
