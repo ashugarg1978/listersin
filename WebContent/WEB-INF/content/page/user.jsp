@@ -409,7 +409,7 @@
 		</s:if>
 		
 		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
-			   type="text" size="1">
+			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
 	  </div>
 	</s:iterator>
   </td>
