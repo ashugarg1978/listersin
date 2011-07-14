@@ -438,11 +438,31 @@
 <tr>
   <td><s:text name="Services"/></td>
   <td class="intlshippingservice">
+	<s:iterator value="{0,1,2,3,4}" status="rowstatus">
+	  <div class="ShippingService">
+		<select name="<s:text name="_SDISSO"/>.<s:property />.ShippingService"
+				class="ShippingService"></select>
+		<s:text name="Cost"/>
+		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.@currencyID"
+			   type="text" size="5">
+		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.#text"
+			   type="text" size="5">
+		
+		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServicePriority"
+			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
+	  </div>
+	</s:iterator>
   </td>
 </tr>
 <tr>
   <td><s:text name="Shipto"/></td>
   <td class="shipto">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="PostalCode"/></td>
+  <td>
+	<input type="text" name="PostalCode" size="10" />
   </td>
 </tr>
 </tbody>

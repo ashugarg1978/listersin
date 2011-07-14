@@ -19,9 +19,35 @@ $(document).bind({
 		
 		setInterval(refresh, 2000);
 		
+		//setTimeout(autoclick, 3000);
+		
 		return;
 	}
 });
+
+/* auto click for debug */
+function autoclick()
+{
+	itemid = '110089979385';
+	
+	$.ajaxSetup({async: false});
+	$('input[class=filter][name=ItemID]').val(itemid);
+	$('a.allitems').click();
+	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
+	$('a.Title', 'tbody#'+id).click();
+	$('a.edit', 'tbody#'+id).click();
+	$('a.save', 'tbody#'+id).click();
+	
+	return;
+	
+	if (id == 'rowtemplate') return;
+	
+	$('a.Title', 'tbody#'+id).click();
+	//setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
+	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
+	
+	return;
+}
 
 /**
  * Convert form elements into json format.
@@ -79,20 +105,6 @@ $.fn.extractObject = function() {
 	return accum;
 };
 
-
-/* auto click for debug */
-function autoclick()
-{
-	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
-	
-	if (id == 'rowtemplate') return;
-	
-	$('a.Title', 'tbody#'+id).click();
-	//setTimeout("$('li > a:contains(Shipping)', '   tbody#'+id).click()", 2000);
-	//setTimeout("$('ul.editbuttons > li > a.edit', 'tbody#'+id).click()", 2000);
-	
-	return;
-}
 
 function gethash()
 {
@@ -331,6 +343,7 @@ function getdetail(row)
 	dsp(row, 'BuyItNowPrice.#text');
 	dsp(row, 'BuyerGuaranteePrice.@currencyID');
 	dsp(row, 'BuyerGuaranteePrice.#text');
+	dsp(row, 'PostalCode');
 	
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
@@ -401,38 +414,12 @@ function getdetail(row)
 	if (row.ShippingDetails.InternationalShippingServiceOption) {
 		sdisso = row.ShippingDetails.InternationalShippingServiceOption;
 		_sdisso = 'ShippingDetails.InternationalShippingServiceOption';
-		
-		isso = '';
-		if ($.isArray(row.ShippingDetails.InternationalShippingServiceOption)) {
-			
-			$.each(row.ShippingDetails.InternationalShippingServiceOption, function(i, o) {
-				isso += hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description'];
-				if (o.ShippingServiceCost) {
-					isso += ' '+o['ShippingServiceCost@currencyID']+o.ShippingServiceCost;
-				}
-				if (typeof(o.ShipToLocation == 'string')) {
-					isso += '<br>Ship to ' + o.ShipToLocation;
-				} else if (typeof(o.ShipToLocation == 'object')) {
-					isso += '<br>Ship to ' + o.ShipToLocation.join(' / ');
-				}
-				isso += '<br>';
-			});
-			
-		} else {
-			
-			isso += hash[row.Site]['ShippingServiceDetails'][row.ShippingDetails.InternationalShippingServiceOption.ShippingService]['Description'];
-			
-		}
-		$('td.intlshippingservice', detail).html(isso);
-
-		stl = '';
-		if ($.isArray(row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation)) {
-			stl = row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation.join(', ');
-		} else {
-			stl = row.ShippingDetails.InternationalShippingServiceOption.ShipToLocation;
-		}
-		$('td.shipto', detail).html(stl);
-		
+		$.each(arrayize(sdisso), function(i, o) {
+			dsp(row, _sdisso+'.'+i+'.ShippingServiceCost.#text');
+			dsp(row, _sdisso+'.'+i+'.ShippingServiceCost.@currencyID');
+			dspv(row, _sdisso+'.'+i+'.ShippingService',
+				 hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description']);
+		});
 	}
 	
 	
@@ -784,6 +771,7 @@ var clickEdit = function() {
 	fval(dom, item, 'BuyItNowPrice.#text');
 	fval(dom, item, 'BuyerGuaranteePrice.@currencyID');
 	fval(dom, item, 'BuyerGuaranteePrice.#text');
+	fval(dom, item, 'PostalCode');
 	
 	/* Dimensions */
 	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
@@ -1259,38 +1247,36 @@ function getshippingservice(id)
 {
 	site = $('select[name=Site]', '#'+id).val();
 	type = $('select[name="ShippingDetails.ShippingType.domestic"]', '#'+id).val();
+	intltype = $('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val();
 	
-	/*
-	if (type == 'Calculated') {
-		sel = $('<select class="ShippingPackage"/>');
-		$.each(hash[site]['ShippingPackageDetails'], function(i, o) {
-			$('<option/>').val(o['ShippingPackage']).html(o['Description']).appendTo(sel);
-		});
-		$('select[name=ShippingPackage]', '#'+id).html(sel.html());
-		$('td.shippingpackage', '#'+id).children().show();
-		$('td.dimensions',      '#'+id).children().show();
-	} else {
-		$('td.shippingpackage', '#'+id).children().hide();
-		$('td.dimensions',      '#'+id).children().hide();
-	}
-	*/
-	
-	select = $('<select/>');
-	$('<option/>').appendTo(select);
+	select = $('<select/>').append($('<option/>'));
+	intl = $('<select/>').append($('<option/>'));
 	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
 		if (o['ValidForSellingFlow'] != 'true') return;
-		if (o['ShippingServiceID'] >= 50000) return;
 		
-		if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
-			$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(select);
+		if (o['ShippingServiceID'] < 50000) {
+			if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
+				$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(select);
+			}
+		} else {
+			if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == intltype) {
+				$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(intl);
+			}
 		}
+		
 	});
 	_sdsso = 'ShippingDetails.ShippingServiceOptions';
+	_sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
 	$('select[name="'+_sdsso+'.0.ShippingService"]', '#'+id).html(select.html());
 	$('select[name="'+_sdsso+'.1.ShippingService"]', '#'+id).html(select.html());
 	$('select[name="'+_sdsso+'.2.ShippingService"]', '#'+id).html(select.html());
 	$('select[name="'+_sdsso+'.3.ShippingService"]', '#'+id).html(select.html());
-	//$('td.shippingservice', '#'+id).html(select);
+
+	$('select[name="'+_sdisso+'.0.ShippingService"]', '#'+id).html(intl.html());
+	$('select[name="'+_sdisso+'.1.ShippingService"]', '#'+id).html(intl.html());
+	$('select[name="'+_sdisso+'.2.ShippingService"]', '#'+id).html(intl.html());
+	$('select[name="'+_sdisso+'.3.ShippingService"]', '#'+id).html(intl.html());
+	$('select[name="'+_sdisso+'.4.ShippingService"]', '#'+id).html(intl.html());
 	
 	return;
 }
