@@ -395,8 +395,12 @@
   <td>
 	<s:iterator value="{0,1,2,3}" status="rowstatus">
 	  <div class="ShippingService">
+		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
+			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
+		
 		<select name="<s:text name="_SDSSO"/>.<s:property />.ShippingService"
 				class="ShippingService"></select>
+		
 		<s:text name="Cost"/>
 		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.@currencyID"
 			   type="text" size="5">
@@ -408,8 +412,6 @@
 				 value="true" type="checkbox">Free shipping
 		</s:if>
 		
-		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
-			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
 	  </div>
 	</s:iterator>
   </td>
@@ -440,6 +442,9 @@
   <td class="intlshippingservice">
 	<s:iterator value="{0,1,2,3,4}" status="rowstatus">
 	  <div class="ShippingService">
+		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServicePriority"
+			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
+		
 		<select name="<s:text name="_SDISSO"/>.<s:property />.ShippingService"
 				class="ShippingService"></select>
 		<s:text name="Cost"/>
@@ -448,8 +453,6 @@
 		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.#text"
 			   type="text" size="5">
 		
-		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServicePriority"
-			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
 	  </div>
 	</s:iterator>
   </td>
