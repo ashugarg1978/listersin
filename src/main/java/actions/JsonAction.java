@@ -195,7 +195,7 @@ public class JsonAction extends BaseAction {
 			BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
 			if (sd.containsField("ShippingType")) {
 				String st = sd.get("ShippingType").toString();
-				ext.put("shippingtype", shippingtypelabel2(item);
+				ext.put("shippingtype", shippingtypelabel2(item));
 			}
 		}
 		
@@ -897,6 +897,14 @@ public class JsonAction extends BaseAction {
 	
 	private LinkedHashMap<String,String> shippingtypelabel2(BasicDBObject item) {
 		LinkedHashMap<String,String> label = new LinkedHashMap<String,String>();
+		
+		BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
+		if (sd.containsField("ShippingType")) {
+			
+		} else {
+			label.put("domestic", "NoShipping");
+			label.put("international", "NoShipping");
+		}
 		
 		return label;
 	}
