@@ -688,7 +688,7 @@ function bindevents()
 	/* Paging */
 	$('#paging > a').live('click', function() {
 		limit = $('input[name=limit]').val();
-		if ($(this).html() == '＞') {
+		if ($(this).html() == '>>') {
 			offset = ($('input[name=offset]').val()-0) + (limit-0);
 		} else {
 			offset = ($(this).html() - 1) * limit;
@@ -948,8 +948,33 @@ var clickSave = function() {
 	// todo: Why Opera can't include <select> tags?
 	// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
 	
+	// remove forms
+	_sdsso = 'ShippingDetails.ShippingServiceOptions';
+	for (i = 0; i <= 3; i++) {
+		if ($('select[name="'+_sdsso+'.'+i+'.ShippingService"]').val() == '') {
+			$('input[name="'+_sdsso+'.'+i+'.ShippingServicePriority"]').val('');
+		}
+	}
+	
+	_sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
+	for (i = 0; i <= 4; i++) {
+		if ($('select[name="'+_sdisso+'.'+i+'.ShippingService"]').val() == '') {
+			$('input[name="'+_sdisso+'.'+i+'.ShippingServicePriority"]').val('');
+		}
+	}
+	
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
+	
+	/*
+	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
+		if (v.ShippingService == '') {
+			msg('remove sso '+k);
+		} else {
+			msg('do not remove sso '+k);
+		}
+	});
+	*/
 	
 	//dump(postdata);
 	//return false;
@@ -1197,7 +1222,7 @@ function paging(cnt)
 			}
 		}
 		if (offset+limit<cnt) {
-			html += '<a href="">＞</a>';
+			html += '<a href="">&lt;&lt;</a>';
 		}
 	}
 	
@@ -1308,11 +1333,9 @@ function arrayize(object)
 {
 	if ($.isArray(object)) {
 		result = object;
-		msg('arz-array');
 	} else {
 		result = new Array();
 		result.push(object);
-		msg('arz-not');
 	}
 	
 	return result;
@@ -1325,7 +1348,6 @@ function dsp(item, str)
 		eval("val = item"+jstr);
 		$('input[name="'+str+'"]',  'tbody#'+item.id).replaceWith(val);
 		$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-		msg(str);
 	} catch (err) {
 		msg(err.description);
 	}
@@ -1344,7 +1366,6 @@ function fval(dom, item, str)
 		eval("val = item"+jstr);
 		$('input[name="'+str+'"]',  dom).val(val);
 		$('select[name="'+str+'"]', dom).val(val);
-		msg('fval:'+str);
 	} catch (err) {
 		msg(err.description);
 	}

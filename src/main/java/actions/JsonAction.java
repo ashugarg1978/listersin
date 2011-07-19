@@ -191,13 +191,16 @@ public class JsonAction extends BaseAction {
 		ext.put("categoryname", categoryname);
 		
 		/* shipping */
+		ext.put("shippingtype", shippingtypelabel2(item));
+		
+		/*
 		if (item.containsField("ShippingDetails")) {
 			BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
 			if (sd.containsField("ShippingType")) {
 				String st = sd.get("ShippingType").toString();
-				ext.put("shippingtype", shippingtypelabel2(item));
 			}
 		}
+		*/
 		
 		/* remove fields */
 		item.removeField("_id");
@@ -900,9 +903,28 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
 		if (sd.containsField("ShippingType")) {
-			
+			String shippingtype = sd.getString("ShippingType");
+			if (shippingtype.equals("Flat")) {
+				label.put("domestic",      "Flat");
+				label.put("international", "Flat");
+			} else if (shippingtype.equals("Calculated")) {
+				label.put("domestic",      "Calculated");
+				label.put("international", "Calculated");
+			} else if (shippingtype.equals("FlatDomesticCalculatedInternational")) {
+				label.put("domestic",      "Flat");
+				label.put("international", "Calculated");
+			} else if (shippingtype.equals("CalculatedDomesticFlatInternational")) {
+				label.put("domestic",      "Calculated");
+				label.put("international", "Flat");
+			} else if (shippingtype.equals("FreightFlat")) {
+				label.put("domestic",      "Freight");
+				label.put("international", "(?)");
+			}
+			if (!sd.containsField("InternationalShippingServiceOption")) {
+				label.put("international", "NoShipping");
+			}
 		} else {
-			label.put("domestic", "NoShipping");
+			label.put("domestic",      "NoShipping");
 			label.put("international", "NoShipping");
 		}
 		
