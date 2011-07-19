@@ -128,17 +128,19 @@ public class JsonAction extends BaseAction {
 			ext.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 			
 			/* endtime */
-			formatter.applyPattern("yyyy-MM-dd");
-			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
-			Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-			ext.put("dfnow", sdf.format(now));
-			ext.put("dfend", sdf.format(dfendtime));
-			if (formatter.format(now).equals(formatter.format(dfendtime))) {
-				formatter.applyPattern("h:mm a");
-			} else {
-				formatter.applyPattern("MMM d");
+			if (((DBObject) item.get("ListingDetails")).containsField("EndTime")) {
+				formatter.applyPattern("yyyy-MM-dd");
+				String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
+				Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+				ext.put("dfnow", sdf.format(now));
+				ext.put("dfend", sdf.format(dfendtime));
+				if (formatter.format(now).equals(formatter.format(dfendtime))) {
+					formatter.applyPattern("h:mm a");
+				} else {
+					formatter.applyPattern("MMM d");
+				}
+				ext.put("endtime", formatter.format(dfendtime));
 			}
-			ext.put("endtime", formatter.format(dfendtime));
 			
 			item.removeField("_id");
 			

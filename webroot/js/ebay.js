@@ -339,6 +339,10 @@ function getdetail(row)
 	dsp(row, 'Quantity');
 	dsp(row, 'StartPrice.@currencyID');
 	dsp(row, 'StartPrice.#text');
+	dsp(row, 'ListingDetails.BestOfferAutoAcceptPrice.@currencyID');
+	dsp(row, 'ListingDetails.BestOfferAutoAcceptPrice.#text');
+	dsp(row, 'ListingDetails.MinimumBestOfferPrice.@currencyID');
+	dsp(row, 'ListingDetails.MinimumBestOfferPrice.#text');
 	dsp(row, 'BuyItNowPrice.@currencyID');
 	dsp(row, 'BuyItNowPrice.#text');
 	dsp(row, 'BuyerGuaranteePrice.@currencyID');
@@ -764,6 +768,10 @@ var clickEdit = function() {
 	fval(dom, item, 'SubTitle');
 	fval(dom, item, 'StartPrice.@currencyID');
 	fval(dom, item, 'StartPrice.#text');
+	fval(dom, item, 'ListingDetails.BestOfferAutoAcceptPrice.@currencyID');
+	fval(dom, item, 'ListingDetails.BestOfferAutoAcceptPrice.#text');
+	fval(dom, item, 'ListingDetails.MinimumBestOfferPrice.@currencyID');
+	fval(dom, item, 'ListingDetails.MinimumBestOfferPrice.#text');
 	fval(dom, item, 'Quantity');
 	fval(dom, item, 'Site');
 	fval(dom, item, 'ListingType');

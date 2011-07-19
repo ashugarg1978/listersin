@@ -252,6 +252,20 @@
   </td>
 </tr>
 <tr>
+  <td><s:text name="BestOfferAutoAcceptPrice"/></td>
+  <td>
+	<input name="ListingDetails.BestOfferAutoAcceptPrice.@currencyID" type="text" size="3">
+	<input name="ListingDetails.BestOfferAutoAcceptPrice.#text" type="text" size="10">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="MinimumBestOfferPrice"/></td>
+  <td>
+	<input name="ListingDetails.MinimumBestOfferPrice.@currencyID" type="text" size="3">
+	<input name="ListingDetails.MinimumBestOfferPrice.#text" type="text" size="10">
+  </td>
+</tr>
+<tr>
   <td><s:text name="Quantity"/></td>
   <td><input name="Quantity" type="text" size="5"></td>
 </tr>
