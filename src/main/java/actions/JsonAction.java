@@ -64,6 +64,11 @@ public class JsonAction extends BaseAction {
 			hash.put("CountryDetails", countrydetails(site));
 			hash.put("CurrencyDetails", currencydetails(site));
 			
+			hash.put("ShippingLocationDetails",
+					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
+									"ShippingLocation",
+									"Description"));
+			
 			json.put(site, hash);
 		}
 		
@@ -856,6 +861,23 @@ public class JsonAction extends BaseAction {
 		map.put("FreightFlat"                        , tmpmap5);
 		
 		return map;
+	}
+	
+	private LinkedHashMap<String,String> getebaydetails(String coll, String key, String value) {
+		LinkedHashMap<String,String> hash = new LinkedHashMap<String,String>();
+		
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject field = new BasicDBObject();
+		field.put(key, 1);
+		field.put(value, 1);
+		
+		DBCursor cursor = db.getCollection(coll).find(query, field);
+		while (cursor.hasNext()) {
+			BasicDBObject row  = (BasicDBObject) cursor.next();
+			hash.put(row.getString(key), row.getString(value));
+		}
+		
+		return hash;
 	}
 	
 	private LinkedHashMap<String,String> countrydetails(String site) {

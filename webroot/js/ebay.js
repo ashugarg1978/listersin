@@ -440,14 +440,19 @@ function getdetail(row)
 		
 		dsp(row, _sdcsr+'.PackageLength.#text');
 		dsp(row, _sdcsr+'.PackageLength.@unit');
+		dsp(row, _sdcsr+'.PackageLength.@measurementSystem');
 		dsp(row, _sdcsr+'.PackageWidth.#text');
 		dsp(row, _sdcsr+'.PackageWidth.@unit');
+		dsp(row, _sdcsr+'.PackageWidth.@measurementSystem');
 		dsp(row, _sdcsr+'.PackageDepth.#text');
 		dsp(row, _sdcsr+'.PackageDepth.@unit');
+		dsp(row, _sdcsr+'.PackageDepth.@measurementSystem');
 		dsp(row, _sdcsr+'.WeightMajor.#text');
 		dsp(row, _sdcsr+'.WeightMajor.@unit');
+		dsp(row, _sdcsr+'.WeightMajor.@measurementSystem');
 		dsp(row, _sdcsr+'.WeightMinor.#text');
 		dsp(row, _sdcsr+'.WeightMinor.@unit');
+		dsp(row, _sdcsr+'.WeightMinor.@measurementSystem');
 	}
 	
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
@@ -785,14 +790,19 @@ var clickEdit = function() {
 	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
 	fval(dom, item, _sdcsr+'.PackageLength.@unit');
 	fval(dom, item, _sdcsr+'.PackageLength.#text');
+	fval(dom, item, _sdcsr+'.PackageLength.@measurementSystem');
 	fval(dom, item, _sdcsr+'.PackageWidth.@unit');
 	fval(dom, item, _sdcsr+'.PackageWidth.#text');
+	fval(dom, item, _sdcsr+'.PackageWidth.@measurementSystem');
 	fval(dom, item, _sdcsr+'.PackageDepth.@unit');
 	fval(dom, item, _sdcsr+'.PackageDepth.#text');
+	fval(dom, item, _sdcsr+'.PackageDepth.@measurementSystem');
 	fval(dom, item, _sdcsr+'.WeightMajor.@unit');
 	fval(dom, item, _sdcsr+'.WeightMajor.#text');
+	fval(dom, item, _sdcsr+'.WeightMajor.@measurementSystem');
 	fval(dom, item, _sdcsr+'.WeightMinor.@unit');
 	fval(dom, item, _sdcsr+'.WeightMinor.#text');
+	fval(dom, item, _sdcsr+'.WeightMinor.@measurementSystem');
 	
 	if (item.Description != null) {
 		$('textarea[name=Description]',   dom).val(item.Description);

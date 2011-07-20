@@ -387,21 +387,44 @@
 <tr>
   <td><s:text name="Dimensions"/></td>
   <td class="dimensions">
-	<input name="<s:text name="_SDCSR"/>.PackageLength.#text" type="text" size="3">
-	<input name="<s:text name="_SDCSR"/>.PackageLength.@unit" type="text" size="3"> x
-	<input name="<s:text name="_SDCSR"/>.PackageWidth.#text"  type="text" size="3">
-	<input name="<s:text name="_SDCSR"/>.PackageWidth.@unit"  type="text" size="3"> x
-	<input name="<s:text name="_SDCSR"/>.PackageDepth.#text"  type="text" size="3">
-	<input name="<s:text name="_SDCSR"/>.PackageDepth.@unit"  type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.PackageLength.#text" type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.PackageLength.@unit" type="text" size="3">
+	<select name="<s:text name="_SDCSR"/>.PackageLength.@measurementSystem">
+	  <option value="English">English</option>
+	  <option value="Metric">Metric</option>
+	</select>
+	x
+	<input  name="<s:text name="_SDCSR"/>.PackageWidth.#text"  type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.PackageWidth.@unit"  type="text" size="3">
+	<select name="<s:text name="_SDCSR"/>.PackageWidth.@measurementSystem">
+	  <option value="English">English</option>
+	  <option value="Metric">Metric</option>
+	</select>
+	x
+	<input  name="<s:text name="_SDCSR"/>.PackageDepth.#text"  type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.PackageDepth.@unit"  type="text" size="3">
+	<select name="<s:text name="_SDCSR"/>.PackageDepth.@measurementSystem">
+	  <option value="English">English</option>
+	  <option value="Metric">Metric</option>
+	</select>
   </td>
 </tr>
 <tr>
   <td><s:text name="Weight"/></td>
   <td class="weight">
-	<input name="<s:text name="_SDCSR"/>.WeightMajor.#text" type="text" size="3">
-	<input name="<s:text name="_SDCSR"/>.WeightMajor.@unit" type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.WeightMajor.#text" type="text" size="3">
+	<input  name="<s:text name="_SDCSR"/>.WeightMajor.@unit" type="text" size="3">
+	<select name="<s:text name="_SDCSR"/>.WeightMajor.@measurementSystem">
+	  <option value="English">English</option>
+	  <option value="Metric">Metric</option>
+	</select>
+	
 	<input name="<s:text name="_SDCSR"/>.WeightMinor.#text" type="text" size="3">
 	<input name="<s:text name="_SDCSR"/>.WeightMinor.@unit" type="text" size="3">
+	<select name="<s:text name="_SDCSR"/>.WeightMinor.@measurementSystem">
+	  <option value="English">English</option>
+	  <option value="Metric">Metric</option>
+	</select>
   </td>
 </tr>
 <tr>
