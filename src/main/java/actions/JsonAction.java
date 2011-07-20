@@ -64,6 +64,11 @@ public class JsonAction extends BaseAction {
 			hash.put("CountryDetails", countrydetails(site));
 			hash.put("CurrencyDetails", currencydetails(site));
 			
+			hash.put("ShippingLocationDetails",
+					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
+									"ShippingLocation",
+									"Description"));
+			
 			json.put(site, hash);
 		}
 		
@@ -128,17 +133,19 @@ public class JsonAction extends BaseAction {
 			ext.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 			
 			/* endtime */
-			formatter.applyPattern("yyyy-MM-dd");
-			String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
-			Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-			ext.put("dfnow", sdf.format(now));
-			ext.put("dfend", sdf.format(dfendtime));
-			if (formatter.format(now).equals(formatter.format(dfendtime))) {
-				formatter.applyPattern("h:mm a");
-			} else {
-				formatter.applyPattern("MMM d");
+			if (((DBObject) item.get("ListingDetails")).containsField("EndTime")) {
+				formatter.applyPattern("yyyy-MM-dd");
+				String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
+				Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+				ext.put("dfnow", sdf.format(now));
+				ext.put("dfend", sdf.format(dfendtime));
+				if (formatter.format(now).equals(formatter.format(dfendtime))) {
+					formatter.applyPattern("h:mm a");
+				} else {
+					formatter.applyPattern("MMM d");
+				}
+				ext.put("endtime", formatter.format(dfendtime));
 			}
-			ext.put("endtime", formatter.format(dfendtime));
 			
 			item.removeField("_id");
 			
@@ -221,8 +228,10 @@ public class JsonAction extends BaseAction {
 		/* CategoryName */
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+		
 		LinkedHashMap<Integer,String> categorypath =
 			categorypath2(item.getString("Site"), categoryid);
+		
 		String categoryname = "";
 		for (Integer cid : categorypath.keySet()) {
 			if (!categoryname.equals("")) categoryname += ":";
@@ -852,6 +861,23 @@ public class JsonAction extends BaseAction {
 		map.put("FreightFlat"                        , tmpmap5);
 		
 		return map;
+	}
+	
+	private LinkedHashMap<String,String> getebaydetails(String coll, String key, String value) {
+		LinkedHashMap<String,String> hash = new LinkedHashMap<String,String>();
+		
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject field = new BasicDBObject();
+		field.put(key, 1);
+		field.put(value, 1);
+		
+		DBCursor cursor = db.getCollection(coll).find(query, field);
+		while (cursor.hasNext()) {
+			BasicDBObject row  = (BasicDBObject) cursor.next();
+			hash.put(row.getString(key), row.getString(value));
+		}
+		
+		return hash;
 	}
 	
 	private LinkedHashMap<String,String> countrydetails(String site) {

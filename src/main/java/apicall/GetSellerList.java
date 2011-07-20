@@ -123,9 +123,15 @@ public class GetSellerList extends ApiCall {
 			dbobject.put("ext", ext);
 			
 			/* move some fields which is not necessary in AddItem families */
-			// BuyerGuaranteePrice
-			// BuyerProtection
-			
+			String[] movefields = {"SellingStatus",
+								   "TimeLeft",
+								   "BuyerProtection",
+								   "BuyerGuaranteePrice",
+								   "PaymentAllowedSite"};
+			for (String movefield : movefields) {
+				ext.put(movefield, dbobject.get(movefield));
+				dbobject.removeField(movefield);
+			}
 			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
