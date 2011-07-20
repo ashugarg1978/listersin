@@ -223,8 +223,10 @@ public class JsonAction extends BaseAction {
 		/* CategoryName */
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+		
 		LinkedHashMap<Integer,String> categorypath =
 			categorypath2(item.getString("Site"), categoryid);
+		
 		String categoryname = "";
 		for (Integer cid : categorypath.keySet()) {
 			if (!categoryname.equals("")) categoryname += ":";
