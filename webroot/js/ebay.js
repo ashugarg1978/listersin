@@ -866,7 +866,15 @@ var clickEdit = function() {
 			chk.attr('checked', 'checked');
 		}
 		$('td.paymentmethod', dom).append(chk);
-		$('td.paymentmethod', dom).append(v+'<br>');
+		$('td.paymentmethod', dom).append(v);
+		if (v == 'PayPal') {
+			input = $('<input />')
+				.attr('type', 'text')
+				.attr('name', 'PayPalEmailAddress')
+				.val(rowsdata[id]['PayPalEmailAddress']);
+			$('td.paymentmethod', dom).append(input);
+		}
+		$('td.paymentmethod', dom).append('<br />');
 		i++;
 	});
 	
