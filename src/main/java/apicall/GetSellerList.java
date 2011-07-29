@@ -86,7 +86,7 @@ public class GetSellerList extends ApiCall {
 		int pagenumber = Integer.parseInt(resdbo.getString("PageNumber"));
 		int itemcount  = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
 		
-		writelog("GSL."+email+"."+userid+"."+pagenumber+".xml", responsexml);
+		writelog("GetSellerList/"+email+"."+userid+"."+pagenumber+".xml", responsexml);
 		
 		if (itemcount == 0) {
 			log(userid+" no items.");

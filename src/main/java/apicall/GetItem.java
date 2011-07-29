@@ -100,7 +100,7 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		BasicDBObject item = (BasicDBObject) responsedbo.get("Item");
-		writelog("GI."+item.getString("ItemID")+".xml", responsexml);
+		writelog("GetItem/"+item.getString("ItemID")+".xml", responsexml);
 		
 		DBCollection coll = db.getCollection("items");
 		

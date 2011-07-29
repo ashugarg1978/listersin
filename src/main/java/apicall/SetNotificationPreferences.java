@@ -76,8 +76,6 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 			pool18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
 		future.get();
 		
-		writelog("SNP.req."+email+"."+userid+".xml", requestxml);
-		
 		return "";
 	}
 	

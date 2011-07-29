@@ -37,7 +37,7 @@ public class GetCategoryFeatures extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GCF."+site+".xml", responsexml);
+		writelog("GetCategoryFeatures/"+site+".xml", responsexml);
 		
 		DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
 		coll2.drop();

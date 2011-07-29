@@ -35,8 +35,6 @@ public class FetchToken extends ApiCall {
 		
 		String requestxml = convertDBObject2XML(reqdbo, "FetchToken");
 		
-		writelog("FT.req."+email+"."+username+".xml", requestxml);
-		
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "FetchToken"));
 		future.get();
 		
@@ -50,7 +48,7 @@ public class FetchToken extends ApiCall {
 		email    = messages[0];
 		username = messages[1];
 		
-		writelog("FT."+email+"."+username+".xml", responsexml);
+		writelog("FetchToken/"+email+"."+username+".xml", responsexml);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);

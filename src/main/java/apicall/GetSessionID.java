@@ -26,7 +26,6 @@ public class GetSessionID extends ApiCall {
 		reqdbo.append("MessageID", email);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetSessionID");
-		writelog("GSI.req."+email+".xml", requestxml);
 		
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSessionID"));
 		String result = future.get();
@@ -42,7 +41,7 @@ public class GetSessionID extends ApiCall {
 		email = resdbo.getString("CorrelationID");
 		log("GetSessionID callback : "+email);
 		
-		writelog("GSI."+email+".xml", responsexml);
+		writelog("GetSessionID/"+email+".xml", responsexml);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);

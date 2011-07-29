@@ -38,7 +38,7 @@ public class GetCategories extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GCs."+site+".xml", responsexml);
+		writelog("GetCategories/"+site+".xml", responsexml);
 		
 		DBCollection coll = db.getCollection(site+".Categories");
 		if (db.collectionExists(site+".Categories")) {

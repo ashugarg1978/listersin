@@ -18,13 +18,12 @@ public class GetDescriptionTemplates extends ApiCall {
 			
 			String  site   = row.get("Site").toString();
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
-			log(site+"("+siteid+")");
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
-			reqdbo.append("WarningLevel",   "High");
-			reqdbo.append("DetailLevel",    "ReturnAll");
-			reqdbo.append("MessageID",      site);
+			reqdbo.append("WarningLevel", "High");
+			reqdbo.append("DetailLevel",  "ReturnAll");
+			reqdbo.append("MessageID",    site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetDescriptionTemplates");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GetDescriptionTemplates"));
@@ -37,7 +36,7 @@ public class GetDescriptionTemplates extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GDT."+site+".xml", responsexml);
+		writelog("GetDescriptionTemplates/"+site+".xml", responsexml);
 		
 		return "";
 	}

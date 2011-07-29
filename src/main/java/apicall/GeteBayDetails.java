@@ -48,7 +48,7 @@ public class GeteBayDetails extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GeD."+site+".xml", responsexml);
+		writelog("GeteBayDetails/"+site+".xml", responsexml);
 		
 		for (Object idx : resdbo.keySet()) {
 			
