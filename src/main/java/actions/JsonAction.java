@@ -222,6 +222,7 @@ public class JsonAction extends BaseAction {
 		
 		String id   = ((String[]) parameters.get("id"))[0];
 		String form = ((String[]) parameters.get("json"))[0];
+		log.debug(form);
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		

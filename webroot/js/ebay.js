@@ -1002,10 +1002,13 @@ var clickSave = function() {
 	});
 	*/
 	
+	postdata = JSON.stringify(postdata);
+	
+	// todo: escape "&" character
+	postdata = postdata.replace(/&/g, 'AND');
+	
 	//dump(postdata);
 	//return false;
-	
-	postdata = JSON.stringify(postdata);
 	
 	$.post('/json/save',
 		   'id='+id+'&json='+postdata,
