@@ -105,6 +105,7 @@ public class AddItems extends ApiCall {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
 					BasicDBObject reqdbo = new BasicDBObject();
+					reqdbo.append("ErrorLanguage", "en_US");
 					reqdbo.append("WarningLevel", "High");
 					reqdbo.append("RequesterCredentials",
 								  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));

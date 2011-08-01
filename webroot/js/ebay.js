@@ -271,13 +271,13 @@ function getrow(idx, row)
 	
 	$('td.UserID', dom).html(row.ext.UserID);
 	
-	if (row.SellingStatus) {
-		if (row.SellingStatus.ListingStatus == 'Active') {
+	if (row.ext.SellingStatus) {
+		if (row.ext.SellingStatus.ListingStatus == 'Active') {
 			st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
-		} else if (row.SellingStatus.ListingStatus == 'Completed') {
+		} else if (row.ext.SellingStatus.ListingStatus == 'Completed') {
 			st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
 		} else {
-			st = $(row.SellingStatus.ListingStatus);
+			st = $(row.ext.SellingStatus.ListingStatus);
 		}
 		$('a.Title', dom).before(st);
 	} else {

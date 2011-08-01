@@ -516,16 +516,16 @@ public class JsonAction extends BaseAction {
 		
 		active.put("ext.deleted", new BasicDBObject("$exists", 0));
 		active.put("ItemID", new BasicDBObject("$exists", 1));
-		active.put("SellingStatus.ListingStatus", "Active");
+		active.put("ext.SellingStatus.ListingStatus", "Active");
 		
 		sold.put("ext.deleted", new BasicDBObject("$exists", 0));
 		sold.put("ItemID", new BasicDBObject("$exists", 1));
-		sold.put("SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
+		sold.put("ext.SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
 		
 		unsold.put("ext.deleted", new BasicDBObject("$exists", 0));
 		unsold.put("ItemID", new BasicDBObject("$exists", 1));
-		unsold.put("SellingStatus.ListingStatus", "Completed");
-		unsold.put("SellingStatus.QuantitySold", "0");
+		unsold.put("ext.SellingStatus.ListingStatus", "Completed");
+		unsold.put("ext.SellingStatus.QuantitySold", "0");
 		
 		saved.put("ext.deleted", new BasicDBObject("$exists", 0));
 		saved.put("ItemID", new BasicDBObject("$exists", 0));
