@@ -247,6 +247,16 @@ public class GetSellerList extends ApiCall {
 		
 		if (classname.equals("class com.mongodb.BasicDBList")) {
 			
+			if (!ext.containsField(path[0])) {
+				ext.put(path[0], new BasicDBList());
+			}
+			
+			BasicDBList dbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < dbl.size(); i++) {
+				movefield((DBObject) ((BasicDBList) dbo.get(path[0])).toArray()[i],
+						  (DBObject) ((BasicDBList) ext.get(path[0])).toArray()[i],
+						  path[1]);
+			}
 			//coll.insert((List<DBObject>) resdbo.get(idx));
 			
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
