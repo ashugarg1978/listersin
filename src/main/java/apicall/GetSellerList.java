@@ -133,8 +133,10 @@ public class GetSellerList extends ApiCall {
 				dbobject.removeField(movefield);
 			}
 			
+			movefield(dbobject, ext, "PrimaryCategory.CategoryName");
 			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMax");
 			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMin");
+			//movefield(dbobject, ext, "ItemSpecifics.NameValueList.Source");
 			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();

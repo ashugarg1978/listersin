@@ -227,6 +227,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		
 		/* CategoryName */
+		/*
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
 		
@@ -239,6 +240,7 @@ public class JsonAction extends BaseAction {
 			categoryname += categorypath.get(cid);
 		}
 		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryName", categoryname);
+		*/
 		
 		/* ShippingType */
 		BasicDBObject ssd =
