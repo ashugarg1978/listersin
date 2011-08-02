@@ -133,6 +133,9 @@ public class GetSellerList extends ApiCall {
 				dbobject.removeField(movefield);
 			}
 			
+			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMax");
+			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMin");
+			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
 			query.put("ItemID", itemid);
@@ -213,6 +216,53 @@ public class GetSellerList extends ApiCall {
 			coll.update(query, update, true, true);
 			
 		}
+		
+		return;
+	}
+	
+	/**
+	 *
+	 * ref: https://jira.mongodb.org/browse/JAVA-260
+	 */
+	private void movefield(DBObject dbo, DBObject ext, String field) {
+		
+		String[] path = field.split("\\.", 2);
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+		
+		/* leaf */
+		if (path.length == 1) {
+			
+			ext.put(path[0], dbo.get(path[0]));
+			dbo.removeField(path[0]);
+			log(path[0]+" : "+classname+" (leaf)");
+			
+			return;
+		}
+		
+		/* not leaf */
+		log(path[0]+" : "+classname+" ("+path[1]+")");
+		
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			
+			//coll.insert((List<DBObject>) resdbo.get(idx));
+			
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			
+			if (!ext.containsField(path[0])) {
+				ext.put(path[0], new BasicDBObject());
+			}
+			
+			movefield((DBObject) dbo.get(path[0]),
+					  (DBObject) ext.get(path[0]),
+					  path[1]);
+			
+		} else {
+			
+			log("movefield ERROR "+classname);
+			
+		}
+		log(ext.toString());
 		
 		return;
 	}

@@ -348,7 +348,7 @@ function getdetail(row)
 	dsp(row, 'BuyerGuaranteePrice.@currencyID');
 	dsp(row, 'BuyerGuaranteePrice.#text');
 	dsp(row, 'PostalCode');
-	
+	dsp(row, 'Location');
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
@@ -785,6 +785,7 @@ var clickEdit = function() {
 	fval(dom, item, 'BuyerGuaranteePrice.@currencyID');
 	fval(dom, item, 'BuyerGuaranteePrice.#text');
 	fval(dom, item, 'PostalCode');
+	fval(dom, item, 'Location');
 	
 	/* Dimensions */
 	_sdcsr = 'ShippingDetails.CalculatedShippingRate';

@@ -505,6 +505,12 @@
 	<input type="text" name="PostalCode" size="10" />
   </td>
 </tr>
+<tr>
+  <td><s:text name="Location"/></td>
+  <td>
+	<input type="text" name="Location" size="10" />
+  </td>
+</tr>
 </tbody>
 </table>
 </div>
