@@ -130,12 +130,9 @@ public class GetSellerList extends ApiCall {
 								   "PaymentAllowedSite",
 								   "PrimaryCategory.CategoryName",
 								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
-								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin",
-								   "ItemSpecifics.NameValueList.Source"};
+								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin"};
 			for (String fieldname : movefields) {
 				movefield(dbobject, ext, fieldname);
-				//ext.put(movefield, dbobject.get(movefield));
-				//dbobject.removeField(movefield);
 			}
 			
 			/* insert into mongodb */
@@ -162,6 +159,8 @@ public class GetSellerList extends ApiCall {
 			reqdbo.append("ItemID", itemid);
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+			
+			Thread.sleep(1000);
 		}
 		
 		return responsexml;
@@ -221,7 +220,7 @@ public class GetSellerList extends ApiCall {
 		
 		return;
 	}
-	
+
 	/**
 	 *
 	 * ref: https://jira.mongodb.org/browse/JAVA-260
@@ -231,7 +230,7 @@ public class GetSellerList extends ApiCall {
 		String[] path = field.split("\\.", 2);
 		
 		if (!dbo.containsField(path[0])) {
-			log("not exists:"+path[0]);
+			log(path[0]+" : NOT EXISTS.");
 			return;
 		}
 		
@@ -257,7 +256,7 @@ public class GetSellerList extends ApiCall {
 			BasicDBList extdbl = (BasicDBList) ext.get(path[0]);
 			
 			for (int i = 0; i < orgdbl.size(); i++) {
-				if (extdbl.size() < (i+1) ) {
+				if (extdbl.size() < (i+1)) {
 					extdbl.add(new BasicDBObject());
 				}
 				

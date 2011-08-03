@@ -117,11 +117,80 @@ public class GetItem extends ApiCall implements Callable {
 		}
 		upditem.put("ext.importstatus", "completed");
 		
+		/* move some fields which is not necessary in AddItem families */
+		String[] movefields = {"ItemSpecifics.NameValueList.Source"};
+		for (String fieldname : movefields) {
+			movefield(item, (DBObject) upditem.get("ext"), fieldname);
+		}
+		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", upditem);
 		
 		coll.update(query, update);
 		
 		return "";
+	}
+	
+	/**
+	 *
+	 * ref: https://jira.mongodb.org/browse/JAVA-260
+	 */
+	private void movefield(DBObject dbo, DBObject ext, String field) {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) {
+			log(path[0]+" : NOT EXISTS.");
+			return;
+		}
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+		
+		/* leaf */
+		if (path.length == 1) {
+			ext.put(path[0], dbo.get(path[0]));
+			dbo.removeField(path[0]);
+			return;
+		}
+		
+		/* not leaf */
+		log(path[0]+" : "+classname+" ("+path[1]+")");
+		
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			
+			if (!ext.containsField(path[0])) {
+				ext.put(path[0], new BasicDBList());
+			}
+			
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			BasicDBList extdbl = (BasicDBList) ext.get(path[0]);
+			
+			for (int i = 0; i < orgdbl.size(); i++) {
+				if (extdbl.size() < (i+1)) {
+					extdbl.add(new BasicDBObject());
+				}
+				
+				movefield((DBObject) orgdbl.get(i),
+						  (DBObject) extdbl.get(i),
+						  path[1]);
+			}
+			
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			
+			if (!ext.containsField(path[0])) {
+				ext.put(path[0], new BasicDBObject());
+			}
+			
+			movefield((DBObject) dbo.get(path[0]),
+					  (DBObject) ext.get(path[0]),
+					  path[1]);
+			
+		} else {
+			
+			log("movefield ERROR "+classname);
+			
+		}
+		
+		return;
 	}
 }
