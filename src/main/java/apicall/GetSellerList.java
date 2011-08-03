@@ -127,16 +127,16 @@ public class GetSellerList extends ApiCall {
 								   "TimeLeft",
 								   "BuyerProtection",
 								   "BuyerGuaranteePrice",
-								   "PaymentAllowedSite"};
-			for (String movefield : movefields) {
-				ext.put(movefield, dbobject.get(movefield));
-				dbobject.removeField(movefield);
+								   "PaymentAllowedSite",
+								   "PrimaryCategory.CategoryName",
+								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
+								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin",
+								   "ItemSpecifics.NameValueList.Source"};
+			for (String fieldname : movefields) {
+				movefield(dbobject, ext, fieldname);
+				//ext.put(movefield, dbobject.get(movefield));
+				//dbobject.removeField(movefield);
 			}
-			
-			movefield(dbobject, ext, "PrimaryCategory.CategoryName");
-			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMax");
-			movefield(dbobject, ext, "ShippingDetails.ShippingServiceOptions.ShippingTimeMin");
-			//movefield(dbobject, ext, "ItemSpecifics.NameValueList.Source");
 			
 			/* insert into mongodb */
 			BasicDBObject query = new BasicDBObject();
@@ -230,15 +230,17 @@ public class GetSellerList extends ApiCall {
 		
 		String[] path = field.split("\\.", 2);
 		
+		if (!dbo.containsField(path[0])) {
+			log("not exists:"+path[0]);
+			return;
+		}
+		
 		String classname = dbo.get(path[0]).getClass().toString();
 		
 		/* leaf */
 		if (path.length == 1) {
-			
 			ext.put(path[0], dbo.get(path[0]));
 			dbo.removeField(path[0]);
-			log(path[0]+" : "+classname+" (leaf)");
-			
 			return;
 		}
 		
@@ -251,13 +253,18 @@ public class GetSellerList extends ApiCall {
 				ext.put(path[0], new BasicDBList());
 			}
 			
-			BasicDBList dbl = (BasicDBList) dbo.get(path[0]);
-			for (int i = 0; i < dbl.size(); i++) {
-				movefield((DBObject) ((BasicDBList) dbo.get(path[0])).toArray()[i],
-						  (DBObject) ((BasicDBList) ext.get(path[0])).toArray()[i],
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			BasicDBList extdbl = (BasicDBList) ext.get(path[0]);
+			
+			for (int i = 0; i < orgdbl.size(); i++) {
+				if (extdbl.size() < (i+1) ) {
+					extdbl.add(new BasicDBObject());
+				}
+				
+				movefield((DBObject) orgdbl.get(i),
+						  (DBObject) extdbl.get(i),
 						  path[1]);
 			}
-			//coll.insert((List<DBObject>) resdbo.get(idx));
 			
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
 			
@@ -274,7 +281,6 @@ public class GetSellerList extends ApiCall {
 			log("movefield ERROR "+classname);
 			
 		}
-		log(ext.toString());
 		
 		return;
 	}
