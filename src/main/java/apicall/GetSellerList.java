@@ -160,7 +160,7 @@ public class GetSellerList extends ApiCall {
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
 			
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 		}
 		
 		return responsexml;

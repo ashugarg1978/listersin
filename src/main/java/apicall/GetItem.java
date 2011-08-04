@@ -115,12 +115,15 @@ public class GetItem extends ApiCall implements Callable {
 		if (item.containsField("ItemSpecifics")) {
 			upditem.put("ItemSpecifics", item.get("ItemSpecifics"));
 		}
-		upditem.put("ext.importstatus", "completed");
+
+		BasicDBObject ext = new BasicDBObject();
+		ext.put("importstatus", "completed");
+		upditem.put("ext", ext);
 		
 		/* move some fields which is not necessary in AddItem families */
 		String[] movefields = {"ItemSpecifics.NameValueList.Source"};
 		for (String fieldname : movefields) {
-			movefield(item, (DBObject) upditem.get("ext"), fieldname);
+			movefield(item, ext, fieldname);
 		}
 		
 		BasicDBObject update = new BasicDBObject();
@@ -135,7 +138,7 @@ public class GetItem extends ApiCall implements Callable {
 	 *
 	 * ref: https://jira.mongodb.org/browse/JAVA-260
 	 */
-	private void movefield(DBObject dbo, DBObject ext, String field) {
+	private void movefield(DBObject dbo, DBObject ext, String field) throws Exception {
 		
 		String[] path = field.split("\\.", 2);
 		
@@ -150,6 +153,7 @@ public class GetItem extends ApiCall implements Callable {
 		if (path.length == 1) {
 			ext.put(path[0], dbo.get(path[0]));
 			dbo.removeField(path[0]);
+			log(path[0]+" : (leaf)");
 			return;
 		}
 		
@@ -176,6 +180,9 @@ public class GetItem extends ApiCall implements Callable {
 			}
 			
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			
+			log("ext:"+ext.toString());
+			log(((DBObject) dbo.get(path[0])).toString());
 			
 			if (!ext.containsField(path[0])) {
 				ext.put(path[0], new BasicDBObject());
