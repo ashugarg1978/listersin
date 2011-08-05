@@ -115,8 +115,10 @@ public class GetItem extends ApiCall implements Callable {
 		if (item.containsField("ItemSpecifics")) {
 			upditem.put("ItemSpecifics", item.get("ItemSpecifics"));
 		}
-
-		BasicDBObject ext = new BasicDBObject();
+		
+		DBObject orgitem = coll.findOne(query);
+		
+		BasicDBObject ext = (BasicDBObject) orgitem.get("ext");
 		ext.put("importstatus", "completed");
 		upditem.put("ext", ext);
 		
