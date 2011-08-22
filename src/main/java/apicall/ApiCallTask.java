@@ -40,7 +40,7 @@ public class ApiCallTask implements Callable {
         conn.setDoInput(true);
         conn.setDoOutput(true);
         conn.setRequestProperty("Content-Type", "text/xml");
-        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "727");
+        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "735");
         conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
         conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
         conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
