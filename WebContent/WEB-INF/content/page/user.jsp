@@ -122,8 +122,8 @@
 <input type="button" class="edit"         value="<s:text name="edit"/>">
 <input type="button" class="copy"         value="<s:text name="copy"/>">
 <input type="button" class="delete"       value="<s:text name="delete"/>">
+<input type="button" class="add"          value="<s:text name="add"/>">
 <input type="button" class="relist"       value="<s:text name="relist"/>">
-<input type="button" class="relist2"      value="<s:text name="relist2"/>">
 <input type="button" class="revise"       value="<s:text name="revise"/>">
 <input type="button" class="end"          value="<s:text name="end"/>">
 </div>
@@ -207,7 +207,8 @@
 <li><a href="#" class="edit">Edit</a></li>
 <li><a href="#" class="copy">Copy</a></li>
 <li><a href="#" class="delete">Delete</a></li>
-<li><a href="#" class="relist">(Re)List</a></li>
+<li><a href="#" class="add">Add</a></li>
+<li><a href="#" class="relist">ReList</a></li>
 <li><a href="#" class="revise">Revise</a></li>
 <li><a href="#" class="end">End</a></li>
 <li style="display:none;"><a href="#" class="save">Save</a></li>

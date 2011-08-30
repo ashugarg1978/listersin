@@ -386,8 +386,8 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	@Action(value="/json/relist")
-	public String relist() throws Exception {
+	@Action(value="/json/add")
+	public String add() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
 		
@@ -398,10 +398,10 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		query.put("ext.status", new BasicDBObject("$ne", "(re)list"));
+		query.put("ext.status", new BasicDBObject("$ne", "add"));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "(re)list"));
+		update.put("$set", new BasicDBObject("ext.status", "add"));
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
@@ -416,8 +416,8 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	@Action(value="/json/relist2")
-	public String relist2() throws Exception {
+	@Action(value="/json/relist")
+	public String relist() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
 		

@@ -75,10 +75,50 @@ public class RelistItem extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		String itemid = resdbo.getString("ItemID");
+		BasicDBObject item = convertXML2DBObject(responsexml);
+		
+		// todo: almost same as AddItems callback function.
+		String id        = item.getString("CorrelationID");
+		String itemid    = item.getString("ItemID");
+		String starttime = item.getString("StartTime");
+		String endtime   = item.getString("EndTime");
 		
 		writelog("RelistItem/res."+itemid+".xml", responsexml);
+		
+		String ack = item.get("Ack").toString();
+		log("Ack:"+ack);
+		
+		BasicDBObject upditem = new BasicDBObject();
+		upditem.put("ext.status", "");
+		if (itemid != null) {
+			upditem.put("ItemID", itemid);
+			upditem.put("ListingDetails.StartTime", starttime);
+			upditem.put("ListingDetails.EndTime", endtime);
+			upditem.put("ext.SellingStatus.ListingStatus", "Active");
+		}
+		
+		// todo: aware <SeverityCode>Warning</SeverityCode>
+		if (item.get("Errors") != null) {
+			String errorclass = item.get("Errors").getClass().toString();
+			BasicDBList errors = new BasicDBList();
+			if (errorclass.equals("class com.mongodb.BasicDBObject")) {
+				errors.add((BasicDBObject) item.get("Errors"));
+			} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
+				errors = (BasicDBList) item.get("Errors");
+			} else {
+				log("Class Error:"+errorclass);
+			}
+			upditem.put("ext.errors", errors);
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(id));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", upditem);
+		
+		DBCollection coll = db.getCollection("items");
+		WriteResult result = coll.update(query, update);
 		
 		return "";
 	}

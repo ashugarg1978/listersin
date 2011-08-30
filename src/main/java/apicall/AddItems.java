@@ -43,17 +43,17 @@ public class AddItems extends ApiCall {
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
 		query.put("ext.deleted", new BasicDBObject("$exists", 0));
-		query.put("ext.status", "(re)list");
+		query.put("ext.status", "add");
 		query.put("ItemID", new BasicDBObject("$exists", 0));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "(re)listing"));
+		update.put("$set", new BasicDBObject("ext.status", "adding"));
 		
 		DBCollection coll = db.getCollection("items");
 		WriteResult result = coll.update(query, update, false, true);
 		
 		/* re-query */
-		query.put("ext.status", "(re)listing");
+		query.put("ext.status", "adding");
 		
 		/* build userid.site.chunk array */
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
