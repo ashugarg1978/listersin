@@ -61,11 +61,11 @@ public class RelistItem extends ApiCall {
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("RequesterCredentials",
 						  new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
-			
+			reqdbo.append("MessageID", item.get("_id").toString());
 			reqdbo.append("Item", new BasicDBObject("ItemID", item.get("ItemID").toString()));
 			
 			String requestxml = convertDBObject2XML(reqdbo, "RelistItem");
-			writelog("RelistItem/req.xml", requestxml);
+			writelog("RelistItem/"+userid+"."+item.get("_id").toString()+".xml", requestxml);
 			
 			pool18.submit(new ApiCallTask(getSiteID(site), requestxml, "RelistItem"));
 		}
@@ -75,8 +75,10 @@ public class RelistItem extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		//writelog("RelistItem/"+item.getString("ItemID")+".xml", responsexml);
-		writelog("RelistItem/res.xml", responsexml);
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		String itemid = resdbo.getString("ItemID");
+		
+		writelog("RelistItem/res."+itemid+".xml", responsexml);
 		
 		return "";
 	}

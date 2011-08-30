@@ -187,7 +187,7 @@ public class GetSellerList extends ApiCall {
 		Date now = new Date();
 		String timestamp = sdf.format(now).toString();
 		
-		writelog("NTF."+notificationeventname+"."+timestamp+".xml", notifyxml);
+		writelog("Notification/"+notificationeventname+"."+timestamp+".xml", notifyxml);
 		
 		
 		// todo: event name operation
