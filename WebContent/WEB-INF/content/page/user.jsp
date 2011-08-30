@@ -123,6 +123,7 @@
 <input type="button" class="copy"         value="<s:text name="copy"/>">
 <input type="button" class="delete"       value="<s:text name="delete"/>">
 <input type="button" class="relist"       value="<s:text name="relist"/>">
+<input type="button" class="relist2"      value="<s:text name="relist2"/>">
 <input type="button" class="revise"       value="<s:text name="revise"/>">
 <input type="button" class="end"          value="<s:text name="end"/>">
 </div>

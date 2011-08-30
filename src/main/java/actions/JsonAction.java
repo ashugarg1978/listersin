@@ -416,6 +416,36 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
+	@Action(value="/json/relist2")
+	public String relist2() throws Exception {
+		
+		json = new LinkedHashMap<String,Object>();
+		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) parameters.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		query.put("ext.status", new BasicDBObject("$ne", "relist"));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("ext.status", "relist"));
+		
+		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		
+		json.put("result", result);
+		
+		Socket socket = new Socket("localhost", 8181);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("RelistItem "+session.get("email"));
+		out.close();
+		socket.close();
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/json/revise")
 	public String revise() throws Exception {
 		
