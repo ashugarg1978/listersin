@@ -116,6 +116,7 @@ public class JsonAction extends BaseAction {
 		
         Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
 		SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
 		Date now = new Date();
 		//String today = sdf.format(calendar.getTime());
@@ -141,8 +142,10 @@ public class JsonAction extends BaseAction {
 				ext.put("dfend", sdf.format(dfendtime));
 				if (formatter.format(now).equals(formatter.format(dfendtime))) {
 					formatter.applyPattern("h:mm a");
+					//formatter.applyPattern("MM-dd HH:mm");
 				} else {
 					formatter.applyPattern("MMM d");
+					//formatter.applyPattern("MM-dd HH:mm");
 				}
 				ext.put("endtime", formatter.format(dfendtime));
 			}

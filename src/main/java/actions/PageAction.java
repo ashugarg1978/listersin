@@ -11,6 +11,9 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
 import org.apache.struts2.convention.annotation.Result;
@@ -187,8 +190,69 @@ public class PageAction extends BaseAction {
 			notifyxml += line + "\n";
 		}
 		
-		GetSellerList gsl = new GetSellerList();
-		gsl.parsenotifyxml(notifyxml);
+		//GetSellerList gsl = new GetSellerList();
+		//gsl.parsenotifyxml(notifyxml);
+		
+		JSONObject json = (JSONObject) new XMLSerializer().read(notifyxml);
+		
+		JSONObject item = json
+			.getJSONObject("soapenv:Body")
+			.getJSONObject("GetItemResponse")
+			.getJSONObject("Item");
+		
+		String notificationeventname = json
+			.getJSONObject("soapenv:Body")
+			.getJSONObject("GetItemResponse")
+			.get("NotificationEventName")
+			.toString();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
+		Date now = new Date();
+		String timestamp = sdf.format(now).toString();
+		
+		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/apicall/Notification/"
+											+ notificationeventname+"."+timestamp+".xml");
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(notifyxml);
+		out.close();
+		
+		// todo: event name operation
+		
+		String userid = ((JSONObject) item.get("Seller")).get("UserID").toString();
+		String itemid = item.get("ItemID").toString();
+		
+		DBCollection coll = db.getCollection("items");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("ext.UserID", userid);
+		query.put("ItemID",     itemid);
+		
+		// todo: auto relist
+		
+		if (notificationeventname.equals("ItemEnded")) {
+			
+		}
+		
+		if (false) {
+			
+			BasicDBObject ext = new BasicDBObject();
+			ext.put("UserID", userid);
+			ext.put("labels", new BasicDBList());
+			
+			/* convert JSON to DBObject */
+			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
+			dbobject.put("ext", ext);
+			
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("$set", dbobject);
+			
+			/* insert into mongodb */
+			coll.findAndRemove(query);
+			coll.update(query, update, true, true);
+			
+		}
+		
 		
 		return SUCCESS;
 	}

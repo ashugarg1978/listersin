@@ -1207,7 +1207,8 @@ function refresh()
 			   $.each(data.json.items, function(idx, row) {
 				   dom = getrow(idx, row);
 				   if (row.ext.status == '') {
-					   $('input:checkbox', dom).css('visibility', '').attr('checked', '');
+					   //$('input:checkbox', dom).css('visibility', '').attr('checked', '');
+					   $('input:checkbox', dom).css('visibility', '').removeAttr('checked');
 					   $('input:checkbox', dom).parent().removeClass('loading');
 					   $('tbody#'+idx).replaceWith(dom);
 				   }
