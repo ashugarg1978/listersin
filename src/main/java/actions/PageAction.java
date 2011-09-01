@@ -222,24 +222,35 @@ public class PageAction extends BaseAction {
 		String itemid = item.get("ItemID").toString();
 		
 		DBCollection coll = db.getCollection("items");
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("ext.UserID", userid);
-		query.put("ItemID",     itemid);
-		
-		// todo: auto relist
-		
-		if (notificationeventname.equals("ItemEnded")) {
+
+		if (notificationeventname.equals("ItemUnsold")) {
 			
+			BasicDBObject query = new BasicDBObject();
+			query.put("ext.UserID", userid);
+			query.put("ItemID",     itemid);
+			query.put("ext.status", new BasicDBObject("$ne", "relist"));
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("$set", new BasicDBObject("ext.status", "relist"));
+			
+			WriteResult result = coll.update(query, update, false, true);
+			
+			Socket socket = new Socket("localhost", 8181);
+			PrintWriter sout = new PrintWriter(socket.getOutputStream(), true);
+			//sout.println("RelistItem "+session.get("email"));
+			sout.println("RelistItem fd3s.boost@gmail.com");
+			sout.close();
+			socket.close();
 		}
 		
+		/*
 		if (false) {
 			
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
 			ext.put("labels", new BasicDBList());
 			
-			/* convert JSON to DBObject */
+			// convert JSON to DBObject
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
 			dbobject.put("ext", ext);
 			
@@ -247,12 +258,12 @@ public class PageAction extends BaseAction {
 			BasicDBObject update = new BasicDBObject();
 			update.put("$set", dbobject);
 			
-			/* insert into mongodb */
+			// insert into mongodb
 			coll.findAndRemove(query);
 			coll.update(query, update, true, true);
 			
 		}
-		
+		*/
 		
 		return SUCCESS;
 	}

@@ -65,8 +65,6 @@ public class RelistItem extends ApiCall {
 			reqdbo.append("Item", new BasicDBObject("ItemID", item.get("ItemID").toString()));
 			
 			String requestxml = convertDBObject2XML(reqdbo, "RelistItem");
-			writelog("RelistItem/"+userid+"."+item.get("_id").toString()+".xml", requestxml);
-			
 			pool18.submit(new ApiCallTask(getSiteID(site), requestxml, "RelistItem"));
 		}
 		
