@@ -31,9 +31,14 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	protected Logger log = Logger.getLogger(this.getClass());
 	
 	public BaseAction() throws Exception {
+		MongoConnect mc = MongoConnect.getInstance();
+		db = mc.getDB();
+		/*
 		if (db == null) {
 			db = new Mongo().getDB("ebay");
+			log.debug("mongo connect");
 		}
+		*/
 	}
 	
     @Override
