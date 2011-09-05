@@ -38,7 +38,7 @@ public class GetSellerList extends ApiCall {
 		
 		/* GetSellerList */
 		BasicDBObject dbobject = new BasicDBObject();
-		dbobject.put("DetailLevel", "ReturnAll");
+		//dbobject.put("DetailLevel", "ReturnAll");
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
@@ -115,6 +115,7 @@ public class GetSellerList extends ApiCall {
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
 			String itemid = dbobject.get("ItemID").toString();
 			
+if (false) {
 			/* add extended information */
 			BasicDBObject ext = new BasicDBObject();
 			ext.put("UserID", userid);
@@ -144,7 +145,8 @@ public class GetSellerList extends ApiCall {
 			
 			coll.findAndRemove(query);
 			coll.update(query, update, true, true);
-			
+}
+
 			/* GetItem */
 			// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
 			BasicDBObject reqdbo = new BasicDBObject();
@@ -160,7 +162,7 @@ public class GetSellerList extends ApiCall {
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
 			
-			Thread.sleep(3000);
+			//Thread.sleep(3000);
 		}
 		
 		return responsexml;
