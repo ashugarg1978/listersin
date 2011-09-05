@@ -107,6 +107,14 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject query = new BasicDBObject();
 		query.put("ItemID", item.getString("ItemID"));
 		
+		/* add extended information */
+		BasicDBObject ext = new BasicDBObject();
+		ext.put("UserID", ((BasicDBObject) item.get("Seller")).getString("UserID"));
+		ext.put("labels", new BasicDBList());
+		ext.put("importstatus", "waiting GetItem");
+		item.put("ext", ext);
+		
+		/*
 		BasicDBObject upditem = new BasicDBObject();
 		upditem.put("ConditionID", item.getString("ConditionID"));
 		if (item.containsField("ProductListingDetails")) {
@@ -118,9 +126,11 @@ public class GetItem extends ApiCall implements Callable {
 		
 		DBObject orgitem = coll.findOne(query);
 		
+		
 		BasicDBObject ext = (BasicDBObject) orgitem.get("ext");
 		ext.put("importstatus", "completed");
 		upditem.put("ext", ext);
+		*/
 		
 		/* move some fields which is not necessary in AddItem families */
 		String[] movefields = {"ItemSpecifics.NameValueList.Source"};
@@ -129,9 +139,10 @@ public class GetItem extends ApiCall implements Callable {
 		}
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", upditem);
+		//update.put("$set", upditem);
+		update.put("$set", item);
 		
-		coll.update(query, update);
+		coll.update(query, update, true, true);
 		
 		return "";
 	}
