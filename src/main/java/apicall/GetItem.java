@@ -100,46 +100,40 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		BasicDBObject item = (BasicDBObject) responsedbo.get("Item");
-		writelog("GetItem/"+item.getString("ItemID")+".xml", responsexml);
+
+		String callbackuserid = ((BasicDBObject) item.get("Seller")).getString("UserID");
+		String callbackitemid = item.getString("ItemID");
+		
+		writelog("GetItem/"+callbackuserid+"."+callbackitemid+".xml", responsexml);
 		
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ItemID", item.getString("ItemID"));
+		query.put("ext.UserID", callbackuserid);
+		query.put("ItemID", callbackitemid);
 		
 		/* add extended information */
 		BasicDBObject ext = new BasicDBObject();
-		ext.put("UserID", ((BasicDBObject) item.get("Seller")).getString("UserID"));
+		ext.put("UserID", callbackuserid);
 		ext.put("labels", new BasicDBList());
-		ext.put("importstatus", "waiting GetItem");
 		item.put("ext", ext);
 		
-		/*
-		BasicDBObject upditem = new BasicDBObject();
-		upditem.put("ConditionID", item.getString("ConditionID"));
-		if (item.containsField("ProductListingDetails")) {
-			upditem.put("ProductListingDetails", item.get("ProductListingDetails"));
-		}
-		if (item.containsField("ItemSpecifics")) {
-			upditem.put("ItemSpecifics", item.get("ItemSpecifics"));
-		}
-		
-		DBObject orgitem = coll.findOne(query);
-		
-		
-		BasicDBObject ext = (BasicDBObject) orgitem.get("ext");
-		ext.put("importstatus", "completed");
-		upditem.put("ext", ext);
-		*/
-		
+		// todo: copy from GetSellerList code.
 		/* move some fields which is not necessary in AddItem families */
-		String[] movefields = {"ItemSpecifics.NameValueList.Source"};
+		String[] movefields = {"ItemSpecifics.NameValueList.Source",
+							   "SellingStatus",
+							   "TimeLeft",
+							   "BuyerProtection",
+							   "BuyerGuaranteePrice",
+							   "PaymentAllowedSite",
+							   "PrimaryCategory.CategoryName",
+							   "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
+							   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin"};
 		for (String fieldname : movefields) {
 			movefield(item, ext, fieldname);
 		}
 		
 		BasicDBObject update = new BasicDBObject();
-		//update.put("$set", upditem);
 		update.put("$set", item);
 		
 		coll.update(query, update, true, true);
@@ -166,13 +160,12 @@ public class GetItem extends ApiCall implements Callable {
 		if (path.length == 1) {
 			ext.put(path[0], dbo.get(path[0]));
 			dbo.removeField(path[0]);
-			log(path[0]+" : (leaf)");
+			//log(path[0]+" : (leaf)");
 			return;
 		}
 		
 		/* not leaf */
-		log(path[0]+" : "+classname+" ("+path[1]+")");
-		
+		//log(path[0]+" : "+classname+" ("+path[1]+")");
 		if (classname.equals("class com.mongodb.BasicDBList")) {
 			
 			if (!ext.containsField(path[0])) {
@@ -194,8 +187,8 @@ public class GetItem extends ApiCall implements Callable {
 			
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
 			
-			log("ext:"+ext.toString());
-			log(((DBObject) dbo.get(path[0])).toString());
+			//log("ext:"+ext.toString());
+			//log(((DBObject) dbo.get(path[0])).toString());
 			
 			if (!ext.containsField(path[0])) {
 				ext.put(path[0], new BasicDBObject());
