@@ -34,18 +34,29 @@ public class ApiCallTask implements Callable {
 		*/
 		
         URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
+		if (callname.equals("downloadFile")) {
+			url = new URL("https://storage.sandbox.ebay.com/FileTransferService");
+		}
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
         conn.setRequestMethod("POST");
         conn.setDoInput(true);
         conn.setDoOutput(true);
-        conn.setRequestProperty("Content-Type", "text/xml");
-        conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "735");
-        conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
-        conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
-        conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
-        conn.setRequestProperty("X-EBAY-API-APP-NAME",  "Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
-        conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
+		conn.setRequestProperty("Content-Type", "text/xml");
+		
+		if (callname.equals("downloadFile")) {
+			conn.setRequestProperty("X-EBAY-SOA-OPERATION-NAME", "downloadFile");
+			//conn.setRequestProperty("X-EBAY-SOA-SECURITY-TOKEN", "");
+			//conn.setRequestProperty("X-EBAY-SOA-SERVICE-NAME", "");
+			//conn.setRequestProperty("X-EBAY-SOA-SERVICE-VERSION", "");
+		} else {
+			conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "735");
+			conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
+			conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
+			conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
+			conn.setRequestProperty("X-EBAY-API-APP-NAME",  "Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
+			conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
+		}
 		
 		/*
         conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
