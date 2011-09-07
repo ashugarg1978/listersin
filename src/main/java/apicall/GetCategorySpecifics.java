@@ -47,8 +47,8 @@ public class GetCategorySpecifics extends ApiCall {
 		
 		/* downloadFile */
 		BasicDBObject reqdbo = new BasicDBObject();
-		reqdbo.append("taskReferenceID", taskid);
-		reqdbo.append("fileReferenceID", fileid);
+		reqdbo.append("taskReferenceId", taskid);
+		reqdbo.append("fileReferenceId", fileid);
 		
 		JSONObject jso = JSONObject.fromObject(reqdbo.toString());
 		XMLSerializer xmls = new XMLSerializer();

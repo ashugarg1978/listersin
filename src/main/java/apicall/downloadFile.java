@@ -5,6 +5,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.mail.internet.MimeMultipart;
 
 public class downloadFile extends ApiCall {
 	
@@ -23,7 +24,8 @@ public class downloadFile extends ApiCall {
 		String timestamp = sdf.format(now).toString();
 		writelog("downloadFile/"+timestamp+".xml", responsexml);
 		
-		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		
+		//BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
 		return "";
 	}
