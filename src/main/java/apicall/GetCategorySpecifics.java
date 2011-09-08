@@ -30,7 +30,8 @@ public class GetCategorySpecifics extends ApiCall {
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategorySpecifics");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategorySpecifics"));
-
+			
+			break;
 		}
 		
 		return "";
@@ -44,6 +45,10 @@ public class GetCategorySpecifics extends ApiCall {
 		
 		String taskid = resdbo.getString("TaskReferenceID");
 		String fileid = resdbo.getString("FileReferenceID");
+
+		// todo: check existing downloaded file.
+		String dlfilename = taskid+"."+fileid+"dat";
+		
 		
 		/* downloadFile */
 		BasicDBObject reqdbo = new BasicDBObject();
