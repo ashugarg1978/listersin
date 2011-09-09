@@ -76,6 +76,21 @@ public class ApiCallTask implements Callable {
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		String responsexml = "";
+		System.out.println("A");
+		if (callname.equals("downloadFile")) {
+			for (int i = 0;; i++) {
+				String headerName  = conn.getHeaderFieldKey(i);
+				String headerValue = conn.getHeaderField(i);
+				
+				if (headerName == null && headerValue == null) {
+					responsexml = responsexml + "\r\n";
+					break;
+				} else if (headerName != null && headerName.equals("Content-Type")) {
+					String[] arrhd = headerValue.split(";");
+					responsexml = responsexml + headerName + ": " + arrhd[0]+";"+arrhd[1] + "\r\n";
+				}
+			}
+		}
 		while ((line = br.readLine()) != null) {
 			responsexml = responsexml + line;
 		}
@@ -83,6 +98,7 @@ public class ApiCallTask implements Callable {
 		
 		String result = "";
 		
+		System.out.println("B");
 		/* callback */
 		try {
 			ApiCall task = (ApiCall) Class.forName("ebaytool.apicall."+callname).newInstance();
