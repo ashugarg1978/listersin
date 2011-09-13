@@ -25,34 +25,33 @@ public class downloadFile extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		//log(responsexml);
-		
-		//System.setProperty("mail.mime.multipart.ignoreexistingboundaryparameter", "true");
-		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
 		Date now = new Date();
 		String timestamp = sdf.format(now).toString();
 		writelog("downloadFile/"+timestamp+".xml", responsexml);
-
-		String[] arrxml = responsexml.split("\r\n\r\n");
-		writelog("downloadFile/"+timestamp+".xml2", arrxml[1]);
+		
+		/*
+		String[] arrxml = responsexml.split("\n\n");
+		String boundary = arrxml[0];
+		boundary = boundary.replace("Content-Type: multipart/related;boundary=", "--");
+		log("boundary:"+boundary);
+		
+		String[] parts = responsexml.split(boundary);
+		writelog("downloadFile/t.zip", parts[2]);
+		*/
 		
 		FileDataSource fds = new FileDataSource
 			("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+timestamp+".xml");
-		FileDataSource fds2 = new FileDataSource
-			("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+timestamp+".xml2");
 		
 		Properties props = new Properties();
 		//props.put("mail.mime.multipart.ignoremissingboundaryparameter", true);
-		props.put("mail.mime.multipart.ignoreexistingboundaryparameter", true);
+		//props.put("mail.mime.multipart.ignoreexistingboundaryparameter", true);
 		Session session = Session.getDefaultInstance(props, null);
 		MimeMessage message = new MimeMessage(session, fds.getInputStream());
-		MimeMessage message2 = new MimeMessage(session, fds2.getInputStream());
-		log(message.getContentType());
+		//log(message.getContentType());
 		//log(message.getContent().toString());
 		
 		Part part = (Part) message;
-		Part part2 = (Part) message;
 		if (part.isMimeType("multipart/*")) { // マルチパートの場合
 			//MimeMultipart mmp = (MimeMultipart) part.getContent();
 			//log("getcount:"+mmp.getCount());
@@ -64,6 +63,14 @@ public class downloadFile extends ApiCall {
 			Multipart mp = (Multipart) part.getContent();
 			//Multipart mp = new MimeMultipart(bads);
 			log("getcount:"+mp.getCount());
+
+			BodyPart bp = mp.getBodyPart(1);
+			Object content = bp.getContent();
+			writelog("downloadFile/content", content.toString());
+			log("filename:"+bp.getFileName());
+			
+			FileOutputStream fos = new FileOutputStream("/var/www/ebaytool.jp/logs/apicall/downloadFile/a.out");
+			bp.writeTo(fos);
 		}
 		//log(p.toString());
 		
