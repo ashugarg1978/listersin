@@ -28,8 +28,8 @@ public class GetCategorySpecifics extends ApiCall {
 			reqdbo.append("CategorySpecificsFileInfo", "true");
 			reqdbo.append("MessageID",    site);
 			
-			if (!site.equals("Singapore")) {
-				continue;
+			if (!site.equals("Italy")) {
+				//continue;
 			}
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategorySpecifics");
@@ -65,7 +65,7 @@ public class GetCategorySpecifics extends ApiCall {
 		String requestxml = xmls.write(jso);
 		
 		//String requestxml = convertDBObject2XML(reqdbo, "downloadFile");
-		pool18.submit(new ApiCallTask(0, requestxml, "downloadFile"));
+		pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile"));
 		
 		writelog("GetCategorySpecifics/dl."+site+".xml", requestxml);
 		

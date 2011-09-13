@@ -5,6 +5,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.zip.*;
 import javax.activation.FileDataSource;
 
 import javax.mail.*;
@@ -23,89 +24,48 @@ public class downloadFile extends ApiCall {
 		return "";
 	}
 	
-	public String callback(String responsexml) throws Exception {
+	public String callback(String filename) throws Exception {
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
-		Date now = new Date();
-		String timestamp = sdf.format(now).toString();
-		writelog("downloadFile/"+timestamp+".xml", responsexml);
+		/* save zip file */
+		String savedir = "/var/www/ebaytool.jp/logs/apicall/downloadFile";
+		FileDataSource fds = new FileDataSource(savedir+"/"+filename);
 		
-		/*
-		String[] arrxml = responsexml.split("\n\n");
-		String boundary = arrxml[0];
-		boundary = boundary.replace("Content-Type: multipart/related;boundary=", "--");
-		log("boundary:"+boundary);
+		MimeMultipart mmp = new MimeMultipart(fds);
 		
-		String[] parts = responsexml.split(boundary);
-		writelog("downloadFile/t.zip", parts[2]);
-		*/
+		BodyPart bp = mmp.getBodyPart(1);
+		log("disposition:"+bp.getDisposition());
 		
-		FileDataSource fds = new FileDataSource
-			("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+timestamp+".xml");
+		File file = new File(savedir+"/"+filename+".zip");
+		InputStream is = bp.getInputStream();
+		OutputStream os = new FileOutputStream(file);
 		
-		Properties props = new Properties();
-		//props.put("mail.mime.multipart.ignoremissingboundaryparameter", true);
-		//props.put("mail.mime.multipart.ignoreexistingboundaryparameter", true);
-		Session session = Session.getDefaultInstance(props, null);
-		MimeMessage message = new MimeMessage(session, fds.getInputStream());
-		//log(message.getContentType());
-		//log(message.getContent().toString());
-		
-		Part part = (Part) message;
-		if (part.isMimeType("multipart/*")) { // マルチパートの場合
-			//MimeMultipart mmp = (MimeMultipart) part.getContent();
-			//log("getcount:"+mmp.getCount());
-			
-			//ByteArrayDataSource bads = new ByteArrayDataSource
-			//	(fds.getInputStream(), part.getContentType());
-			
-			//Multipart mp = (Multipart) part.getContent();
-			Multipart mp = (Multipart) part.getContent();
-			//Multipart mp = new MimeMultipart(bads);
-			log("getcount:"+mp.getCount());
-
-			BodyPart bp = mp.getBodyPart(1);
-			Object content = bp.getContent();
-			writelog("downloadFile/content", content.toString());
-			log("filename:"+bp.getFileName());
-			
-			FileOutputStream fos = new FileOutputStream("/var/www/ebaytool.jp/logs/apicall/downloadFile/a.out");
-			bp.writeTo(fos);
+		byte buf[]=new byte[1024];
+		int len;
+		while ((len=is.read(buf)) > 0) {
+			os.write(buf,0,len);
 		}
-		//log(p.toString());
+		os.close();
+		is.close();
 		
-		/*
-		
-		ByteArrayDataSource bads = new ByteArrayDataSource(fds.getInputStream(), "multipart/*");
-		
-		MimeMultipart mm = new MimeMultipart(bads);
-		log("getcount:"+mm.getCount());
-		*/
-		
-		/*
-		String decoded = MimeUtility.decodeText(responsexml);
-		log("decoded:"+decoded);
-		
-		/*
-		FileInputStream fis = new FileInputStream
-			("/var/www/ebaytool.jp/logs/apicall/downloadFile/2011-09-08_09-13-54.569.xml");
-		
-		MimeBodyPart mbp = MimeMultipart.createMimeBodyPart(fis);
-		
-		
-		MimeBodyPart bodyPart = new MimeBodyPart(fis);
-		MimeMultipart multiPart = new MimeMultipart();
-		multiPart.addBodyPart(bodyPart);
-		log("getcount:"+multiPart.getCount());
-		//log(multiPart.getContent().toString());
-		
-		
-		log("contenttype:"+fds.getContentType());
-		
-		
-		
-		//BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		*/
+		/* unzip file */
+		BufferedOutputStream dest = null;
+		FileInputStream fis = new FileInputStream(savedir+"/"+filename+".zip");
+		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+		ZipEntry entry;
+		while ((entry = zis.getNextEntry()) != null) {
+			log("unzip: " +entry);
+			int count;
+			byte data[] = new byte[1024];
+			
+            FileOutputStream fos = new FileOutputStream(savedir+"/"+entry.getName());
+            dest = new BufferedOutputStream(fos, 1024);
+            while ((count = zis.read(data, 0, 1024)) != -1) {
+				dest.write(data, 0, count);
+            }
+            dest.flush();
+            dest.close();
+		}
+		zis.close();
 		
 		return "";
 	}
