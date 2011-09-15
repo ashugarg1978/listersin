@@ -28,10 +28,6 @@ public class GetCategorySpecifics extends ApiCall {
 			reqdbo.append("CategorySpecificsFileInfo", "true");
 			reqdbo.append("MessageID",    site);
 			
-			if (!site.equals("Italy")) {
-				//continue;
-			}
-			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategorySpecifics");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategorySpecifics"));
 		}
@@ -47,12 +43,8 @@ public class GetCategorySpecifics extends ApiCall {
 		
 		String taskid = resdbo.getString("TaskReferenceID");
 		String fileid = resdbo.getString("FileReferenceID");
-
-		// todo: check existing downloaded file.
-		String dlfilename = taskid+"."+fileid+"dat";
 		
-		
-		/* downloadFile */
+		/* call downloadFile api */
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("taskReferenceId", taskid);
 		reqdbo.append("fileReferenceId", fileid);
@@ -64,8 +56,7 @@ public class GetCategorySpecifics extends ApiCall {
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
 		
-		//String requestxml = convertDBObject2XML(reqdbo, "downloadFile");
-		pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile"));
+		pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile", site));
 		
 		writelog("GetCategorySpecifics/dl."+site+".xml", requestxml);
 		

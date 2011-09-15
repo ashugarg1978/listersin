@@ -4,8 +4,6 @@ import ebaytool.apicall.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
@@ -15,11 +13,13 @@ public class ApiCallTask2 implements Callable {
 	private Integer siteid;
 	private String requestxml;
 	private String callname; // todo: get from caller class.
+	private String site;
 	
-	public ApiCallTask2(Integer siteid, String requestxml, String callname) throws Exception {
-		this.siteid = siteid;
+	public ApiCallTask2(Integer siteid, String requestxml, String callname, String site) throws Exception {
+		this.siteid     = siteid;
 		this.requestxml = requestxml;
-		this.callname = callname;
+		this.callname   = callname;
+		this.site       = site;
 	}
 	
 	public String call() throws Exception {
@@ -45,11 +45,7 @@ public class ApiCallTask2 implements Callable {
         conn.connect();
 		
 		/* save response */
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
-		Date now = new Date();
-		String timestamp = sdf.format(now).toString();
-		
-		File file = new File("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+timestamp);
+		File file = new File("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+site+".raw");
 		InputStream is = conn.getInputStream();
 		OutputStream os = new FileOutputStream(file);
 		
@@ -66,7 +62,7 @@ public class ApiCallTask2 implements Callable {
 		/* callback */
 		try {
 			ApiCall task = (ApiCall) Class.forName("ebaytool.apicall."+callname).newInstance();
-			result = task.callback(timestamp);
+			result = task.callback(site);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
