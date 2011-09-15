@@ -58,8 +58,6 @@ public class GetCategorySpecifics extends ApiCall {
 		
 		pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile", site));
 		
-		writelog("GetCategorySpecifics/dl."+site+".xml", requestxml);
-		
 		return "";
 	}
 }

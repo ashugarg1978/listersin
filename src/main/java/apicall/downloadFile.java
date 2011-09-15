@@ -34,7 +34,7 @@ public class downloadFile extends ApiCall {
 		ZipInputStream zis = new ZipInputStream(bp.getInputStream());
 		ZipEntry entry;
 		while ((entry = zis.getNextEntry()) != null) {
-			log("unzip: "+site+" "+entry);
+			log("unzip: "+entry+" "+site);
 			int count;
 			byte data[] = new byte[1024];
 			
@@ -55,6 +55,9 @@ public class downloadFile extends ApiCall {
 		BasicDBObject resdbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
 		
 		DBCollection coll = db.getCollection(site+".CategorySpecifics");
+		if (db.collectionExists(site+".CategorySpecifics")) {
+			coll.drop();
+		}
 		coll.insert((List<DBObject>) resdbo.get("Recommendations"));
 		
 		return "";
