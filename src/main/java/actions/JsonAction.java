@@ -642,6 +642,7 @@ public class JsonAction extends BaseAction {
 	private LinkedHashMap<String,LinkedHashMap> grandchildren2(String site, String path) {
 		
 		LinkedHashMap<String,LinkedHashMap> result = new LinkedHashMap<String,LinkedHashMap>();
+		LinkedHashMap<String,LinkedHashMap> tmpres = new LinkedHashMap<String,LinkedHashMap>();
 		
 		BasicDBObject query = new BasicDBObject();
 		BasicDBObject query2 = new BasicDBObject();
@@ -685,6 +686,8 @@ public class JsonAction extends BaseAction {
 					result.put(key, row);
 				}
 			}
+			
+			
 		}
 		
 		return result;
