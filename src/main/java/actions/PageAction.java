@@ -2,6 +2,7 @@ package ebaytool.actions;
 
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
+import ebaytool.actions.JsonAction;
 import ebaytool.apicall.FetchToken;
 import ebaytool.apicall.GetSellerList;
 import ebaytool.apicall.GetSessionID;
@@ -31,7 +32,8 @@ public class PageAction extends BaseAction {
 	
 	/* todo: session management in useraction json request */
 	
-	@Action(value="/page/index", results={@Result(name="loggedin",location="user.jsp")})
+	@Action(value="/page/index", results={@Result(name="alreadyloggedin",location="user.jsp"),
+		                                  @Result(name="loggedin",type="redirect",location="/page/index")})
 	public String execute() throws Exception {
 		
 		DBCollection coll = db.getCollection("users");
@@ -50,7 +52,7 @@ public class PageAction extends BaseAction {
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
-				return "loggedin";
+				return "alreadyloggedin";
 			}
 		}
 		
