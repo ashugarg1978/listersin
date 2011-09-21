@@ -6,6 +6,10 @@ var hash;
 $(document).bind({
 	ready: function(event) {
 		
+		$.getJSON('/json/gc2?site=US&pathstr=0',
+				  function(data) {
+				  });
+		
 		resizediv();
 		bindevents();
 		summary();

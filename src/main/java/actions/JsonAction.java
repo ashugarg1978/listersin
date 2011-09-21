@@ -626,6 +626,70 @@ public class JsonAction extends BaseAction {
 		return path;
 	}
 	
+	@Action(value="/json/gc2")
+	public String gc2() {
+		
+		/* handling post parameters */
+		String site = ((String[]) parameters.get("site"))[0];
+		String path = ((String[]) parameters.get("pathstr"))[0];
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("gc2", grandchildren2(site, path));
+		
+		return SUCCESS;
+	}
+	
+	private LinkedHashMap<String,LinkedHashMap> grandchildren2(String site, String path) {
+		
+		LinkedHashMap<String,LinkedHashMap> result = new LinkedHashMap<String,LinkedHashMap>();
+		
+		BasicDBObject query = new BasicDBObject();
+		BasicDBObject query2 = new BasicDBObject();
+		
+		DBCollection coll = db.getCollection(site+".Categories");
+		
+		String[] arrpath = path.split("\\.");
+		for (String cidstr : arrpath) {
+			Integer categoryid = Integer.parseInt(cidstr);
+			
+			query = new BasicDBObject();
+			if (categoryid == 0) {
+				query.put("CategoryLevel", "1");
+			} else {
+				query.put("CategoryParentID", categoryid.toString());
+				query.put("CategoryID", new BasicDBObject("$ne", categoryid.toString()));
+			}
+			DBCursor cur = coll.find(query);
+			if (cur.count() > 0) {
+				while (cur.hasNext()) {
+					BasicDBObject row = (BasicDBObject) cur.next();
+					String key = "c"+row.getString("CategoryID");
+					row.removeField("_id");
+					
+					/* grandchildren */
+					BasicDBObject children = new BasicDBObject();
+					query2 = new BasicDBObject();
+					query2.put("CategoryParentID", row.getString("CategoryID"));
+					query2.put("CategoryID", new BasicDBObject("$ne", row.getString("CategoryID")));
+					DBCursor cur2 = coll.find(query2);
+					if (cur2.count() > 0) {
+						while (cur2.hasNext()) {
+							BasicDBObject row2 = (BasicDBObject) cur2.next();
+							String key2 = "c"+row2.getString("CategoryID");
+							row2.removeField("_id");
+							children.put(key2, row2);
+						}
+					}
+					row.put("children", children);
+					
+					result.put(key, row);
+				}
+			}
+		}
+		
+		return result;
+	}
+
 	private LinkedHashMap<String,LinkedHashMap> children(String site, Integer categoryid) {
 		
 		LinkedHashMap<String,LinkedHashMap> data = new LinkedHashMap<String,LinkedHashMap>();
