@@ -56,6 +56,9 @@ Re-type password
 
 </div>
 
+<div style="clear:both;"></div>
+<div id="debug"></div>
+
 </div>
 
 </body>

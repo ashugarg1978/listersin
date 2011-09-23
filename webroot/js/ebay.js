@@ -6,8 +6,9 @@ var hash;
 $(document).bind({
 	ready: function(event) {
 		
-		$.getJSON('/json/gc2?site=US&pathstr=0',
+		$.getJSON('/json/gc2?site=US&path=0.619',
 				  function(data) {
+					  dump(data);
 				  });
 		
 		resizediv();
@@ -1075,6 +1076,7 @@ var clickTitle = function() {
 		   'id='+id,
 		   function(data) {
 			   item = data.json.item;
+			   dump(item);
 			   
 			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
 			   preloadcategory(item.Site, item.ext.categorypath);
@@ -1085,7 +1087,6 @@ var clickTitle = function() {
 			   //preloadshippingtype(item.Site);
 			   
 			   rowsdata[id] = item;
-			   dump(item);
 			   
 			   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 		   },

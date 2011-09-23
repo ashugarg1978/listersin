@@ -190,6 +190,14 @@ public class JsonAction extends BaseAction {
 		List path = categorypath(item.getString("Site"), categoryid);
 		ext.put("categorypath", path);
 		
+		/* grandchildren */
+		String[] pathstr = new String[path.size()];
+		for (int i = 0; i < path.size(); i++) {
+			pathstr[i] = path.get(i).toString();
+		}
+		BasicDBObject grandchildren2 = grandchildren2(item.getString("Site"), pathstr, 1, null);
+		ext.put("grandchildren2", grandchildren2);
+		
 		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
 		
 		String categoryname = "";
@@ -593,14 +601,13 @@ public class JsonAction extends BaseAction {
 			query.put("CategoryID", categoryid.toString());
 			BasicDBObject row = (BasicDBObject) coll.findOne(query);
 			
-			path.put(Integer.parseInt(row.getString("CategoryID")),
-					 row.getString("CategoryName"));
+			path.put(Integer.parseInt(row.getString("CategoryID")), row.getString("CategoryName"));
 			cidtmp.add(0, Integer.parseInt(row.getString("CategoryID")));
 			
 			if (row.getString("CategoryLevel").equals("1")) break;
 			categoryid = Integer.parseInt(row.getString("CategoryParentID"));
 		}
-
+		
 		for (Integer cid : cidtmp) {
 			pathtmp.put(cid, path.get(cid));
 		}
@@ -631,63 +638,66 @@ public class JsonAction extends BaseAction {
 		
 		/* handling post parameters */
 		String site = ((String[]) parameters.get("site"))[0];
-		String path = ((String[]) parameters.get("pathstr"))[0];
+		String path = ((String[]) parameters.get("path"))[0];
+		String[] arrpath = path.split("\\.");
 		
 		json = new LinkedHashMap<String,Object>();
-		json.put("gc2", grandchildren2(site, path));
+		json.put("gc2", grandchildren2(site, arrpath, 1, null));
 		
 		return SUCCESS;
 	}
 	
-	private LinkedHashMap<String,LinkedHashMap> grandchildren2(String site, String path) {
+	private BasicDBObject grandchildren2(String site,
+										 String[] path,
+										 int recursive,
+										 BasicDBObject features) {
 		
-		LinkedHashMap<String,LinkedHashMap> result = new LinkedHashMap<String,LinkedHashMap>();
-		LinkedHashMap<String,LinkedHashMap> tmpres = new LinkedHashMap<String,LinkedHashMap>();
+		BasicDBObject result = new BasicDBObject();
+		
+		BasicDBObject field = new BasicDBObject();
+		field.put("CategoryID",   1);
+		field.put("CategoryName", 1);
 		
 		BasicDBObject query = new BasicDBObject();
-		BasicDBObject query2 = new BasicDBObject();
 		
 		DBCollection coll = db.getCollection(site+".Categories");
 		
-		String[] arrpath = path.split("\\.");
-		for (String cidstr : arrpath) {
-			Integer categoryid = Integer.parseInt(cidstr);
-			
-			query = new BasicDBObject();
-			if (categoryid == 0) {
-				query.put("CategoryLevel", "1");
-			} else {
-				query.put("CategoryParentID", categoryid.toString());
-				query.put("CategoryID", new BasicDBObject("$ne", categoryid.toString()));
-			}
-			DBCursor cur = coll.find(query);
-			if (cur.count() > 0) {
-				while (cur.hasNext()) {
-					BasicDBObject row = (BasicDBObject) cur.next();
-					String key = "c"+row.getString("CategoryID");
-					row.removeField("_id");
+		String categoryid = path[0];
+		
+		query = new BasicDBObject();
+		if (categoryid.equals("0")) {
+			query.put("CategoryLevel", "1");
+		} else {
+			// todo: use CategoryLevel for query?
+			query.put("CategoryParentID", categoryid);
+			query.put("CategoryID", new BasicDBObject("$ne", categoryid));
+		}
+		DBCursor cur = coll.find(query, field);
+		if (cur.count() > 0) {
+			while (cur.hasNext()) {
+				BasicDBObject row = (BasicDBObject) cur.next();
+				String key = "c"+row.getString("CategoryID");
+				row.removeField("_id");
+				
+				if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
 					
-					/* grandchildren */
-					BasicDBObject children = new BasicDBObject();
-					query2 = new BasicDBObject();
-					query2.put("CategoryParentID", row.getString("CategoryID"));
-					query2.put("CategoryID", new BasicDBObject("$ne", row.getString("CategoryID")));
-					DBCursor cur2 = coll.find(query2);
-					if (cur2.count() > 0) {
-						while (cur2.hasNext()) {
-							BasicDBObject row2 = (BasicDBObject) cur2.next();
-							String key2 = "c"+row2.getString("CategoryID");
-							row2.removeField("_id");
-							children.put(key2, row2);
-						}
+					String[] shifted = new String[path.length - 1];
+					for (int i = 1; i < path.length; i++) {
+						shifted[i - 1] = path[i];
 					}
-					row.put("children", children);
 					
-					result.put(key, row);
+					row.put("children", grandchildren2(site, shifted, 1, null));
+					
+				} else if (recursive == 1) {
+					
+					String[] shifted = new String[1];
+					shifted[0] = row.getString("CategoryID");
+					row.put("children", grandchildren2(site, shifted, 0, null));
+					
 				}
+				
+				result.put(key, row);
 			}
-			
-			
 		}
 		
 		return result;
