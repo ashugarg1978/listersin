@@ -48,18 +48,37 @@ public class downloadFile extends ApiCall {
 		}
 		zis.close();
 		
-		/* read xml file */
-		File file = new File(savedir+"/"+site+".xml");
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		
+		File file = new File(savedir+"/"+site+".xml");
+		
 		net.sf.json.JSON json = xmlSerializer.readFromFile(file);
+		
+		log(site+" done 0.5?");
 		BasicDBObject resdbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+		log(site+" done 1?");
 		
 		DBCollection coll = db.getCollection(site+".CategorySpecifics");
 		if (db.collectionExists(site+".CategorySpecifics")) {
 			coll.drop();
 		}
+		log(site+" done 2?");
 		coll.insert((List<DBObject>) resdbo.get("Recommendations"));
+		log(site+" done?");
 		
 		return "";
 	}
+	
+	private static String readFileAsString(String filePath) throws java.io.IOException{
+		byte[] buffer = new byte[(int) new File(filePath).length()];
+		BufferedInputStream f = null;
+		try {
+			f = new BufferedInputStream(new FileInputStream(filePath));
+			f.read(buffer);
+		} finally {
+			if (f != null) try { f.close(); } catch (IOException ignored) { }
+		}
+		return new String(buffer);
+	}
+	
 }

@@ -661,6 +661,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject query = new BasicDBObject();
 		
 		DBCollection coll = db.getCollection(site+".Categories");
+		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
 		
 		String categoryid = path[0];
 		
@@ -677,7 +678,13 @@ public class JsonAction extends BaseAction {
 			while (cur.hasNext()) {
 				BasicDBObject row = (BasicDBObject) cur.next();
 				String key = "c"+row.getString("CategoryID");
-				row.removeField("_id");
+				
+				/* CategorySpecifics */
+				DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
+																 row.getString("CategoryID")));
+				if (dbo != null) {
+					row.put("CategorySpecifics", dbo);
+				}
 				
 				if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
 					
@@ -695,6 +702,9 @@ public class JsonAction extends BaseAction {
 					row.put("children", grandchildren2(site, shifted, 0, null));
 					
 				}
+				
+				row.removeField("_id");
+				row.removeField("CategoryID");
 				
 				result.put(key, row);
 			}

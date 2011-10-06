@@ -21,6 +21,9 @@ public class GetCategorySpecifics extends ApiCall {
 			String  site   = row.get("Site").toString();
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
 			
+			//if (!site.equals("Poland")) continue;
+			if (!site.equals("US")) continue;
+			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 			reqdbo.append("WarningLevel", "High");

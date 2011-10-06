@@ -6,7 +6,7 @@ var hash;
 $(document).bind({
 	ready: function(event) {
 		
-		$.getJSON('/json/gc2?site=US&path=0.619',
+		$.getJSON('/json/gc2?site=US&path=0.619.10172.38092',
 				  function(data) {
 					  dump(data);
 				  });
