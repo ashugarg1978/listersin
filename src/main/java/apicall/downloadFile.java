@@ -36,11 +36,11 @@ public class downloadFile extends ApiCall {
 		while ((entry = zis.getNextEntry()) != null) {
 			log("unzip: "+entry+" "+site);
 			int count;
-			byte data[] = new byte[1024];
+			byte data[] = new byte[4096];
 			
             FileOutputStream fos = new FileOutputStream(savedir+"/"+site+".xml");
-            BufferedOutputStream dest = new BufferedOutputStream(fos, 1024);
-            while ((count = zis.read(data, 0, 1024)) != -1) {
+            BufferedOutputStream dest = new BufferedOutputStream(fos, 4096);
+            while ((count = zis.read(data, 0, 4096)) != -1) {
 				dest.write(data, 0, count);
             }
             dest.flush();
