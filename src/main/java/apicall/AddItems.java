@@ -215,7 +215,7 @@ public class AddItems extends ApiCall {
 						+"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 						+".xml";
 					
-					writelog(requestxmlfilename, requestxml);
+					writelog("AddItems/"+requestxmlfilename, requestxml);
 					
 					validatexml(requestxmlfilename);
 					
@@ -305,11 +305,12 @@ public class AddItems extends ApiCall {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		dbf.setNamespaceAware(true);
 		DocumentBuilder parser = dbf.newDocumentBuilder();
-		Document document = parser.parse(new File("/var/www/ebaytool.jp/logs/apixml/"+filename));
+		Document document = 
+			parser.parse(new File("/var/www/ebaytool.jp/logs/apicall/AddItems/"+filename));
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		
-		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd.727"));
+		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd.741"));
 		Schema schema = factory.newSchema(schemaFile);
 		
 		Validator validator = schema.newValidator();
