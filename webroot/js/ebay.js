@@ -1169,7 +1169,7 @@ function preloadcategoryfeatures(site, categoryid)
 		url: '/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
 		async: false,
 		success: function(data) {
-			dump(data);
+			//dump(data);
 			var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
 			hash[site]['category']['features'] = tmpo;
 		}

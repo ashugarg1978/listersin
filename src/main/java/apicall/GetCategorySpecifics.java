@@ -23,7 +23,7 @@ public class GetCategorySpecifics extends ApiCall {
 			
 			//if (!site.equals("Poland")) continue;
 			//if (!site.equals("US")) continue;
-			if (!site.equals("Germany")) continue;
+			if (!site.equals("US")) continue;
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
