@@ -8,7 +8,7 @@ $(document).bind({
 		
 		$.getJSON('/json/gc2?site=US&path=0.619.10172.38092',
 				  function(data) {
-					  dump(data);
+					  //dump(data);
 				  });
 		
 		resizediv();
@@ -933,6 +933,7 @@ var clickEdit = function() {
 		}
 	}
 	
+	/* Specifics */
 	if (item.ItemSpecifics) {
 		$.each(item.ItemSpecifics.NameValueList, function(k, v) {
 			inputname = $('<input/>')
@@ -953,6 +954,27 @@ var clickEdit = function() {
 			$('td.ItemSpecifics', dom).append('<br />');
 		});
 	}
+	
+	tmpgc = item.ext.grandchildren2;
+	$.each(item.ext.categorypath, function(i, cid) {
+		if (i == 0) {
+			tmpgc = tmpgc['c'+cid];
+		} else {
+			tmpgc = tmpgc['children']['c'+cid];
+		}
+		
+		if (i == item.ext.categorypath.length - 1) {
+			dump(tmpgc.CategorySpecifics.NameRecommendation);
+			$.each(tmpgc.CategorySpecifics.NameRecommendation, function(j, o) {
+				$('td.ItemSpecifics', dom).append(o.Name);
+				$.each(o.ValueRecommendation, function(k, v) {
+					$('td.ItemSpecifics', dom).append(v.Value+', ');
+				});
+				$('td.ItemSpecifics', dom).append('<br />');
+			});
+		}
+	});
+	
 	
 	return false;
 }

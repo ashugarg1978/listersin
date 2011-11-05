@@ -191,9 +191,10 @@ public class JsonAction extends BaseAction {
 		ext.put("categorypath", path);
 		
 		/* grandchildren */
-		String[] pathstr = new String[path.size()];
+		String[] pathstr = new String[path.size()+1];
+		pathstr[0] = "0";
 		for (int i = 0; i < path.size(); i++) {
-			pathstr[i] = path.get(i).toString();
+			pathstr[i+1] = path.get(i).toString();
 		}
 		BasicDBObject grandchildren2 = grandchildren2(item.getString("Site"), pathstr, 1, null);
 		ext.put("grandchildren2", grandchildren2);
@@ -683,6 +684,8 @@ public class JsonAction extends BaseAction {
 				DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
 																 row.getString("CategoryID")));
 				if (dbo != null) {
+					dbo.removeField("_id");
+					dbo.removeField("CategoryID");
 					row.put("CategorySpecifics", dbo);
 				}
 				
