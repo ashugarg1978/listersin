@@ -19,3 +19,12 @@ db.getCollectionNames().forEach(
 		}
 	}
 );
+
+db.getCollectionNames().forEach(
+	function(coll) {
+		if (coll.indexOf('CategorySpecifics') > 0) {
+			print('indexing '+coll+' ('+db[coll].count()+' records)');
+			db[coll].ensureIndex({CategoryID:1});
+		}
+	}
+);
