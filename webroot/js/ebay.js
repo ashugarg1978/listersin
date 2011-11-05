@@ -967,9 +967,11 @@ var clickEdit = function() {
 			dump(tmpgc.CategorySpecifics.NameRecommendation);
 			$.each(tmpgc.CategorySpecifics.NameRecommendation, function(j, o) {
 				$('td.ItemSpecifics', dom).append(o.Name);
-				$.each(o.ValueRecommendation, function(k, v) {
-					$('td.ItemSpecifics', dom).append(v.Value+', ');
-				});
+				if (o.ValueRecommendation) {
+					$.each(o.ValueRecommendation, function(k, v) {
+						$('td.ItemSpecifics', dom).append(v.Value+', ');
+					});
+				}
 				$('td.ItemSpecifics', dom).append('<br />');
 			});
 		}
