@@ -1102,6 +1102,7 @@ var clickTitle = function() {
 			   item = data.json.item;
 			   dump(item);
 			   
+			   hash[item.Site]['Categories'] = data.json.Categories;
 			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
 			   preloadcategory(item.Site, item.ext.categorypath);
 			   
@@ -1137,23 +1138,25 @@ function getcategorypulldown(site, categoryid)
 
 function getcategorypulldowns(site, path)
 {
-	tmpid = 0;
-	ctgr = hash[site]['category'];
+	ctgr = hash[site]['Categories'];
 	
 	sels = $('<div/>');
 	$.each(path, function(i, categoryid) {
+		
 		sel = $('<select class="category"/>');
 		opt = $('<option/>').val('').text('');
 		sel.append(opt);
-		$.each(ctgr['children'][tmpid], function(i, cid) {
-			str = ctgr['name'][cid];
-			if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
+		
+		$.each(ctgr, function(j, o) {
+			str = o.CategoryName;
+			cid = j.replace(/^c/, '');
+			//if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
 			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});
 		
 		sel.val(categoryid);
-		tmpid = categoryid;
+		ctgr = hash[site]['Categories']['c'+categoryid];
 		
 		sels.append(sel);
 	});

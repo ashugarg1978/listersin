@@ -197,10 +197,14 @@
 <div class="detail">
 	
 <ul class="tabNav">
-<li class="current"><a href="#"><s:text name="detail"/></a></li>
-<li><a href="#"><s:text name="description"/></a></li>
+<li class="current"><a href="#"><s:text name="Category"/></a></li>
+<li><a href="#"><s:text name="Title"/></a></li>
 <li><a href="#"><s:text name="Pictures"/></a></li>
+<li><a href="#"><s:text name="Description"/></a></li>
+<li><a href="#"><s:text name="Price"/></a></li>
+<li><a href="#"><s:text name="Payment"/></a></li>
 <li><a href="#"><s:text name="Shipping"/></a></li>
+<li><a href="#"><s:text name="Other"/></a></li>
 </ul>
 
 <ul class="editbuttons">
@@ -227,6 +231,17 @@
   </td>
 </tr>
 <tr>
+  <td><s:text name="ProductDetails"/></td>
+  <td></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="tab">
+<table class="detail">
+<tbody>
+<tr>
   <td><s:text name="title"/></td>
   <td><input name="Title" type="text" size="60"></td>
 </tr>
@@ -239,13 +254,61 @@
   <td><select name="ConditionID"></select></td>
 </tr>
 <tr>
+  <td><s:text name="UPC"/></td>
+  <td></td>
+</tr>
+<tr>
   <td><s:text name="ItemSpecifics"/></td>
   <td class="ItemSpecifics"></td>
 </tr>
-<tr>
-  <td><s:text name="Site"/></td>
-  <td><select name="Site"></select></td>
-</tr>
+</tbody>
+</table>
+</div>
+
+<div class="tab">
+  <div class="pictures">
+	
+	<form method="post" action="/file/upload" target="posttarget" enctype="multipart/form-data">
+	<table>
+	<tr>
+	  <s:iterator value="{0,1,2,3,4,5}">
+		<td>
+		  <div class="picdiv">
+			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
+		  </div>
+		  <input type="file" name="<s:property />" size="5">
+		</td>
+	  </s:iterator>
+	</tr>
+	<tr>
+	  <s:iterator value="{6,7,8,9,10,11}">
+		<td>
+		  <div class="picdiv">
+			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
+		  </div>
+		  <input type="file" name="<s:property />" size="5">
+		</td>
+	  </s:iterator>
+	</tr>
+	</table>
+	</form>
+	
+	<s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
+	  <input type="text" name="PictureDetails.PictureURL" size="40"><br>
+	</s:iterator>
+  </div>
+</div>
+
+<div class="tab">
+  <div class="description">
+	<textarea name="Description" cols="100" rows="10"></textarea>
+  </div>
+</div>
+
+
+<div class="tab">
+<table class="detail">
+<tbody>
 <tr>
   <td><s:text name="StartPrice"/></td>
   <td>
@@ -286,19 +349,6 @@
   <td><select name="ListingDuration"></select></td>
 </tr>
 <tr>
-  <td><s:text name="PaymentMethods"/></td>
-  <td class="paymentmethod">
-  </td>
-</tr>
-
-
-<tr>
-  <td><s:text name="AutoPay"/></td>
-  <td>
-	<input name="AutoPay" type="checkbox" value="true">[AutoPay]
-  </td>
-</tr>
-<tr>
   <td><s:text name="BuyItNowPrice"/></td>
   <td>
 	<input name="BuyItNowPrice.@currencyID" type="text" size="3">
@@ -312,57 +362,28 @@
 	<input name="BuyerGuaranteePrice.#text" type="text" size="10">
   </td>
 </tr>
-<tr>
-  <td><s:text name="Country"/></td>
-  <td><select name="Country"></select></td>
-</tr>
-<tr>
-  <td><s:text name="Currency"/></td>
-  <td><select name="Currency"></select></td>
-</tr>
-
 </tbody>
 </table>
 </div>
 
 <div class="tab">
-  <div class="description">
-	<textarea name="Description" cols="100" rows="10"></textarea>
-  </div>
+<table class="detail">
+<tbody>
+<tr>
+  <td><s:text name="PaymentMethods"/></td>
+  <td class="paymentmethod">
+  </td>
+</tr>
+<tr>
+  <td><s:text name="AutoPay"/></td>
+  <td>
+	<input name="AutoPay" type="checkbox" value="true">[AutoPay]
+  </td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="tab">
-  <div class="pictures">
-	
-	<form method="post" action="/file/upload" target="posttarget" enctype="multipart/form-data">
-	<table>
-	<tr>
-	  <s:iterator value="{0,1,2,3,4,5}">
-		<td>
-		  <div class="picdiv">
-			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
-		  </div>
-		  <input type="file" name="<s:property />" size="5">
-		</td>
-	  </s:iterator>
-	</tr>
-	<tr>
-	  <s:iterator value="{6,7,8,9,10,11}">
-		<td>
-		  <div class="picdiv">
-			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
-		  </div>
-		  <input type="file" name="<s:property />" size="5">
-		</td>
-	  </s:iterator>
-	</tr>
-	</table>
-	</form>
-	
-	<s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
-	  <input type="text" name="PictureDetails.PictureURL" size="40"><br>
-	</s:iterator>
-  </div>
-</div>
+
 
 <div class="tab">
 <div class="shipping">
@@ -516,7 +537,28 @@
 </tbody>
 </table>
 </div>
+</div><!-- tab -->
+
+<div class="tab">
+<table class="detail">
+<tbody>
+<tr>
+  <td><s:text name="Site"/></td>
+  <td><select name="Site"></select></td>
+</tr>
+<tr>
+  <td><s:text name="Country"/></td>
+  <td><select name="Country"></select></td>
+</tr>
+<tr>
+  <td><s:text name="Currency"/></td>
+  <td><select name="Currency"></select></td>
+</tr>
+</tbody>
+</table>
 </div>
+
+
 </div>
 
 </div>

@@ -57,12 +57,16 @@ public class JsonAction extends BaseAction {
 			((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
 			((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
 			
-			hash.put("ShippingType", shippingtype(site));
+			String[] category0 = new String[1];
+			category0[0] = "0";
+			hash.put("Categories",             grandchildren2(site, category0, 1, null));
+			
+			hash.put("ShippingType",           shippingtype(site));
 			hash.put("ShippingServiceDetails", shippingservicedetails(site));
 			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
 			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
-			hash.put("CountryDetails", countrydetails(site));
-			hash.put("CurrencyDetails", currencydetails(site));
+			hash.put("CountryDetails",         countrydetails(site));
+			hash.put("CurrencyDetails",        currencydetails(site));
 			
 			hash.put("ShippingLocationDetails",
 					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
@@ -197,7 +201,7 @@ public class JsonAction extends BaseAction {
 			pathstr[i+1] = path.get(i).toString();
 		}
 		BasicDBObject grandchildren2 = grandchildren2(item.getString("Site"), pathstr, 1, null);
-		ext.put("grandchildren2", grandchildren2);
+		//ext.put("grandchildren2", grandchildren2);
 		
 		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
 		
@@ -225,6 +229,7 @@ public class JsonAction extends BaseAction {
 		item.removeField("_id");
 		
 		json.put("item", item);
+		json.put("Categories", grandchildren2);
 		
 		return SUCCESS;
 	}
