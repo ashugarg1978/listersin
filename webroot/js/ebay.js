@@ -1146,17 +1146,18 @@ function getcategorypulldowns(site, path)
 		sel = $('<select class="category"/>');
 		opt = $('<option/>').val('').text('');
 		sel.append(opt);
-		
 		$.each(ctgr, function(j, o) {
 			str = o.CategoryName;
 			cid = j.replace(/^c/, '');
-			//if (ctgr['children'][cid] != 'leaf') str += ' &gt;';
+			if (o.children) str += ' &gt;';
 			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});
 		
 		sel.val(categoryid);
-		ctgr = hash[site]['Categories']['c'+categoryid];
+		if (ctgr['c'+categoryid]) {
+			ctgr = ctgr['c'+categoryid]['children'];
+		}
 		
 		sels.append(sel);
 	});

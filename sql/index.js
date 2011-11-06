@@ -6,7 +6,7 @@ db.getCollectionNames().forEach(
 	function(coll) {
 		if (coll.indexOf('Categories') > 0) {
 			print('indexing '+coll+' ('+db[coll].count()+' records)');
-			db[coll].ensureIndex({CategoryLevel:1,CategoryParentID:1});
+			db[coll].ensureIndex({CategoryParentID:1});
 		}
 	}
 );

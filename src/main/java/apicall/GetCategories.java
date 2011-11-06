@@ -20,6 +20,8 @@ public class GetCategories extends ApiCall {
 			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
 			log(site+"("+siteid+")");
 			
+			if (!site.equals("US")) continue;
+			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 			reqdbo.append("WarningLevel",   "High");
