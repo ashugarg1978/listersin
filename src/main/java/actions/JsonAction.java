@@ -680,11 +680,9 @@ public class JsonAction extends BaseAction {
 			//query.put("CategoryID", new BasicDBObject("$ne", categoryid));
 		}
 		DBCursor cur = coll.find(query, field).sort(new BasicDBObject("_id", 1));
-		/*
 		if (cur.count() == 0) {
 			return null;
 		}
-		*/
 		if (cur.count() > 0) {
 			while (cur.hasNext()) {
 				BasicDBObject row = (BasicDBObject) cur.next();
@@ -692,7 +690,6 @@ public class JsonAction extends BaseAction {
 				if (row.getString("CategoryID").equals(categoryid)) continue;
 				
 				/* CategorySpecifics */
-				/*
 				DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
 																 row.getString("CategoryID")));
 				if (dbo != null) {
@@ -700,7 +697,7 @@ public class JsonAction extends BaseAction {
 					dbo.removeField("CategoryID");
 					row.put("CategorySpecifics", dbo);
 				}
-				*/
+				
 				/* children */
 				if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
 					
@@ -709,26 +706,22 @@ public class JsonAction extends BaseAction {
 						shifted[i - 1] = path[i];
 					}
 					
-					row.put("children", grandchildren2(site, shifted, 1, null));
-					/*
+					//row.put("children", grandchildren2(site, shifted, 1, null));
 					BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, null);
 					if (tmpchildren != null) {
 						row.put("children", tmpchildren);
 					}
-					*/
 					
 				} else if (recursive == 1) {
 					
 					String[] shifted = new String[1];
 					shifted[0] = row.getString("CategoryID");
 					
-					row.put("children", grandchildren2(site, shifted, 1, null));
-					/*
-					BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, null);
+					//row.put("children", grandchildren2(site, shifted, 0, null));
+					BasicDBObject tmpchildren = grandchildren2(site, shifted, 0, null);
 					if (tmpchildren != null) {
 						row.put("children", tmpchildren);
 					}
-					*/
 				}
 				
 				row.removeField("_id");
