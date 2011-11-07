@@ -754,6 +754,7 @@ var changeCategory = function() {
 	for (node in prevslct) {
 		path.push(prevslct[node].value);
 	}
+	path.push($(this).val());
 	
 	$(this).nextAll().remove();
 	if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
@@ -1148,17 +1149,14 @@ function getcategorypulldown(site, categoryid)
 
 function getcategorypulldown2(site, path)
 {
-	first = true;
 	ctgr = hash[site]['Categories'];
-	for (categoryid in path) {
-		if (first) {
-			ctgr = ctgr['c'+categoryid];
-			first = false;
+	for (i in path) {
+		if (i == 0) {
+			ctgr = ctgr['c'+path[i]];
 		} else {
-			ctgr = ctgr['children']['c'+categoryid];
+			ctgr = ctgr['children']['c'+path[i]];
 		}
 	}
-	dump(ctgr);
 	
 	sel = $('<select class="category"/>');
 	opt = $('<option/>').val('').text('');
