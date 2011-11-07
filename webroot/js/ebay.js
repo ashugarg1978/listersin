@@ -6,10 +6,12 @@ var hash;
 $(document).bind({
 	ready: function(event) {
 		
+		/*
 		$.getJSON('/json/gc2?site=US&path=0.619.10172.38092',
 				  function(data) {
 					  //dump(data);
 				  });
+		*/
 		
 		resizediv();
 		bindevents();
@@ -742,14 +744,22 @@ function bindevents()
 }	
 
 var changeCategory = function() {
+	
 	id = $(this).closest('tbody.itemrow').attr('id');
 	site = $('select[name=Site]', '#'+id).val();
 	
+	prevslct = $(this).prevAll().get().reverse();
+	
+	var path = new Array();
+	for (node in prevslct) {
+		path.push(prevslct[node].value);
+	}
+	
 	$(this).nextAll().remove();
-	msg(hash[site]['category']['children'][$(this).val()]);
 	if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
 		preloadcategory(site, [$(this).val()]);
-		sel = getcategorypulldown(site, $(this).val());
+		//sel = getcategorypulldown(site, $(this).val());
+		sel = getcategorypulldown2(site, path);
 		$('td.category', '#'+id).append(sel);
 	}
 	$('select.category',      '#'+id).attr('name', '');
@@ -933,7 +943,7 @@ var clickEdit = function() {
 		}
 	}
 	
-	/* Specifics */
+	/* ItemSpecifics */
 	if (item.ItemSpecifics) {
 		$.each(item.ItemSpecifics.NameValueList, function(k, v) {
 			inputname = $('<input/>')
@@ -955,7 +965,7 @@ var clickEdit = function() {
 		});
 	}
 	
-	tmpgc = item.ext.grandchildren2;
+	tmpgc = hash[site]['Categories'];
 	$.each(item.ext.categorypath, function(i, cid) {
 		if (i == 0) {
 			tmpgc = tmpgc['c'+cid];
@@ -1136,6 +1146,35 @@ function getcategorypulldown(site, categoryid)
 	return sel;
 }
 
+function getcategorypulldown2(site, path)
+{
+	first = true;
+	ctgr = hash[site]['Categories'];
+	for (categoryid in path) {
+		if (first) {
+			ctgr = ctgr['c'+categoryid];
+			first = false;
+		} else {
+			ctgr = ctgr['children']['c'+categoryid];
+		}
+	}
+	dump(ctgr);
+	
+	sel = $('<select class="category"/>');
+	opt = $('<option/>').val('').text('');
+	sel.append(opt);
+	
+	$.each(ctgr['children'], function(i, o) {
+		str = o.CategoryName;
+		cid = i.replace(/^c/, '');
+		if (o.children) str += ' &gt;';
+		opt = $('<option/>').val(cid).html('M'+str);
+		sel.append(opt);
+	});
+	
+	return sel;
+}
+
 function getcategorypulldowns(site, path)
 {
 	ctgr = hash[site]['Categories'];
@@ -1150,7 +1189,7 @@ function getcategorypulldowns(site, path)
 			str = o.CategoryName;
 			cid = j.replace(/^c/, '');
 			if (o.children) str += ' &gt;';
-			opt = $('<option/>').val(cid).html(str);
+			opt = $('<option/>').val(cid).html('N'+str);
 			sel.append(opt);
 		});
 		
@@ -1308,7 +1347,7 @@ function showbuttons(detail, buttons)
 
 function msg(o)
 {
-	$('div#msg').append(o+'<br>');
+	$('div#msg').prepend(o+'<br>');
 }
 
 function dump(o)
