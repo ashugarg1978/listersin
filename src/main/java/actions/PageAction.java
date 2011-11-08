@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JSONSerializer;
 import net.sf.json.xml.XMLSerializer;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.ParentPackage;
@@ -28,6 +29,10 @@ public class PageAction extends BaseAction {
 	
 	public BasicDBObject getUser() {
 		return user;
+	}
+
+	public String getInitjson() {
+		return initjson;
 	}
 	
 	/* todo: session management in useraction json request */
@@ -52,6 +57,12 @@ public class PageAction extends BaseAction {
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
+				
+				JsonAction ja = new JsonAction();
+				LinkedHashMap<String,Object> st = ja.getinitdata();
+				JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
+				initjson = tmpj.toString();
+				
 				return "alreadyloggedin";
 			}
 		}

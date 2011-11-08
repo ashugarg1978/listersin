@@ -570,5 +570,10 @@
 
 </div>
 
+<script>
+var hash;
+hash = ${initjson};
+</script>
+
 </body>
 </html>

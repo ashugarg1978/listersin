@@ -38,6 +38,11 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/hash")
 	public String hash() throws Exception {
 		
+		if (true) {
+			json = getinitdata();
+			return SUCCESS;
+		}
+		
 		json = new LinkedHashMap<String,Object>();
 		
 		// todo: SiteDetails in each country?
@@ -77,6 +82,49 @@ public class JsonAction extends BaseAction {
 		}
 		
 		return SUCCESS;
+	}
+
+	public LinkedHashMap<String,Object> getinitdata() {
+		
+		LinkedHashMap<String,Object> initdata = new LinkedHashMap<String,Object>();
+		
+		// todo: SiteDetails in each country?
+		DBCollection coll = db.getCollection("US.eBayDetails.SiteDetails");
+		DBCursor cur = coll.find();
+		while (cur.hasNext()) {
+			DBObject row = cur.next();
+			
+			String  site   = row.get("Site").toString();
+			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
+			
+			LinkedHashMap<String,Object> hash = new LinkedHashMap<String,Object>();
+			
+			hash.put("SiteID", siteid.toString());
+			
+			//hash.put("category", children(site, 0));
+			//((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
+			//((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
+			
+			String[] category0 = new String[1];
+			category0[0] = "0";
+			hash.put("Categories",             grandchildren2(site, category0, 1, null));
+			
+			hash.put("ShippingType",           shippingtype(site));
+			hash.put("ShippingServiceDetails", shippingservicedetails(site));
+			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
+			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
+			hash.put("CountryDetails",         countrydetails(site));
+			hash.put("CurrencyDetails",        currencydetails(site));
+			
+			hash.put("ShippingLocationDetails",
+					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
+									"ShippingLocation",
+									"Description"));
+			
+			initdata.put(site, hash);
+		}
+		
+		return initdata;
 	}
 	
 	@Action(value="/json/items")
@@ -947,7 +995,7 @@ public class JsonAction extends BaseAction {
 	}
 	
 	// todo: check UK:courier?
-	private LinkedHashMap<String,LinkedHashMap> shippingtype(String site) {
+	public LinkedHashMap<String,LinkedHashMap> shippingtype(String site) {
 		
 		LinkedHashMap<String,LinkedHashMap>    map = new LinkedHashMap<String,LinkedHashMap>();
 		LinkedHashMap<String,String>      domestic = new LinkedHashMap<String,String>();

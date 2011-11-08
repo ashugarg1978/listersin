@@ -1,6 +1,6 @@
 /* store rows data */
 var rowsdata = new Array();
-var hash;
+//var hash;
 
 /* initialize */
 $(document).bind({
@@ -16,7 +16,7 @@ $(document).bind({
 		resizediv();
 		bindevents();
 		summary();
-		gethash();
+		//gethash();
 		
 		$('ul.accounts > li > ul:first').slideToggle('fast');
 		$('a.active', $('ul.accountaction:first')).click();
