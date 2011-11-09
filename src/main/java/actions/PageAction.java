@@ -58,9 +58,9 @@ public class PageAction extends BaseAction {
 			if (user != null) {
 				session.put("email", user.get("email").toString());
 				
-				if (false) {
+				if (true) {
 					JsonAction ja = new JsonAction();
-					LinkedHashMap<String,Object> st = ja.getinitdata();
+					LinkedHashMap<String,Object> st = ja.initdata();
 					JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
 					initjson = tmpj.toString();
 					

@@ -85,12 +85,16 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	public LinkedHashMap<String,Object> getinitdata() {
+	public String tmptmpstr() {
+		return "hoge";
+	}
+	
+	public LinkedHashMap<String,Object> initdata() {
 		
 		log.debug("start initdata");
 		LinkedHashMap<String,Object> initdata = new LinkedHashMap<String,Object>();
 		if (true) {
-			return initdata;
+			//return initdata;
 		}
 		
 		// todo: SiteDetails in each country?
@@ -763,7 +767,6 @@ public class JsonAction extends BaseAction {
 						shifted[i - 1] = path[i];
 					}
 					
-					//row.put("children", grandchildren2(site, shifted, 1, null));
 					BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, null);
 					if (tmpchildren != null) {
 						row.put("children", tmpchildren);
@@ -774,11 +777,20 @@ public class JsonAction extends BaseAction {
 					String[] shifted = new String[1];
 					shifted[0] = row.getString("CategoryID");
 					
-					//row.put("children", grandchildren2(site, shifted, 0, null));
 					BasicDBObject tmpchildren = grandchildren2(site, shifted, 0, null);
 					if (tmpchildren != null) {
 						row.put("children", tmpchildren);
 					}
+					
+				} else if (recursive == 0) {
+					
+					BasicDBObject query2 = new BasicDBObject();
+					query2.put("CategoryParentID", row.getString("CategoryID"));
+					Long cnt = coll.count(query2);
+					if (cnt > 0) {
+						row.put("children", cnt);
+					}
+					
 				}
 				
 				row.removeField("_id");

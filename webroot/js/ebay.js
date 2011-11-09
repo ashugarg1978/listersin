@@ -17,14 +17,15 @@ $(document).bind({
 		bindevents();
 		summary();
 		//gethash();
+		dump(hash);
 		
 		// todo: same code
 		$.each(hash, function(k, v) {
 			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
 		});
 		
-		$('ul.accounts > li > ul:first').slideToggle('fast');
-		$('a.active', $('ul.accountaction:first')).click();
+		//$('ul.accounts > li > ul:first').slideToggle('fast');
+		//$('a.active', $('ul.accountaction:first')).click();
 		
 		//setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
