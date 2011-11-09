@@ -58,10 +58,28 @@ public class PageAction extends BaseAction {
 			if (user != null) {
 				session.put("email", user.get("email").toString());
 				
-				JsonAction ja = new JsonAction();
-				LinkedHashMap<String,Object> st = ja.getinitdata();
-				JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
-				initjson = tmpj.toString();
+				if (false) {
+					JsonAction ja = new JsonAction();
+					LinkedHashMap<String,Object> st = ja.getinitdata();
+					JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
+					initjson = tmpj.toString();
+					
+					FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/initcache");
+					BufferedWriter out = new BufferedWriter(fstream);
+					out.write(initjson);
+					out.close();
+				} else {
+					String data = "";
+					
+					FileReader fr = new FileReader("/var/www/ebaytool.jp/logs/initcache");
+					BufferedReader br = new BufferedReader(fr);
+					String line;
+					while ((line = br.readLine()) != null) {
+						data = data + line;
+					}
+					br.close();
+					initjson = data;
+				}
 				
 				return "alreadyloggedin";
 			}

@@ -39,7 +39,8 @@ public class JsonAction extends BaseAction {
 	public String hash() throws Exception {
 		
 		if (true) {
-			json = getinitdata();
+			//json = getinitdata();
+			log.debug("JsonAction.hash() called.");
 			return SUCCESS;
 		}
 		
@@ -83,10 +84,14 @@ public class JsonAction extends BaseAction {
 		
 		return SUCCESS;
 	}
-
+	
 	public LinkedHashMap<String,Object> getinitdata() {
 		
+		log.debug("start initdata");
 		LinkedHashMap<String,Object> initdata = new LinkedHashMap<String,Object>();
+		if (true) {
+			return initdata;
+		}
 		
 		// todo: SiteDetails in each country?
 		DBCollection coll = db.getCollection("US.eBayDetails.SiteDetails");
@@ -105,10 +110,12 @@ public class JsonAction extends BaseAction {
 			//((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
 			//((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
 			
+			log.debug(site+" gc2");
 			String[] category0 = new String[1];
 			category0[0] = "0";
 			hash.put("Categories",             grandchildren2(site, category0, 1, null));
 			
+			log.debug(site+" shippingtype");
 			hash.put("ShippingType",           shippingtype(site));
 			hash.put("ShippingServiceDetails", shippingservicedetails(site));
 			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
@@ -116,6 +123,7 @@ public class JsonAction extends BaseAction {
 			hash.put("CountryDetails",         countrydetails(site));
 			hash.put("CurrencyDetails",        currencydetails(site));
 			
+			log.debug(site+" shippinglocation");
 			hash.put("ShippingLocationDetails",
 					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
 									"ShippingLocation",
@@ -123,6 +131,7 @@ public class JsonAction extends BaseAction {
 			
 			initdata.put(site, hash);
 		}
+		log.debug("done initdata");
 		
 		return initdata;
 	}

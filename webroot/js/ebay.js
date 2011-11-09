@@ -18,6 +18,11 @@ $(document).bind({
 		summary();
 		//gethash();
 		
+		// todo: same code
+		$.each(hash, function(k, v) {
+			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
+		});
+		
 		$('ul.accounts > li > ul:first').slideToggle('fast');
 		$('a.active', $('ul.accountaction:first')).click();
 		
@@ -465,7 +470,7 @@ function getdetail(row)
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
 	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
 	dspv(row, 'Currency', hash[row.Site]['CurrencyDetails'][row.Currency]);
-	dspv(row, 'ConditionID', hash[row.Site]['category']['features'][row.PrimaryCategory.CategoryID]['ConditionValues']['Condition'][row.ConditionID]);
+	//dspv(row, 'ConditionID', hash[row.Site]['category']['features'][row.PrimaryCategory.CategoryID]['ConditionValues']['Condition'][row.ConditionID]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -755,10 +760,20 @@ var changeCategory = function() {
 		path.push(prevslct[node].value);
 	}
 	path.push($(this).val());
+	alert(path.join('.'));
+	
+	ctgr = hash[site]['Categories'];
+	for (i in path) {
+		if (i == 0) {
+			ctgr = ctgr['c'+path[i]];
+		} else {
+			ctgr = ctgr['children']['c'+path[i]];
+		}
+	}
 	
 	$(this).nextAll().remove();
-	if (hash[site]['category']['children'][$(this).val()] != 'leaf') {
-		preloadcategory(site, [$(this).val()]);
+	if (ctgr['children']) {
+		preloadcategory2(site, path);
 		//sel = getcategorypulldown(site, $(this).val());
 		sel = getcategorypulldown2(site, path);
 		$('td.category', '#'+id).append(sel);
@@ -1114,8 +1129,8 @@ var clickTitle = function() {
 			   dump(item);
 			   
 			   hash[item.Site]['Categories'] = data.json.Categories;
-			   preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
-			   preloadcategory(item.Site, item.ext.categorypath);
+			   //preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
+			   //preloadcategory(item.Site, item.ext.categorypath);
 			   
 			   getdetail(item);
 			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
@@ -1202,6 +1217,22 @@ function getcategorypulldowns(site, path)
 	return sels.children();
 }
 
+function preloadcategory2(site, path)
+{
+	
+	$.getJSON('/json/gc2?site='+site+'&path='+path.join('.'),
+			  function(data) {
+				  dump(data);
+				  /*
+				  $.each(hash[site]['category'], function(n, a) {
+					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
+					  hash[site]['category'][n] = tmpo;
+				  });
+				  */
+			  });
+	
+	return;
+}
 
 function preloadcategory(site, path)
 {
