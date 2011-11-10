@@ -24,14 +24,16 @@ import org.apache.struts2.convention.annotation.Results;
 @ParentPackage("json-default")
 public class PageAction extends BaseAction {
 	
+	protected LinkedHashMap<String, String> initjson;
+	
 	public PageAction() throws Exception {
 	}
 	
 	public BasicDBObject getUser() {
 		return user;
 	}
-
-	public String getInitjson() {
+	
+	public LinkedHashMap<String, String> getInitjson() {
 		return initjson;
 	}
 	
@@ -49,24 +51,24 @@ public class PageAction extends BaseAction {
 		String email = "";
 		String password = "";
 		
-		
 		if (session.get("email") != null) {
 			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
+			initjson = new LinkedHashMap<String, String>();
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
 				
 				if (true) {
 					JsonAction ja = new JsonAction();
-					LinkedHashMap<String,Object> st = ja.initdata();
+					LinkedHashMap<String, Object> st = ja.initdata();
 					JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
-					initjson = tmpj.toString();
+					initjson.put("hash", tmpj.toString());
 					
 					FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/initcache");
 					BufferedWriter out = new BufferedWriter(fstream);
-					out.write(initjson);
+					out.write(initjson.get("hash"));
 					out.close();
 				} else {
 					String data = "";
@@ -78,8 +80,15 @@ public class PageAction extends BaseAction {
 						data = data + line;
 					}
 					br.close();
-					initjson = data;
+					initjson.put("hash", data);
 				}
+				
+				/*
+				JsonAction ja = new JsonAction();
+				LinkedHashMap<String,Object> summary = ja.summarydata();
+				JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(summary);
+				initjson.put("summary", tmpj.toString());
+				*/
 				
 				return "alreadyloggedin";
 			}

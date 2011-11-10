@@ -570,8 +570,12 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/summary")
 	public String summary() throws Exception {
-		
-		json = new LinkedHashMap<String,Object>();
+		json = summarydata();
+		return SUCCESS;
+	}
+	
+	public LinkedHashMap<String,Object> summarydata() throws Exception {
+		LinkedHashMap<String,Object> summarydata = new LinkedHashMap<String,Object>();
 		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
@@ -591,7 +595,7 @@ public class JsonAction extends BaseAction {
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);
 		}
-		json.put("alluserids", allsummary);
+		summarydata.put("alluserids", allsummary);
 		
 		for (String u : userids) {
 			LinkedHashMap<String,Long> summary = new LinkedHashMap<String,Long>();
@@ -603,10 +607,10 @@ public class JsonAction extends BaseAction {
 				Long cnt = coll.count(query);
 				summary.put(k, cnt);
 			}
-			json.put(u, summary);
+			summarydata.put(u, summary);
 		}
 		
-		return SUCCESS;
+		return summarydata;
 	}
 
 	private LinkedHashMap<String,BasicDBObject> getsellingquery() {

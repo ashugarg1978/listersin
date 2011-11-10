@@ -27,7 +27,6 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	
 	protected DB db;
 	protected BasicDBObject user;
-	protected String initjson;
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	

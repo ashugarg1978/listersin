@@ -1,6 +1,6 @@
 db.items.ensureIndex({'ext.UserID':1});
-db.items.ensureIndex({'ItemID':1});
 db.items.ensureIndex({'ext.deleted':1});
+db.items.ensureIndex({'ItemID':1});
 
 print('Categories');
 db.getCollectionNames().forEach(

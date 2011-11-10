@@ -572,7 +572,9 @@
 
 <script>
 var hash;
-hash = ${initjson};
+hash = ${initjson.hash};
+//var summary;
+//summary = ${initjson.summary};
 </script>
 
 </body>
