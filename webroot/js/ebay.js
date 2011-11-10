@@ -761,7 +761,6 @@ var changeCategory = function() {
 		path.push(prevslct[node].value);
 	}
 	path.push($(this).val());
-	alert(path.join('.'));
 	
 	ctgr = hash[site]['Categories'];
 	for (i in path) {
@@ -775,7 +774,6 @@ var changeCategory = function() {
 	$(this).nextAll().remove();
 	if (ctgr['children']) {
 		preloadcategory2(site, path);
-		//sel = getcategorypulldown(site, $(this).val());
 		sel = getcategorypulldown2(site, path);
 		$('td.category', '#'+id).append(sel);
 	}
@@ -1156,7 +1154,7 @@ function getcategorypulldown(site, categoryid)
 		str = hash[site]['category']['name'][childid];
 		str += '('+childid+')';
 		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
-		opt = $('<option/>').val(childid).html(str);
+		opt = $('<option/>').val(childid).html('old|'+str);
 		sel.append(opt);
 	});
 	
@@ -1182,7 +1180,7 @@ function getcategorypulldown2(site, path)
 		str = o.CategoryName;
 		cid = i.replace(/^c/, '');
 		if (o.children) str += ' &gt;';
-		opt = $('<option/>').val(cid).html('M'+str);
+		opt = $('<option/>').val(cid).html(str);
 		sel.append(opt);
 	});
 	
@@ -1203,7 +1201,7 @@ function getcategorypulldowns(site, path)
 			str = o.CategoryName;
 			cid = j.replace(/^c/, '');
 			if (o.children) str += ' &gt;';
-			opt = $('<option/>').val(cid).html('N'+str);
+			opt = $('<option/>').val(cid).html(str);
 			sel.append(opt);
 		});
 		
@@ -1224,12 +1222,7 @@ function preloadcategory2(site, path)
 	$.getJSON('/json/gc2?site='+site+'&path='+path.join('.'),
 			  function(data) {
 				  dump(data);
-				  /*
-				  $.each(hash[site]['category'], function(n, a) {
-					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
-					  hash[site]['category'][n] = tmpo;
-				  });
-				  */
+				  hash[site]['Categories']['c'+path[0]]['children'] = data.json.gc2;
 			  });
 	
 	return;
