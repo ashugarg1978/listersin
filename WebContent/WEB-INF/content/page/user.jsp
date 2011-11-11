@@ -197,8 +197,7 @@
 <div class="detail">
 	
 <ul class="tabNav">
-<li class="current"><a href="#"><s:text name="Category"/></a></li>
-<li><a href="#"><s:text name="Title"/></a></li>
+<li class="current"><a href="#"><s:text name="CategoryAndTitle"/></a></li>
 <li><a href="#"><s:text name="Pictures"/></a></li>
 <li><a href="#"><s:text name="Description"/></a></li>
 <li><a href="#"><s:text name="Price"/></a></li>
@@ -234,13 +233,6 @@
   <td><s:text name="ProductDetails"/></td>
   <td></td>
 </tr>
-</tbody>
-</table>
-</div>
-
-<div class="tab">
-<table class="detail">
-<tbody>
 <tr>
   <td><s:text name="title"/></td>
   <td><input name="Title" type="text" size="60"></td>
