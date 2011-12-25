@@ -731,80 +731,124 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject query = new BasicDBObject();
 		
-		DBCollection coll = db.getCollection(site+".Categories");
+		DBCollection coll    = db.getCollection(site+".Categories");
 		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
+		DBCollection collft  = db.getCollection(site+".CategoryFeatures.Category");
 		
+		/* CategoryFeatures SiteDefaults */
+		if (features == null) {
+			features = getsitedefaults(site);
+		}
+		
+		/* CategoryID */
 		String categoryid = path[0];
 		
 		query = new BasicDBObject();
 		if (categoryid.equals("0")) {
 			query.put("CategoryLevel", "1");
 		} else {
-			// todo: use CategoryLevel for query?
+			// todo: use CategoryLevel for query? -> slow.
 			query.put("CategoryParentID", categoryid);
 			//query.put("CategoryID", new BasicDBObject("$ne", categoryid));
+			
+			/* CategoryFeatures */
+			BasicDBObject dboft = 
+				(BasicDBObject) collft.findOne(new BasicDBObject("CategoryID", categoryid));
+			if (dboft != null) {
+				for (Object o : dboft.keySet()) {
+					features.put(o.toString(), dboft.get(o.toString()));
+				}
+			}
+			
 		}
 		DBCursor cur = coll.find(query, field).sort(new BasicDBObject("_id", 1));
 		if (cur.count() == 0) {
 			return null;
 		}
-		if (cur.count() > 0) {
-			while (cur.hasNext()) {
-				BasicDBObject row = (BasicDBObject) cur.next();
-				String key = "c"+row.getString("CategoryID");
-				if (row.getString("CategoryID").equals(categoryid)) continue;
-				
-				/* CategorySpecifics */
-				DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
-																 row.getString("CategoryID")));
-				if (dbo != null) {
-					dbo.removeField("_id");
-					dbo.removeField("CategoryID");
-					row.put("CategorySpecifics", dbo);
-				}
-				
-				/* children */
-				if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
-					
-					String[] shifted = new String[path.length - 1];
-					for (int i = 1; i < path.length; i++) {
-						shifted[i - 1] = path[i];
-					}
-					
-					BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, null);
-					if (tmpchildren != null) {
-						row.put("children", tmpchildren);
-					}
-					
-				} else if (recursive == 1) {
-					
-					String[] shifted = new String[1];
-					shifted[0] = row.getString("CategoryID");
-					
-					BasicDBObject tmpchildren = grandchildren2(site, shifted, 0, null);
-					if (tmpchildren != null) {
-						row.put("children", tmpchildren);
-					}
-					
-				} else if (recursive == 0) {
-					
-					BasicDBObject query2 = new BasicDBObject();
-					query2.put("CategoryParentID", row.getString("CategoryID"));
-					Long cnt = coll.count(query2);
-					if (cnt > 0) {
-						row.put("children", cnt);
-					}
-					
-				}
-				
-				row.removeField("_id");
-				row.removeField("CategoryID");
-				
-				result.put(key, row);
+		
+		while (cur.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cur.next();
+			String key = "c"+row.getString("CategoryID");
+			if (row.getString("CategoryID").equals(categoryid)) continue;
+			
+			/* CategorySpecifics */
+			DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
+															 row.getString("CategoryID")));
+			if (dbo != null) {
+				dbo.removeField("_id");
+				dbo.removeField("CategoryID");
+				row.put("CategorySpecifics", dbo);
 			}
+			
+			/* children */
+			if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
+				
+				String[] shifted = new String[path.length - 1];
+				for (int i = 1; i < path.length; i++) {
+					shifted[i - 1] = path[i];
+				}
+				
+				BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, features);
+				if (tmpchildren != null) {
+					row.put("children", tmpchildren);
+				}
+				
+			} else if (recursive == 1) {
+				
+				String[] shifted = new String[1];
+				shifted[0] = row.getString("CategoryID");
+				
+				BasicDBObject tmpchildren = grandchildren2(site, shifted, 0, features);
+				if (tmpchildren != null) {
+					row.put("children", tmpchildren);
+				}
+				
+			} else if (recursive == 0) {
+				
+				BasicDBObject query2 = new BasicDBObject();
+				query2.put("CategoryParentID", row.getString("CategoryID"));
+				Long cnt = coll.count(query2);
+				if (cnt > 0) {
+					row.put("children", cnt);
+				}
+				
+			}
+			
+			/* when it is a leaf category */
+			if (!row.containsField("children")) {
+				
+				/* CategoryFeatures */
+				BasicDBObject features2 = features;
+				BasicDBObject dboft = (BasicDBObject)
+					collft.findOne(new BasicDBObject("CategoryID", row.getString("CategoryID")));
+				if (dboft != null) {
+					for (Object o : dboft.keySet()) {
+						features.put(o.toString(), dboft.get(o.toString()));
+						if (row.getString("CategoryID").equals("16709")) {
+							log.debug(o.toString()+":"+dboft.get(o.toString()));
+						}
+					}
+					log.debug(row.getString("CategoryID"));
+				}
+				row.put("CategoryFeatures", features2);
+			}
+			
+			row.removeField("_id");
+			row.removeField("CategoryID");
+			
+			result.put(key, row);
 		}
 		
 		return result;
+	}
+
+	private BasicDBObject getsitedefaults(String site) {
+		
+		DBCollection collection = db.getCollection(site+".CategoryFeatures");
+		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
+		BasicDBObject sitedefaults = (BasicDBObject) dbo.get("SiteDefaults");
+		
+		return sitedefaults;
 	}
 
 	private LinkedHashMap<String,LinkedHashMap> children(String site, Integer categoryid) {

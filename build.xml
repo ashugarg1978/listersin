@@ -16,7 +16,8 @@
 	<mkdir dir="${build.home}" />
   </target>
   
-  <target name="compile" depends="init" description="Compile Java sources">
+  <!--target name="compile" depends="init" description="Compile Java sources"-->
+  <target name="compile" description="Compile Java sources">
 	<mkdir dir="${build.home}/WEB-INF/classes" />
 	<javac srcdir="${source.home}"
 		   destdir="${build.home}/WEB-INF/classes"
