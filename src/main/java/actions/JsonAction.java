@@ -789,7 +789,8 @@ public class JsonAction extends BaseAction {
 					shifted[i - 1] = path[i];
 				}
 				
-				BasicDBObject tmpchildren = grandchildren2(site, shifted, 1, features);
+				BasicDBObject tmpchildren = grandchildren2(site, shifted, 1,
+														   (BasicDBObject) features.copy());
 				if (tmpchildren != null) {
 					row.put("children", tmpchildren);
 				}
@@ -799,7 +800,8 @@ public class JsonAction extends BaseAction {
 				String[] shifted = new String[1];
 				shifted[0] = row.getString("CategoryID");
 				
-				BasicDBObject tmpchildren = grandchildren2(site, shifted, 0, features);
+				BasicDBObject tmpchildren = grandchildren2(site, shifted, 0,
+														   (BasicDBObject) features.copy());
 				if (tmpchildren != null) {
 					row.put("children", tmpchildren);
 				}
@@ -819,7 +821,8 @@ public class JsonAction extends BaseAction {
 			if (!row.containsField("children")) {
 				
 				/* CategoryFeatures */
-				BasicDBObject features2 = features;
+				//BasicDBObject features2 = (BasicDBObject) features.clone();
+				BasicDBObject features2 = (BasicDBObject) features.copy();
 				BasicDBObject dboft = (BasicDBObject)
 					collft.findOne(new BasicDBObject("CategoryID", row.getString("CategoryID")));
 				if (dboft != null) {
@@ -829,7 +832,7 @@ public class JsonAction extends BaseAction {
 							log.debug(o.toString()+":"+dboft.get(o.toString()));
 						}
 					}
-					log.debug(row.getString("CategoryID"));
+					log.debug("features:"+row.getString("CategoryID"));
 				}
 				row.put("CategoryFeatures", features2);
 			}

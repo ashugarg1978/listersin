@@ -471,6 +471,9 @@ function getdetail(row)
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
 	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
 	dspv(row, 'Currency', hash[row.Site]['CurrencyDetails'][row.Currency]);
+	
+	// for value check
+	dspv(row, 'ConditionID', row.ConditionID + ' : ' + row.ConditionDisplayName);
 	//dspv(row, 'ConditionID', hash[row.Site]['category']['features'][row.PrimaryCategory.CategoryID]['ConditionValues']['Condition'][row.ConditionID]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
@@ -882,6 +885,36 @@ var clickEdit = function() {
 				  hash[site]['DispatchTimeMaxDetails'],
 				  item.DispatchTimeMax);
 	
+	tmpgc = hash[site]['Categories'];
+	$.each(item.ext.categorypath, function(i, cid) {
+		if (i == 0) {
+			tmpgc = tmpgc['c'+cid];
+		} else {
+			tmpgc = tmpgc['children']['c'+cid];
+		}
+		
+		if (i == item.ext.categorypath.length - 1) {
+			
+			$.each(tmpgc.CategoryFeatures.ConditionValues.Condition, function(j, o) {
+				var option = $('<option/>').val(o.ID).text(o.DisplayName);
+				if (o.ID == item.ConditionID) option.attr('selected', 'selected');
+				$('select[name=ConditionID]', dom).append(option);
+			});
+			
+			$.each(tmpgc.CategorySpecifics.NameRecommendation, function(j, o) {
+				$('td.ItemSpecifics', dom).append(o.Name);
+				if (o.ValueRecommendation) {
+					$.each(o.ValueRecommendation, function(k, v) {
+						$('td.ItemSpecifics', dom).append(v.Value+', ');
+					});
+				}
+				$('td.ItemSpecifics', dom).append('<br />');
+			});
+			$('td.ItemSpecifics', dom).append
+			('<pre>'+$.dump(tmpgc.CategorySpecifics.NameRecommendation)+'</pre>');
+		}
+	});
+	
 	/* Listing duration */
 	setoptiontags
 	('ListingDuration',
@@ -980,27 +1013,6 @@ var clickEdit = function() {
 		});
 	}
 	
-	tmpgc = hash[site]['Categories'];
-	$.each(item.ext.categorypath, function(i, cid) {
-		if (i == 0) {
-			tmpgc = tmpgc['c'+cid];
-		} else {
-			tmpgc = tmpgc['children']['c'+cid];
-		}
-		
-		if (i == item.ext.categorypath.length - 1) {
-			dump(tmpgc.CategorySpecifics.NameRecommendation);
-			$.each(tmpgc.CategorySpecifics.NameRecommendation, function(j, o) {
-				$('td.ItemSpecifics', dom).append(o.Name);
-				if (o.ValueRecommendation) {
-					$.each(o.ValueRecommendation, function(k, v) {
-						$('td.ItemSpecifics', dom).append(v.Value+', ');
-					});
-				}
-				$('td.ItemSpecifics', dom).append('<br />');
-			});
-		}
-	});
 	
 	
 	return false;
@@ -1109,6 +1121,7 @@ var changeSite = function() {
 }
 
 var clickTitle = function() {
+	
 	var id = $(this).closest('tbody').attr('id');
 	
 	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
