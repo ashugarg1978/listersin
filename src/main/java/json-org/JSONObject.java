@@ -280,7 +280,15 @@ public class JSONObject {
                         key = key.substring(0, 1).toLowerCase() +
                             key.substring(1);
                     }
-                    this.put(key, method.invoke(bean, null));
+
+					// http://stackoverflow.com/questions/5401537/i-have-got-this-warning-non-varargs-call-of-varargs-method-with-inexact-argumen
+					
+                    //this.put(key, method.invoke(bean, null));
+					
+                    //this.put(key, method.invoke(bean, (Class<?>[]) null));
+                    //this.put(key, method.invoke(bean, (Class<?>) null));
+                    this.put(key, method.invoke(bean));
+					
                 }
             } catch (Exception e) {
                 /* forget about it */

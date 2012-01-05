@@ -134,6 +134,7 @@ public class JsonAction extends BaseAction {
 									"Description"));
 			
 			initdata.put(site, hash);
+			break;
 		}
 		log.debug("done initdata");
 		

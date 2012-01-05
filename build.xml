@@ -32,7 +32,7 @@
 		</path>
 	  </classpath>
       <compilerarg value="-Xlint:deprecation" />
-      <!--compilerarg value="-Xlint:unchecked" /-->
+      <compilerarg value="-Xlint:unchecked" />
 	</javac>
   </target>
   
