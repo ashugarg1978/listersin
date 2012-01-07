@@ -536,7 +536,10 @@
 <tbody>
 <tr>
   <td><s:text name="Site"/></td>
-  <td><select name="Site"></select></td>
+  <td>
+	<select name="Site">
+	</select>
+  </td>
 </tr>
 <tr>
   <td><s:text name="Country"/></td>

@@ -21,7 +21,8 @@ $(document).bind({
 		
 		// todo: same code
 		$.each(hash, function(k, v) {
-			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
+			var optiontag = $('<option />').val(k).html(k);
+			$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
 		});
 		
 		//$('ul.accounts > li > ul:first').slideToggle('fast');
@@ -346,6 +347,27 @@ function getdetail(row)
 {
 	var id = row.id;
 	var detail = $('div.detail', '#'+id);
+	var site = row.Site;
+	
+	// fill select option tags
+	setoptiontags($('select[name=Country]',  detail), hash[site]['CountryDetails'],  null);
+	setoptiontags($('select[name=Currency]', detail), hash[site]['CurrencyDetails'], null);
+	
+	tmpgc = hash[site]['Categories'];
+	$.each(item.ext.categorypath, function(i, cid) {
+		if (i == 0) {
+			tmpgc = tmpgc['c'+cid];
+		} else {
+			tmpgc = tmpgc['children']['c'+cid];
+		}
+		
+		if (i == item.ext.categorypath.length - 1) {
+			$.each(tmpgc.CategoryFeatures.ConditionValues.Condition, function(j, o) {
+				var option = $('<option/>').val(o.ID).text(o.DisplayName);
+				$('select[name=ConditionID]', detail).append(option);
+			});
+		}
+	});
     
 	// show form values as plain text (not form)
 	$.each($('table.detail input[type=text]', detail), function(i, form) {
@@ -363,12 +385,12 @@ function getdetail(row)
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}
 	});
-
+	
 	$.each($('table.detail select', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
-			eval("tmpvalue = row"+formname);
+			eval("var tmpvalue = row"+formname);
 			//var tmpvalue = row[formname];
 			
 			if (tmpvalue == null) tmpvalue = '';
@@ -379,10 +401,6 @@ function getdetail(row)
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}
 	});
-	
-	$('select[name=Site]',    detail).replaceWith(row.Site);
-	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();
-	$('select[name=ListingType]', detail).replaceWith(tmp);
 	
 	/* paymentmethods */
 	var pmstr = '<span style="color:#aaaaaa;">-</span>';
@@ -433,6 +451,7 @@ function getdetail(row)
 		$('td.shippingtype_international', detail).html(row.ext.shippingtype.international);
 	}
 
+	/*
 	if (row.ShippingDetails.ShippingServiceOptions) {
 		sdsso = row.ShippingDetails.ShippingServiceOptions;
 		_sdsso = 'ShippingDetails.ShippingServiceOptions';
@@ -455,7 +474,7 @@ function getdetail(row)
 				 hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description']);
 		});
 	}
-	
+	*/
 	
 	if (row.ShippingDetails.CalculatedShippingRate) {
 		
@@ -1474,12 +1493,12 @@ function getListingDurationLabel(str)
 	return str;
 }
 
-function setoptiontags(formname, optionvalues, selectedvalue)
+function setoptiontags(dom, optionvalues, selectedvalue)
 {
 	$.each(optionvalues, function(k, v) {
 		option = $('<option/>').val(k).text(v);
 		if (selectedvalue == k) option.attr('selected', 'selected');
-		$('select[name='+formname+']').append(option);
+		$(dom).append(option);
 	});
 	
 	return;

@@ -117,7 +117,7 @@ public class JsonAction extends BaseAction {
 			log.debug(site+" gc2");
 			String[] category0 = new String[1];
 			category0[0] = "0";
-			hash.put("Categories",             grandchildren2(site, category0, 1, null));
+			//hash.put("Categories",             grandchildren2(site, category0, 1, null));
 			
 			log.debug(site+" shippingtype");
 			hash.put("ShippingType",           shippingtype(site));
@@ -134,7 +134,7 @@ public class JsonAction extends BaseAction {
 									"Description"));
 			
 			initdata.put(site, hash);
-			break;
+			//break;
 		}
 		log.debug("done initdata");
 		
@@ -262,8 +262,7 @@ public class JsonAction extends BaseAction {
 		for (int i = 0; i < path.size(); i++) {
 			pathstr[i+1] = path.get(i).toString();
 		}
-		BasicDBObject grandchildren2 = grandchildren2(item.getString("Site"), pathstr, 1, null);
-		//ext.put("grandchildren2", grandchildren2);
+		BasicDBObject children2 = children2(item.getString("Site"), pathstr);
 		
 		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
 		
@@ -291,7 +290,7 @@ public class JsonAction extends BaseAction {
 		item.removeField("_id");
 		
 		json.put("item", item);
-		json.put("Categories", grandchildren2);
+		json.put("Categories", children2);
 		
 		return SUCCESS;
 	}
@@ -842,6 +841,39 @@ public class JsonAction extends BaseAction {
 			
 			result.put(key, row);
 		}
+		
+		return result;
+	}
+
+	private BasicDBObject children2(String site, String[] path) {
+		
+		BasicDBObject result = new BasicDBObject();
+		
+		BasicDBObject field = new BasicDBObject();
+		field.put("CategoryID",   1);
+		field.put("CategoryName", 1);
+		
+		BasicDBObject query = new BasicDBObject();
+		
+		DBCollection coll    = db.getCollection(site+".Categories");
+		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
+		DBCollection collft  = db.getCollection(site+".CategoryFeatures");
+		DBCollection collftc = db.getCollection(site+".CategoryFeatures.Category");
+		
+		DBObject dbo = collft.findOne(null, new BasicDBObject("SiteDefaults", true));
+		BasicDBObject features = (BasicDBObject) dbo.get("SiteDefaults");
+		
+		DBCursor cursor = coll.find(new BasicDBObject("CategoryLevel", "1"));
+		while (cursor.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cur.next();
+			
+		}
+		
+		log.debug("path start");
+		for (String categoryid : path) {
+			log.debug(categoryid);
+		}
+		log.debug("path end");
 		
 		return result;
 	}
