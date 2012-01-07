@@ -344,24 +344,41 @@ function getrow(idx, row)
 // todo: if build a clone of python version, it's easy if generation is in javascript.
 function getdetail(row)
 {
-	id = row.id;
-	detail = $('div.detail', '#'+id);
+	var id = row.id;
+	var detail = $('div.detail', '#'+id);
     
-	dsp(row, 'Title');
-	dsp(row, 'SubTitle');
-	dsp(row, 'Quantity');
-	dsp(row, 'StartPrice.@currencyID');
-	dsp(row, 'StartPrice.#text');
-	dsp(row, 'ListingDetails.BestOfferAutoAcceptPrice.@currencyID');
-	dsp(row, 'ListingDetails.BestOfferAutoAcceptPrice.#text');
-	dsp(row, 'ListingDetails.MinimumBestOfferPrice.@currencyID');
-	dsp(row, 'ListingDetails.MinimumBestOfferPrice.#text');
-	dsp(row, 'BuyItNowPrice.@currencyID');
-	dsp(row, 'BuyItNowPrice.#text');
-	dsp(row, 'BuyerGuaranteePrice.@currencyID');
-	dsp(row, 'BuyerGuaranteePrice.#text');
-	dsp(row, 'PostalCode');
-	dsp(row, 'Location');
+	// show form values as plain text (not form)
+	$.each($('table.detail input[type=text]', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("tmpvalue = row"+formname);
+			//var tmpvalue = row[formname];
+			
+			if (tmpvalue == null) tmpvalue = '';
+			
+			htmlencoded = $('<div/>').text(tmpvalue+'[#]').html();
+			$(form).replaceWith(htmlencoded);
+		} catch (err) {
+			//$(detail).prepend('ERR: '+err.description+'<br />');
+		}
+	});
+
+	$.each($('table.detail select', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("tmpvalue = row"+formname);
+			//var tmpvalue = row[formname];
+			
+			if (tmpvalue == null) tmpvalue = '';
+			
+			var label = $('option[value='+tmpvalue+']', form).html();
+			$(form).replaceWith(label+'[S]');
+		} catch (err) {
+			//$(detail).prepend('ERR: '+err.description+'<br />');
+		}
+	});
 	
 	$('select[name=Site]',    detail).replaceWith(row.Site);
 	tmp = $('select[name=ListingType] > option[value='+row.ListingType+']', detail).text();

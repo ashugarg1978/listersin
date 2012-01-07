@@ -197,27 +197,27 @@
 <div class="detail">
 	
 <ul class="tabNav">
-<li class="current"><a href="#"><s:text name="CategoryAndTitle"/></a></li>
-<li><a href="#"><s:text name="Pictures"/></a></li>
-<li><a href="#"><s:text name="Description"/></a></li>
-<li><a href="#"><s:text name="Price"/></a></li>
-<li><a href="#"><s:text name="Payment"/></a></li>
-<li><a href="#"><s:text name="Shipping"/></a></li>
-<li><a href="#"><s:text name="Other"/></a></li>
+  <li class="current"><a href="#"><s:text name="CategoryAndTitle"/></a></li>
+  <li><a href="#"><s:text name="Pictures"/></a></li>
+  <li><a href="#"><s:text name="Description"/></a></li>
+  <li><a href="#"><s:text name="Price"/></a></li>
+  <li><a href="#"><s:text name="Payment"/></a></li>
+  <li><a href="#"><s:text name="Shipping"/></a></li>
+  <li><a href="#"><s:text name="Other"/></a></li>
 </ul>
 
 <ul class="editbuttons">
-<li><a href="#" class="edit">Edit</a></li>
-<li><a href="#" class="copy">Copy</a></li>
-<li><a href="#" class="delete">Delete</a></li>
-<li><a href="#" class="add">Add</a></li>
-<li><a href="#" class="relist">ReList</a></li>
-<li><a href="#" class="revise">Revise</a></li>
-<li><a href="#" class="end">End</a></li>
-<li style="display:none;"><a href="#" class="save">Save</a></li>
-<li style="display:none;"><a href="#" class="cancel">Cancel</a></li>
+  <li><a href="#" class="edit">Edit</a></li>
+  <li><a href="#" class="copy">Copy</a></li>
+  <li><a href="#" class="delete">Delete</a></li>
+  <li><a href="#" class="add">Add</a></li>
+  <li><a href="#" class="relist">ReList</a></li>
+  <li><a href="#" class="revise">Revise</a></li>
+  <li><a href="#" class="end">End</a></li>
+  <li style="display:none;"><a href="#" class="save">Save</a></li>
+  <li style="display:none;"><a href="#" class="cancel">Cancel</a></li>
 </ul>
- 
+
 <div class="tabContainer">
 
 <div class="tab current">
