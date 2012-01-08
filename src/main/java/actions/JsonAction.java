@@ -853,6 +853,7 @@ public class JsonAction extends BaseAction {
 		DBCollection coll    = db.getCollection(site+".Categories");
 		DBCollection collft  = db.getCollection(site+".CategoryFeatures");
 		DBCollection collftc = db.getCollection(site+".CategoryFeatures.Category");
+		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
 		
 		DBObject dbo = collft.findOne(null, new BasicDBObject("SiteDefaults", true));
 		BasicDBObject features = (BasicDBObject) dbo.get("SiteDefaults");
@@ -901,6 +902,13 @@ public class JsonAction extends BaseAction {
 				
 				if (row.getString("CategoryID").equals(path[path.length-1])) {
 					childinfo.put("CategoryFeatures", features);
+
+					/* CategorySpecifics */
+					DBObject dbospc = collspc.findOne
+						(new BasicDBObject("CategoryID", row.getString("CategoryID")));
+					if (dbospc != null) {
+						childinfo.put("CategorySpecifics", dbospc);
+					}
 				}
 				
 				tmpchildren.put("c"+row.getString("CategoryID"), childinfo);
