@@ -379,13 +379,29 @@ function getdetail(row)
 		}
 	}
 	
+	var category = hash[site]['Categories']['c'+row.ext.categorypath[row.ext.categorypath.length-2]]['c'+row.PrimaryCategory.CategoryID];
+	
 	// CategoryFeatures
-	var conditions = hash[site]['Categories']['c'+row.ext.categorypath[row.ext.categorypath.length-2]]['c'+row.PrimaryCategory.CategoryID]['CategoryFeatures']['ConditionValues']['Condition'];
+	var conditions = category['CategoryFeatures']['ConditionValues']['Condition'];
 	for (i in conditions) {
 		var value = conditions[i]['ID'];
 		var label = conditions[i]['DisplayName'];
 		var optiontag = $('<option/>').val(value).html(label);
 		$('select[name=ConditionID]', detail).append(optiontag);
+	}
+	
+	// ItemSpecifics
+	var specifics = category['CategorySpecifics']['NameRecommendation'];
+	for (i in specifics) {
+		
+		var inputtag = $('<input />')
+			.attr('type', 'text')
+			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
+		
+		$('td.ItemSpecifics', detail).append(inputtag);
+		
+		$('td.ItemSpecifics', detail).append(specifics[i].Name);
+		$('td.ItemSpecifics', detail).append('<br />');
 	}
 	
 	return;
