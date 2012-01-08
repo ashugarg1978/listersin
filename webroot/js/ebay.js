@@ -353,54 +353,42 @@ function getdetail(row)
 	setoptiontags($('select[name=Country]',  detail), hash[site]['CountryDetails'],  null);
 	setoptiontags($('select[name=Currency]', detail), hash[site]['CurrencyDetails'], null);
 	
-	tmpgc = hash[site]['Categories'];
-	$.each(item.ext.categorypath, function(i, cid) {
-		if (i == 0) {
-			tmpgc = tmpgc['c'+cid];
-		} else {
-			tmpgc = tmpgc['children']['c'+cid];
+	// Categories
+	var tmppath = row.ext.categorypath.slice(0);
+	tmppath.unshift(0);
+	for (i in tmppath) {
+		var categoryid = tmppath[i];
+		var selecttag = $('<select class="category"/>').attr('name', 'ext.categorypath.'+i);
+		var optiontag = $('<option/>').val('').text('');
+		selecttag.append(optiontag);		
+		
+		for (childid in hash[site]['Categories']['c'+categoryid]) {
+			var child = hash[site]['Categories']['c'+categoryid][childid];
+			var value = childid.replace(/^c/, '');
+			var label = child.name;
+			if (child.children > 0) label += ' &gt;';
+			optiontag = $('<option/>').val(value).html(label);
+			selecttag.append(optiontag);		
 		}
 		
-		if (i == item.ext.categorypath.length - 1) {
-			$.each(tmpgc.CategoryFeatures.ConditionValues.Condition, function(j, o) {
-				var option = $('<option/>').val(o.ID).text(o.DisplayName);
-				$('select[name=ConditionID]', detail).append(option);
-			});
+		if (i == tmppath.length - 2) {
+			$('select[name="PrimaryCategory.CategoryID"]', detail).html(selecttag.html());
+			break;
+		} else {
+			$('select[name="PrimaryCategory.CategoryID"]', detail).before(selecttag);
 		}
-	});
-    
-	// show form values as plain text (not form)
-	$.each($('table.detail input[type=text]', detail), function(i, form) {
-		var formname = $(form).attr('name');
-		formname = "['" + formname.replace(/\./g, "']['") + "']";
-		try {
-			eval("tmpvalue = row"+formname);
-			//var tmpvalue = row[formname];
-			
-			if (tmpvalue == null) tmpvalue = '';
-			
-			htmlencoded = $('<div/>').text(tmpvalue+'[#]').html();
-			$(form).replaceWith(htmlencoded);
-		} catch (err) {
-			//$(detail).prepend('ERR: '+err.description+'<br />');
-		}
-	});
+	}
 	
-	$.each($('table.detail select', detail), function(i, form) {
-		var formname = $(form).attr('name');
-		formname = "['" + formname.replace(/\./g, "']['") + "']";
-		try {
-			eval("var tmpvalue = row"+formname);
-			//var tmpvalue = row[formname];
-			
-			if (tmpvalue == null) tmpvalue = '';
-			
-			var label = $('option[value='+tmpvalue+']', form).html();
-			$(form).replaceWith(label+'[S]');
-		} catch (err) {
-			//$(detail).prepend('ERR: '+err.description+'<br />');
-		}
-	});
+	// CategoryFeatures
+	var conditions = hash[site]['Categories']['c'+row.ext.categorypath[row.ext.categorypath.length-2]]['c'+row.PrimaryCategory.CategoryID]['CategoryFeatures']['ConditionValues']['Condition'];
+	for (i in conditions) {
+		var value = conditions[i]['ID'];
+		var label = conditions[i]['DisplayName'];
+		var optiontag = $('<option/>').val(value).html(label);
+		$('select[name=ConditionID]', detail).append(optiontag);
+	}
+	
+	return;
 	
 	/* paymentmethods */
 	var pmstr = '<span style="color:#aaaaaa;">-</span>';
@@ -414,8 +402,6 @@ function getdetail(row)
 	
 	$('select[name=ListingDuration]', detail)
 		.replaceWith(getListingDurationLabel(row.ListingDuration));
-	
-	$('td.category', detail).html(row.ext.categoryname);
 	
 	/* pictures */
 	if (typeof(row.PictureDetails.PictureURL) == 'string') {
@@ -505,12 +491,6 @@ function getdetail(row)
 	}
 	
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
-	dspv(row, 'Country', hash[row.Site]['CountryDetails'][row.Country]);
-	dspv(row, 'Currency', hash[row.Site]['CurrencyDetails'][row.Currency]);
-	
-	// for value check
-	dspv(row, 'ConditionID', row.ConditionID + ' : ' + row.ConditionDisplayName);
-	//dspv(row, 'ConditionID', hash[row.Site]['category']['features'][row.PrimaryCategory.CategoryID]['ConditionValues']['Condition'][row.ConditionID]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
 	
@@ -582,7 +562,6 @@ function getdetail(row)
 	
 	return;
 }
-
 
 function resizediv()
 {
@@ -827,6 +806,15 @@ var clickEdit = function() {
 	id = $(this).closest('tbody.itemrow').attr('id');
 	item = rowsdata[id];
 	dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+	
+	$('div.detail', 'tbody#'+id).replaceWith(dom);
+	
+	getdetail(item);
+	fillformvalues(item);
+	
+	showbuttons(dom, 'save,cancel');
+	
+	return false;
 	
 	/* preserve selected tab */
 	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
@@ -1181,6 +1169,8 @@ var clickTitle = function() {
 			   //preloadcategory(item.Site, item.ext.categorypath);
 			   
 			   getdetail(item);
+			   showformvalues(item);
+			   
 			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
 			   
 			   //preloadshippingtype(item.Site);
@@ -1544,4 +1534,66 @@ function fval(dom, item, str)
 	} catch (err) {
 		msg(err.description);
 	}
+}
+
+/* フォーム値表示 */
+function showformvalues(item)
+{
+	var detail = $('div.detail', '#'+item.id);
+	
+	/* text */
+	$.each($('table.detail input[type=text]', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("tmpvalue = item"+formname);
+			//var tmpvalue = item[formname];
+			
+			if (tmpvalue == null) tmpvalue = '';
+			
+			htmlencoded = $('<div/>').text(tmpvalue+'[T]').html();
+			$(form).replaceWith(htmlencoded);
+		} catch (err) {
+			//$(detail).prepend('ERR: '+err.description+'<br />');
+		}
+	});
+	
+	/* select */
+	$.each($('table.detail select', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		if (formname == null) return;
+		
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("var tmpvalue = item"+formname);
+			//var tmpvalue = item[formname];
+			if (tmpvalue == null) tmpvalue = '';
+			var label = $('option[value='+tmpvalue+']', form).html();
+			$(form).replaceWith(label+'[S]');
+		} catch (err) {
+			//$(detail).before('ERR: '+formname+' '+err+'<br />');
+		}
+	});
+	
+	return;
+}
+
+/* フォーム値埋め込み */
+function fillformvalues(item)
+{
+	var detail = $('div.detail', '#'+item.id);
+	
+	$.each($('input, select, textarea', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		
+		try {
+			eval("var tmpvalue = item"+formname);
+			$(form).val(tmpvalue);
+		} catch (err) {
+			//$(detail).prepend('ERR: '+err.description+'<br />');
+		}
+	});
+	
+	return;
 }

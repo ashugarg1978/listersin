@@ -290,7 +290,7 @@ public class JsonAction extends BaseAction {
 		item.removeField("_id");
 		
 		json.put("item", item);
-		json.put("Categories", children2);
+		json.put("Categories", children2.get("Categories"));
 		
 		return SUCCESS;
 	}
@@ -844,36 +844,71 @@ public class JsonAction extends BaseAction {
 		
 		return result;
 	}
-
+	
 	private BasicDBObject children2(String site, String[] path) {
 		
 		BasicDBObject result = new BasicDBObject();
-		
-		BasicDBObject field = new BasicDBObject();
-		field.put("CategoryID",   1);
-		field.put("CategoryName", 1);
-		
-		BasicDBObject query = new BasicDBObject();
+		BasicDBObject categories = new BasicDBObject();
 		
 		DBCollection coll    = db.getCollection(site+".Categories");
-		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
 		DBCollection collft  = db.getCollection(site+".CategoryFeatures");
 		DBCollection collftc = db.getCollection(site+".CategoryFeatures.Category");
 		
 		DBObject dbo = collft.findOne(null, new BasicDBObject("SiteDefaults", true));
 		BasicDBObject features = (BasicDBObject) dbo.get("SiteDefaults");
 		
-		DBCursor cursor = coll.find(new BasicDBObject("CategoryLevel", "1"));
-		while (cursor.hasNext()) {
-			BasicDBObject row = (BasicDBObject) cur.next();
+		BasicDBObject field = new BasicDBObject();
+		field.put("CategoryID",   1);
+		field.put("CategoryName", 1);
+		
+		for (String categoryid : path) {
 			
+			/* CategoryFeatures */
+			BasicDBObject dboft = 
+				(BasicDBObject) collftc.findOne(new BasicDBObject("CategoryID", categoryid));
+			if (dboft != null) {
+				for (Object o : dboft.keySet()) {
+					features.put(o.toString(), dboft.get(o.toString()));
+				}
+			}
+			
+			BasicDBObject query = new BasicDBObject();
+			if (categoryid.equals("0")) {
+				query.put("CategoryLevel", "1");
+			} else {
+				query.put("CategoryParentID", categoryid);
+			}
+			
+			DBCursor cursor = coll.find(query, field).sort(new BasicDBObject("_id", 1));
+			if (cursor.count() == 0) {
+				continue;
+			}
+			
+			BasicDBObject tmpchildren = new BasicDBObject();
+			while (cursor.hasNext()) {
+				BasicDBObject row = (BasicDBObject) cursor.next();
+				
+				if (row.getString("CategoryID").equals(categoryid)) continue;
+				
+				BasicDBObject childinfo = new BasicDBObject();
+
+				childinfo.put("name", row.getString("CategoryName"));
+				
+				DBCursor cursor2 = coll.find(new BasicDBObject("CategoryParentID",
+															   row.getString("CategoryID")));
+				
+				childinfo.put("children", cursor2.count());
+				
+				if (row.getString("CategoryID").equals(path[path.length-1])) {
+					childinfo.put("CategoryFeatures", features);
+				}
+				
+				tmpchildren.put("c"+row.getString("CategoryID"), childinfo);
+			}
+			categories.put("c"+categoryid, tmpchildren);
 		}
 		
-		log.debug("path start");
-		for (String categoryid : path) {
-			log.debug(categoryid);
-		}
-		log.debug("path end");
+		result.put("Categories", categories);
 		
 		return result;
 	}
