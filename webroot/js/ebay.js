@@ -404,7 +404,8 @@ function getdetail(row)
 		
 		var inputtag = $('<input />')
 			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
+			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name')
+			.addClass('aslabel');
 		$('td.ItemSpecifics', detail).append(inputtag);
 		
 		if (recommref == null) {
@@ -458,6 +459,7 @@ function getdetail(row)
 		var inputtag = $('<input />')
 			.attr('type', 'text')
 			.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Name')
+			.addClass('aslabel')
 			.val(namerecommendation[i].Name);
 		$('td.ItemSpecifics', detail).append(inputtag);
 		
@@ -465,7 +467,8 @@ function getdetail(row)
 			&& namerecommendation[i].ValidationRules.MaxValues == '1') {
 			
 			var selecttag = $('<select/>')
-				.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Value');
+				.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Value')
+				.append($('<option/>').html('(select from list)'));
 			
 			for (j in namerecommendation[i].ValueRecommendation) {
 				var optiontag = $('<option/>')

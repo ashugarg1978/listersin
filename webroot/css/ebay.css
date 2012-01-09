@@ -429,3 +429,9 @@ table#hiddenforms input {
 	border: 0px none;
 	padding: 0px;
 }
+
+input.aslabel {
+  border: 0px none;
+  font-weight: bold;
+  text-align: right;
+}
