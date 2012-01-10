@@ -251,7 +251,10 @@
 </tr>
 <tr>
   <td><s:text name="ItemSpecifics"/></td>
-  <td class="ItemSpecifics"></td>
+  <td class="ItemSpecifics">
+	<table class="ItemSpecifics">
+	</table>
+  </td>
 </tr>
 </tbody>
 </table>

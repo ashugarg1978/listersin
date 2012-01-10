@@ -6,13 +6,6 @@ var rowsdata = new Array();
 $(document).bind({
 	ready: function(event) {
 		
-		/*
-		$.getJSON('/json/gc2?site=US&path=0.619.10172.38092',
-				  function(data) {
-					  //dump(data);
-				  });
-		*/
-		
 		resizediv();
 		bindevents();
 		summary();
@@ -25,8 +18,8 @@ $(document).bind({
 			$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
 		});
 		
-		//$('ul.accounts > li > ul:first').slideToggle('fast');
-		//$('a.active', $('ul.accountaction:first')).click();
+		$('ul.accounts > li > ul:first').slideToggle('fast');
+		$('a.active', $('ul.accountaction:first')).click();
 		
 		//setTimeout('autoclick()', 3000);
 		//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
@@ -390,117 +383,7 @@ function getdetail(row)
 		$('select[name=ConditionID]', detail).append(optiontag);
 	}
 	
-	// ItemSpecifics
-	var recommkey = new Array();
-	var specificskey = new Array();
-	var specifics = row.ItemSpecifics.NameValueList;
-	var namerecommendation = category['CategorySpecifics']['NameRecommendation'];
-	for (i in namerecommendation) {
-		recommkey[namerecommendation[i].Name] = i;
-	}
-	for (i in specifics) {
-		var recommref = namerecommendation[recommkey[specifics[i].Name]];
-		specificskey[specifics[i].Name] = i;
-		
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name')
-			.addClass('aslabel');
-		$('td.ItemSpecifics', detail).append(inputtag);
-		
-		if (recommref == null) {
-			
-			var inputtag = $('<input/>')
-				.attr('type', 'text')
-				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
-			$('td.ItemSpecifics', detail).append(inputtag);
-			
-		} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
-				   && recommref.ValidationRules.MaxValues == '1') {
-			
-			var selecttag = $('<select/>')
-				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
-			
-			for (j in recommref.ValueRecommendation) {
-				var optiontag = $('<option/>')
-					.val(recommref.ValueRecommendation[j].Value)
-					.html(recommref.ValueRecommendation[j].Value);
-				$(selecttag).append(optiontag);
-			}
-			
-			$('td.ItemSpecifics', detail).append(selecttag);
-			$('td.ItemSpecifics', detail).append(' + enter your own');
-			
-		} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
-				   && recommref.ValidationRules.MaxValues != '1') {
-			
-			for (j in recommref.ValueRecommendation) {
-				var checkboxtag = $('<input/>')
-					.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
-					.attr('type', 'checkbox')
-					.val(recommref.ValueRecommendation[j].Value);
-				$('td.ItemSpecifics', detail).append('<br/>');
-				$('td.ItemSpecifics', detail).append(checkboxtag);
-				$('td.ItemSpecifics', detail).append(recommref.ValueRecommendation[j].Value);
-			}
-			$('td.ItemSpecifics', detail).append(' + add your own');
-			
-		} else {
-			
-			$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recommref)+'</pre>');
-			
-		}
-		$('td.ItemSpecifics', detail).append('<br />');
-	}
-	var addspidx = specifics.length;
-	for (i in namerecommendation) {
-		if (specificskey[namerecommendation[i].Name] != null) continue;
-		
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Name')
-			.addClass('aslabel')
-			.val(namerecommendation[i].Name);
-		$('td.ItemSpecifics', detail).append(inputtag);
-		
-		if (namerecommendation[i].ValidationRules.SelectionMode == 'FreeText'
-			&& namerecommendation[i].ValidationRules.MaxValues == '1') {
-			
-			var selecttag = $('<select/>')
-				.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Value')
-				.append($('<option/>').html('(select from list)'));
-			
-			for (j in namerecommendation[i].ValueRecommendation) {
-				var optiontag = $('<option/>')
-					.val(namerecommendation[i].ValueRecommendation[j].Value)
-					.html(namerecommendation[i].ValueRecommendation[j].Value);
-				$(selecttag).append(optiontag);
-			}
-			
-			$('td.ItemSpecifics', detail).append(selecttag);
-			$('td.ItemSpecifics', detail).append(' + enter your own');
-			
-		} else if (namerecommendation[i].ValidationRules.SelectionMode == 'FreeText'
-				   && namerecommendation[i].ValidationRules.MaxValues != '1') {
-			
-			for (j in namerecommendation[i].ValueRecommendation) {
-				var checkboxtag = $('<input/>')
-					.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Value')
-					.attr('type', 'checkbox')
-					.val(namerecommendation[i].ValueRecommendation[j].Value);
-				$('td.ItemSpecifics', detail).append('<br/>');
-				$('td.ItemSpecifics', detail).append(checkboxtag);
-				$('td.ItemSpecifics', detail).append(namerecommendation[i].ValueRecommendation[j].Value);
-			}
-			$('td.ItemSpecifics', detail).append(' + add your own');
-			
-		} else {
-			$('td.ItemSpecifics', detail).append('<pre>'+$.dump(namerecommendation[i])+'</pre>');
-		}
-		$('td.ItemSpecifics', detail).append('<br />');
-		
-		addspidx++;
-	}
+	setItemSpecificsForms(row);
 	
 	return;
 	
@@ -1710,4 +1593,126 @@ function fillformvalues(item)
 	});
 	
 	return;
+}
+
+function setItemSpecificsForms(item)
+{
+	var detail = $('div.detail', '#'+item.id);
+	
+	var categoryid = item.PrimaryCategory.CategoryID;
+	var parentid = item.ext.categorypath[item.ext.categorypath.length-2];
+	var category = hash[item.Site]['Categories']['c'+parentid]['c'+categoryid];
+	
+	var recommkey = new Array();
+	var specificskey = new Array();
+	var specifics = item.ItemSpecifics.NameValueList;
+	var recomm = category['CategorySpecifics']['NameRecommendation'];
+	
+	for (i in recomm) {
+		recommkey[recomm[i].Name] = i;
+	}
+	
+	for (i in specifics) {
+		var recommref = recomm[recommkey[specifics[i].Name]];
+		specificskey[specifics[i].Name] = i;
+		
+		var trtag = $('<tr />');
+		var tdtag = $('<td />');
+		
+		var inputtag = $('<input />')
+			.attr('type', 'hidden')
+			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
+		
+		$(tdtag).append(inputtag);
+		$(tdtag).append(specifics[i].Name);
+		$(trtag).append(tdtag);
+		
+		var tdtag = setItemSpecificsFormValue(recommref, specifics);
+		
+		$(trtag).append(tdtag);
+		$('table.ItemSpecifics', detail).append(trtag);
+	}
+	
+	var addspidx = specifics.length;
+	for (i in recomm) {
+		if (specificskey[recomm[i].Name] != null) continue;
+		
+		var trtag = $('<tr />');
+		var tdtag = $('<td />');
+		
+		var inputtag = $('<input />')
+			.attr('type', 'hidden')
+			.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Name')
+			.val(recomm[i].Name);
+		
+		$(tdtag).append(inputtag);
+		$(tdtag).append(recomm[i].Name);
+		$(trtag).append(tdtag);
+		
+		var tdtag = setItemSpecificsFormValue(recomm[i], specifics);
+		
+		$(trtag).append(tdtag);
+		$('table.ItemSpecifics', detail).append(trtag);
+		
+		addspidx++;
+	}
+	$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recomm)+'</pre>');
+	
+}
+
+function setItemSpecificsFormValue(recommref, specifics)
+{
+	var tdtag = $('<td/>');
+	
+	if (recommref == null) {
+		
+		var inputtag = $('<input/>')
+			.attr('type', 'text')
+			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
+		$(tdtag).append(inputtag);
+		
+	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
+			   && recommref.ValidationRules.MaxValues == '1') {
+		
+		var inputtag = $('<input/>')
+			.attr('type', 'text')
+			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
+		$(tdtag).append(inputtag);
+		
+		if (recommref.ValueRecommendation != null) {
+			var selecttag = $('<select/>')
+				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value.selector')
+				.append($('<option/>').html('(select from list)'));
+			
+			for (j in recommref.ValueRecommendation) {
+				var optiontag = $('<option/>')
+					.val(recommref.ValueRecommendation[j].Value)
+					.html(recommref.ValueRecommendation[j].Value);
+				$(selecttag).append(optiontag);
+			}
+			
+			$(tdtag).append(selecttag);
+		}
+		
+	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
+			   && recommref.ValidationRules.MaxValues != '1') {
+		
+		var tabletag = $('<table/>');
+		for (j in recommref.ValueRecommendation) {
+			var checkboxtag = $('<input/>')
+				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
+				.attr('type', 'checkbox')
+				.val(recommref.ValueRecommendation[j].Value);
+			$(tdtag).append(checkboxtag);
+			$(tdtag).append(recommref.ValueRecommendation[j].Value);
+			$(tdtag).append('<br/>');
+		}
+		
+	} else {
+		
+		$(tdtag).append('<pre>'+$.dump(recommref)+'</pre>');
+		
+	}
+	
+	return tdtag;
 }
