@@ -36,15 +36,16 @@ public class GetCategory2CS extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
+		if (site == null) {
+			site = "US";
+		}
 		writelog("GetCategory2CS/"+site+".xml", responsexml);
 		
-		/*
-		DBCollection coll = db.getCollection(site+".Category2CS");
-		if (db.collectionExists(site+".Category2CS")) {
+		DBCollection coll = db.getCollection(site+".Category2CS.Category");
+		if (db.collectionExists(site+".Category2CS.Category")) {
 			coll.drop();
 		}
-		coll.insert((List<DBObject>) resdbo.get("Category2CS"));
-		*/
+		coll.insert((List<DBObject>) ((BasicDBObject) resdbo.get("MappedCategoryArray")).get("Category"));
 		
 		return "";
 	}
