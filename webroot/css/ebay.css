@@ -421,6 +421,7 @@ div#debugseparator {
 	border-bottom: 2px dotted #999999;
 }
 
+/*
 table#hiddenforms td:first-child {
 	text-align: right;
 	font-weight: bold;
@@ -429,9 +430,17 @@ table#hiddenforms input {
 	border: 0px none;
 	padding: 0px;
 }
+*/
 
 input.aslabel {
   border: 0px none;
   font-weight: bold;
   text-align: right;
+}
+
+table.checkboxes td,
+table.checkboxes td:first-child {
+  padding: 0px 5px 0px 0px;
+  text-align: left;
+  font-weight: normal;
 }

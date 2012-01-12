@@ -1697,16 +1697,25 @@ function setItemSpecificsFormValue(recommref, specifics)
 	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
 			   && recommref.ValidationRules.MaxValues != '1') {
 		
-		var tabletag = $('<table/>');
+		var tabletag = $('<table/>').addClass('checkboxes');
+		var trtag = $('<tr />');
+		
 		for (j in recommref.ValueRecommendation) {
+			if (j > 0 && j % 3 == 0) {
+				$(tabletag).append(trtag);
+				trtag = $('<tr />');
+			}
+			var tdtag2 = $('<td />');
 			var checkboxtag = $('<input/>')
 				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
 				.attr('type', 'checkbox')
 				.val(recommref.ValueRecommendation[j].Value);
-			$(tdtag).append(checkboxtag);
-			$(tdtag).append(recommref.ValueRecommendation[j].Value);
-			$(tdtag).append('<br/>');
+			$(tdtag2).append(checkboxtag);
+			$(tdtag2).append(recommref.ValueRecommendation[j].Value);
+			$(trtag).append(tdtag2);
 		}
+		$(tabletag).append(trtag);
+		$(tdtag).append(tabletag);
 		
 	} else {
 		

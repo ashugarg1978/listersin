@@ -4,9 +4,9 @@ import com.mongodb.*;
 import java.io.*;
 import java.util.*;
 
-public class GetProductSearchPage extends ApiCall {
+public class GetCategory2CS extends ApiCall {
 	
-	public GetProductSearchPage() throws Exception {
+	public GetCategory2CS() throws Exception {
 	}
 	
 	public String call() throws Exception {
@@ -25,8 +25,8 @@ public class GetProductSearchPage extends ApiCall {
 			reqdbo.append("DetailLevel",  "ReturnAll");
 			reqdbo.append("MessageID",    site);
 			
-			String requestxml = convertDBObject2XML(reqdbo, "GetProductSearchPage");
-			pool18.submit(new ApiCallTask(siteid, requestxml, "GetProductSearchPage"));
+			String requestxml = convertDBObject2XML(reqdbo, "GetCategory2CS");
+			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategory2CS"));
 		}
 		
 		return "";
@@ -36,13 +36,15 @@ public class GetProductSearchPage extends ApiCall {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
-		writelog("GetProductSearchPage/"+site+".xml", responsexml);
+		writelog("GetCategory2CS/"+site+".xml", responsexml);
 		
-		DBCollection coll = db.getCollection(site+".ProductSearchPage");
-		if (db.collectionExists(site+".ProductSearchPage")) {
+		/*
+		DBCollection coll = db.getCollection(site+".Category2CS");
+		if (db.collectionExists(site+".Category2CS")) {
 			coll.drop();
 		}
-		coll.insert((List<DBObject>) resdbo.get("ProductSearchPage"));
+		coll.insert((List<DBObject>) resdbo.get("Category2CS"));
+		*/
 		
 		return "";
 	}
