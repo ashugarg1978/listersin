@@ -231,7 +231,8 @@
 </tr>
 <tr>
   <td><s:text name="ProductDetails"/></td>
-  <td></td>
+  <td class="ProductDetails">
+  </td>
 </tr>
 <tr>
   <td><s:text name="title"/></td>

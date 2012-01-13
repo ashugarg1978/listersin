@@ -383,6 +383,11 @@ function getdetail(row)
 		$('select[name=ConditionID]', detail).append(optiontag);
 	}
 	
+	// Category2CS
+	if (category['Category2CS']) {
+		$('td.ProductDetails', detail).append('<pre>'+$.dump(category['Category2CS'])+'</pre>');
+	}
+	
 	setItemSpecificsForms(row);
 	
 	return;
@@ -1533,7 +1538,6 @@ function fval(dom, item, str)
 	}
 }
 
-/* フォーム値表示 */
 function showformvalues(item)
 {
 	var detail = $('div.detail', '#'+item.id);
@@ -1575,7 +1579,6 @@ function showformvalues(item)
 	return;
 }
 
-/* フォーム値埋め込み */
 function fillformvalues(item)
 {
 	var detail = $('div.detail', '#'+item.id);
