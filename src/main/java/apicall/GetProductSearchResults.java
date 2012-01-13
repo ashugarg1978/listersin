@@ -3,6 +3,7 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class GetProductSearchResults extends ApiCall {
 	
@@ -36,6 +37,6 @@ public class GetProductSearchResults extends ApiCall {
 		String site = resdbo.getString("CorrelationID");
 		writelog("GetProductSearchResults/"+site+".xml", responsexml);
 		
-		return "";
+		return responsexml;
 	}
 }

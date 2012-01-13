@@ -568,6 +568,27 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
+	@Action(value="/json/getproductsearchresults")
+	public String getproductsearchresults() throws Exception {
+		
+		/* GetProductSearchResultID */
+		Socket socket = new Socket("localhost", 8181);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("GetProductSearchResults");
+		String result = in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("result", result);
+		
+		return SUCCESS;
+	}
+	
 	@Action(value="/json/summary")
 	public String summary() throws Exception {
 		json = summarydata();
