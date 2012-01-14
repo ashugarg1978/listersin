@@ -223,7 +223,10 @@ function bindevents()
 		$.post('/json/getproductsearchresults',
 			   postdata,
 			   function(data) {
-				   $(td).append('<pre>'+$.dump(data)+'</pre>');
+				   var families = data.json.result.ProductSearchResult.AttributeSet.ProductFamilies;
+				   $.each(families, function(i, o) {
+					   $(td).append(o.ParentProduct['@title']+'<br/>');
+				   });
 			   },
 			   'json');
 	});

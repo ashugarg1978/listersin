@@ -7,7 +7,15 @@ import java.util.concurrent.*;
 
 public class GetProductSearchResults extends ApiCall {
 	
+	private String csid;
+	private String words;
+	
 	public GetProductSearchResults() throws Exception {
+	}
+	
+	public GetProductSearchResults(String csid, String words) throws Exception {
+		this.csid  = csid;
+		this.words = words;
 	}
 	
 	public String call() throws Exception {
@@ -19,8 +27,9 @@ public class GetProductSearchResults extends ApiCall {
 		reqdbo.append("MessageID",    "US");
 		
 		BasicDBObject productsearch = new BasicDBObject();
-		productsearch.append("QueryKeywords", "blackberry");
-		productsearch.append("CharacteristicSetIDs", new BasicDBObject("ID", "1785"));
+		productsearch.append("QueryKeywords", words);
+		productsearch.append("CharacteristicSetIDs", new BasicDBObject("ID", csid));
+		productsearch.append("Pagination", new BasicDBObject("EntriesPerPage", "20"));
 		reqdbo.append("ProductSearch", productsearch);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetProductSearchResults");

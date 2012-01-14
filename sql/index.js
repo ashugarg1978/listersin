@@ -34,6 +34,16 @@ db.getCollectionNames().forEach(
 	}
 );
 
+print('CategoryFeatures.Category');
+db.getCollectionNames().forEach(
+	function(coll) {
+		if (coll.indexOf('CategoryFeatures.Category') > 0) {
+			print('indexing '+coll+' ('+db[coll].count()+' records)');
+			db[coll].ensureIndex({CategoryID:1});
+		}
+	}
+);
+
 print('Category2CS');
 db.getCollectionNames().forEach(
 	function(coll) {

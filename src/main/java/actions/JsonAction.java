@@ -4,7 +4,6 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
-import ebaytool.apicall.ApiCall;
 import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -12,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
 //import org.json.JSONObject;
 //import org.apache.log4j.Logger;
 import org.apache.struts2.convention.annotation.Action;
@@ -572,22 +572,40 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/getproductsearchresults")
 	public String getproductsearchresults() throws Exception {
 		
+		String words = "";
+		String csid  = "";
+
+		if (parameters.containsKey("ProductSearch.QueryKeywords")) {
+			words = ((String[]) parameters.get("ProductSearch.QueryKeywords"))[0];
+		} else {
+			return SUCCESS;
+		}
+		
+		if (parameters.containsKey("ProductSearch.CharacteristicSetIDs.ID")) {
+			csid  = ((String[]) parameters.get("ProductSearch.CharacteristicSetIDs.ID"))[0];
+		} else {
+			return SUCCESS;
+		}
+		
 		/* GetProductSearchResultID */
 		Socket socket = new Socket("localhost", 8181);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
-		out.println("GetProductSearchResults");
+		out.println("GetProductSearchResults "+csid+" "+words);
 		String result = in.readLine();
 		
 		out.close();
 		in.close();
 		socket.close();
 		
-		BasicDBObject resdbo = convertXML2DBObject(result);
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		xmlSerializer.setTypeHintsEnabled(false);
+		net.sf.json.JSON tmpjson = xmlSerializer.read(result);
+		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
 		
 		json = new LinkedHashMap<String,Object>();
-		json.put("result", resdbo);
+		json.put("result", dbo);
 		
 		return SUCCESS;
 	}
