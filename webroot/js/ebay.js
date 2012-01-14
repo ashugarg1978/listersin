@@ -225,7 +225,11 @@ function bindevents()
 			   function(data) {
 				   var families = data.json.result.ProductSearchResult.AttributeSet.ProductFamilies;
 				   $.each(families, function(i, o) {
-					   $(td).append(o.ParentProduct['@title']+'<br/>');
+					   var divtag = $('<div/>');
+					   $(divtag).append($('<img/>').attr('src', o.ParentProduct['@stockPhotoURL']));
+					   $(divtag).append(o.ParentProduct['@title']+'<br/>');
+					   $(divtag).append(o.ParentProduct['@productID']+'<br/>');
+					   $(td).append(divtag);
 				   });
 			   },
 			   'json');

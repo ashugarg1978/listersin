@@ -31,7 +31,7 @@ public class GetProductSellingPages extends ApiCall {
 		reqdbo.append("MessageID",    "US");
 		
 		BasicDBObject product = new BasicDBObject();
-		product.append("@productID", "117211:2:19518:2812280820:393123620:2046a9f8ca9131bbb5cea20e33aeaeb1:1:1:1:1418724563");
+		product.append("@productID", productid);
 		product.append("CharacteristicsSet", new BasicDBObject("AttributeSetID", "1785"));
 		reqdbo.append("Product", product);
 		reqdbo.append("UseCase", "AddItem");
