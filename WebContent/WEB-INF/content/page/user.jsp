@@ -231,16 +231,19 @@
 </tr>
 <tr>
   <td><s:text name="ProductDetails"/></td>
-  <td class="ProductDetails">
+  <td>
+	<input name="ProductSearch.QueryKeywords" type="text" size="30"/>
+	<input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10"/>
+	<button class="GetProductSearchResults">Search</button>
   </td>
 </tr>
 <tr>
   <td><s:text name="title"/></td>
-  <td><input name="Title" type="text" size="60"></td>
+  <td><input name="Title" type="text" size="60"/></td>
 </tr>
 <tr>
   <td><s:text name="subtitle"/></td>
-  <td><input name="SubTitle" type="text" size="60"></td>
+  <td><input name="SubTitle" type="text" size="60"/></td>
 </tr>
 <tr>
   <td><s:text name="Condition"/></td>

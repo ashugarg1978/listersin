@@ -37,6 +37,8 @@ public class GetProductSearchResults extends ApiCall {
 		String site = resdbo.getString("CorrelationID");
 		writelog("GetProductSearchResults/"+site+".xml", responsexml);
 		
+		//String json = resdbo.toString();
+		
 		return responsexml;
 	}
 }

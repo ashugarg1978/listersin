@@ -4,6 +4,7 @@ import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
+import ebaytool.apicall.ApiCall;
 import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
@@ -583,8 +584,10 @@ public class JsonAction extends BaseAction {
 		in.close();
 		socket.close();
 		
+		BasicDBObject resdbo = convertXML2DBObject(result);
+		
 		json = new LinkedHashMap<String,Object>();
-		json.put("result", result);
+		json.put("result", resdbo);
 		
 		return SUCCESS;
 	}
@@ -933,6 +936,7 @@ public class JsonAction extends BaseAction {
 					}
 					
 					/* Category2CS */
+					// todo: create index for mongodb
 					DBObject dbo2cs = coll2cs.findOne
 						(new BasicDBObject("CategoryID", row.getString("CategoryID")));
 					if (dbo2cs != null) {

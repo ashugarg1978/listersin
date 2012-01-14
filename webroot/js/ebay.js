@@ -32,6 +32,206 @@ $(document).bind({
 	}
 });
 
+function bindevents()
+{
+	$(window).resize(resizediv);
+	
+	$('a.Title').live('click', clickTitle);
+	
+	$('select[name=Site]').live('change', changeSite);
+	$('select.category').live('change', changeCategory);
+	
+	$('ul.editbuttons > li > a.edit',   'div.detail').live('click', clickEdit);
+	$('ul.editbuttons > li > a.save',   'div.detail').live('click', clickSave);
+	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', clickCancel);
+	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', clickDelete);
+	$('ul.editbuttons > li > a.copy',   'div.detail').live('click', clickCopy);
+	
+	/* Bulk Buttons */
+	$('div#bulkbuttons > input').live('click', function() {
+		action = $(this).attr('class');
+		
+		if (action == 'checkall') {
+			$("input[name='id'][value!=on]").attr('checked', 'checked');
+			//$("input[name='allpages']").attr('checked', '');
+			$("input[name='allpages']").removeAttr('checked');
+			return;
+		} else if (action == 'checkallpage') {
+			$("input[name='id'][value!=on]").attr('checked', 'checked');
+			$("input[name='allpages']").attr('checked', 'checked');
+			return;
+		} else if (action == 'uncheckall') {
+			//$("input[name='id'][value!=on]").attr('checked', '');
+			//$("input[name='allpages']").attr('checked', '');
+			$("input[name='id'][value!=on]").removeAttr('checked');
+			$("input[name='allpages']").removeAttr('checked');
+			return;
+		}
+		
+		var postdata = "";
+		if ($("input[name='allpages']").attr('checked')) {
+			alert('apply to all pages?');
+			postdata = $('input.filter, select.filter').serialize();
+		} else {
+			postdata = $("input[name='id'][value!=on]:checked").serialize();
+		}
+		
+		$("input[name='id']:checked").each(function() {
+			$(this).css('visibility', 'hidden');
+			$(this).parent().addClass('loading');
+		});
+		
+		$.post('/json/'+action,
+			   postdata,
+			   function(data) {
+				   if (action == 'copy' || action == 'delete') {
+					   $("td.loading").removeClass('loading');
+					   $("input[name='id'][value!=on]:checked")
+						   .css('visibility', '')
+						   .attr('checked', '');
+				   }
+				   if (action == 'delete') {
+					   //items();
+				   }
+				   dump(data);
+			   });
+		
+		return;
+	});
+	
+	/* Left Navi */
+	$('ul.accounts > li > a').live('click', function() {
+		
+		if ($(this).closest('li').attr('class') == 'allitems'
+			&& $('ul', $(this).parent().next()).css('display') == 'block') {
+			// don't collapse navi
+		} else {
+			$('ul', $(this).parent().next()).slideToggle('fast');
+		}
+		
+		userid = $(this).attr('class');
+		$('select[name=UserID]').val(userid);
+		$('input[name=selling]').val('allitems');
+		$('input[name=offset]').val(0);
+		items();
+		
+		$('ul.accounts li').removeClass('tabselected');
+		$(this).closest('li').addClass('tabselected');
+		
+		return false;
+	});
+	
+	/* Picture */
+    $('input:file').live('change', function() {
+		
+		id = $(this).closest('tbody.itemrow').attr('id');
+		idform = $('<input>').attr('name', 'id').val(id);
+		$(this).closest('form').append(idform);
+		
+		fileindex = $(this).attr('name');
+		fileindexform = $('<input>').attr('name', 'fileindex').val(fileindex);
+		$(this).closest('form').append(fileindexform);
+		
+		$(this).attr('name', 'uploadfile')
+		$(this).closest('form').submit();
+		$(this).closest('form')[0].reset();
+		
+		$(fileindexform).remove();
+		$(idform).remove();
+    });
+    
+	$('select[name=ListingType]').live('change', function() {
+		id = $(this).closest('tbody.itemrow').attr('id');
+		updateduration(id);
+	});
+	
+	$('ul.tabNav a').live('click', function() {
+		id = $(this).closest('tbody').attr('id');
+		var curIdx = $(this).parent().prevAll().length + 1;
+		$(this).parent().parent().children('.current').removeClass('current');
+		$(this).parent().addClass('current');
+		$('div.tabContainer', 'tbody#'+id).children('.current').hide();
+		$('div.tabContainer', 'tbody#'+id).children('.current').removeClass('current');
+		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').show();
+		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').addClass('current');
+		
+		return false;
+	});
+	
+	
+	$('ul.accounts > li > ul > li > a').live('click', function() {
+		
+		v = $(this).attr('class');
+		userid = $(this).parent().parent().attr('class').replace(/^accountaction /, '');
+		$('input[name=selling]').val(v);
+		$('input[name=offset]').val(0);
+		$('select[name=UserID]').val(userid);
+		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
+			$('input[name=sort]').val('ListingDetails_EndTime DESC');
+		} else {
+			$('input[name=sort]').val('ListingDetails_EndTime');
+		}
+		items();
+		$('ul.accounts li').removeClass('tabselected');
+		$(this).closest('li').addClass('tabselected');
+		
+		return false;
+	});
+	
+	
+	/* Paging */
+	$('#paging > a').live('click', function() {
+		limit = $('input[name=limit]').val();
+		if ($(this).html() == '>>') {
+			offset = ($('input[name=offset]').val()-0) + (limit-0);
+		} else {
+			offset = ($(this).html() - 1) * limit;
+		}
+		$('input[name=offset]').val(offset);
+		items();
+		return false;
+	});
+	
+	/* Editor */
+	$('a.wysiwyg').live('click', function() {
+		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
+		return false;
+	});
+	
+	/* ShippingType */
+	// todo: check all browsers can detect [domestic] selector
+	$('select[name="ShippingDetails.ShippingType.domestic"]').live('change', function() {
+		id = $(this).closest('tbody.itemrow').attr('id');
+		sel = getshippingservice(id);
+		$('td.shippingservice', '#'+id).html(sel);
+		
+		return;
+	});
+	
+	/* Import */
+	$('div#importform input[type=button]').live('click', function() {
+		$.post('/json/import',
+			   $('select, input', 'div#importform').serialize(),
+			   function(data) {
+				   
+			   });
+	});
+	
+	$('button.GetProductSearchResults').live('click', function() {
+		var td = $(this).parent();
+		var postdata = $('input[type=text]', td).serialize();
+		$.post('/json/getproductsearchresults',
+			   postdata,
+			   function(data) {
+				   $(td).append('<pre>'+$.dump(data)+'</pre>');
+			   },
+			   'json');
+	});
+	
+    //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
+    //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
+}	
+
 /* auto click for debug */
 function autoclick()
 {
@@ -385,7 +585,12 @@ function getdetail(row)
 	
 	// Category2CS
 	if (category['Category2CS']) {
-		$('td.ProductDetails', detail).append('<pre>'+$.dump(category['Category2CS'])+'</pre>');
+		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
+			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
+		
+		$('input[name="ProductSearch.QueryKeywords"]', detail)
+			.parent()
+			.append('<pre>'+$.dump(category['Category2CS'])+'</pre>');
 	}
 	
 	setItemSpecificsForms(row);
@@ -579,195 +784,6 @@ function resizediv()
 	
 	return;
 }
-
-function bindevents()
-{
-	$(window).resize(resizediv);
-	
-	$('a.Title').live('click', clickTitle);
-	
-	$('select[name=Site]').live('change', changeSite);
-	$('select.category').live('change', changeCategory);
-	
-	$('ul.editbuttons > li > a.edit',   'div.detail').live('click', clickEdit);
-	$('ul.editbuttons > li > a.save',   'div.detail').live('click', clickSave);
-	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', clickCancel);
-	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', clickDelete);
-	$('ul.editbuttons > li > a.copy',   'div.detail').live('click', clickCopy);
-	
-	/* Bulk Buttons */
-	$('div#bulkbuttons > input').live('click', function() {
-		action = $(this).attr('class');
-		
-		if (action == 'checkall') {
-			$("input[name='id'][value!=on]").attr('checked', 'checked');
-			//$("input[name='allpages']").attr('checked', '');
-			$("input[name='allpages']").removeAttr('checked');
-			return;
-		} else if (action == 'checkallpage') {
-			$("input[name='id'][value!=on]").attr('checked', 'checked');
-			$("input[name='allpages']").attr('checked', 'checked');
-			return;
-		} else if (action == 'uncheckall') {
-			//$("input[name='id'][value!=on]").attr('checked', '');
-			//$("input[name='allpages']").attr('checked', '');
-			$("input[name='id'][value!=on]").removeAttr('checked');
-			$("input[name='allpages']").removeAttr('checked');
-			return;
-		}
-		
-		var postdata = "";
-		if ($("input[name='allpages']").attr('checked')) {
-			alert('apply to all pages?');
-			postdata = $('input.filter, select.filter').serialize();
-		} else {
-			postdata = $("input[name='id'][value!=on]:checked").serialize();
-		}
-		
-		$("input[name='id']:checked").each(function() {
-			$(this).css('visibility', 'hidden');
-			$(this).parent().addClass('loading');
-		});
-		
-		$.post('/json/'+action,
-			   postdata,
-			   function(data) {
-				   if (action == 'copy' || action == 'delete') {
-					   $("td.loading").removeClass('loading');
-					   $("input[name='id'][value!=on]:checked")
-						   .css('visibility', '')
-						   .attr('checked', '');
-				   }
-				   if (action == 'delete') {
-					   //items();
-				   }
-				   dump(data);
-			   });
-		
-		return;
-	});
-	
-	/* Left Navi */
-	$('ul.accounts > li > a').live('click', function() {
-		
-		if ($(this).closest('li').attr('class') == 'allitems'
-			&& $('ul', $(this).parent().next()).css('display') == 'block') {
-			// don't collapse navi
-		} else {
-			$('ul', $(this).parent().next()).slideToggle('fast');
-		}
-		
-		userid = $(this).attr('class');
-		$('select[name=UserID]').val(userid);
-		$('input[name=selling]').val('allitems');
-		$('input[name=offset]').val(0);
-		items();
-		
-		$('ul.accounts li').removeClass('tabselected');
-		$(this).closest('li').addClass('tabselected');
-		
-		return false;
-	});
-	
-	/* Picture */
-    $('input:file').live('change', function() {
-		
-		id = $(this).closest('tbody.itemrow').attr('id');
-		idform = $('<input>').attr('name', 'id').val(id);
-		$(this).closest('form').append(idform);
-		
-		fileindex = $(this).attr('name');
-		fileindexform = $('<input>').attr('name', 'fileindex').val(fileindex);
-		$(this).closest('form').append(fileindexform);
-		
-		$(this).attr('name', 'uploadfile')
-		$(this).closest('form').submit();
-		$(this).closest('form')[0].reset();
-		
-		$(fileindexform).remove();
-		$(idform).remove();
-    });
-    
-	$('select[name=ListingType]').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		updateduration(id);
-	});
-	
-	$('ul.tabNav a').live('click', function() {
-		id = $(this).closest('tbody').attr('id');
-		var curIdx = $(this).parent().prevAll().length + 1;
-		$(this).parent().parent().children('.current').removeClass('current');
-		$(this).parent().addClass('current');
-		$('div.tabContainer', 'tbody#'+id).children('.current').hide();
-		$('div.tabContainer', 'tbody#'+id).children('.current').removeClass('current');
-		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').show();
-		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').addClass('current');
-		
-		return false;
-	});
-	
-	
-	$('ul.accounts > li > ul > li > a').live('click', function() {
-		
-		v = $(this).attr('class');
-		userid = $(this).parent().parent().attr('class').replace(/^accountaction /, '');
-		$('input[name=selling]').val(v);
-		$('input[name=offset]').val(0);
-		$('select[name=UserID]').val(userid);
-		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
-			$('input[name=sort]').val('ListingDetails_EndTime DESC');
-		} else {
-			$('input[name=sort]').val('ListingDetails_EndTime');
-		}
-		items();
-		$('ul.accounts li').removeClass('tabselected');
-		$(this).closest('li').addClass('tabselected');
-		
-		return false;
-	});
-	
-	
-	/* Paging */
-	$('#paging > a').live('click', function() {
-		limit = $('input[name=limit]').val();
-		if ($(this).html() == '>>') {
-			offset = ($('input[name=offset]').val()-0) + (limit-0);
-		} else {
-			offset = ($(this).html() - 1) * limit;
-		}
-		$('input[name=offset]').val(offset);
-		items();
-		return false;
-	});
-	
-	/* Editor */
-	$('a.wysiwyg').live('click', function() {
-		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
-		return false;
-	});
-	
-	/* ShippingType */
-	// todo: check all browsers can detect [domestic] selector
-	$('select[name="ShippingDetails.ShippingType.domestic"]').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		sel = getshippingservice(id);
-		$('td.shippingservice', '#'+id).html(sel);
-		
-		return;
-	});
-	
-	/* Import */
-	$('div#importform input[type=button]').live('click', function() {
-		$.post('/json/import',
-			   $('select, input', 'div#importform').serialize(),
-			   function(data) {
-				   
-			   });
-	});
-	
-    //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
-    //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
-}	
 
 var changeCategory = function() {
 	
@@ -1728,3 +1744,4 @@ function setItemSpecificsFormValue(recommref, specifics)
 	
 	return tdtag;
 }
+
