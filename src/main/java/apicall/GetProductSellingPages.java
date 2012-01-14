@@ -4,6 +4,11 @@ import com.mongodb.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.*;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class GetProductSellingPages extends ApiCall {
@@ -50,6 +55,19 @@ public class GetProductSellingPages extends ApiCall {
 		String decoded = StringEscapeUtils.unescapeHtml(data);
 		
 		writelog("GetProductSellingPages/decoded.xml", decoded);
+		
+		
+		// XML to HTML
+		String logpath = "/var/www/ebaytool.jp/logs/apicall";
+		
+		TransformerFactory factory = TransformerFactory.newInstance();
+		Transformer transformer = factory.newTransformer
+			(new StreamSource(logpath+"/GetAttributesXSL/US.syi_attributes.xsl"));
+		//transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		
+		transformer.transform
+			(new StreamSource(logpath+"/GetProductSellingPages/decoded2.xml"),
+			 new StreamResult(new FileOutputStream(logpath+"/GetProductSellingPages/decoded.html")));
 		
 		//String json = resdbo.toString();
 		
