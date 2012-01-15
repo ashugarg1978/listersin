@@ -227,13 +227,21 @@ function bindevents()
 				   $.each(families, function(i, o) {
 					   
 					   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
+					   $(divtag).show();
 					   $('img', divtag).attr('src', o.ParentProduct['@stockPhotoURL']);
 					   $('div.producttext', divtag).html(o.ParentProduct['@title']);
+					   $('div.productid', divtag).html(o.ParentProduct['@productID']);
 					   $('div.foundproducts', td).append(divtag);
 				   });
 				   $('div.foundproducts', td).slideDown('fast');
 			   },
 			   'json');
+	});
+	
+	$('div.foundproducts div.product').live('click', function() {
+		var productid = $('div.productid', $(this)).html();
+		alert(productid);
+		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});

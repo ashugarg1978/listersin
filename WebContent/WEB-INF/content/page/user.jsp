@@ -242,8 +242,8 @@
 		<div class="productimage">
 		  <img src=""/>
 		</div>
-		<div class="producttext">
-		</div>
+		<div class="producttext"></div>
+		<div class="productid"></div>
 		<div style="clear:both;"></div>
 	  </div>
 	</div>

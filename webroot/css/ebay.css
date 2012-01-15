@@ -459,6 +459,15 @@ div.product {
   padding: 5px;
 }
 
+div.product:hover {
+  cursor: pointer;
+  background-color: #ffffcc;
+}
+
+div.producttemplate {
+  display: none;
+}
+
 div.product div.productimage {
   float: left;
   width: 70px;
@@ -467,4 +476,8 @@ div.product div.productimage {
 
 div.product div.text {
   float: left;
+}
+
+div.product div.productid {
+  display: none;
 }
