@@ -556,28 +556,8 @@ function getdetail(row)
 	// Categories
 	var tmppath = row.ext.categorypath.slice(0);
 	tmppath.unshift(0);
-	for (i in tmppath) {
-		var categoryid = tmppath[i];
-		var selecttag = $('<select class="category"/>').attr('name', 'ext.categorypath.'+i);
-		var optiontag = $('<option/>').val('').text('');
-		selecttag.append(optiontag);		
-		
-		for (childid in hash[site]['Categories']['c'+categoryid]) {
-			var child = hash[site]['Categories']['c'+categoryid][childid];
-			var value = childid.replace(/^c/, '');
-			var label = child.name;
-			if (child.children > 0) label += ' &gt;';
-			optiontag = $('<option/>').val(value).html(label);
-			selecttag.append(optiontag);		
-		}
-		
-		if (i == tmppath.length - 2) {
-			$('select[name="PrimaryCategory.CategoryID"]', detail).html(selecttag.html());
-			break;
-		} else {
-			$('select[name="PrimaryCategory.CategoryID"]', detail).before(selecttag);
-		}
-	}
+	var tmppds = getcategorypulldowns(site, tmppath);
+	$('select[name="PrimaryCategory.CategoryID"]', detail).parent().html(tmppds);
 	
 	var category = hash[site]['Categories']['c'+row.ext.categorypath[row.ext.categorypath.length-2]]['c'+row.PrimaryCategory.CategoryID];
 	
@@ -794,34 +774,28 @@ function resizediv()
 
 var changeCategory = function() {
 	
-	id = $(this).closest('tbody.itemrow').attr('id');
-	site = $('select[name=Site]', '#'+id).val();
+	var id = $(this).closest('tbody.itemrow').attr('id');
+	var site = $('select[name=Site]', '#'+id).val();
 	
-	prevslct = $(this).prevAll().get().reverse();
+	$(this).nextAll().remove();
+	$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
+	
+	var prevslct = $('select.category', '#'+id).get();
 	
 	var path = new Array();
 	for (node in prevslct) {
 		path.push(prevslct[node].value);
 	}
-	path.push($(this).val());
+	path.unshift(0);
 	
-	ctgr = hash[site]['Categories'];
-	for (i in path) {
-		if (i == 0) {
-			ctgr = ctgr['c'+path[i]];
-		} else {
-			ctgr = ctgr['children']['c'+path[i]];
-		}
-	}
-	
-	$(this).nextAll().remove();
-	if (ctgr['children']) {
-		preloadcategory2(site, path);
-		sel = getcategorypulldown2(site, path);
-		$('td.category', '#'+id).append(sel);
-	}
-	$('select.category',      '#'+id).attr('name', '');
-	$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
+	$.getJSON('/json/gc2?site='+site+'&path='+path.join('.'),
+			  function(data) {
+				  
+				  hash[site]['Categories'] = data.json.gc2.Categories;
+				  
+				  var tmppds = getcategorypulldowns(site, path);
+				  $('select[name="PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
+			  });
 	
 	return;
 }
@@ -897,10 +871,6 @@ var clickEdit = function() {
 	
 	// todo: compare to CKEditor
 	//$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
-	
-	/* category selector */
-	$('td.category', dom).html(getcategorypulldowns(item.Site, item.ext.categorypath));
-	$('select.category:last', dom).attr('name', 'PrimaryCategory.CategoryID');
 	
 	/* pictures */
 	for (i=0; i<=11; i++) {
@@ -1253,31 +1223,36 @@ function getcategorypulldown2(site, path)
 
 function getcategorypulldowns(site, path)
 {
-	ctgr = hash[site]['Categories'];
+	wrapper = $('<div/>');
 	
-	sels = $('<div/>');
-	$.each(path, function(i, categoryid) {
+	for (i in path) {
 		
-		sel = $('<select class="category"/>');
-		opt = $('<option/>').val('').text('');
-		sel.append(opt);
-		$.each(ctgr, function(j, o) {
-			str = o.CategoryName;
-			cid = j.replace(/^c/, '');
-			if (o.children) str += ' &gt;';
-			opt = $('<option/>').val(cid).html(str);
-			sel.append(opt);
-		});
+		var categoryid = path[i];
+		if (hash[site]['Categories']['c'+categoryid] == undefined) break;
 		
-		sel.val(categoryid);
-		if (ctgr['c'+categoryid]) {
-			ctgr = ctgr['c'+categoryid]['children'];
+		var selecttag = $('<select class="category"/>').attr('name', 'ext.categorypath.'+i);
+		var optiontag = $('<option/>').val('').text('');
+		selecttag.append(optiontag);		
+		
+		for (childid in hash[site]['Categories']['c'+categoryid]) {
+			var child = hash[site]['Categories']['c'+categoryid][childid];
+			var value = childid.replace(/^c/, '');
+			var label = child.name;
+			if (child.children > 0) label += ' &gt;';
+			optiontag = $('<option/>').val(value).html(label);
+			selecttag.append(optiontag);		
 		}
 		
-		sels.append(sel);
+		wrapper.append(selecttag);
+	}
+	
+	$.each($('select', wrapper), function(i, form) {
+		$(form).val(path[i+1]);
 	});
 	
-	return sels.children();
+	$('select.category:last', wrapper).attr('name', 'PrimaryCategory.CategoryID');
+	
+	return wrapper.children();
 }
 
 function preloadcategory2(site, path)

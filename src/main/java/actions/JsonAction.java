@@ -755,7 +755,7 @@ public class JsonAction extends BaseAction {
 		String[] arrpath = path.split("\\.");
 		
 		json = new LinkedHashMap<String,Object>();
-		json.put("gc2", grandchildren2(site, arrpath, 1, null));
+		json.put("gc2", children2(site, arrpath));
 		
 		return SUCCESS;
 	}
@@ -950,14 +950,15 @@ public class JsonAction extends BaseAction {
 					DBObject dbospc = collspc.findOne
 						(new BasicDBObject("CategoryID", row.getString("CategoryID")));
 					if (dbospc != null) {
+						dbospc.removeField("_id");
 						childinfo.put("CategorySpecifics", dbospc);
 					}
 					
 					/* Category2CS */
-					// todo: create index for mongodb
 					DBObject dbo2cs = coll2cs.findOne
 						(new BasicDBObject("CategoryID", row.getString("CategoryID")));
 					if (dbo2cs != null) {
+						dbo2cs.removeField("_id");
 						childinfo.put("Category2CS", dbo2cs);
 					}
 				}

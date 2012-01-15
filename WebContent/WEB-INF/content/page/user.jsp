@@ -225,8 +225,8 @@
 <tbody>
 <tr>
   <td><s:text name="Category"/></td>
-  <td class="category">
-	<select name="PrimaryCategory.CategoryID"></select>
+  <td>
+	<select class="category" name="PrimaryCategory.CategoryID"></select>
   </td>
 </tr>
 <tr>
