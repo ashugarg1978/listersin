@@ -273,6 +273,7 @@ $.fn.extractObject = function() {
 	function add(accum, namev, value) {
 		if (value == '') return;
 		if (value == null) return;
+		if (namev.length == 0) return; // todo: fix ext.categorypath.0 bug
 		
 		if (namev.length == 1) {
 			
@@ -306,6 +307,7 @@ $.fn.extractObject = function() {
 				accum[namev[0]] = {};
 			}
 			
+			$('div#debug').append(namev.length+' : '+namev+' : '+value+'<hr/>');
 			add(accum[namev[0]], namev.slice(1), value);
 		}
 	}; 
@@ -1078,6 +1080,8 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
+	dump(postdata);
+	return;
 	/*
 	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
 		if (v.ShippingService == '') {
