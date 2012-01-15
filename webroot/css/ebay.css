@@ -444,3 +444,27 @@ table.checkboxes td:first-child {
   text-align: left;
   font-weight: normal;
 }
+
+div.foundproducts {
+  max-height: 500px;
+  overflow: scroll;
+  position: absolute;
+  display: none;
+  background-color: #fff;
+  border: 2px solid #666666;
+}
+
+div.product {
+  border-bottom: 1px solid gray;
+  padding: 5px;
+}
+
+div.product div.productimage {
+  float: left;
+  width: 70px;
+  text-align: center;
+}
+
+div.product div.text {
+  float: left;
+}

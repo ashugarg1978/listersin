@@ -234,7 +234,20 @@
   <td>
 	<input name="ProductSearch.QueryKeywords" type="text" size="30"/>
 	<input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10"/>
-	<button class="GetProductSearchResults">Search</button>
+	<button class="GetProductSearchResults">Search</button><br />
+	<input name="ProductListingDetails.ProductID" type="text" size="60"/>
+	
+	<div class="foundproducts">
+	  <div class="producttemplate">
+		<div class="productimage">
+		  <img src=""/>
+		</div>
+		<div class="producttext">
+		</div>
+		<div style="clear:both;"></div>
+	  </div>
+	</div>
+	
   </td>
 </tr>
 <tr>

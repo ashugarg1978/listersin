@@ -220,17 +220,18 @@ function bindevents()
 	$('button.GetProductSearchResults').live('click', function() {
 		var td = $(this).parent();
 		var postdata = $('input[type=text]', td).serialize();
-		$.post('/json/getproductsearchresults',
+		$.post('/json/productsearchresults',
 			   postdata,
 			   function(data) {
 				   var families = data.json.result.ProductSearchResult.AttributeSet.ProductFamilies;
 				   $.each(families, function(i, o) {
-					   var divtag = $('<div/>');
-					   $(divtag).append($('<img/>').attr('src', o.ParentProduct['@stockPhotoURL']));
-					   $(divtag).append(o.ParentProduct['@title']+'<br/>');
-					   $(divtag).append(o.ParentProduct['@productID']+'<br/>');
-					   $(td).append(divtag);
+					   
+					   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
+					   $('img', divtag).attr('src', o.ParentProduct['@stockPhotoURL']);
+					   $('div.producttext', divtag).html(o.ParentProduct['@title']);
+					   $('div.foundproducts', td).append(divtag);
 				   });
+				   $('div.foundproducts', td).slideDown('fast');
 			   },
 			   'json');
 	});
@@ -307,7 +308,6 @@ $.fn.extractObject = function() {
 				accum[namev[0]] = {};
 			}
 			
-			$('div#debug').append(namev.length+' : '+namev+' : '+value+'<hr/>');
 			add(accum[namev[0]], namev.slice(1), value);
 		}
 	}; 
@@ -1080,8 +1080,6 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
-	dump(postdata);
-	return;
 	/*
 	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
 		if (v.ShippingService == '') {
@@ -1602,6 +1600,8 @@ function fillformvalues(item)
 
 function setItemSpecificsForms(item)
 {
+	if (item.ItemSpecifics == undefined) return;
+	
 	var detail = $('div.detail', '#'+item.id);
 	
 	var categoryid = item.PrimaryCategory.CategoryID;

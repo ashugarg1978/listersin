@@ -569,8 +569,9 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	@Action(value="/json/getproductsearchresults")
-	public String getproductsearchresults() throws Exception {
+	/* don't use getxxxxx as method name */
+	@Action(value="/json/productsearchresults")
+	public String productsearchresults() throws Exception {
 		
 		String words = "";
 		String csid  = "";
