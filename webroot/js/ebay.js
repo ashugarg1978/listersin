@@ -592,6 +592,8 @@ function getdetail(row)
 	
 	setItemSpecificsForms(row);
 	
+	getshippingservice(id)
+	
 	return;
 	
 	/* paymentmethods */
@@ -640,7 +642,7 @@ function getdetail(row)
 		$('td.shippingtype_domestic', detail).html(row.ext.shippingtype.domestic);
 		$('td.shippingtype_international', detail).html(row.ext.shippingtype.international);
 	}
-
+	
 	/*
 	if (row.ShippingDetails.ShippingServiceOptions) {
 		sdsso = row.ShippingDetails.ShippingServiceOptions;
@@ -697,6 +699,8 @@ function getdetail(row)
 	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
 	
 	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
+	
+	
 	
 	return;
 	
@@ -1051,6 +1055,10 @@ var clickSave = function() {
 	
 	id = $(this).closest('tbody.itemrow').attr('id');
 	detail = $(this).closest('div.detail');
+	
+	// temp remove
+	$('input.remove', detail).remove();
+	$('select.remove', detail).remove();
 	
 	// todo: varidation check
 	if ($('select[name="PrimaryCategory.CategoryID"]', detail).val() == '') {
@@ -1446,8 +1454,8 @@ function updateduration(id)
 function getshippingservice(id)
 {
 	site = $('select[name=Site]', '#'+id).val();
-	type = $('select[name="ShippingDetails.ShippingType.domestic"]', '#'+id).val();
-	intltype = $('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val();
+	type = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
+	intltype = $('select[name="ext.shippingtype.international"]', '#'+id).val();
 	
 	select = $('<select/>').append($('<option/>'));
 	intl = $('<select/>').append($('<option/>'));
@@ -1695,6 +1703,7 @@ function setItemSpecificsFormValue(recommref, specifics)
 		if (recommref.ValueRecommendation != null) {
 			var selecttag = $('<select/>')
 				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value.selector')
+				.addClass('remove')
 				.append($('<option/>').html('(select from list)'));
 			
 			for (j in recommref.ValueRecommendation) {

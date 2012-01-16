@@ -404,7 +404,7 @@
 <tr>
   <td><s:text name="Shippingtype"/></td>
   <td class="shippingtype_domestic">
-	<select name="ShippingDetails.ShippingType.domestic">
+	<select name="ext.shippingtype.domestic">
 	  <option value="Flat">Flat: same cost to all buyers</option>
 	  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 	  <option value="Freight">Freight: large items over 150 lbs.</option>
@@ -507,7 +507,7 @@
   <td><s:text name="Shippingtype"/></td>
   <td class="shippingtype_international">
 	
-	<select name="ShippingDetails.ShippingType.international">
+	<select name="ext.shippingtype.international">
 	  <option value="Flat">Flat: same cost to all buyers</option>
 	  <option value="Calculated">Calculated: Cost varies by buyer location</option>
 	  <option value="NoShipping">No international shipping</option>

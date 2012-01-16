@@ -322,8 +322,7 @@ public class JsonAction extends BaseAction {
 		*/
 		
 		/* ShippingType */
-		BasicDBObject ssd =
-			(BasicDBObject) ((BasicDBObject) item.get("ShippingDetails")).get("ShippingType");
+		BasicDBObject ssd = (BasicDBObject) ((BasicDBObject) item.get("ext")).get("shippingtype");
 		LinkedHashMap<String,LinkedHashMap> smap = shippingmap();
 		for (String st : smap.keySet()) {
 			
