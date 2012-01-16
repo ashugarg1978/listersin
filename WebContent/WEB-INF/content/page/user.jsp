@@ -425,6 +425,7 @@
 	<input  name="<s:text name="_SDCSR"/>.PackageLength.#text" type="text" size="3">
 	<input  name="<s:text name="_SDCSR"/>.PackageLength.@unit" type="text" size="3">
 	<select name="<s:text name="_SDCSR"/>.PackageLength.@measurementSystem">
+	  <option value=""></option>
 	  <option value="English">English</option>
 	  <option value="Metric">Metric</option>
 	</select>
@@ -432,6 +433,7 @@
 	<input  name="<s:text name="_SDCSR"/>.PackageWidth.#text"  type="text" size="3">
 	<input  name="<s:text name="_SDCSR"/>.PackageWidth.@unit"  type="text" size="3">
 	<select name="<s:text name="_SDCSR"/>.PackageWidth.@measurementSystem">
+	  <option value=""></option>
 	  <option value="English">English</option>
 	  <option value="Metric">Metric</option>
 	</select>
@@ -439,6 +441,7 @@
 	<input  name="<s:text name="_SDCSR"/>.PackageDepth.#text"  type="text" size="3">
 	<input  name="<s:text name="_SDCSR"/>.PackageDepth.@unit"  type="text" size="3">
 	<select name="<s:text name="_SDCSR"/>.PackageDepth.@measurementSystem">
+	  <option value=""></option>
 	  <option value="English">English</option>
 	  <option value="Metric">Metric</option>
 	</select>
@@ -450,6 +453,7 @@
 	<input  name="<s:text name="_SDCSR"/>.WeightMajor.#text" type="text" size="3">
 	<input  name="<s:text name="_SDCSR"/>.WeightMajor.@unit" type="text" size="3">
 	<select name="<s:text name="_SDCSR"/>.WeightMajor.@measurementSystem">
+	  <option value=""></option>
 	  <option value="English">English</option>
 	  <option value="Metric">Metric</option>
 	</select>
@@ -457,6 +461,7 @@
 	<input name="<s:text name="_SDCSR"/>.WeightMinor.#text" type="text" size="3">
 	<input name="<s:text name="_SDCSR"/>.WeightMinor.@unit" type="text" size="3">
 	<select name="<s:text name="_SDCSR"/>.WeightMinor.@measurementSystem">
+	  <option value=""></option>
 	  <option value="English">English</option>
 	  <option value="Metric">Metric</option>
 	</select>
@@ -467,9 +472,10 @@
   <td>
 	<s:iterator value="{0,1,2,3}" status="rowstatus">
 	  <div class="ShippingService">
+		<!--
 		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
 			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
-		
+		-->
 		<select name="<s:text name="_SDSSO"/>.<s:property />.ShippingService"
 				class="ShippingService"></select>
 		
@@ -514,9 +520,10 @@
   <td class="intlshippingservice">
 	<s:iterator value="{0,1,2,3,4}" status="rowstatus">
 	  <div class="ShippingService">
+		<!--
 		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServicePriority"
 			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
-		
+		-->
 		<select name="<s:text name="_SDISSO"/>.<s:property />.ShippingService"
 				class="ShippingService"></select>
 		<s:text name="Cost"/>
@@ -544,6 +551,12 @@
   <td><s:text name="Location"/></td>
   <td>
 	<input type="text" name="Location" size="10" />
+  </td>
+</tr>
+<tr>
+  <td><s:text name="User ID"/></td>
+  <td>
+	<input type="text" name="ext.UserID" size="10" />
   </td>
 </tr>
 </tbody>

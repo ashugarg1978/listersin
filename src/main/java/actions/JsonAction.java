@@ -351,6 +351,8 @@ public class JsonAction extends BaseAction {
 		
 		WriteResult result = coll.update(query, update);
 		
+		coll2.remove(query);
+		
 		item.put("_id", new ObjectId(id));
 		coll2.insert(item);
 		
@@ -359,21 +361,6 @@ public class JsonAction extends BaseAction {
 		/* save before and after file for diff */
 		DiffLogger dl = new DiffLogger();
 		dl.savediff(id, before.toString(), after.toString());
-		
-		/*
-		JSONObject jsobefore = JSONObject.fromObject(before.toString());
-		JSONObject jsoafter  = JSONObject.fromObject(after.toString());
-		
-		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".before.js");
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(jsobefore.toString(2));
-		out.close();
-		
-		fstream = new FileWriter("/var/www/ebaytool.jp/logs/diff/"+id+".after.js");
-		out = new BufferedWriter(fstream);
-		out.write(jsoafter.toString(2));
-		out.close();
-		*/
 		
 		if (false) {
 			/* for debug */

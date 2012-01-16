@@ -187,11 +187,19 @@ public class AddItems extends ApiCall {
 							}
 						}
 						
-						if (((JSONObject) tmpi.get("ShippingDetails")).has("ShippingServiceOptions")
-							&& ((JSONObject) tmpi.get("ShippingDetails")).get("ShippingServiceOptions")
+						JSONObject shippingdetails = (JSONObject) tmpi.get("ShippingDetails");
+						if (shippingdetails.has("ShippingServiceOptions")
+							&& shippingdetails.get("ShippingServiceOptions")
 							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							((JSONObject) tmpi.get("ShippingDetails"))
-								.getJSONArray("ShippingServiceOptions").setExpandElements(true);
+							shippingdetails.getJSONArray("ShippingServiceOptions")
+								.setExpandElements(true);
+						}
+						
+						if (shippingdetails.has("InternationalShippingServiceOption")
+							&& shippingdetails.get("InternationalShippingServiceOption")
+							.getClass().toString().equals("class net.sf.json.JSONArray")) {
+							shippingdetails.getJSONArray("InternationalShippingServiceOption")
+								.setExpandElements(true);
 						}
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
@@ -230,7 +238,7 @@ public class AddItems extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		writelog("AIs.xml", responsexml);
+		writelog("AddItems/AIs.res.xml", responsexml);
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
