@@ -616,6 +616,111 @@
   <td><s:text name="Currency"/></td>
   <td><select name="Currency"></select></td>
 </tr>
+<tr>
+  <td><s:text name="BuyerRequirements"/></td>
+  <td>
+	<input type="checkbox" name="BuyerRequirementDetails.LinkedPayPalAccount" value="true">
+	Don't have a PayPal account<br/>
+	
+	<input type="checkbox" value="true" class="remove"
+		   name="BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+	Have received
+	<select name="BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.Count">
+	  <option value=""></option>
+	  <option value="2">2</option>
+	  <option value="3">3</option>
+	  <option value="4">4</option>
+	  <option value="5">5</option>
+	</select>
+	Unpaid item case(s) within
+	<select name="BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.Period">
+	  <option value=""></option>
+	  <option value="Days_30">1</option>
+	  <option value="Days_180">6</option>
+	  <option value="Days_360">12</option>
+	</select>
+	month(s)<br/>
+	
+	<input type="checkbox" value="true"
+		   name="BuyerRequirementDetails.ShipToRegistrationCountry">
+	Have a primary shipping address in countries that I don't ship to<br/>
+	
+	<input type="checkbox" value="true" class="remove"
+		   name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+	Have
+	<select name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.Count">
+	  <option value=""></option>
+	  <option value="4">4</option>
+	  <option value="5">5</option>
+	  <option value="6">6</option>
+	  <option value="7">7</option>
+	</select>
+	Policy violation report(s) within
+	<select name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.Period">
+	  <option value=""></option>
+	  <option value="Days_30">1</option>
+	  <option value="Days_180">6</option>
+	</select>
+	month(s)<br/>
+
+	<input type="checkbox" value="true" class="remove"
+		   name="BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
+	Have a feedback score equal to or lower than
+	<select name="BuyerRequirementDetails.MinimumFeedbackScore">
+	  <option value=""></option>
+	  <option value="-1">-1</option>
+	  <option value="-2">-2</option>
+	  <option value="-3">-3</option>
+	</select><br/>
+	
+	<input type="checkbox" value="true" class="remove"
+		   name="BuyerRequirementDetails.MaximumItemRequirements.checkbox">
+	Have bid on or bought my items within the last 10 days and met my limit of
+	<select name="BuyerRequirementDetails.MaximumItemRequirements.MaximumItemCount">
+	  <option value=""></option>
+	  <option value="1">1</option>
+	  <option value="2">2</option>
+	  <option value="3">3</option>
+	  <option value="4">4</option>
+	  <option value="5">5</option>
+	  <option value="6">6</option>
+	  <option value="7">7</option>
+	  <option value="8">8</option>
+	  <option value="9">9</option>
+	  <option value="10">10</option>
+	  <option value="25">25</option>
+	  <option value="50">50</option>
+	  <option value="75">75</option>
+	  <option value="100">100</option>
+	</select><br/>
+	&nbsp;&nbsp;&nbsp;
+	<input type="checkbox" value="true" class="remove"
+		   name="BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
+	Only apply this block to buyers who have a feedback score equal to or lower than
+	<select name="BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore">
+	  <option value=""></option>
+	  <option value="5">5</option>
+	  <option value="4">4</option>
+	  <option value="3">3</option>
+	  <option value="2">2</option>
+	  <option value="1">1</option>
+	  <option value="0">0</option>
+	</select><br/>
+	
+  </td>
+</tr>
+<tr>
+  <td><s:text name="SalesTax"/></td>
+  <td>
+	
+  </td>
+</tr>
+<tr>
+  <td><s:text name="ReturnPolicy"/></td>
+  <td>
+	
+  </td>
+</tr>
 </tbody>
 </table>
 </div>
