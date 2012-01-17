@@ -232,10 +232,36 @@
 <tr>
   <td><s:text name="ProductDetails"/></td>
   <td>
-	<input name="ProductSearch.QueryKeywords" type="text" size="30"/>
-	<input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10"/>
+	<input name="ProductSearch.QueryKeywords" type="text" size="30" class="remove"/>
+	<input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10" class="remove"/>
 	<button class="GetProductSearchResults">Search</button><br />
-	<input name="ProductListingDetails.ProductID" type="text" size="60"/>
+	<input name="ProductListingDetails.ProductID" type="text" size="60"/><br/>
+	
+	Include Stock Photo
+	<select name="ProductListingDetails.IncludeStockPhotoURL">
+	  <option value=""></option>
+	  <option value="true">true</option>
+	  <option value="false">false</option>
+	</select>
+	<br/>
+	
+	Use Stock Photo As Gallery
+	<select name="ProductListingDetails.UseStockPhotoURLAsGallery">
+	  <option value=""></option>
+	  <option value="true">true</option>
+	  <option value="false">false</option>
+	</select>
+	<br/>
+	
+	<!--
+	<input type="checkbox" name="ProductListingDetails.IncludeStockPhotoURL"
+		   value="true"/>Include Stock Photo<br/>
+	
+	<input type="checkbox" name="ProductListingDetails.UseStockPhotoURLAsGallery"
+		   value="true"/>Use Stock Photo As Gallery<br/>
+	
+	todo: Why value is set to "false" when I use checkboxes?
+	-->
 	
 	<div class="foundproducts">
 	  <div class="producttemplate">

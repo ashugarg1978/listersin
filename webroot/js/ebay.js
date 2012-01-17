@@ -320,8 +320,10 @@ $.fn.extractObject = function() {
 		}
 	}; 
 	
+	//$('div#debug').html('');
 	this.each(function() {
 		if ($(this).attr('name') != undefined) {
+			//$('div#debug').append($(this).attr('name')+' : '+$(this).val()+'<br/>');
 			add(accum, $(this).attr('name').split('.'), $(this).val());
 		}
 	});
@@ -1095,6 +1097,11 @@ var clickSave = function() {
 	
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
+
+	//return false;
+	
+	//dump(postdata);
+	//return false;
 	
 	/*
 	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
@@ -1111,8 +1118,6 @@ var clickSave = function() {
 	// todo: escape "&" character
 	postdata = postdata.replace(/&/g, 'AND');
 	
-	//dump(postdata);
-	//return false;
 	
 	$.post('/json/save',
 		   'id='+id+'&json='+postdata,
