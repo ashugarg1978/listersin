@@ -14,6 +14,8 @@ userids=`/usr/local/mongodb/bin/mongo ebay \
 	| sed 's/"//' \
 	| sed 's/" : {//'`
 
+/usr/local/mongodb/bin/mongo ebay --eval 'db.items.remove()'
+
 for userid in $userids
 do
 	$cmd GetSellerList $email $userid Start $start $end &

@@ -240,8 +240,8 @@ function bindevents()
 	
 	$('div.foundproducts div.product').live('click', function() {
 		var productid = $('div.productid', $(this)).html();
-		alert(productid);
 		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
+		$(this).closest('div.foundproducts').slideUp('fast');
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
@@ -475,6 +475,10 @@ function getrow(idx, row)
 		pictstr = row.PictureDetails.PictureURL;
 	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
 		pictstr = row.PictureDetails.PictureURL[0];
+	} else if (typeof(row.PictureDetails.GalleryURL) == 'string') {
+		pictstr = row.PictureDetails.GalleryURL;
+	} else if (typeof(row.PictureDetails.GalleryURL) == 'object') {
+		pictstr = row.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
 		$('img.PictureURL', dom).attr('src', pictstr);
@@ -522,16 +526,6 @@ function getrow(idx, row)
 	
 	return dom;
 	
-	
-	
-	if (row.PictureDetails.PictureURL) {
-		$('img.PictureDetails_PictureURL', dom)
-			.attr('src', row['PictureDetails_PictureURL'])
-			.css('max-width', '20px')
-			.css('max-height','20px');
-	} else {
-		$('img.PictureDetails_PictureURL', dom).remove();
-	}
 	
 	$('a.Title', dom)
 		.prepend('['+row['ShippingDetails_ShippingType']+']')
@@ -596,6 +590,17 @@ function getdetail(row)
 	
 	getshippingservice(id)
 	
+	/* description */
+	// todo: check html5 srcdoc attribute
+	iframe = $('<iframe/>')
+		.attr('class', 'description')
+		.attr('src', 'about:blank');
+	
+	iframe.load(function() {
+		$(this).contents().find('body').append(row.Description);
+	});
+	$('textarea[name=Description]', detail).replaceWith(iframe);
+	
 	return;
 	
 	/* paymentmethods */
@@ -620,17 +625,6 @@ function getdetail(row)
 			$('img.PD_PURL_'+i, detail).attr('src', url);
 		});
 	}
-	
-	/* description */
-	// todo: check html5 srcdoc attribute
-	iframe = $('<iframe/>')
-		.attr('class', 'description')
-		.attr('src', 'about:blank');
-	
-	iframe.load(function() {
-		$(this).contents().find('body').append(row.Description);
-	});
-	$('textarea[name=Description]', detail).replaceWith(iframe);
 	
 	// todo: arrayize if size = 1
 	if (row.ItemSpecifics) {
@@ -1604,7 +1598,7 @@ function fillformvalues(item)
 {
 	var detail = $('div.detail', '#'+item.id);
 	
-	$.each($('input, select, textarea', detail), function(i, form) {
+	$.each($('input[type=text], select, textarea', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
@@ -1615,6 +1609,8 @@ function fillformvalues(item)
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}
 	});
+	
+	// todo: checkbox forms
 	
 	return;
 }

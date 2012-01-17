@@ -71,6 +71,9 @@ public class AddItems extends ApiCall {
 			item.removeField("ext");
 			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
 			
+			// todo: don't remove following field. it is just test.
+			((BasicDBObject) item.get("PictureDetails")).removeField("PictureURL");
+			
 			if (!lhm.containsKey(userid)) {
 				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
 			}

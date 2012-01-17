@@ -252,6 +252,14 @@
 	  <option value="false">false</option>
 	</select>
 	<br/>
+
+	GalleryType
+	<select name="PictureDetails.GalleryType">
+	  <option value=""></option>
+	  <option value="Gallery">Gallery</option>
+	</select>(todo: move to another tab)
+	<br/>
+	
 	
 	<!--
 	<input type="checkbox" name="ProductListingDetails.IncludeStockPhotoURL"
