@@ -239,8 +239,11 @@ function bindevents()
 	});
 	
 	$('div.foundproducts div.product').live('click', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
 		var productid = $('div.productid', $(this)).html();
+		var title = $('div.producttext', $(this)).html();
 		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
+		$('input[name=Title]', '#'+id).val(title);
 		$(this).closest('div.foundproducts').slideUp('fast');
 	});
 	
@@ -798,14 +801,25 @@ var changeCategory = function() {
 	}
 	path.unshift(0);
 	
-	$.getJSON('/json/gc2?site='+site+'&path='+path.join('.'),
-			  function(data) {
-				  
-				  hash[site]['Categories'] = data.json.gc2.Categories;
-				  
-				  var tmppds = getcategorypulldowns(site, path);
-				  $('select[name="PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
-			  });
+	$.getJSON
+	('/json/gc2?site='+site+'&path='+path.join('.'),
+	 function(data) {
+		 
+		 hash[site]['Categories'] = data.json.gc2.Categories;
+		 
+		 var tmppds = getcategorypulldowns(site, path);
+		 $('select[name="PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
+		 
+		 var category =
+			 hash[site]['Categories']['c'+path[path.length-2]]['c'+path[path.length-1]];
+		 if (category.Category2CS) {
+			 $('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id)
+				 .val(category.Category2CS.CharacteristicsSets.AttributeSetID);
+			 
+			 $('select[name="PrimaryCategory.CategoryID"]', '#'+id)
+				 .after('<pre>'+$.dump(category.Category2CS)+'</pre>');
+		 }
+	 });
 	
 	return;
 }

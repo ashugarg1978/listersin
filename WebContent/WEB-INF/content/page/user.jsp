@@ -712,13 +712,33 @@
 <tr>
   <td><s:text name="SalesTax"/></td>
   <td>
-	
+	<select name="BuyerRequirementDetails.">
+	  <option value=""></option>
+	</select>
+	<input type="" name="">%<br/>
+
+	<input type="checkbox" value="true"
+		   name="BuyerRequirementDetails."/>
+	Also apply to shipping & handling costs
   </td>
 </tr>
 <tr>
   <td><s:text name="ReturnPolicy"/></td>
   <td>
+	<iput type="radio" name="" value=""/>
+	Returns Accepted<br/>
+
+	After receiving the item, your buyer should contact you within:<br/>
 	
+	
+	<iput type="radio" name="" value=""/>
+	No returns accepted
+  </td>
+</tr>
+<tr>
+  <td><s:text name="Additional checkout instructions"/></td>
+  <td>
+	<textarea name="BuyerRequirementDetails."></textarea>
   </td>
 </tr>
 </tbody>
