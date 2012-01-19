@@ -61,12 +61,21 @@ public class PageAction extends BaseAction {
 				session.put("email", user.get("email").toString());
 				
 				BasicDBObject hash = new BasicDBObject();
+				DBObject row = db.getCollection("US.eBayDetails")
+					.findOne(null, new BasicDBObject("SiteDetails", 1));
+				BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+				for (Object sitedbo : sitedetails) {
+					hash.put(((BasicDBObject) sitedbo).getString("Site"), null);
+				}
+				
+				/*
 				DBCollection collsd = db.getCollection("US.eBayDetails.SiteDetails");
 				DBCursor cur = collsd.find();
 				while (cur.hasNext()) {
 					DBObject row = cur.next();
 					hash.put(row.get("Site").toString(), null);
-				}				
+				}
+				*/				
 				initjson.put("hash", hash.toString());
 				
 				/*

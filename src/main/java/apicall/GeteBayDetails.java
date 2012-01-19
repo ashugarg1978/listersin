@@ -25,23 +25,19 @@ public class GeteBayDetails extends ApiCall {
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
 		String responsexml = future.get();
 		
-		DBCursor cur = db.getCollection("US.eBayDetails")
-			.find(null, new BasicDBObject("SiteDetails", 1));
-		Integer cnt = cur.count() - 1;
-		cur.next(); /* Skip US here */
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
-			log(row.toString());
-			/*
-			site   = row.get("Site").toString();
-			siteid = Integer.parseInt(row.get("SiteID").toString());
-			log(site);
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
+			// todo: skip US
+			site   = ((BasicDBObject) sitedbo).getString("Site");
+			siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+			log(site+":"+siteid);
 			
 			reqdbo.put("MessageID", site);
 			
 			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
-			*/
 		}
 		
 		return "";

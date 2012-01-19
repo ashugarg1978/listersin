@@ -557,7 +557,11 @@ function getdetail(row)
 	var site = row.Site;
 	
 	// fill select option tags
-	setoptiontags($('select[name=Country]',  detail), hash[site]['CountryDetails'],  null);
+	$.each(hash[site].eBayDetails.CountryDetails, function(k, v) {
+		var optiontag = $('<option/>').val(v.Country).text(v.Description);
+		$('select[name=Country]', '#'+id).append(optiontag);
+	});
+	
 	setoptiontags($('select[name=Currency]', detail), hash[site]['CurrencyDetails'], null);
 	
 	// Categories
@@ -1188,6 +1192,7 @@ var clickTitle = function() {
 			   item = data.json.item;
 			   dump(item);
 			   
+			   hash[item.Site]['eBayDetails'] = data.json.eBayDetails;
 			   hash[item.Site]['Categories'] = data.json.Categories;
 			   //preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
 			   //preloadcategory(item.Site, item.ext.categorypath);
