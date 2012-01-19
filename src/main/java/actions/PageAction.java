@@ -55,11 +55,12 @@ public class PageAction extends BaseAction {
 			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
-			initjson = new LinkedHashMap<String, String>();
+			//initjson = new LinkedHashMap<String, String>();
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
 				
+				/*
 				if (true) {
 					JsonAction ja = new JsonAction();
 					LinkedHashMap<String, Object> st = ja.initdata();
@@ -82,6 +83,7 @@ public class PageAction extends BaseAction {
 					br.close();
 					initjson.put("hash", data);
 				}
+				*/
 				
 				/*
 				JsonAction ja = new JsonAction();
