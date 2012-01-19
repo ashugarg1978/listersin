@@ -14,6 +14,7 @@ public class Daemon {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date now = new Date();
+		System.out.println("-------------------------------------------------");
 		System.out.println(sdf.format(now).toString()+" ebaytoold started.");
 		
 		ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);

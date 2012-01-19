@@ -25,12 +25,14 @@ public class GeteBayDetails extends ApiCall {
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
 		String responsexml = future.get();
 		
-		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
+		DBCursor cur = db.getCollection("US.eBayDetails")
+			.find(null, new BasicDBObject("SiteDetails", 1));
 		Integer cnt = cur.count() - 1;
 		cur.next(); /* Skip US here */
 		while (cur.hasNext()) {
 			DBObject row = cur.next();
-			
+			log(row.toString());
+			/*
 			site   = row.get("Site").toString();
 			siteid = Integer.parseInt(row.get("SiteID").toString());
 			log(site);
@@ -39,6 +41,7 @@ public class GeteBayDetails extends ApiCall {
 			
 			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
+			*/
 		}
 		
 		return "";
@@ -59,13 +62,20 @@ public class GeteBayDetails extends ApiCall {
 			
 			String classname = resdbo.get(idx).getClass().toString();
 			if (classname.equals("class com.mongodb.BasicDBList")) {
-				coll.insert((List<DBObject>) resdbo.get(idx));
+				//coll.insert((List<DBObject>) resdbo.get(idx));
 			} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-				coll.insert((DBObject) resdbo.get(idx));
+				//coll.insert((DBObject) resdbo.get(idx));
 			} else {
 				//log("SKIP "+classname+" "+idx.toString());
 			}
 		}
+		
+		DBCollection coll = db.getCollection(site+".eBayDetails");
+		if (db.collectionExists(site+".eBayDetails")) {
+			coll.drop();
+		}
+		coll.insert(resdbo);
+		
 		
 		return responsexml;
 	}

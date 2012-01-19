@@ -758,8 +758,8 @@
 </div>
 
 <script>
-//var hash;
-//hash = ${initjson.hash};
+var hash;
+hash = ${initjson.hash};
 //var summary;
 //summary = ${initjson.summary};
 </script>

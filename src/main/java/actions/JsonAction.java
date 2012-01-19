@@ -86,8 +86,17 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	public String tmptmpstr() {
-		return "hoge";
+	@Action(value="/json/ebaydetails")
+	public String ebaydetails() throws Exception {
+		
+		String site = ((String[]) parameters.get("site"))[0];
+		DBCollection coll = db.getCollection("US.eBayDetails");
+		DBObject row = coll.findOne();
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put(site, row);
+		
+		return SUCCESS;
 	}
 	
 	public LinkedHashMap<String,Object> initdata() {

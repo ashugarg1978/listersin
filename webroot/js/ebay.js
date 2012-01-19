@@ -1,6 +1,6 @@
 /* store rows data */
 var rowsdata = new Array();
-var hash;
+//var hash;
 
 /* initialize */
 $(function() {
@@ -12,12 +12,10 @@ $(function() {
 	dump(hash);
 	
 	// todo: same code
-	/*
-	  $.each(hash, function(k, v) {
-	  var optiontag = $('<option />').val(k).html(k);
-	  $('select[name=Site]', $('div#detailtemplate')).append(optiontag);
-	  });
-	*/
+	$.each(hash, function(k, v) {
+		var optiontag = $('<option />').val(k).html(k);
+		$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
+	});
 	
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();

@@ -55,10 +55,19 @@ public class PageAction extends BaseAction {
 			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
-			//initjson = new LinkedHashMap<String, String>();
+			initjson = new LinkedHashMap<String, String>();
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
+				
+				BasicDBObject hash = new BasicDBObject();
+				DBCollection collsd = db.getCollection("US.eBayDetails.SiteDetails");
+				DBCursor cur = collsd.find();
+				while (cur.hasNext()) {
+					DBObject row = cur.next();
+					hash.put(row.get("Site").toString(), null);
+				}				
+				initjson.put("hash", hash.toString());
 				
 				/*
 				if (true) {
