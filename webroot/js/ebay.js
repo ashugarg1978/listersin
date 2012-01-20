@@ -20,7 +20,7 @@ $(function() {
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
-	//setTimeout('autoclick()', 3000);
+	setTimeout('autoclick()', 2000);
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 	
 	setInterval(refresh, 2000);
@@ -255,12 +255,12 @@ function autoclick()
 	itemid = '110089979385';
 	
 	$.ajaxSetup({async: false});
-	$('input[class=filter][name=ItemID]').val(itemid);
-	$('a.allitems').click();
+	//$('input[class=filter][name=ItemID]').val(itemid);
+	//$('a.allitems').click();
 	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 	$('a.Title', 'tbody#'+id).click();
-	$('a.edit', 'tbody#'+id).click();
-	$('a.save', 'tbody#'+id).click();
+	//$('a.edit', 'tbody#'+id).click();
+	//$('a.save', 'tbody#'+id).click();
 	
 	return;
 	
@@ -556,13 +556,17 @@ function getdetail(row)
 	var detail = $('div.detail', '#'+id);
 	var site = row.Site;
 	
-	// fill select option tags
+	// Country
 	$.each(hash[site].eBayDetails.CountryDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Country).text(v.Description);
 		$('select[name=Country]', '#'+id).append(optiontag);
 	});
 	
-	setoptiontags($('select[name=Currency]', detail), hash[site]['CurrencyDetails'], null);
+	// Currency
+	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
+		var optiontag = $('<option/>').val(v.Currency).text(v.Description);
+		$('select[name=Currency]', '#'+id).append(optiontag);
+	});
 	
 	// Categories
 	var tmppath = row.ext.categorypath.slice(0);
@@ -582,16 +586,21 @@ function getdetail(row)
 	}
 	
 	// Category2CS
-	if (category['Category2CS']) {
+	if (category.Category2CS && category.Category2CS.CatalogEnabled) {
+		// todo: find more than 2 Sets.
 		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
 			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
 		
 		$('input[name="ProductSearch.QueryKeywords"]', detail)
 			.parent()
 			.append('<pre>'+$.dump(category['Category2CS'])+'</pre>');
+	} else {
+		$('div.productsearchform', detail).remove();
 	}
 	
 	setItemSpecificsForms(row);
+	
+	return;
 	
 	getshippingservice(id)
 	
@@ -1146,6 +1155,7 @@ var clickCancel = function() {
 	
 	id = $(this).closest('tbody.itemrow').attr('id');
 	getdetail(rowsdata[id]);
+	showformvalues(rowsdata[id]);
 	showbuttons(detail, 'edit,copy,delete');
 	
 	return false;
@@ -1176,10 +1186,12 @@ var clickTitle = function() {
 	
 	var id = $(this).closest('tbody').attr('id');
 	
+	/*
 	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
 		$('div.detail', '#'+id).slideToggle('fast');
 		return false;
 	}
+	*/
 	
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
@@ -1190,23 +1202,17 @@ var clickTitle = function() {
 		   'id='+id,
 		   function(data) {
 			   item = data.json.item;
-			   dump(item);
+			   rowsdata[id] = item;
 			   
+			   hash[item.Site] = new Object;
 			   hash[item.Site]['eBayDetails'] = data.json.eBayDetails;
 			   hash[item.Site]['Categories'] = data.json.Categories;
-			   //preloadcategoryfeatures(item.Site, item.PrimaryCategory.CategoryID);
-			   //preloadcategory(item.Site, item.ext.categorypath);
 			   
 			   getdetail(item);
 			   showformvalues(item);
+			   $('div.productsearchform', '#'+id).hide();
 			   
 			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
-			   
-			   //preloadshippingtype(item.Site);
-			   
-			   rowsdata[id] = item;
-			   
-			   //$.scrollTo('tbody#'+id, {duration:800, axis:'y', offset:0});
 		   },
 		   'json');
 	

@@ -232,10 +232,23 @@
 <tr>
   <td><s:text name="ProductDetails"/></td>
   <td>
-	<input name="ProductSearch.QueryKeywords" type="text" size="30" class="remove"/>
-	<input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10" class="remove"/>
-	<button class="GetProductSearchResults">Search</button><br />
-	<input name="ProductListingDetails.ProductID" type="text" size="60"/><br/>
+	
+	<div class="productsearchform">
+	  <input name="ProductSearch.QueryKeywords" type="text" size="30" class="remove"/>
+	  <input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10" class="remove"/>
+	  <button class="GetProductSearchResults">Search</button>
+	  <input name="ProductListingDetails.ProductID" type="hidden"/>
+	  <div class="foundproducts">
+		<div class="producttemplate">
+		  <div class="productimage">
+			<img src=""/>
+		  </div>
+		  <div class="producttext"></div>
+		  <div class="productid"></div>
+		  <div style="clear:both;"></div>
+		</div>
+	  </div>
+	</div>
 	
 	Include Stock Photo
 	<select name="ProductListingDetails.IncludeStockPhotoURL">
@@ -260,7 +273,6 @@
 	</select>(todo: move to another tab)
 	<br/>
 	
-	
 	<!--
 	<input type="checkbox" name="ProductListingDetails.IncludeStockPhotoURL"
 		   value="true"/>Include Stock Photo<br/>
@@ -270,17 +282,6 @@
 	
 	todo: Why value is set to "false" when I use checkboxes?
 	-->
-	
-	<div class="foundproducts">
-	  <div class="producttemplate">
-		<div class="productimage">
-		  <img src=""/>
-		</div>
-		<div class="producttext"></div>
-		<div class="productid"></div>
-		<div style="clear:both;"></div>
-	  </div>
-	</div>
 	
   </td>
 </tr>

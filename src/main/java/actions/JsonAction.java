@@ -286,9 +286,12 @@ public class JsonAction extends BaseAction {
 		/* remove fields */
 		item.removeField("_id");
 		
+		BasicDBObject ebaydetails =
+			(BasicDBObject) db.getCollection(item.getString("Site")+".eBayDetails").findOne();
+		
 		json.put("item", item);
 		json.put("Categories", children2.get("Categories"));
-		json.put("eBayDetails", db.getCollection(item.getString("Site")+".eBayDetails").findOne());
+		json.put("eBayDetails", ebaydetails);
 		
 		return SUCCESS;
 	}

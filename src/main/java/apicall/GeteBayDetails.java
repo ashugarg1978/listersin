@@ -29,10 +29,11 @@ public class GeteBayDetails extends ApiCall {
 			.findOne(null, new BasicDBObject("SiteDetails", 1));
 		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
 		for (Object sitedbo : sitedetails) {
-			// todo: skip US
+			
 			site   = ((BasicDBObject) sitedbo).getString("Site");
 			siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
-			log(site+":"+siteid);
+			
+			if (site.equals("US")) continue;
 			
 			reqdbo.put("MessageID", site);
 			
