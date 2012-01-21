@@ -10,13 +10,16 @@ body {
 }
 
 div#container {
-  margin: 10px;
+
+  /*margin: 10px;*/
 }
 
 div#toolbar {
   width: 171px;
   float: left;
   overflow: hidden;
+  position: fixed;
+  background-color: #ffffff;
 }
 
 div#logo {
@@ -34,7 +37,7 @@ div#logo {
 
 div#content {
   border: 4px solid #cccccc;
-  float:left;
+  float:right;
   /*
   border-radius:5px;
   -moz-border-radius:5px;
@@ -413,6 +416,7 @@ div#debug {
   padding: 5px;
   border: 2px solid #cccc99;
   border-radius:5px;
+  float: right;
 }
 
 iframe[name=posttarget] {

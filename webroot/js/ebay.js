@@ -796,6 +796,7 @@ function resizediv()
 	h = $('body').height() - 10;
 	
 	$('div#content').width(w);
+	$('div#debug').width(w);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
