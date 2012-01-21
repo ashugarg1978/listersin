@@ -150,7 +150,7 @@ public class JsonAction extends BaseAction {
 		DBCollection coll = db.getCollection("items");
 		
 		/* handling post parameters */
-		int limit = 20;
+		int limit = 40;
 		int offset = 0;
 		if (parameters.containsKey("limit"))
 			limit = Integer.parseInt(((String[]) parameters.get("limit"))[0]);

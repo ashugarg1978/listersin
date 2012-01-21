@@ -1203,7 +1203,7 @@ var clickTitle = function() {
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
 	$('tr.row2 td', '#'+id).html(detail);
-	$('div.detail', '#'+id).slideToggle('fast');
+	//$('div.detail', '#'+id).slideToggle('fast');
 	
 	$.post('/json/item',
 		   'id='+id,
@@ -1219,7 +1219,9 @@ var clickTitle = function() {
 			   showformvalues(item);
 			   $('div.productsearchform', '#'+id).remove();
 			   
-			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
+			   //$('td:nth-child(2)', '#'+id).fadeIn('fast');
+			   $('td:nth-child(2)', '#'+id).show();
+			   $('div.detail', '#'+id).show();
 			   
 			   dump(item);
 		   },
