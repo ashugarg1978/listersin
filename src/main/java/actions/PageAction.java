@@ -51,6 +51,9 @@ public class PageAction extends BaseAction {
 		String email = "";
 		String password = "";
 		
+		// for development
+		session.put("email", "fd3s.boost@gmail.com");
+		
 		if (session.get("email") != null) {
 			
 			query.put("email", session.get("email").toString());

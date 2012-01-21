@@ -337,6 +337,21 @@ public class AddItems extends ApiCall {
 
 	private int getSiteID(String site) throws Exception {
 
+		Integer siteid = null;
+
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
+			if (site.equals(((BasicDBObject) sitedbo).getString("Site"))) {
+				siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+				break;
+			}
+		}
+		
+		return siteid;
+		
+		/*
 		DBCollection coll = db.getCollection(site+".eBayDetails.SiteDetails");
 		
 		BasicDBObject query = new BasicDBObject();
@@ -347,5 +362,6 @@ public class AddItems extends ApiCall {
 		int result = Integer.parseInt(row.get("SiteID").toString());
 		
 		return result;
+		*/
 	}
 }

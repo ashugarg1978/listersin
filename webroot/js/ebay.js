@@ -20,7 +20,7 @@ $(function() {
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
-	setTimeout('autoclick()', 2000);
+	//setTimeout('autoclick()', 2000);
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 	
 	setInterval(refresh, 2000);
@@ -243,6 +243,15 @@ function bindevents()
 		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
 		$('input[name=Title]', '#'+id).val(title);
 		$(this).closest('div.foundproducts').slideUp('fast');
+		
+		$.post('/json/productsellingpages',
+			   'productid='+productid+'&attributesetid='+$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
+			   function(data) {
+				   $('table.ItemSpecifics', '#'+id).hide();
+				   $('div.ProductSellingPages', '#'+id).html('');
+				   $('div.ProductSellingPages', '#'+id).append(data.json.result);
+			   },
+			   'json');
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
@@ -1186,12 +1195,10 @@ var clickTitle = function() {
 	
 	var id = $(this).closest('tbody').attr('id');
 	
-	/*
 	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
 		$('div.detail', '#'+id).slideToggle('fast');
 		return false;
 	}
-	*/
 	
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
@@ -1205,14 +1212,16 @@ var clickTitle = function() {
 			   rowsdata[id] = item;
 			   
 			   hash[item.Site] = new Object;
-			   hash[item.Site]['eBayDetails'] = data.json.eBayDetails;
-			   hash[item.Site]['Categories'] = data.json.Categories;
+			   hash[item.Site].eBayDetails = data.json.eBayDetails;
+			   hash[item.Site].Categories  = data.json.Categories;
 			   
 			   getdetail(item);
 			   showformvalues(item);
-			   $('div.productsearchform', '#'+id).hide();
+			   $('div.productsearchform', '#'+id).remove();
 			   
 			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
+			   
+			   dump(item);
 		   },
 		   'json');
 	
@@ -1701,8 +1710,9 @@ function setItemSpecificsForms(item)
 		
 		addspidx++;
 	}
-	$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recomm)+'</pre>');
+	//$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recomm)+'</pre>');
 	
+	return;
 }
 
 function setItemSpecificsFormValue(recommref, specifics)

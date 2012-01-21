@@ -172,7 +172,7 @@
   <td><a href="" class="ItemID" target="_blank"></a></td>
   <td class="price"></td>
   <td class="EndTime"></td>
-  <td align="center" valign="middle"><img class="PictureURL" height="15"></td>
+  <td align="center" valign="middle"><img class="PictureURL" height="40"></td>
 </tr>
 <tr class="row2"><td colspan="7"></td></tr>
 </tbody>
@@ -304,6 +304,8 @@
 <tr>
   <td><s:text name="ItemSpecifics"/></td>
   <td class="ItemSpecifics">
+	<div class="ProductSellingPages">
+	</div>
 	<table class="ItemSpecifics">
 	</table>
   </td>

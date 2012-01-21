@@ -14,12 +14,16 @@ import org.apache.commons.lang.StringEscapeUtils;
 public class GetProductSellingPages extends ApiCall {
 	
 	private String productid;
+	private String attributesetid;
 	
 	public GetProductSellingPages() throws Exception {
+		this.productid      = "117984:2:21418:2973043373:399582263:04d3441a3b1502e7d47cb87912668538:1:1:1:1422410458";
+		this.attributesetid = "5918";
 	}
 	
-	public GetProductSellingPages(String productid) throws Exception {
-		this.productid = productid;
+	public GetProductSellingPages(String productid, String attributesetid) throws Exception {
+		this.productid      = productid;
+		this.attributesetid = attributesetid;
 	}
 	
 	public String call() throws Exception {
@@ -32,7 +36,7 @@ public class GetProductSellingPages extends ApiCall {
 		
 		BasicDBObject product = new BasicDBObject();
 		product.append("@productID", productid);
-		product.append("CharacteristicsSet", new BasicDBObject("AttributeSetID", "1785"));
+		product.append("CharacteristicsSet", new BasicDBObject("AttributeSetID", attributesetid));
 		reqdbo.append("Product", product);
 		reqdbo.append("UseCase", "AddItem");
 		
@@ -54,7 +58,28 @@ public class GetProductSellingPages extends ApiCall {
 		String data = resdbo.getString("ProductSellingPagesData");
 		String decoded = StringEscapeUtils.unescapeHtml(data);
 		
+		//String productid = ((BasicDBObject) resdbo.get("Product")).getString("@id");
+		//log("productid: "+productid);
+		
+		decoded = decoded.replace("<Products>", "");
+		decoded = decoded.replace("</Products>", "");
+		decoded = decoded.replace("<Product id=", "<eBay id=");
+		decoded = decoded.replace("</Product>", "<API.XSL.Overrides><Show><ItemSpecificsOnly/></Show></API.XSL.Overrides></eBay>");
+		
+		BasicDBObject decodeddbo = convertXML2DBObject(decoded);
+		BasicDBObject attrs = (BasicDBObject) decodeddbo.get("Attributes");
+		BasicDBObject attr = (BasicDBObject) attrs.get("AttributeSet");
+		String attributesetid =	attr.getString("@id");
+
+		log("attributesetid:"+attributesetid);
+		
+		decoded = decoded.replace("<DataElements>", "<SelectedAttributes><AttributeSet id='"+attributesetid+"'/></SelectedAttributes><DataElements>");
+		
+		//decoded = decoded.replaceAll("&", "&amp;");
+		//decoded = decoded.replace("<eBay>", "<eBay><SelectedAttributes><AttributeSet id='5918' categoryId='171485'/></SelectedAttributes>");
+		
 		writelog("GetProductSellingPages/decoded.xml", decoded);
+		//writelog("GetProductSellingPages/new.xml", newxml);
 		
 		
 		// XML to HTML
@@ -66,11 +91,12 @@ public class GetProductSellingPages extends ApiCall {
 		//transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		
 		transformer.transform
-			(new StreamSource(logpath+"/GetProductSellingPages/decoded2.xml"),
+			(new StreamSource(logpath+"/GetProductSellingPages/decoded.xml"),
 			 new StreamResult(new FileOutputStream(logpath+"/GetProductSellingPages/decoded.html")));
 		
 		//String json = resdbo.toString();
+		String html = readfile(logpath+"/GetProductSellingPages/decoded.html");
 		
-		return responsexml;
+		return html;
 	}
 }
