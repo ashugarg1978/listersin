@@ -1,0 +1,1034 @@
+<script xmlns:xal="http://xml.apache.org/xalan" LANGUAGE="JavaScript1.1"><!--
+				
+var formName = 'APIForm';
+var attr15 = 'attr15';
+var postInverse = 0;
+
+
+
+aus_disabled_if_empty = {}
+
+		
+	
+					//--></script><script LANGUAGE="JavaScript1.1">
+<!--
+
+					others_selected = {
+						
+					}
+				//--></script><script LANGUAGE="JavaScript1.1">
+<!--
+	
+			
+aus_useragent = navigator.userAgent.toLowerCase();
+aus_is_opera = (aus_useragent.indexOf("opera") != -1);
+aus_is_net60 = (aus_useragent.indexOf("netscape6/6.0") != -1);
+aus_no_editing_allowed = 0;
+aus_no_adding_allowed = 0;
+aus_non_editable_props = { }
+
+
+function getPageDoc() {
+	if (typeof formName == "undefined") {
+	formName = "ListItemForSale";
+	}
+
+	return document.forms[formName];
+}
+
+function vvpPost(parentAttrId,newSelectedParentValueId,is_page_loaded)
+{
+	var child_name=aus_parent_child[parentAttrId];
+	var oldSelectedParentValueId=vvpSelectedValue[parentAttrId];
+	theseParentValues=vvpArray[parentAttrId];
+	var len=theseParentValues.length;
+	var isOldSelectedParentValueInArray=false;
+	var isNewSelectedParentValueInArray=false;
+	for(var i=0;i<len;i++)
+	{
+		if(newSelectedParentValueId==theseParentValues[i])
+		{
+			isNewSelectedParentValueInArray=true;
+		}
+		if(oldSelectedParentValueId==theseParentValues[i])
+		{
+			isOldSelectedParentValueInArray=true;
+		}
+	}
+	if(oldSelectedParentValueId!=""&&oldSelectedParentValueId!="-10")
+	{
+		if(newSelectedParentValueId==oldSelectedParentValueId||(isNewSelectedParentValueInArray==false&&isOldSelectedParentValueInArray==false))
+		{
+			if(isNewSelectedParentValueInArray==false&&isOldSelectedParentValueInArray==false)
+				vvs_disable_children(parentAttrId);
+			return;
+		}
+		else if(isNewSelectedParentValueInArray==true||(isNewSelectedParentValueInArray==false&&isOldSelectedParentValueInArray==true))
+		{
+			if(!is_page_loaded) {
+				reset_children(child_name);
+				aus_js_submit();
+			}
+		}
+		else 
+			return;
+	}
+	else{
+		if(isNewSelectedParentValueInArray==true)
+		{
+			if(!is_page_loaded) {
+				reset_children(child_name);
+				aus_js_submit();
+			}
+		}
+		else
+		{
+			if(!is_page_loaded) {
+				vvs_disable_children(parentAttrId);
+			}
+			return;
+		}
+	}
+}
+
+function vvsp_post(attributeId, attributeValue) {
+	var getvvspChoices = vvsp_choices[attributeId];
+	var getLength = getvvspChoices.length;
+	var post = 0;
+	for (var i=0; i<getLength; i++) if (attributeValue == getvvspChoices[i])  post = 1;
+
+	if (post){
+		pagedoc = getPageDoc();
+		pagedoc.aus_form_changed.value = 1;
+		pagedoc.ButtonLoad.value = 1;
+		disable_inputs();
+		pagedoc.submit();
+	} else {
+
+
+		api_check_on_other(attributeId, attributeValue);
+
+
+		return;
+	}
+}
+
+function vvsp_check(attributeId, attributeValue) {
+	// vvsp_choices may have duplicate objects
+	//var vvspChoices = vvsp_choices[attributeId];
+	var vvspChoices = vvsp_choices2[attributeId];
+	if (attributeId != 1) {
+		//for (var i=0; i< vvspChoices.length; i++) if (attributeValue == vvspChoices[i]) aus_js_submit();
+		if (vvspChoices) aus_js_submit();
+	} else {
+		var send = 1;
+		for (var i=0; i< vvspChoices.length; i++) if (attributeValue == vvspChoices[i]) send = 0;
+		if (send) aus_js_submit();
+	}
+
+
+		api_check_on_other(attributeId, attributeValue);
+
+
+	return;
+}
+
+// DM - ONLY WORKS IF PARENT IS A SELECT OBJECT
+function vvc_anyParent(parent_name, parent_value) {
+	var aus_form = getPageDoc();
+    	var parentObject =  aus_get_form_object_from_name(parent_name);
+   	var child_name = aus_parent_child[parent_name];
+   	if (child_name.length) {
+   		for (i =0; i < child_name.length; i++)
+	   		vvc_updateChild(parent_name, parent_value,child_name[i]);
+   	}
+   	else {
+	   		vvc_updateChild(parent_name, parent_value,child_name);
+   	}
+ 	return;
+}
+
+function vvc_updateChild(parent_name, parent_value,child_name) {
+    	var parentObject =  aus_get_form_object_from_name(parent_name);
+   	var childObject = aus_get_form_object_from_name(child_name);
+    	if (!childObject) return;
+    	
+    	// DM - IF THE PARENT VALUE IS any OR other, DISABLE THE CHILD
+    	// DM - IN OTHER WORDS, IF IT CONTAINS A NEGATIVE VALUE
+ 	if (parent_value.indexOf("-") > -1 || (parentObject.type=="checkbox" && !parentObject.checked)) {
+		if (childObject.options) childObject.options.length = 0;
+		childObject.className = "fielddisabled";
+		childObject.disabled = true;
+  		return;
+	} else {
+    		childObject.className = "fieldenabled";
+    		childObject.disabled = false;
+    		if (childObject.options) {
+    			// DM - THE CHILD IS A SELECT OBJECT
+	  		var child_options = childObject.options;
+	 		child_options.length = 0;
+	   	 	var child_option_data = aus_dependent_choices[child_name];
+	   	 	if (!child_option_data) return;
+	     		// DM - ADD THE OPTIONS (LEAVING THIS OLD CODE ALONE FOR NOW)
+			var ptr = child_option_data[parent_value];
+	    		var j = 0;
+	    		for (var i in ptr) {
+	  			var option_name = ptr[i][0];
+	  			var option_id = ptr[i][1];
+	  			childObject.options[j] = new Option(option_name, option_id);
+	  			if (ptr[i][2] == 'default') 
+	  				childObject.options[j].selected = true;
+	  			if (parentObject.checked) {
+	   				childObject.className = "fieldenabled";
+	   				childObject.disabled = false;
+	  			}
+	  			j++;
+	 		}
+	 	} 
+ 	}
+ 	return;
+}
+
+function disable_inputs(){
+        var aus_form = getPageDoc();  
+	for (var i=0; i<aus_form.length; i++){
+		aus_form.elements[i].className = "fielddisabled";
+	}
+}
+
+function aus_js_submit() {
+	var aus_form = getPageDoc();	
+    	if (! aus_is_opera) {
+        	// DM - aus_form_changed IS NOT UPDATED ON MAC IE 5.1, SO I'M TRYING SOMETHING STRANGE
+        	// aus_form.aus_form_changed.value = 1;
+        	for (var i =0;i< aus_form.length;i++) if (aus_form.elements[i].name=="aus_form_changed") aus_form.elements[i].value=1;
+        	aus_form.ButtonLoad.value = 1;
+		disable_inputs();
+        	aus_form.submit();
+    	}
+}
+
+function aus_set_parent(parent_name, is_sell,is_load_time) {
+	/*var parentValue = aus_get_object_value(parent_name);
+	if ((parentValue == "-12")) {
+		return;
+	}*/
+	
+    if (aus_non_editable_props[parent_name]) {
+        return;
+    }
+    
+    var child_name = aus_parent_child[parent_name];
+    if (child_name == null) {
+        return;
+    }
+
+	var parent_values = get_object_values(parent_name);    
+    var data = aus_dependent_choices[child_name];
+    if (data == null) {
+		
+		if ((parent_values == null) || (parent_values[0] == "-11") || (parent_values[0] == "-12") || (parent_values[0] == "-24")  || (parent_values[0] == "-10")  || (parent_values[0] == "-6")) {
+			aus_disable_children(parent_name);
+			return;
+		}
+		if (is_load_time)
+			return;
+
+        reset_children( child_name );
+        aus_js_submit();
+        return;
+    }
+    else if (is_load_time)
+		return;
+    
+    aus_load_child(parent_name, child_name, is_sell);
+    aus_set_parent(child_name, is_sell);
+    
+}
+
+function reset_children( parent_name ) {
+	// make sure we post empty values for all dependents  when doing vvp
+    	var form_object =  aus_get_form_object_from_name(parent_name);
+   	if (!form_object) return null;
+   	form_object.value = "";
+	var child_name = aus_parent_child[parent_name];
+	if(child_name != null) {
+		reset_children( child_name );
+	}
+}
+
+function hasValue(select, value) {
+	// DM - ONLY FOR SELECT OBJECTS
+	if (!select.options) return false;
+	for (var i=0; i< select.options.length; i++) {
+		if (select.options[i].value == value) return true;
+	}
+	return false;
+}
+
+function aus_load_child(parent_name, child_name, is_sell) { 
+	// @@@@ add flag to submit or not
+    	if (aus_non_editable_props[parent_name]) return;
+  	if (aus_non_editable_props[child_name]) return;
+                                                                
+    	// first, check to see if parent_value is '' (meaning - or Any)
+    	// $$jb: changing this to use my new function that returns an array of values
+    	// $$jb: looks to me like 'Any' has a value of -24 and 'Other' has -12 or -11. 
+    	var parent_values = get_object_values(parent_name);
+    	//var parent_value = aus_get_object_value(parent_name);
+    	//if  ((parent_values == null) || (parent_values[0] == "-11") || (parent_values[0] == "-12") || (parent_values[0] == "-24")) {
+    	if  ((parent_values == null) || (parent_values[0] == "-11") || (parent_values[0] == "-12") || (parent_values[0] == "-24")  || (parent_values[0] == "-10")) {
+    	//if  ((parent_value == null) || (parent_value == "") || (parent_value == "OTHER")) {
+        	aus_disable_children(parent_name);
+        	return;
+    	}
+    		
+    	// get the child and reset options
+    	var child_select = aus_get_form_object_from_name(child_name);    	
+    	if (! child_select) return;
+    	if (! child_select.options ) return;
+
+    	var dependent_parent_values = aus_dependent_choices[child_name];
+    	if (!dependent_parent_values) return;     
+    	
+    	child_select.disabled = false;
+	child_select.className = "fieldenabled";    	
+    	child_select.options.length = 0; // clear previous options
+    	
+    	for (var i=0; i< parent_values.length; i++) {
+	    	// add options for the selected parent values that have dependencies
+    		if ( dependent_parent_values[ "attr"+parent_values[i] ] ) {
+    			var j = 0;
+		    	var child_options = dependent_parent_values[ "attr"+parent_values[i] ];
+		    	for (var k=0; k< child_options.length; k++) {
+		    		var option_id = child_options[k][1];
+		    		var option_name = child_options[k][0];
+		    		// VVMC - don't add the same option twice and don't add "other" yet
+		    		// if (option_id != "-12" && option_id != "-11" && !hasValue(child_select, option_id)) {
+			            		child_select.options[j] = new Option(option_name, option_id);
+			       	 j++;
+		       	 //}
+		    	}
+		    	// if SYI, the last option might be "other"
+    			if (is_sell) {
+    		  		var allow_other = aus_allow_other[child_name];
+                		if (allow_other) child_select.options[j] = new Option("Other", -11);
+			}
+		    	child_select.options[0].selected=true;
+    		}
+    	} 
+    	
+    	if (child_select.options.length == 0) {
+    		// if there are no options in the child, disable it
+    		aus_disable_child(child_name);    
+    	} else {
+    		child_select.options[0].selected=true;
+    	}
+
+  	return;
+}
+        
+function aus_get_form_object_from_name(object_name) {
+    var aus_form = getPageDoc();
+    var object = aus_form[object_name];
+    return object;
+}
+
+function aus_get_object_value(select_name) {
+    var form_object = aus_get_form_object_from_name(select_name);
+    if (! form_object) {
+        return null;
+    }
+    var select_options = form_object.options;
+    if (! select_options) {
+        if (form_object.value != null) { // may be a hidden field
+            return form_object.value
+        } else {
+            return null;
+        }
+    }
+    var selected_index = form_object.selectedIndex;
+    if (selected_index == null) {
+        return null;
+    }
+        
+    var selected_option = form_object.options[selected_index];
+    if (! selected_option) {
+        return null;
+    }
+    
+    var select_value = selected_option.value;
+    return select_value;
+}
+
+// DM - UPDATED FOR VVMC, RADIO BUTTONS AND CHECKBOXES
+// DM - RETURNS AN ARRAY OF THE SELECTED VALUES FOR A NAMED FORM OBJECT
+function get_object_values(select_name) {
+	var selected_values;
+    	var form_object = aus_get_form_object_from_name(select_name);
+   	if (!form_object) return null;
+   
+    	// check for hidden fields and unknown conditions
+    	// AND SINGLE CHECKBOX
+    	if (!form_object.options && !form_object.length) {
+    	 	if (form_object.value != null) { 
+    	 	      if (form_object.type=="checkbox") {
+    	 	          if (form_object.checked) {
+    	 	              return new Array( form_object.value );
+    	 	          } else {
+    	 	              return null;
+    	 	          }
+    	 	      } else {
+    			    // may be a hidden field
+            		    return new Array( form_object.value );
+            		}
+       	} else {
+       		return null;
+       	}
+       }
+
+    	// get number of selected values
+    	var num_selected_values = 0;
+    	var len = (form_object.options) ? form_object.options.length : form_object.length;
+    	for( var i=0; i < len; i++ ) {
+    		if ( form_object.options ) {
+       		if( form_object.options[i].selected ) num_selected_values++;
+       	} else {
+       		if( form_object[i].checked ) num_selected_values++;
+       	}
+    	}
+    	
+    	// load the array of selected values or return null
+	if ( num_selected_values == 0 ) {
+	        return null;
+	} else {
+	       selected_values = new Array( num_selected_values );
+		var tmpindex = 0;
+		for( var i=0; i < len; i++ ) {
+			if ( form_object.options ) {
+	           		if ( form_object.options[i].selected ) selected_values[tmpindex++] = form_object.options[i].value;
+	            	} else {
+	            		if ( form_object[i].checked ) selected_values[tmpindex++] = form_object[i].value;
+	            	}
+	        }
+	}
+
+	return selected_values;
+}
+
+function vvs_disable_children(parent_name) {
+    	var child_name = aus_parent_child[parent_name];
+    	var infinite_break = 100;
+    	var i = 0;
+    	if (child_name) {
+
+			if (child_name.length) {
+				for(j =  0; j < child_name.length; j++) {
+					var next_child = child_name[j];
+					aus_disable_child(next_child); // disable the immediate child...
+					aus_disable_children(next_child);
+				}
+			}
+			else {
+				aus_disable_child(child_name); // disable the immediate child...
+				aus_disable_children(next_child);
+			}
+
+    	}
+    
+    	return;
+}
+
+
+function aus_disable_children(parent_name) {
+	// DM - UPDATED FOR VVMC, RADIO BUTTONS AND CHECKBOXES
+    	var child_name = aus_parent_child[parent_name];
+    	var infinite_break = 100;
+    	var i = 0;
+    	if (child_name) {
+        	// if the parent has something selected (other than -, Any, or OTHER), we stop
+        	//var parent_value = aus_get_object_value(parent_name);
+        	var parent_values = get_object_values(parent_name);
+        	if (parent_values) {
+        		for (var j=0; j<parent_values.length; j++) {
+       			//if ((parent_value != null) && (parent_value != "") && (parent_value != "OTHER")) return
+       			if ((parent_values[j] != null) && (parent_values[j] != "") && (parent_values[j].indexOf("-")<0 )) return;
+        		}
+        	}
+
+			if (child_name.length) {
+				for(j =  0; j < child_name.length; j++) {
+					var next_child = child_name[j];
+					aus_disable_child(next_child); // disable the immediate child...
+					aus_disable_children(next_child);
+				}
+			}
+			else {
+				aus_disable_child(child_name); // disable the immediate child...
+				aus_disable_children(next_child);
+			}
+
+//        	aus_disable_child(child_name); // disable the immediate child...
+//        	parent_name = child_name;      // ..and repeat disabling from here
+//        	child_name = aus_parent_child[parent_name];
+//        	i++;
+//        	if (i > infinite_break) break;
+    	}
+    
+    	return;
+}
+
+function aus_disable_children_conditionally(parent_name) {
+    var child_name = aus_parent_child[parent_name];
+    var infinite_break = 100;
+    var i = 0;
+    var disabled_children = 0;
+    while (child_name) {
+        if (disabled_children || aus_disabled_if_empty[child_name] || !aus_allow_other[child_name]) {
+            aus_disable_child(child_name);
+            disabled_children = 1;
+        }
+            
+        parent_name = child_name;      // ..and repeat disabling from here
+        child_name = aus_parent_child[parent_name];
+        i++;
+        if (i > infinite_break) {
+            break;
+        }
+    }
+    
+    return disabled_children;
+}
+
+function aus_disable_child(child_name) {
+    if (aus_non_editable_props[child_name]) {
+        return;
+    }
+    
+    var child_select = aus_get_form_object_from_name(child_name);
+    if (! child_select) return;
+   	if (! child_select.options ) return;    
+
+    var disabled_label = aus_disabled_labels[child_name];
+    
+    child_select.options.length = 1;
+    child_select.options[0] = new Option(disabled_label, "");
+    child_select.options[0].selected=true;
+    
+    if (!aus_is_net60) {
+        child_select.disabled = true;
+        child_select.className = "fielddisabled";
+    }
+    return;
+}
+
+function aus_get_influencer_value_string(child_name) {
+    	// DM - UPDATED FOR VVMC, RADIO BUTTONS AND CHECKBOXES
+    	// THIS RETURNS THE SELECTED VALUES FOR A PARENT AS A STRING
+    	// WE SHOULD NOT NEED THIS FUNCTION ANY MORE
+    	var inf_array = aus_influencers[child_name];
+   	if (! inf_array)  return null;
+    	var influencer_values;
+    	if (inf_array.length) {
+        	for (var i=0; i<inf_array.length; i++) {
+            		//var influencer_value = aus_get_object_value(inf_array[i]);
+            		var values = get_object_values(inf_array[i]);
+            		//influencer_values = aus_add_influencer_value(influencer_values, influencer_value);
+            		if (values) for (var i=0; i<values.length; i++ ) influencer_values = aus_add_influencer_value(influencer_values, values[i]);
+        	}
+    	} else {
+        	return null;
+    	}
+    	return influencer_values;
+}
+
+function aus_add_influencer_value(value_string, influencer_value) {
+    if (influencer_value) {
+        if (value_string) {
+            value_string = value_string + "," + influencer_value;
+        } else {
+            value_string = influencer_value;
+        }
+    }
+    return value_string;
+}
+function aus_init_cascades(parent_name, is_sell) {
+	// DM - UPDATED FOR VVMC, RADIO BUTTONS AND CHECKBOXES
+    	if (aus_is_opera) {
+        	// opera executes javascript before rendering html forms, so return if opera
+        	return;
+    	}
+    	//var parent_select = aus_get_form_object_from_name(parent_name);
+    	//if (parent_select == null) return;
+    	
+    	//var parent_value = aus_get_object_value(parent_name);
+    	var values = get_object_values(parent_name);
+    	
+    	if (!values) {
+    		aus_disable_children(parent_name);
+    		return;
+    	}
+    	if(values.length > 0 && values[0] == '-6')
+    	{
+    		others_selected[parent_name] = values[0];
+    	}
+    	for (var i=0; i< values.length; i++) {
+    		//if  ((parent_value == null) || (parent_value == "") || (parent_value == "-6")) {
+    		if  ((values[i] == null) || (values[i] == "") || (values[i].indexOf("-")>-1)) {
+        		aus_disable_children(parent_name);
+    		} else {
+        		var child_name = aus_parent_child[parent_name];
+        		if (child_name) {
+					for(var j=0;j<child_name.length;j++)
+					{
+            			var child_select = aus_get_form_object_from_name(child_name[j]);
+						if (! child_select) return;						
+						if (! child_select.options ) return;
+
+            			if (! aus_non_editable_props[child_name[j]]) {
+                			var child_selected_index = child_select.selectedIndex;
+                			aus_load_child(parent_name, child_name[j], is_sell);
+                			//aus_set_selected_by_index(child_select, child_selected_index);
+            			}
+            			// recurse 
+            			aus_init_cascades(child_name[j], is_sell);     
+            		}
+        		}
+        	}
+    	}
+}
+ 
+function aus_set_selected_by_index(select_obj, selected_index) {
+    if ((select_obj) && (selected_index < select_obj.options.length)) {
+        select_obj.options[selected_index].selected=true;
+    }
+}
+
+function createButtonLoad() {
+	document.write("<input type='hidden' name='ActionAttributeLoad'>");
+}
+
+function autoSelect()
+{
+	if(document.all)
+	{
+		fr = getPageDoc();
+	 	fr.elements['autoselect'].checked=true;
+	}
+	else if(navigator.appName=="Netscape")
+	{
+		fr = getPageDoc();
+		fr.elements['ebay12'][1].checked=true;
+	}
+	return false;
+}
+
+
+
+
+function api_check_on_other(attributeId, attributeValue) {
+	if(attributeValue== -6 || others_selected[attributeId])
+	{
+		var aus_form = getPageDoc();
+		for (var i =0;i< aus_form.length;i++) if (aus_form.elements[i].name=="aus_form_changed") aus_form.elements[i].value=1;
+		document.forms[formName].ButtonLoad.value = 1;
+		disable_inputs();
+		document.forms[formName].submit();
+	}
+
+
+	
+	return;
+}
+
+
+				//--></script><table cellspacing="0" cellpadding="3" border="0">
+<tr>
+<td valign="top" align="left"><img src="http://i.ebayimg.com/00/$(KGrHqN,!ksE2I4LseFQBNskCzN5N!~~_6.JPG?set_id=89040003C1"></td><td align="left"><input value="1785" name="vcsid" type="hidden">
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Style</font></td>
+</tr>
+<tr align="left">
+<td><select onChange="api_check_on_other('attr1785_6',this.value);" name="attr1785_6"><option value="-10">-</option><option value="47680">Bar</option><option value="33451">Flip</option><option value="33452">Slider</option><option value="42117">Swivel</option><option value="-6">Other</option></select></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Brand</font></td>
+</tr>
+<tr align="left">
+<td><font size="2"><b>HTC</b></font></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Color</font></td>
+</tr>
+<tr align="left">
+<td><input type="text" maxlength="300" size="20" name="attr_t1785_47" value=""></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Carrier</font></td>
+</tr>
+<tr align="left">
+<td><select onChange="api_check_on_other('attr1785_25662',this.value);" name="attr1785_25662"><option value="-10">-</option><option value="25644">Unlocked</option><option value="25813">Alltel</option><option value="87169">Amp'd Mobile</option><option value="25624">AT&amp;T</option><option value="98222">Bell Atlantic Mobile</option><option value="26193">Bell Mobility</option><option value="74885">Boost Mobile</option><option value="98223">Cellular Abroad</option><option value="41350">Cellular One</option><option value="87170">Cellular South</option><option value="98224">Credo Mobile</option><option value="43251">Cricket</option><option value="98225">DigiTel</option><option value="98226">Edge Wireless</option><option value="98227">Einstein PCS</option><option value="26194">Fido</option><option value="87171">Helio</option><option value="98228">Jolt Mobile</option><option value="98229">Kajeet</option><option value="35027">KPN</option><option value="98230">Liberty Wireless</option><option value="87172">Metro PCS</option><option value="87184">Net10</option><option value="98231">NetCom</option><option value="25626">Nextel</option><option value="87174">nTelos</option><option value="87175">Qwest</option><option value="26195">Rogers Wireless</option><option value="87136">Sierra Wireless</option><option value="25627">Sprint</option><option value="74887">SunCom</option><option value="98232">SureWest Wireless</option><option value="26196">Telus</option><option value="25628">T-Mobile</option><option value="25629">TracFone</option><option value="25812">U.S. Cellular</option><option value="25630">Verizon</option><option value="25631">Virgin Mobile</option><option value="33428">Vodafone</option><option value="98233">XE Mobile</option><option value="-6" selected>Other</option></select></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Contract</font></td>
+</tr>
+<tr align="left">
+<td><select onChange="api_check_on_other('attr1785_87168',this.value);" name="attr1785_87168"><option value="-10">-</option><option value="87165">Without Contract</option><option value="77001">With Contract</option><option value="67087">Prepaid</option><option value="-6">Other</option></select></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Features</font></td>
+</tr>
+<tr align="left">
+<td>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td valign="top"><input value="97941" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">3G Data Capable</font></td><td width="10">&nbsp;</td><td valign="top"><input value="52591" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Bluetooth Enabled</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="52592" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Calendar</font></td><td width="10">&nbsp;</td><td valign="top"><input value="1774" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Color Screen</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="52593" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Email Access</font></td><td width="10">&nbsp;</td><td valign="top"><input value="49419" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Global Ready</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="2479" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">GPS</font></td><td width="10">&nbsp;</td><td valign="top"><input value="98236" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Intelligent Typing</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="52594" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Internet Browser</font></td><td width="10">&nbsp;</td><td valign="top"><input value="33445" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Java Enabled</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="33446" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">MMS Enabled</font></td><td width="10">&nbsp;</td><td valign="top"><input value="82712" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Mobile TV Capable</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="1779" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">MP3 Player</font></td><td width="10">&nbsp;</td><td valign="top"><input value="98237" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">MPEG4 Video Playback</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="52595" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">PDA-PC Sync</font></td><td width="10">&nbsp;</td><td valign="top"><input value="98238" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Photo Album</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="33447" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Polyphonic Ringtones</font></td><td width="10">&nbsp;</td><td valign="top"><input value="82711" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Push to Talk</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="97942" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">QWERTY Keyboard</font></td><td width="10">&nbsp;</td><td valign="top"><input value="24006" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Radio Data Service</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="98234" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Rugged</font></td><td width="10">&nbsp;</td><td valign="top"><input value="25658" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Speakerphone</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="52596" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Text Messaging</font></td><td width="10">&nbsp;</td><td valign="top"><input value="45727" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Touch Screen</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="98235" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">TTY Compatible</font></td><td width="10">&nbsp;</td><td valign="top"><input value="31518" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">USB Interface</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="43468" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Video Recording</font></td><td width="10">&nbsp;</td><td valign="top"><input value="33448" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Video Streaming</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="44740" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Voice-Activated Dialing</font></td><td width="10">&nbsp;</td><td valign="top"><input value="31718" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Warranty</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="83476" type="checkbox" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Wi-Fi Capable</font></td><td width="10">&nbsp;</td><td valign="top"><input value="-6" type="checkbox" onClick="api_check_on_other('attr1785_35',-6);" name="attr1785_35"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Other</font></td><td width="10">&nbsp;</td>
+</tr>
+</table>
+</td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Camera</font></td>
+</tr>
+<tr align="left">
+<td><select onChange="api_check_on_other('attr1785_33112',this.value);" name="attr1785_33112"><option value="-10">-</option><option value="33421">1.0 MP</option><option value="43473">2.0 MP</option><option value="54506">3.0 MP</option><option value="82495">4.0 MP</option><option value="98239" selected>5.0 MP</option><option value="98242">8.0 MP</option><option value="98243">10.0 MP</option><option value="10722">None</option><option value="-6">Other</option></select></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Cellular Band</font></td>
+</tr>
+<tr align="left">
+<td><input type="text" maxlength="50" size="50" name="attr_t1785_97946" value=""></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td colspan=""><font color="#000000" size="2" face="Arial, Helvetica, Sans-Serif">Check all that apply</font></td>
+</tr>
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Bundled Items</font></td>
+</tr>
+<tr align="left">
+<td>
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td valign="top"><input value="98245" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Armband</font></td><td width="10">&nbsp;</td><td valign="top"><input value="25766" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Car Charger (12V)</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="64599" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Car Mount</font></td><td width="10">&nbsp;</td><td valign="top"><input value="24242" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Case</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="67132" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Dock or Cradle</font></td><td width="10">&nbsp;</td><td valign="top"><input value="98382" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Extra Battery</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="98380" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Extra Cable(s)</font></td><td width="10">&nbsp;</td><td valign="top"><input value="25768" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Extra Power Charger (AC)</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="98246" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Faceplate or Decals</font></td><td width="10">&nbsp;</td><td valign="top"><input value="64579" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">FM Transmitter</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="82014" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Hands-Free Headset/Bluetooth Headset</font></td><td width="10">&nbsp;</td><td valign="top"><input value="79326" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Screen Protector(s)</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="-6" type="checkbox" onClick="api_check_on_other('attr1785_24197',-6);" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Other</font></td><td width="10">&nbsp;</td><td valign="top"><input value="25653" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Antennas</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="25649" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Batteries</font></td><td width="10">&nbsp;</td><td valign="top"><input value="26816" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Cable(s)</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="98247" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Phone Charms</font></td><td width="10">&nbsp;</td><td valign="top"><input value="98244" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Power Charger (AC)</font></td><td width="10">&nbsp;</td>
+</tr>
+<tr>
+<td valign="top"><input value="25656" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Software</font></td><td width="10">&nbsp;</td><td valign="top"><input value="12602" type="checkbox" name="attr1785_24197"> <font face="Arial, Helvetica, Sans-Serif" size="2" align="left" color="#000000" columns="2" type="checkbox">Stylus</font></td><td width="10">&nbsp;</td>
+</tr>
+</table>
+</td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2"><a target="helpwin" onclick="javascript:var w=window.open(this.href, 'helpwin', 'resizable=yes,scrollbars,width=440,height=500,top=0,left='+(screen.availWidth-450)); w.focus(); return false;" href="http://pages.sandbox.ebay.com//help/attrhelp/contextual/481.html">Condition</a></font></td>
+</tr>
+<tr align="left">
+<td><select onChange="api_check_on_other('attr1785_10244',this.value);" name="attr1785_10244"><option value="-10">-</option><option value="10425">New, Never Opened</option><option value="26588">Refurbished</option><option value="10426">Used</option></select></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="2" cellspacing="0" border="0">
+<tr valign="top">
+<td valign="top">
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr>
+<td>
+<table cellspacing="0" cellpadding="0" border="0">
+<tr align="left">
+<td valign="top"><font align="left" color="#000000" face="Arial, Helvetica, Sans-Serif" size="2">Model</font></td>
+</tr>
+<tr align="left">
+<td><input type="text" maxlength="300" size="20" name="attr_t1785_25665" value=""></td>
+</tr>
+<noscript></noscript>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table><input value="default" name="aus_form_changed" type="hidden"><input value="default" name="ButtonLoad" type="hidden">

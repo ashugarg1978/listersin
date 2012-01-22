@@ -7,7 +7,7 @@
 <title>ebaytool.jp</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
-<script type="text/javascript" src="/js/jquery-1.6.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
@@ -99,7 +99,7 @@
 
 <br>
 
-<iframe name="posttarget" src="blank.html"></iframe>
+<iframe name="posttarget" src="/blank.html"></iframe>
 
 <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
 <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
@@ -305,6 +305,7 @@
   <td><s:text name="ItemSpecifics"/></td>
   <td class="ItemSpecifics">
 	<div class="ProductSellingPages">
+	  <iframe name="productselllingpages" src="/blank.html"></iframe>
 	</div>
 	<table class="ItemSpecifics">
 	</table>
@@ -765,6 +766,9 @@ var hash;
 hash = ${initjson.hash};
 //var summary;
 //summary = ${initjson.summary};
+</script>
+
+<script id="runtimejs">
 </script>
 
 </body>

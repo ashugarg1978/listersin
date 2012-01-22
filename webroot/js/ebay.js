@@ -20,7 +20,7 @@ $(function() {
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
-	//setTimeout('autoclick()', 2000);
+	setTimeout('autoclick()', 2000);
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 	
 	setInterval(refresh, 2000);
@@ -247,9 +247,33 @@ function bindevents()
 		$.post('/json/productsellingpages',
 			   'productid='+productid+'&attributesetid='+$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
 			   function(data) {
+				   var htmlcode = data.json.result;
+
+				   var re = /<script(.+?)<\/script>/sg
+				   var arrcode = htmlcode.match(re);
+				   
+				   //var htmldom = $(data.json.result);
+				   //var arrcode = htmlcode.split('</script>');
+				   
+				   for (i in arrcode) {
+					   var strcode = arrcode[i];
+					   alert(strcode);
+					   //$('div.ProductSellingPages', '#'+id).append(strcode);
+					   //$('div.ProductSellingPages', '#'+id).append('<'+'/script>');
+					   //$('#debug').text(strcode);
+				   }
+				   
+				   
+				   
+				   //$.each($(htmldom).children(), function(i, v) {
+					   //$('#debug').append('dom:'+i+'<br/>');
+					   //alert($(v).html());
+				   //});
+				   
 				   $('table.ItemSpecifics', '#'+id).hide();
 				   $('div.ProductSellingPages', '#'+id).html('');
-				   $('div.ProductSellingPages', '#'+id).append(data.json.result);
+				   //$('div.ProductSellingPages', '#'+id).append(data.json.result);
+				   $('div.ProductSellingPages', '#'+id).append(htmldom);
 			   },
 			   'json');
 	});
@@ -268,7 +292,9 @@ function autoclick()
 	//$('a.allitems').click();
 	id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 	$('a.Title', 'tbody#'+id).click();
-	//$('a.edit', 'tbody#'+id).click();
+	$('a.edit', 'tbody#'+id).click();
+	$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('android');
+	$('button.GetProductSearchResults', '#'+id).click();
 	//$('a.save', 'tbody#'+id).click();
 	
 	return;
@@ -792,11 +818,12 @@ function getdetail(row)
 
 function resizediv()
 {
-	w = $('div#container').width()-179;
+	w = $('div#container').width()-175;
 	h = $('body').height() - 10;
 	
 	$('div#content').width(w);
-	$('div#debug').width(w);
+	$('div#debug').width(w-20);
+	//$('div#toolbar').height(h);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
@@ -1225,6 +1252,8 @@ var clickTitle = function() {
 			   $('div.detail', '#'+id).show();
 			   
 			   dump(item);
+
+			   $.scrollTo('#'+id, {axis:'y', offset:0});
 		   },
 		   'json');
 	

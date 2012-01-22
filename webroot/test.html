@@ -1,0 +1,85 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+<script language="javascript">
+$(function() {
+	
+	$.post('/json/productsellingpages',
+		   'productid=117211:2:19518:3367630422:391625452:0206a0993ba883db5ea3f2878086d5d7:1:1:1:1417461253&attributesetid=1785',
+		   function(data) {
+			   var htmlcode = data.json.result;
+			   
+			   //var re = /<script(.+?)<\/script>/sg;
+			   var arrcode = htmlcode.split('<'+'/script>');
+			   $('#debug').append(arrcode[0]);
+			   $('#debug').append('<'+'/script>');
+			   $('#debug').append(arrcode[1]);
+			   $('#debug').append('<'+'/script>');
+			   $('#debug').append(arrcode[2]);
+			   $('#debug').append('<'+'/script>');
+			   
+			   //$('#debug').append(htmlcode);
+			   
+			   var str="<script>alert(aus_no_editing_allowed);";
+			   str+="<";
+			   str+="/script>";
+			   $('#debug').html(str);
+			   
+			   for (i in arrcode) {
+				   var strcode = arrcode[i];
+				   $('#dump').text(strcode);
+			   }
+			   
+			   return;
+			   
+		   },
+		   'json');
+	
+	return;
+	
+	
+	// success version
+	$('#button').live('click', function() {
+		var str="<script>msg();";
+		str+="<";
+		str+="/script>";
+		
+		$('#debug').append(str);
+	});
+
+	$('#button2').live('click', function() {
+		var str="<script>function msg(){alert('hello');}";
+		str+="<";
+		str+="/script>";
+		
+		$('#debug').append(str);
+	});
+	return;
+	
+	var script = document.createElement('script');
+	script.type = 'text/javascript';
+	
+	$('#debug').append(script);
+	$('#debug script').append('alert("hoge");');
+	$('#debug').append('<br/>');
+	alert($('#debug').html());
+
+	
+	
+});
+</script>
+</head>
+<body>
+
+<div id="debug">
+</div>
+
+<a href="#" id="button">CLICK</a>
+<a href="#" id="button2">FUNC</a>
+<div id="func"></div>
+
+<div id="dump"></div>
+
+</body>
+</html>

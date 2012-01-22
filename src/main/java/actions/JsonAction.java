@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 //import org.json.JSONObject;
@@ -613,6 +614,14 @@ public class JsonAction extends BaseAction {
 		out.close();
 		in.close();
 		socket.close();
+		
+		/*
+		Pattern p = Pattern.compile("<script[^>]*>(.*?)</script>");
+		Matcher m = p.matcher(result);
+		while(m.find()) {
+			log.debug(m.group());
+        }
+		*/
 		
 		json = new LinkedHashMap<String,Object>();
 		json.put("result", result);

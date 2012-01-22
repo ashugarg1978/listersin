@@ -61,10 +61,12 @@ public class GetProductSellingPages extends ApiCall {
 		//String productid = ((BasicDBObject) resdbo.get("Product")).getString("@id");
 		//log("productid: "+productid);
 		
+		decoded = decoded.replace(" & ", " &amp; "); // todo: fix escape
 		decoded = decoded.replace("<Products>", "");
 		decoded = decoded.replace("</Products>", "");
 		decoded = decoded.replace("<Product id=", "<eBay id=");
-		decoded = decoded.replace("</Product>", "<API.XSL.Overrides><Show><ItemSpecificsOnly/></Show></API.XSL.Overrides></eBay>");
+		decoded = decoded.replace("</Product>", "</eBay>");
+		//decoded = decoded.replace("</Product>", "<API.XSL.Overrides><Show><ItemSpecificsOnly/></Show></API.XSL.Overrides></eBay>");
 		
 		BasicDBObject decodeddbo = convertXML2DBObject(decoded);
 		BasicDBObject attrs = (BasicDBObject) decodeddbo.get("Attributes");
