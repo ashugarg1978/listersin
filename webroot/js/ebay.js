@@ -17,13 +17,24 @@ $(function() {
 		$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
 	});
 	
+	$.ajaxSetup({async: false});
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
-	setTimeout('autoclick()', 2000);
+	if (true) {
+		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
+		$('a.Title', 'tbody#'+id).click();
+		$('a.edit', 'tbody#'+id).click();
+		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('android');
+		$('button.GetProductSearchResults', '#'+id).click();
+		$('div.product:first').click();
+		$('div.ProductSellingPages select:first', '#'+id).click();
+	}
+	
+	//setTimeout('autoclick()', 2000);
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 	
-	setInterval(refresh, 2000);
+	//setInterval(refresh, 2000);
 	
 	//setTimeout(autoclick, 3000);
 	
@@ -226,7 +237,7 @@ function bindevents()
 					   
 					   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
 					   $(divtag).show();
-					   $('img', divtag).attr('src', o.ParentProduct['@stockPhotoURL']);
+					   //$('img', divtag).attr('src', o.ParentProduct['@stockPhotoURL']);
 					   $('div.producttext', divtag).html(o.ParentProduct['@title']);
 					   $('div.productid', divtag).html(o.ParentProduct['@productID']);
 					   $('div.foundproducts', td).append(divtag);
@@ -243,44 +254,75 @@ function bindevents()
 		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
 		$('input[name=Title]', '#'+id).val(title);
 		$(this).closest('div.foundproducts').slideUp('fast');
-		
+
+		// todo: load frame
+		/*
+		$('iframe[name=productselllingpages]', '#'+id)
+			.attr('style', 'border:1px solid blue')
+			.attr('src', '/page/productsellingpage'
+				  + '?productid='+productid
+				  + '&attributesetid='
+				  + $('input[name="ProductSearch.CharacteristicSetIDs.ID"]').val());
+		*/
 		$.post('/json/productsellingpages',
-			   'productid='+productid+'&attributesetid='+$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
+			   'productid='+productid+'&attributesetid='
+			   +$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
 			   function(data) {
 				   var htmlcode = data.json.result;
-
-				   var re = /<script(.+?)<\/script>/sg
-				   var arrcode = htmlcode.match(re);
-				   
-				   //var htmldom = $(data.json.result);
-				   //var arrcode = htmlcode.split('</script>');
-				   
-				   for (i in arrcode) {
-					   var strcode = arrcode[i];
-					   alert(strcode);
-					   //$('div.ProductSellingPages', '#'+id).append(strcode);
-					   //$('div.ProductSellingPages', '#'+id).append('<'+'/script>');
-					   //$('#debug').text(strcode);
-				   }
-				   
-				   
-				   
-				   //$.each($(htmldom).children(), function(i, v) {
-					   //$('#debug').append('dom:'+i+'<br/>');
-					   //alert($(v).html());
-				   //});
 				   
 				   $('table.ItemSpecifics', '#'+id).hide();
 				   $('div.ProductSellingPages', '#'+id).html('');
-				   //$('div.ProductSellingPages', '#'+id).append(data.json.result);
-				   $('div.ProductSellingPages', '#'+id).append(htmldom);
+				   
+				   htmlcode = htmlcode.replace("var formName = 'APIForm';",
+											   "var formName = 'APIForm"+id+"';");
+				   
+				   // todo: replace on server side.
+				   // todo: have to trap all submit code written by eBay.
+				   htmlcode = htmlcode.replace("document.forms[formName].submit();",
+											   "apiformsubmit(formName);");
+				   
+				   htmlcode = htmlcode.replace("pagedoc.submit();",
+											   "apiformsubmit(formName);");
+				   
+				   htmlcode = htmlcode.replace("aus_form.submit();",
+											   "apiformsubmit(formName);");
+				   
+				   $('div.ProductSellingPages', '#'+id).append(htmlcode);
+				   
+				   // todo: check javascript code at last line of htmlcode.
 			   },
 			   'json');
+	});
+	
+	$('td.ItemSpecifics').delegate('form', 'submit', function() {
+		alert('called.');
+		return false;
+	});
+	
+	$(window).unload(function() {
+		alert('stop');
+		return false;
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
+
+function apiformsubmit(formname)
+{
+	$('input,select', 'form#'+formname).attr('style', 'border:1px solid green');
+	var postdata = $('input,select', 'form#'+formname).serialize();
+	
+	$.post('/json/parsesellingpage',
+		   postdata,
+		   function(data) {
+			   
+		   },
+		   'json');
+	
+	
+	return false;
+}
 
 /* auto click for debug */
 function autoclick()
@@ -295,6 +337,7 @@ function autoclick()
 	$('a.edit', 'tbody#'+id).click();
 	$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('android');
 	$('button.GetProductSearchResults', '#'+id).click();
+	$('div.product:first').click();
 	//$('a.save', 'tbody#'+id).click();
 	
 	return;
@@ -517,7 +560,7 @@ function getrow(idx, row)
 		pictstr = row.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
-		$('img.PictureURL', dom).attr('src', pictstr);
+		//$('img.PictureURL', dom).attr('src', pictstr);
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
@@ -634,6 +677,10 @@ function getdetail(row)
 	}
 	
 	setItemSpecificsForms(row);
+	
+	$('form[name=APIForm]', detail)
+		.attr('id',   'APIForm'+id)
+		.attr('name', 'APIForm'+id);
 	
 	return;
 	

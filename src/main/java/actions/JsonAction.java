@@ -622,9 +622,20 @@ public class JsonAction extends BaseAction {
 			log.debug(m.group());
         }
 		*/
+		result = result.replaceAll("_L_I_N_E_F_E_E_D_", "\n");
 		
 		json = new LinkedHashMap<String,Object>();
 		json.put("result", result);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/json/parsesellingpage")
+	public String parsesellingpage() throws Exception {
+		
+		for (String key : parameters.keySet()) {
+			log.debug(key);
+		}
 		
 		return SUCCESS;
 	}

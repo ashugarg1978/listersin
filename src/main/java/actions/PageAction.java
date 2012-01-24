@@ -25,6 +25,7 @@ import org.apache.struts2.convention.annotation.Results;
 public class PageAction extends BaseAction {
 	
 	protected LinkedHashMap<String, String> initjson;
+	protected String html;
 	
 	public PageAction() throws Exception {
 	}
@@ -35,6 +36,10 @@ public class PageAction extends BaseAction {
 	
 	public LinkedHashMap<String, String> getInitjson() {
 		return initjson;
+	}
+	
+	public String getHtml() {
+		return html;
 	}
 	
 	/* todo: session management in useraction json request */
@@ -330,5 +335,35 @@ public class PageAction extends BaseAction {
 		
 		return SUCCESS;
 	}
-
+	
+	@Action(value="/page/productsellingpage",
+			results={@Result(name="success", location="productsellingpage.jsp")})
+	public String productsellingpage() throws Exception {
+		
+		String productid      = ((String[]) parameters.get("productid"))[0];
+		String attributesetid = ((String[]) parameters.get("attributesetid"))[0];
+		
+		Socket socket = new Socket("localhost", 8181);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("GetProductSellingPages "+productid+" "+attributesetid);
+		String result = in.readLine();
+		html = result;
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		/*
+		Pattern p = Pattern.compile("<script[^>]*>(.*?)</script>");
+		Matcher m = p.matcher(result);
+		while(m.find()) {
+			log.debug(m.group());
+        }
+		*/
+		
+		return SUCCESS;
+	}
+	
 }

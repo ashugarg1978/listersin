@@ -11,6 +11,7 @@ $(function() {
 			   var htmlcode = data.json.result;
 			   
 			   //var re = /<script(.+?)<\/script>/sg;
+			   /*
 			   var arrcode = htmlcode.split('<'+'/script>');
 			   $('#debug').append(arrcode[0]);
 			   $('#debug').append('<'+'/script>');
@@ -18,9 +19,10 @@ $(function() {
 			   $('#debug').append('<'+'/script>');
 			   $('#debug').append(arrcode[2]);
 			   $('#debug').append('<'+'/script>');
-			   
+			   */
 			   //$('#debug').append(htmlcode);
 			   
+			   /*
 			   var str="<script>alert(aus_no_editing_allowed);";
 			   str+="<";
 			   str+="/script>";
@@ -30,6 +32,12 @@ $(function() {
 				   var strcode = arrcode[i];
 				   $('#dump').text(strcode);
 			   }
+			   */
+			   
+			   //alert(htmlcode.replace("\n", "==="));
+			   $('#debug').append(htmlcode);
+			   
+			   //msgtest();
 			   
 			   return;
 			   
@@ -40,6 +48,7 @@ $(function() {
 	
 	
 	// success version
+	/*
 	$('#button').live('click', function() {
 		var str="<script>msg();";
 		str+="<";
@@ -64,7 +73,7 @@ $(function() {
 	$('#debug script').append('alert("hoge");');
 	$('#debug').append('<br/>');
 	alert($('#debug').html());
-
+	*/
 	
 	
 });

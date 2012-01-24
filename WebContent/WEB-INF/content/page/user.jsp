@@ -304,9 +304,15 @@
 <tr>
   <td><s:text name="ItemSpecifics"/></td>
   <td class="ItemSpecifics">
-	<div class="ProductSellingPages">
-	  <iframe name="productselllingpages" src="/blank.html"></iframe>
-	</div>
+	<form method="post" id="APIForm" name="APIForm" class="apiform"
+		  onsubmit="apiformsubmit();return false;">
+	  
+	  <div class="ProductSellingPages">
+		<!--
+			<iframe name="productselllingpages" src="/blank.html"></iframe>
+		-->
+	  </div>
+	</form>
 	<table class="ItemSpecifics">
 	</table>
   </td>

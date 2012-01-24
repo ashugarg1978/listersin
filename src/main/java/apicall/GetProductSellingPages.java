@@ -65,8 +65,13 @@ public class GetProductSellingPages extends ApiCall {
 		decoded = decoded.replace("<Products>", "");
 		decoded = decoded.replace("</Products>", "");
 		decoded = decoded.replace("<Product id=", "<eBay id=");
-		decoded = decoded.replace("</Product>", "</eBay>");
-		//decoded = decoded.replace("</Product>", "<API.XSL.Overrides><Show><ItemSpecificsOnly/></Show></API.XSL.Overrides></eBay>");
+		//decoded = decoded.replace("</Product>", "</eBay>");
+		decoded = decoded.replace("</Product>",
+								  "<API.XSL.Overrides>"
+								  + "<Show><ItemSpecificsOnly/></Show>"
+								  + "</API.XSL.Overrides>"
+								  + "</eBay>");
+		//						  + "<Use><Form name=\"APIForm""\"/></Use>"
 		
 		BasicDBObject decodeddbo = convertXML2DBObject(decoded);
 		BasicDBObject attrs = (BasicDBObject) decodeddbo.get("Attributes");
@@ -97,7 +102,16 @@ public class GetProductSellingPages extends ApiCall {
 			 new StreamResult(new FileOutputStream(logpath+"/GetProductSellingPages/decoded.html")));
 		
 		//String json = resdbo.toString();
-		String html = readfile(logpath+"/GetProductSellingPages/decoded.html");
+		String html = "";
+		FileReader fr = new FileReader(logpath+"/GetProductSellingPages/decoded.html");
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			html = html + "\n" + line;
+		}
+		br.close();
+		
+		html = html.replaceAll("\n", "_L_I_N_E_F_E_E_D_");
 		
 		return html;
 	}
