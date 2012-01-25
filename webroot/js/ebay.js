@@ -310,13 +310,30 @@ function bindevents()
 
 function apiformsubmit(formname)
 {
-	$('input,select', 'form#'+formname).attr('style', 'border:1px solid green');
+	var id = formname.replace('APIForm', '');
 	var postdata = $('input,select', 'form#'+formname).serialize();
 	
 	$.post('/json/parsesellingpage',
 		   postdata,
 		   function(data) {
+			   var htmlcode = data.json.result;
 			   
+			   htmlcode = htmlcode.replace("var formName = 'APIForm';",
+										   "var formName = 'APIForm"+id+"';");
+			   
+			   // todo: replace on server side.
+			   // todo: have to trap all submit code written by eBay.
+			   htmlcode = htmlcode.replace("document.forms[formName].submit();",
+										   "apiformsubmit(formName);");
+			   
+			   htmlcode = htmlcode.replace("pagedoc.submit();",
+										   "apiformsubmit(formName);");
+			   
+			   htmlcode = htmlcode.replace("aus_form.submit();",
+										   "apiformsubmit(formName);");
+			   
+			   $('div.ProductSellingPages', '#'+id).html("");
+			   $('div.ProductSellingPages', '#'+id).append(htmlcode);
 		   },
 		   'json');
 	

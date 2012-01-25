@@ -11,6 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.*;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 //import org.json.JSONObject;
@@ -633,9 +639,112 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/parsesellingpage")
 	public String parsesellingpage() throws Exception {
 		
+		String attributesetid = ((String[]) parameters.get("vcsid"))[0];
+		
+		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
+			
+		JSONObject attributeset = new JSONObject();
+		attributeset.put("@id", attributesetid);
+		
+		String xml = "<SelectedAttributes>\n";
+		xml += "<AttributeSet id=\""+attributesetid+"\">\n";
+		
 		for (String key : parameters.keySet()) {
-			log.debug(key);
+			
+			log.debug("key:"+key);
+			Matcher m = p.matcher(key);
+			//if (m.matches() == false) continue;
+			
+			while(m.find()) {
+				
+				xml += "<Attribute id=\""+m.group(3)+"\">\n";
+				for (String val : (String[]) parameters.get(key)) {
+					if (m.group(1).equals("_t")) {
+						xml += "<Value><Name>"+val+"</Name></Value>\n";
+					} else {
+						xml += "<Value id=\""+val+"\"/>\n";
+					}
+				}
+				xml += "</Attribute>\n";
+			}
 		}
+		
+		xml += "</AttributeSet>\n";
+		xml += "</SelectedAttributes>\n";
+		
+		/*
+		JSONArray attributes = new JSONArray();
+		for (String key : parameters.keySet()) {
+			
+			JSONArray values = new JSONArray();
+			values.setExpandElements(true);
+			for (String val : (String[]) parameters.get(key)) {
+				JSONObject value = new JSONObject();
+				value.put("@id", val);
+				values.add(value);
+			}
+			
+			JSONObject attribute = new JSONObject();
+			attribute.put("Value", values);
+			attributes.add(attribute);
+		}
+		//attributes.setExpandElements(true);
+		attributeset.put("Attribute", attributes);
+		
+		JSONObject selectedattributes = new JSONObject();
+		selectedattributes.put("AttributeSet", attributeset);
+		attributeset.getJSONArray("Attribute").setExpandElements(true);
+		
+		//JSONObject jso = JSONObject.fromObject(attributeset);
+		//jso.getJSONArray("Attribute").setExpandElements(true);
+		
+		XMLSerializer xmls = new XMLSerializer();
+		xmls.setObjectName("SelectedAttributes");
+		xmls.setTypeHintsEnabled(false);
+		String xml = xmls.write(selectedattributes);
+		*/
+		
+		log.debug(xml);
+		
+		// XML to HTML
+		String logpath = "/var/www/ebaytool.jp/logs/apicall";
+		
+		
+		String decoded = "";
+		FileReader fr = new FileReader(logpath+"/GetProductSellingPages/decoded.xml");
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			decoded = decoded + "\n" + line;
+		}
+		br.close();
+
+		decoded = decoded.replace("<SelectedAttributes><AttributeSet id='1785'/></SelectedAttributes>", xml);
+		
+		FileWriter fstream = new FileWriter(logpath+"/GetProductSellingPages/decoded_selected.xml");
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(decoded);
+		out.close();
+		
+		TransformerFactory factory = TransformerFactory.newInstance();
+		Transformer transformer = factory.newTransformer
+			(new StreamSource(logpath+"/GetAttributesXSL/US.syi_attributes.xsl"));
+		
+		transformer.transform
+			(new StreamSource(logpath+"/GetProductSellingPages/decoded_selected.xml"),
+			 new StreamResult(new FileOutputStream
+							  (logpath+"/GetProductSellingPages/decoded_selected.html")));
+		
+		decoded = "";
+		fr = new FileReader(logpath+"/GetProductSellingPages/decoded_selected.html");
+		br = new BufferedReader(fr);
+		while ((line = br.readLine()) != null) {
+			decoded = decoded + "\n" + line;
+		}
+		br.close();
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("result", decoded);
 		
 		return SUCCESS;
 	}
