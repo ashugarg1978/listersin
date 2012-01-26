@@ -254,16 +254,8 @@ function bindevents()
 		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
 		$('input[name=Title]', '#'+id).val(title);
 		$(this).closest('div.foundproducts').slideUp('fast');
-
+		
 		// todo: load frame
-		/*
-		$('iframe[name=productselllingpages]', '#'+id)
-			.attr('style', 'border:1px solid blue')
-			.attr('src', '/page/productsellingpage'
-				  + '?productid='+productid
-				  + '&attributesetid='
-				  + $('input[name="ProductSearch.CharacteristicSetIDs.ID"]').val());
-		*/
 		$.post('/json/productsellingpages',
 			   'productid='+productid+'&attributesetid='
 			   +$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
@@ -292,16 +284,6 @@ function bindevents()
 				   // todo: check javascript code at last line of htmlcode.
 			   },
 			   'json');
-	});
-	
-	$('td.ItemSpecifics').delegate('form', 'submit', function() {
-		alert('called.');
-		return false;
-	});
-	
-	$(window).unload(function() {
-		alert('stop');
-		return false;
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
@@ -336,7 +318,6 @@ function apiformsubmit(formname)
 			   $('div.ProductSellingPages', '#'+id).append(htmlcode);
 		   },
 		   'json');
-	
 	
 	return false;
 }
