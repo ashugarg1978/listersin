@@ -131,7 +131,7 @@
 </div>
 
 
-<div id="content">
+<div id="contentheader">
 
 <div id="bulkbuttons" style="float:left; margin:10px;">
 <input type="button" class="checkall"     value="<s:text name="checkall"/>">
@@ -150,7 +150,7 @@
 
 <div style="clear:both;"></div>
 
-<table id="items" class="items">
+<table id="itemsheader" class="items">
 <thead>
 <tr>
   <th></th>
@@ -181,7 +181,13 @@
 <td></td>
 <td></td>
 </tr>
+</table>
 
+</div>
+
+<div id="content">
+
+<table id="items" class="items">
 <tbody id="rowtemplate" class="itemrow">
 <tr class="row1">
   <td><input type="checkbox" name="id"></td>
@@ -289,13 +295,6 @@
 	  
 	</div>
 	
-	GalleryType
-	<select name="PictureDetails.GalleryType">
-	  <option value=""></option>
-	  <option value="Gallery">Gallery</option>
-	</select>(todo: move to another tab)
-	<br/>
-	
 	<!--
 	<input type="checkbox" name="ProductListingDetails.IncludeStockPhotoURL"
 		   value="true"/>Include Stock Photo<br/>
@@ -349,6 +348,13 @@ todo: "List multiple variations of this item in one listing"
 
 <div class="tab">
   <div class="pictures">
+	
+	GalleryType
+	<select name="PictureDetails.GalleryType">
+	  <option value=""></option>
+	  <option value="Gallery">Gallery</option>
+	</select>(todo: move to another tab)
+	<br/>
 	
 	<form method="post" action="/file/upload" target="posttarget" enctype="multipart/form-data">
 	<table>

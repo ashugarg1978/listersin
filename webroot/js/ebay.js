@@ -25,7 +25,7 @@ $(function() {
 		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 		$('a.Title', 'tbody#'+id).click();
 		$('a.edit', 'tbody#'+id).click();
-		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('android');
+		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('fax');
 		$('button.GetProductSearchResults', '#'+id).click();
 		$('div.product:first').click();
 		$('div.ProductSellingPages select:first', '#'+id).click();
@@ -407,6 +407,43 @@ $.fn.extractObject = function() {
 	
 	return accum;
 };
+
+$.fn.extractAttrObject = function() {
+	
+	var accum = [];
+	var existnames = {};
+	
+	this.each(function() {
+		
+		var name = $(this).attr('name');
+		
+		var value = $(this).val();
+		
+		var attribute = {};
+
+		attribute['@attributeID'] = name;
+		
+		if (existnames[name] == null) {
+			attribute.Value = {};
+			attribute.Value.ValueID = value;
+		} else {
+			/*
+			if ($.isArray(accum[name])) {
+				accum[name].push(value);
+			} else {
+				var tmpvalue = accum[name];
+				accum[name] = [tmpvalue];
+				accum[name].push(value);
+			}
+			*/
+		}
+		existnames[name] = 1;
+		
+		accum.push(attribute);
+	});
+	
+	return accum;
+}
 
 
 function gethash()
@@ -859,13 +896,15 @@ function getdetail(row)
 
 function resizediv()
 {
-	w = $('div#container').width()-175;
+	w = $('div#container').width()-195;
 	h = $('body').height() - 10;
 	
 	$('div#content').width(w);
+	$('div#contentheader').width(w);
 	$('div#debug').width(w-20);
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
+	$('table#itemsheader').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
 	
@@ -1203,7 +1242,16 @@ var clickSave = function() {
 	
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
-
+	
+	var attrdata = $('input[name^=attr], select[name^=attr]',
+					 $(this).closest('div.detail')).extractAttrObject();
+	var attributeset = {};
+	attributeset['@attributeSetID'] = 99;
+	attributeset.Attribute = attrdata;
+	
+	postdata.AttributeSetArray = attributeset;
+	dump(attrdata);
+	
 	//return false;
 	
 	//dump(postdata);
@@ -1243,7 +1291,7 @@ var clickCancel = function() {
 	id = $(this).closest('tbody.itemrow').attr('id');
 	getdetail(rowsdata[id]);
 	showformvalues(rowsdata[id]);
-	showbuttons(detail, 'edit,copy,delete');
+	showbuttons('#'+id, 'edit,copy,delete');
 	
 	return false;
 }
@@ -1303,7 +1351,7 @@ var clickTitle = function() {
 			   
 			   dump(item);
 
-			   $.scrollTo('#'+id, {axis:'y', offset:0});
+			   //$.scrollTo('#'+id, {axis:'y', offset:0});
 		   },
 		   'json');
 	

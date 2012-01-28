@@ -80,7 +80,11 @@ public class GetProductSellingPages extends ApiCall {
 
 		log("attributesetid:"+attributesetid);
 		
-		decoded = decoded.replace("<DataElements>", "<SelectedAttributes><AttributeSet id='"+attributesetid+"'/></SelectedAttributes><DataElements>");
+		decoded = decoded.replace("<DataElements>",
+								  "<SelectedAttributes>"
+								  + "<AttributeSet id='"+attributesetid+"'/>"
+								  + "</SelectedAttributes>"
+								  + "<DataElements>");
 		
 		//decoded = decoded.replaceAll("&", "&amp;");
 		//decoded = decoded.replace("<eBay>", "<eBay><SelectedAttributes><AttributeSet id='5918' categoryId='171485'/></SelectedAttributes>");
