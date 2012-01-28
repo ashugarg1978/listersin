@@ -42,7 +42,22 @@ public class ApiCallTask implements Callable {
 		}
 		*/
 		
-        URL url = new URL("https://api.sandbox.ebay.com/ws/api.dll");
+		/* Sandbox */
+		String apiurl   = "https://api.sandbox.ebay.com/ws/api.dll";
+		String devname  = "e60361cd-e306-496f-ad7d-ba7b688e2207";
+		String appname  = "Yoshihir-1b29-4aad-b39f-1be3a37e06a7";
+		String certname = "8118c1eb-e879-47f3-a172-2b08ca680770";
+		
+		/* Production */
+		if (false) {
+			System.out.println("Connecting to ebay *Production* api.");
+			apiurl   = "https://api.ebay.com/ws/api.dll";
+			devname  = "e60361cd-e306-496f-ad7d-ba7b688e2207";
+			appname  = "Yoshihir-dd83-40fd-a943-659c40507758";
+			certname = "8681eef3-fba8-41cf-b2ca-3686152ac1b7";
+		}
+		
+        URL url = new URL(apiurl);
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
         conn.setRequestMethod("POST");
@@ -52,15 +67,10 @@ public class ApiCallTask implements Callable {
 		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "753");
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
 		conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
-		conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
-		conn.setRequestProperty("X-EBAY-API-APP-NAME",  "Yoshihir-1b29-4aad-b39f-1be3a37e06a7");
-		conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8118c1eb-e879-47f3-a172-2b08ca680770");
-		
-		/*
-        conn.setRequestProperty("X-EBAY-API-DEV-NAME",  "e60361cd-e306-496f-ad7d-ba7b688e2207");
-        conn.setRequestProperty("X-EBAY-API-APP-NAME",  "Yoshihir-dd83-40fd-a943-659c40507758");
-        conn.setRequestProperty("X-EBAY-API-CERT-NAME", "8681eef3-fba8-41cf-b2ca-3686152ac1b7");
-		*/
+
+		conn.setRequestProperty("X-EBAY-API-DEV-NAME",  devname);
+		conn.setRequestProperty("X-EBAY-API-APP-NAME",  appname);
+		conn.setRequestProperty("X-EBAY-API-CERT-NAME", certname);
 		
 		// todo: trap network error.
 		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());

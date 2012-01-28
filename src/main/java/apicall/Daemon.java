@@ -31,7 +31,7 @@ public class Daemon {
 			String message = "";
 			
 			message = in.readLine();
-
+			
 			if (message.equals("shutdown")) break;
 			
 			System.out.println(sdf.format(new Date()).toString()+" "+message);
@@ -41,58 +41,34 @@ public class Daemon {
 			Callable task = null;
 			Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
 			
-			if (arrmsg.length == 6) {
-				
-				Constructor cnst = apiclass.getConstructor(String.class,
-														   String.class,
-														   String.class,
-														   String.class,
-														   String.class);
-				
-				task = (Callable) cnst.newInstance(arrmsg[1],
-												   arrmsg[2],
-												   arrmsg[3],
-												   arrmsg[4],
-												   arrmsg[5]);
-				
-			} else if (arrmsg.length == 4) {
-				
-				Constructor cnst = apiclass.getConstructor(String.class,
-														   String.class,
-														   String.class);
-				
-				task = (Callable) cnst.newInstance(arrmsg[1],
-												   arrmsg[2],
-												   arrmsg[3]);
-				
-			} else if (arrmsg.length == 3) {
-				
-				Constructor cnst = apiclass.getConstructor(String.class,
-														   String.class);
-				
-				task = (Callable) cnst.newInstance(arrmsg[1],
-												   arrmsg[2]);
-				
-			} else if (arrmsg.length == 2) {
-				
-				Constructor cnst = apiclass.getConstructor(String.class);
-				
-				task = (Callable) cnst.newInstance(arrmsg[1]);
-				
-			} else {
-				
-				Constructor cnst = apiclass.getConstructor();
-				
-				task = (Callable) cnst.newInstance();
-				
-			}
-			
-			Future<String> f = pool.submit(task);
-			String result = "";
-			
 			try {
+				
+				if (arrmsg.length == 6) {
+					Constructor cnst = apiclass.getConstructor
+						(String.class, String.class, String.class, String.class, String.class);
+					task = (Callable) cnst.newInstance
+						(arrmsg[1], arrmsg[2], arrmsg[3], arrmsg[4], arrmsg[5]);
+				} else if (arrmsg.length == 4) {
+					Constructor cnst = apiclass.getConstructor
+						(String.class, String.class, String.class);
+					task = (Callable) cnst.newInstance(arrmsg[1], arrmsg[2], arrmsg[3]);
+				} else if (arrmsg.length == 3) {
+					Constructor cnst = apiclass.getConstructor(String.class, String.class);
+					task = (Callable) cnst.newInstance(arrmsg[1], arrmsg[2]);
+				} else if (arrmsg.length == 2) {
+					Constructor cnst = apiclass.getConstructor(String.class);
+					task = (Callable) cnst.newInstance(arrmsg[1]);
+				} else {
+					Constructor cnst = apiclass.getConstructor();
+					task = (Callable) cnst.newInstance();
+				}
+				
+				Future<String> f = pool.submit(task);
+				String result = "";
+				
 				result = f.get();
 				out.println(result);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
