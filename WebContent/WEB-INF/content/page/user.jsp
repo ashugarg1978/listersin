@@ -21,7 +21,7 @@
 <div id="loading"><s:text name="loading"/></div>
 
 <div id="toolbar">
-<div id="logo"><a href="/">ebaytool.jp</a></div>
+<div id="logo"><a href="/">Sandbox</a></div>
 
 <div style="font-size:11px; margin-right:10px;">
 <b>${user.email}</b><br>
@@ -33,19 +33,37 @@
 <br>
 
 <ul class="accounts">
-<li class="allitems">
-<a href="" class="allitems"><s:text name="allitems"/></a>
-</li>
-<li>
-<ul class="accountaction">
-<li><img src="/icon/02/10/37.png"> <a href="" class="scheduled"><s:text name="scheduled"/></a></li>
-<li><img src="/icon/04/10/02.png"> <a href="" class="active"   ><s:text name="active"   /></a></li>
-<li><img src="/icon/02/10/50.png"> <a href="" class="sold"     ><s:text name="sold"     /></a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="unsold"   ><s:text name="unsold"   /></a></li>
-<li><img src="/icon/04/10/10.png"> <a href="" class="saved"    ><s:text name="saved"    /></a></li>
-<li><img src="/icon/04/10/09.png"> <a href="" class="trash"    ><s:text name="trash"    /></a></li>
-</ul>
-</li>
+  <li class="allitems">
+	<a href="" class="allitems"><s:text name="allitems"/></a>
+  </li>
+  <li>
+	<ul class="accountaction">
+	  <li>
+		<img src="/icon/02/10/37.png">
+		<a href="" class="scheduled"><s:text name="scheduled"/></a>
+	  </li>
+	  <li>
+		<img src="/icon/04/10/02.png">
+		<a href="" class="active"   ><s:text name="active"   /></a>
+	  </li>
+	  <li>
+		<img src="/icon/02/10/50.png">
+		<a href="" class="sold"     ><s:text name="sold"     /></a>
+	  </li>
+	  <li>
+		<img src="/icon/04/10/10.png">
+		<a href="" class="unsold"   ><s:text name="unsold"   /></a>
+	  </li>
+	  <li>
+		<img src="/icon/04/10/10.png">
+		<a href="" class="saved"    ><s:text name="saved"    /></a>
+	  </li>
+	  <li>
+		<img src="/icon/04/10/09.png">
+		<a href="" class="trash"    ><s:text name="trash"    /></a>
+	  </li>
+	</ul>
+  </li>
 </ul>
 
 <a href="/page/addaccount"><s:text name="addnewaccount"/></a>
@@ -234,10 +252,30 @@
   <td>
 	
 	<div class="productsearchform">
+	  
+	  <span class="CharacteristicsSetsName"></span>
 	  <input name="ProductSearch.QueryKeywords" type="text" size="30" class="remove"/>
-	  <input name="ProductSearch.CharacteristicSetIDs.ID" type="text" size="10" class="remove"/>
+	  <input name="ProductSearch.CharacteristicSetIDs.ID" type="hidden" class="remove"/>
 	  <button class="GetProductSearchResults">Search</button>
+	  
 	  <input name="ProductListingDetails.ProductID" type="hidden"/>
+	  
+	  Include Stock Photo
+	  <select name="ProductListingDetails.IncludeStockPhotoURL">
+		<option value=""></option>
+		<option value="true">true</option>
+		<option value="false">false</option>
+	  </select>
+	  <br/>
+	  
+	  Use Stock Photo As Gallery
+	  <select name="ProductListingDetails.UseStockPhotoURLAsGallery">
+		<option value=""></option>
+		<option value="true">true</option>
+		<option value="false">false</option>
+	  </select>
+	  <br/>
+	  
 	  <div class="foundproducts">
 		<div class="producttemplate">
 		  <div class="productimage">
@@ -248,24 +286,9 @@
 		  <div style="clear:both;"></div>
 		</div>
 	  </div>
+	  
 	</div>
 	
-	Include Stock Photo
-	<select name="ProductListingDetails.IncludeStockPhotoURL">
-	  <option value=""></option>
-	  <option value="true">true</option>
-	  <option value="false">false</option>
-	</select>
-	<br/>
-	
-	Use Stock Photo As Gallery
-	<select name="ProductListingDetails.UseStockPhotoURLAsGallery">
-	  <option value=""></option>
-	  <option value="true">true</option>
-	  <option value="false">false</option>
-	</select>
-	<br/>
-
 	GalleryType
 	<select name="PictureDetails.GalleryType">
 	  <option value=""></option>
@@ -285,6 +308,9 @@
 	
   </td>
 </tr>
+<!--
+todo: "List multiple variations of this item in one listing"
+-->
 <tr>
   <td><s:text name="title"/></td>
   <td><input name="Title" type="text" size="60"/></td>

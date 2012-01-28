@@ -21,7 +21,7 @@ $(function() {
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
-	if (true) {
+	if (false) {
 		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 		$('a.Title', 'tbody#'+id).click();
 		$('a.edit', 'tbody#'+id).click();
@@ -228,7 +228,7 @@ function bindevents()
 	
 	$('button.GetProductSearchResults').live('click', function() {
 		var td = $(this).parent();
-		var postdata = $('input[type=text]', td).serialize();
+		var postdata = $('input[type=text],input[type=hidden]', td).serialize();
 		$.post('/json/productsearchresults',
 			   postdata,
 			   function(data) {
@@ -666,12 +666,8 @@ function getdetail(row)
 		// todo: find more than 2 Sets.
 		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
 			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
-		
-		$('input[name="ProductSearch.QueryKeywords"]', detail)
-			.parent()
-			.append('<pre>'+$.dump(category['Category2CS'])+'</pre>');
 	} else {
-		$('div.productsearchform', detail).remove();
+		$('div.productsearchform', detail).hide();
 	}
 	
 	setItemSpecificsForms(row);
@@ -905,12 +901,20 @@ var changeCategory = function() {
 		 
 		 var category =
 			 hash[site]['Categories']['c'+path[path.length-2]]['c'+path[path.length-1]];
-		 if (category.Category2CS) {
+		 if (category.Category2CS && category.Category2CS.CatalogEnabled) {
+			 
+			 // todo: what is "ProductSearchPageAvailable" ?
+			 
+			 $('span.CharacteristicsSetsName', '#'+id)
+				 .html(category.Category2CS.CharacteristicsSets.Name);
+			 
 			 $('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id)
 				 .val(category.Category2CS.CharacteristicsSets.AttributeSetID);
 			 
-			 $('select[name="PrimaryCategory.CategoryID"]', '#'+id)
-				 .after('<pre>'+$.dump(category.Category2CS)+'</pre>');
+			 $('div.productsearchform', '#'+id).show();
+			 
+		 } else {
+			 $('div.productsearchform', '#'+id).hide();
 		 }
 	 });
 	
@@ -929,6 +933,7 @@ var clickEdit = function() {
 	fillformvalues(item);
 	
 	showbuttons(dom, 'save,cancel');
+
 	
 	return false;
 	
