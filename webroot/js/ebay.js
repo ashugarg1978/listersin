@@ -628,6 +628,7 @@ function getrow(idx, row)
 		st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
 		$('a.Title', dom).before(st);
 	}
+	$('a.Title', dom).attr('href', '#');
 	
 	if (row.ext.errors) {
 		$.each(row.ext.errors, function(k, v) {
@@ -1797,6 +1798,8 @@ function setItemSpecificsForms(item)
 	}
 	
 	for (i in specifics) {
+		if (specifics[i] == null) continue;
+		
 		var recommref = recomm[recommkey[specifics[i].Name]];
 		specificskey[specifics[i].Name] = i;
 		
