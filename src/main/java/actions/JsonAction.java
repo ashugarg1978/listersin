@@ -308,6 +308,7 @@ public class JsonAction extends BaseAction {
 		
 		String id   = ((String[]) parameters.get("id"))[0];
 		String form = ((String[]) parameters.get("json"))[0];
+		log.debug("save id:"+id);
 		log.debug(form);
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
@@ -343,6 +344,40 @@ public class JsonAction extends BaseAction {
 				break;
 			}
 		}
+		
+		/* AttributeSetArray */
+		BasicDBObject attributesetarray = new BasicDBObject();
+		BasicDBObject attributeset = new BasicDBObject();
+		attributeset.put("@attributeSetID", "998877");
+		
+		BasicDBList attributes = new BasicDBList();
+		
+		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
+		for (String key : item.keySet()) {
+			
+			Matcher m = p.matcher(key);
+			//if (m.matches() == false) continue;
+			
+			while (m.find()) {
+				log.debug("save key:"+key);
+				log.debug(m.group(3));
+				
+				BasicDBObject attribute = new BasicDBObject();
+				attribute.put("@attributeID", m.group(3));
+				
+				attributes.add(attribute);
+				
+				item.removeField(key);
+			}
+		}
+		attributeset.put("Attribute", attributes);
+		attributesetarray.put("AttributeSet", attributeset);
+		item.put("AttributeSetArray", attributesetarray);
+
+		/* Delete */
+		item.removeField("ButtonLoad");
+		item.removeField("aus_form_changed");
+		item.removeField("vcsid");
 		
 		DBCollection coll = db.getCollection("items");
 		DBCollection coll2 = db.getCollection("itemsdiff");
@@ -655,7 +690,7 @@ public class JsonAction extends BaseAction {
 			Matcher m = p.matcher(key);
 			//if (m.matches() == false) continue;
 			
-			while(m.find()) {
+			while (m.find()) {
 				
 				xml += "<Attribute id=\""+m.group(3)+"\">\n";
 				for (String val : (String[]) parameters.get(key)) {

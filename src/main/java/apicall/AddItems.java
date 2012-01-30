@@ -171,11 +171,27 @@ public class AddItems extends ApiCall {
 								.getJSONArray("PictureURL").setExpandElements(true);
 						}
 						
+						/* AttributeSetArray */
+						if (tmpi.has("AttributeSetArray")) {
+							JSONObject tmpasa = (JSONObject) tmpi.get("AttributeSetArray");
+							if (tmpasa.has("AttributeSet")) {
+								JSONObject tmpas = (JSONObject) tmpasa.get("AttributeSet");
+								
+								if (tmpas.has("Attribute")
+									&& tmpas.get("Attribute").getClass().toString()
+									.equals("class net.sf.json.JSONArray")) {
+									
+									tmpas.getJSONArray("Attribute").setExpandElements(true);
+								}
+							}
+						}
+						
+						/* ItemSpecifics */
 						if (tmpi.has("ItemSpecifics")) {
 							JSONObject tmpis = (JSONObject) tmpi.get("ItemSpecifics");
 							if (tmpis.has("NameValueList")
-								&& tmpis.get("NameValueList")
-								.getClass().toString().equals("class net.sf.json.JSONArray")) {
+								&& tmpis.get("NameValueList").getClass().toString()
+								.equals("class net.sf.json.JSONArray")) {
 								
 								tmpis.getJSONArray("NameValueList").setExpandElements(true);
 								

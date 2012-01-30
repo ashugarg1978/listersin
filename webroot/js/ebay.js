@@ -18,6 +18,7 @@ $(function() {
 	});
 	
 	$.ajaxSetup({async: false});
+	
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('a.active', $('ul.accountaction:first')).click();
 	
@@ -25,10 +26,11 @@ $(function() {
 		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
 		$('a.Title', 'tbody#'+id).click();
 		$('a.edit', 'tbody#'+id).click();
-		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('fax');
+		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('htc');
 		$('button.GetProductSearchResults', '#'+id).click();
 		$('div.product:first').click();
 		$('div.ProductSellingPages select:first', '#'+id).click();
+		//$('a.save', '#'+id).click();
 	}
 	
 	//setTimeout('autoclick()', 2000);
@@ -1244,13 +1246,13 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
-	var attrdata = $('input[name^=attr], select[name^=attr]',
+	var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
 					 $(this).closest('div.detail')).extractAttrObject();
 	var attributeset = {};
 	attributeset['@attributeSetID'] = 99;
 	attributeset.Attribute = attrdata;
 	
-	postdata.AttributeSetArray = attributeset;
+	//postdata.AttributeSetArray = attributeset;
 	dump(attrdata);
 	
 	//return false;
