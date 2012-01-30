@@ -1652,12 +1652,12 @@ function updateduration(id)
 
 function getshippingservice(id)
 {
-	site = $('select[name=Site]', '#'+id).val();
-	type = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
-	intltype = $('select[name="ext.shippingtype.international"]', '#'+id).val();
+	var site = $('select[name=Site]', '#'+id).val();
+	var type = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
+	var intltype = $('select[name="ext.shippingtype.international"]', '#'+id).val();
 	
-	select = $('<select/>').append($('<option/>'));
-	intl = $('<select/>').append($('<option/>'));
+	var select = $('<select/>').append($('<option/>'));
+	var intl = $('<select/>').append($('<option/>'));
 	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
 		if (o['ValidForSellingFlow'] != 'true') return;
 		
@@ -1672,8 +1672,10 @@ function getshippingservice(id)
 		}
 		
 	});
-	_sdsso = 'ShippingDetails.ShippingServiceOptions';
-	_sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
+	
+	var _sdsso = 'ShippingDetails.ShippingServiceOptions';
+	var _sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
+	
 	$('select[name="'+_sdsso+'.0.ShippingService"]', '#'+id).html(select.html());
 	$('select[name="'+_sdsso+'.1.ShippingService"]', '#'+id).html(select.html());
 	$('select[name="'+_sdsso+'.2.ShippingService"]', '#'+id).html(select.html());
