@@ -11,7 +11,7 @@ db.getCollectionNames().forEach(
 	}
 );
 */
-/*
+
 db.items.group(
 	{key: {
 		"ext.status": 1
@@ -23,8 +23,8 @@ db.items.group(
 		 csum:0}
 	}
 ).forEach(printjson);
-*/
 
+/*
 db.US.Category2CS.Category.group(
 	{key: {
 		"CharacteristicsSets": 1
@@ -36,3 +36,4 @@ db.US.Category2CS.Category.group(
 		 csum:0}
 	}
 ).forEach(printjson);
+*/

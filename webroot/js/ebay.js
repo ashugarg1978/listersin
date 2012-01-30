@@ -715,6 +715,41 @@ function getdetail(row)
 	$('form[name=APIForm]', detail)
 		.attr('id',   'APIForm'+id)
 		.attr('name', 'APIForm'+id);
+
+	/* ShippingService */
+	var dmstselect = $('<select/>').append($('<option/>'));
+	var intlselect = $('<select/>').append($('<option/>'));
+	
+	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
+		if (o.ValidForSellingFlow != 'true') return;
+		var dmst = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
+		var intl = $('select[name="ext.shippingtype.international"]', '#'+id).val();
+		
+		
+		if (o.ShippingServiceID < 50000) {
+			if ($.inArray(dmst, o.ServiceType) >= 0 || o.ServiceType == dmst) {
+				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
+				$(dmstselect).append(optiontag);
+			}
+		} else {
+			if ($.inArray(intl, o.ServiceType) >= 0 || o.ServiceType == intl) {
+				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
+				$(intlselect).append(optiontag);
+			}
+		}
+	});
+	var _sdsso  = 'ShippingDetails.ShippingServiceOptions';
+	var _sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
+	$('select[name="'+_sdsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_sdsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_sdsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_sdsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
+	
+	$('select[name="'+_sdisso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_sdisso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_sdisso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_sdisso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_sdisso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
 	
 	return;
 	

@@ -348,7 +348,7 @@ public class JsonAction extends BaseAction {
 		/* AttributeSetArray */
 		BasicDBObject attributesetarray = new BasicDBObject();
 		BasicDBObject attributeset = new BasicDBObject();
-		attributeset.put("@attributeSetID", "998877");
+		attributeset.put("@attributeSetID", item.getString("vcsid"));
 		
 		BasicDBList attributes = new BasicDBList();
 		
@@ -366,14 +366,12 @@ public class JsonAction extends BaseAction {
 				attribute.put("@attributeID", m.group(3));
 				
 				attributes.add(attribute);
-				
-				item.removeField(key);
 			}
 		}
 		attributeset.put("Attribute", attributes);
 		attributesetarray.put("AttributeSet", attributeset);
 		item.put("AttributeSetArray", attributesetarray);
-
+		
 		/* Delete */
 		item.removeField("ButtonLoad");
 		item.removeField("aus_form_changed");

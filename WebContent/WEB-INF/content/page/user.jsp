@@ -553,7 +553,9 @@ todo: "List multiple variations of this item in one listing"
 			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
 		-->
 		<select name="<s:text name="_SDSSO"/>.<s:property />.ShippingService"
-				class="ShippingService"></select>
+				class="ShippingService">
+		  <option></option>
+		</select>
 		
 		<s:text name="Cost"/>
 		<input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.@currencyID"
@@ -601,7 +603,9 @@ todo: "List multiple variations of this item in one listing"
 			   type="text" size="1" value="<s:property value="#rowstatus.count"/>">
 		-->
 		<select name="<s:text name="_SDISSO"/>.<s:property />.ShippingService"
-				class="ShippingService"></select>
+				class="ShippingService">
+		  <option></option>
+		</select>
 		<s:text name="Cost"/>
 		<input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.@currencyID"
 			   type="text" size="5">
