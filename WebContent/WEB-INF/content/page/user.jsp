@@ -382,7 +382,7 @@ todo: "List multiple variations of this item in one listing"
 	</form>
 	
 	<s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
-	  <input type="text" name="PictureDetails.PictureURL" size="40"><br>
+	  <input type="text" name="PictureDetails.PictureURL.<s:property />" size="40"><br>
 	</s:iterator>
   </div>
 </div>
@@ -634,7 +634,7 @@ todo: "List multiple variations of this item in one listing"
   </td>
 </tr>
 <tr>
-  <td><s:text name="User ID"/></td>
+  <td><s:text name="UserID"/></td>
   <td>
 	<input type="text" name="ext.UserID" size="10" />
   </td>
@@ -782,7 +782,7 @@ todo: "List multiple variations of this item in one listing"
   </td>
 </tr>
 <tr>
-  <td><s:text name="Additional checkout instructions"/></td>
+  <td><s:text name="AdditionalCheckoutInstructions"/></td>
   <td>
 	<textarea name="BuyerRequirementDetails."></textarea>
   </td>

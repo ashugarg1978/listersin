@@ -136,12 +136,6 @@ public class AddItems extends ApiCall {
 					
 					/* each item */
 					String jss = reqdbo.toString();
-					//jss = jss.replaceAll("null", "\"\"");
-					writelog("AIs.jss"
-							 +"."+((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".js", jss);
 					
 					JSONObject jso = JSONObject.fromObject(jss);
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
@@ -155,12 +149,6 @@ public class AddItems extends ApiCall {
 					xmls.setObjectName("AddItemsRequest");
 					xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 					xmls.setTypeHintsEnabled(false);
-					
-					writelog("AIs.jso"
-							 +"."+((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".js", jso.toString());
 					
 					String requestxml = xmls.write(jso);
 					

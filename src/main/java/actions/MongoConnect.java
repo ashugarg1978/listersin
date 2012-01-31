@@ -9,10 +9,11 @@ public class MongoConnect {
 	private DB db;
 	
 	private MongoConnect() throws Exception {
-		db = new Mongo().getDB("ebay");
 		
 		Logger log = Logger.getLogger(this.getClass());
-		log.debug("single connect?");
+		log.debug("connecting to MongoDB");
+		
+		db = new Mongo().getDB("ebay");
 	}
 	
 	public static synchronized MongoConnect getInstance() throws Exception {

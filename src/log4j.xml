@@ -5,16 +5,21 @@
   
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
 	<layout class="org.apache.log4j.PatternLayout"> 
-	  <param name="ConversionPattern" value="%d %-5p %c.%M:%L - %m%n"/> 
+	  <!--param name="ConversionPattern" value="%d %-5p %c.%M:%L - %m%n"/-->
+	  <param name="ConversionPattern" value="[%d] %-5p %F:%L - %m%n"/> 
 	</layout> 
   </appender>
   
   <logger name="com.opensymphony">
-	<level value="INFO" />
+	<level value="WARN" />
   </logger>
   
   <logger name="org.apache.struts2">
-	<level value="INFO" />
+	<level value="WARN" />
+  </logger>
+  
+  <logger name="net.sf.json.xml">
+	<level value="WARN" />
   </logger>
   
   <logger name="ebaytool">
