@@ -59,7 +59,7 @@ function bindevents()
 	$('ul.editbuttons > li > a.copy',   'div.detail').live('click', clickCopy);
 	
 	/* Bulk Buttons */
-	$('div#bulkbuttons > input').live('click', function() {
+	$('div#bulkbuttons button').live('click', function() {
 		action = $(this).attr('class');
 		
 		if (action == 'checkall') {
@@ -521,7 +521,7 @@ function items()
 		   function(data) {
 			   dump(data.json);
 			   paging(data.json.cnt);
-			   $('tbody:gt(2)', 'table#items').remove();
+			   $('tbody:gt(1)', 'table#items').remove();
 			   if (data.cnt == 0) {
 				   $('tbody#rowloading > tr > td').html('No item data found.');
 				   $('tbody#rowloading').show();

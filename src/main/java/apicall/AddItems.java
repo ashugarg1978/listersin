@@ -103,7 +103,7 @@ public class AddItems extends ApiCall {
 			for (Object tmpsite : lhmuserid.keySet()) {
 				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
 				
-				/* each chunk */
+				/* each chunk (5 items)*/
 				for (Object tmpchunk : lhmsite.keySet()) {
 					List litems = (List) lhmsite.get(tmpchunk);
 					
@@ -147,79 +147,7 @@ public class AddItems extends ApiCall {
 					JSONArray tmpitems = jso.getJSONArray("AddItemRequestContainer");
 					for (Object tmpitem : tmpitems) {
 						JSONObject tmpi = ((JSONObject) tmpitem).getJSONObject("Item");
-						
-						/* expand array elements */
-						if (tmpi.has("PaymentAllowedSite") && tmpi.get("PaymentAllowedSite")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpi.getJSONArray("PaymentAllowedSite").setExpandElements(true);
-						}
-						
-						if (tmpi.has("ListingEnhancement") && tmpi.get("ListingEnhancement")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpi.getJSONArray("ListingEnhancement").setExpandElements(true);
-						}
-						
-						if (tmpi.has("PaymentMethods") && tmpi.get("PaymentMethods")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							tmpi.getJSONArray("PaymentMethods").setExpandElements(true);
-						}
-						
-						if (((JSONObject) tmpi.get("PictureDetails")).has("PictureURL")
-							&& ((JSONObject) tmpi.get("PictureDetails")).get("PictureURL")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							((JSONObject) tmpi.get("PictureDetails"))
-								.getJSONArray("PictureURL").setExpandElements(true);
-						}
-						
-						/* AttributeSetArray */
-						if (tmpi.has("AttributeSetArray")) {
-							JSONObject tmpasa = (JSONObject) tmpi.get("AttributeSetArray");
-							if (tmpasa.has("AttributeSet")) {
-								JSONObject tmpas = (JSONObject) tmpasa.get("AttributeSet");
-								
-								if (tmpas.has("Attribute")
-									&& tmpas.get("Attribute").getClass().toString()
-									.equals("class net.sf.json.JSONArray")) {
-									
-									tmpas.getJSONArray("Attribute").setExpandElements(true);
-								}
-							}
-						}
-						
-						/* ItemSpecifics */
-						if (tmpi.has("ItemSpecifics")) {
-							JSONObject tmpis = (JSONObject) tmpi.get("ItemSpecifics");
-							if (tmpis.has("NameValueList")
-								&& tmpis.get("NameValueList").getClass().toString()
-								.equals("class net.sf.json.JSONArray")) {
-								
-								tmpis.getJSONArray("NameValueList").setExpandElements(true);
-								
-								for (Object nvl : (JSONArray) tmpis.get("NameValueList")) {
-									JSONObject tmpnvl = (JSONObject) nvl;
-									if (tmpnvl.has("Value")
-										&& tmpnvl.get("Value").getClass().toString()
-										.equals("class net.sf.json.JSONArray")) {
-										tmpnvl.getJSONArray("Value").setExpandElements(true);
-									}
-								}
-							}
-						}
-						
-						JSONObject shippingdetails = (JSONObject) tmpi.get("ShippingDetails");
-						if (shippingdetails.has("ShippingServiceOptions")
-							&& shippingdetails.get("ShippingServiceOptions")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							shippingdetails.getJSONArray("ShippingServiceOptions")
-								.setExpandElements(true);
-						}
-						
-						if (shippingdetails.has("InternationalShippingServiceOption")
-							&& shippingdetails.get("InternationalShippingServiceOption")
-							.getClass().toString().equals("class net.sf.json.JSONArray")) {
-							shippingdetails.getJSONArray("InternationalShippingServiceOption")
-								.setExpandElements(true);
-						}
+						expandElements(tmpi);
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
 					
@@ -379,5 +307,30 @@ public class AddItems extends ApiCall {
 		
 		return result;
 		*/
+	}
+	
+	private void expandElements(JSONObject item) throws Exception {
+		
+		for (Object key : item.keySet()) {
+			
+			String classname = item.get(key).getClass().toString();
+			
+			if (classname.equals("class net.sf.json.JSONObject")) {
+				
+				expandElements((JSONObject) item.get(key));
+				
+			} else if (classname.equals("class net.sf.json.JSONArray")) {
+				
+				((JSONArray) item.get(key)).setExpandElements(true);
+				
+				for (Object elm : (JSONArray) item.get(key)) {
+					if (elm.getClass().toString().equals("class net.sf.json.JSONObject")) {
+						expandElements((JSONObject) elm);
+					}
+				}
+			}
+		}
+		
+		return;
 	}
 }

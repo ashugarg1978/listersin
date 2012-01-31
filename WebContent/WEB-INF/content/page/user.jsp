@@ -134,16 +134,16 @@
 <div id="contentheader">
 
 <div id="bulkbuttons" style="float:left; margin:10px;">
-<input type="button" class="checkall"     value="<s:text name="checkall"/>">
-<input type="button" class="checkallpage" value="<s:text name="checkallpage"/>">
-<input type="button" class="uncheckall"   value="<s:text name="uncheckall"/>">
-<input type="button" class="edit"         value="<s:text name="edit"/>">
-<input type="button" class="copy"         value="<s:text name="copy"/>">
-<input type="button" class="delete"       value="<s:text name="delete"/>">
-<input type="button" class="add"          value="<s:text name="add"/>">
-<input type="button" class="relist"       value="<s:text name="relist"/>">
-<input type="button" class="revise"       value="<s:text name="revise"/>">
-<input type="button" class="end"          value="<s:text name="end"/>">
+<button class="checkall"><s:text name="checkall"/></button>
+<button class="checkallpage"><s:text name="checkallpage"/></button>
+<button class="uncheckall"><s:text name="uncheckall"/></button>
+<button class="edit"><s:text name="edit"/></button>
+<button class="copy"><s:text name="copy"/></button>
+<button class="delete"><s:text name="delete"/></button>
+<button class="add"><s:text name="add"/></button>
+<button class="relist"><s:text name="relist"/></button>
+<button class="revise"><s:text name="revise"/></button>
+<button class="end"><s:text name="end"/></button>
 </div>
 
 <div id="paging"></div>

@@ -351,7 +351,7 @@ public class JsonAction extends BaseAction {
 		attributeset.put("@attributeSetID", item.getString("vcsid"));
 		
 		BasicDBList attributes = new BasicDBList();
-		
+		String removeattr = "";
 		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
 		for (String key : item.keySet()) {
 			
@@ -359,13 +359,28 @@ public class JsonAction extends BaseAction {
 			//if (m.matches() == false) continue;
 			
 			while (m.find()) {
-				log.debug("save key:"+key);
-				log.debug(m.group(3));
+				log.debug("save key:"+key+" ("+m.group(3)+")");
 				
 				BasicDBObject attribute = new BasicDBObject();
 				attribute.put("@attributeID", m.group(3));
 				
+				if (m.group(1).equals("")) {
+					if (item.get(key).getClass().toString()
+						.equals("class com.mongodb.BasicDBList")) {
+						BasicDBList values = new BasicDBList();
+						for (Object tmpvalue : (BasicDBList) item.get(key)) {
+							values.add(new BasicDBObject("ValueID", tmpvalue.toString()));
+						}
+						attribute.put("Value", values);
+					} else {
+						attribute.put("Value", new BasicDBObject("ValueID", item.getString(key)));
+					}
+				} else if (m.group(1).equals("_t")) {
+					attribute.put("Value", new BasicDBObject("ValueLiteral", item.getString(key)));
+				}
+				
 				attributes.add(attribute);
+				removeattr += key+"|";
 			}
 		}
 		attributeset.put("Attribute", attributes);
@@ -376,6 +391,16 @@ public class JsonAction extends BaseAction {
 		item.removeField("ButtonLoad");
 		item.removeField("aus_form_changed");
 		item.removeField("vcsid");
+		
+		String[] removeattrs = removeattr.split("\\|");
+		try {
+			for (String key : removeattrs) {
+				log.debug("remove: "+key);
+				item.removeField(""+key);
+			}
+		} catch (Exception e) {
+			log.debug(e.toString());
+		}
 		
 		DBCollection coll = db.getCollection("items");
 		DBCollection coll2 = db.getCollection("itemsdiff");
