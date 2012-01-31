@@ -23,7 +23,7 @@ public class GetSessionID extends ApiCall {
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
 		
-		if (false) {
+		if (true) {
 			/* Sandbox */
 			reqdbo.append("RuName", "Yoshihiro_Watan-Yoshihir-1b29-4-nstdpc");
 		} else {

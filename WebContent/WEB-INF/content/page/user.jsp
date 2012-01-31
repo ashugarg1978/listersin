@@ -353,7 +353,8 @@ todo: "List multiple variations of this item in one listing"
 	<select name="PictureDetails.GalleryType">
 	  <option value=""></option>
 	  <option value="Gallery">Gallery</option>
-	</select>(todo: move to another tab)
+	  <option value="Plus">Plus</option>
+	</select>
 	<br/>
 	
 	<form method="post" action="/file/upload" target="posttarget" enctype="multipart/form-data">
@@ -364,7 +365,7 @@ todo: "List multiple variations of this item in one listing"
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
 		  </div>
-		  <input type="file" name="<s:property />" size="5">
+		  <input type="file" name="<s:property />" style="width:50px;">
 		</td>
 	  </s:iterator>
 	</tr>
@@ -374,7 +375,7 @@ todo: "List multiple variations of this item in one listing"
 		  <div class="picdiv">
 			<img class="PictureDetails_PictureURL PD_PURL_<s:property />" src="/img/noimage.jpg">
 		  </div>
-		  <input type="file" name="<s:property />" size="5">
+		  <input type="file" name="<s:property />" style="width:50px;">
 		</td>
 	  </s:iterator>
 	</tr>

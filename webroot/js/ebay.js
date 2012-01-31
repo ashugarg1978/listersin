@@ -1760,7 +1760,7 @@ function showformvalues(item)
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('table.detail input[type=text]', detail), function(i, form) {
+	$.each($('input[type=text]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
@@ -1769,10 +1769,16 @@ function showformvalues(item)
 			
 			if (tmpvalue == null) tmpvalue = '';
 			
-			htmlencoded = $('<div/>').text(tmpvalue+'[T]').html();
+			var htmlencoded = $('<div/>').text(tmpvalue+'[T]').html();
 			$(form).replaceWith(htmlencoded);
+
+			if ($(form).attr('name').match(/^PictureDetails.PictureURL./)) {
+				var imgclass = $(form).attr('name')
+					.replace(/^PictureDetails.PictureURL./, 'PD_PURL_');
+				$('img.'+imgclass, detail).attr('src', tmpvalue);
+			}
 		} catch (err) {
-			//$(detail).prepend('ERR: '+err.description+'<br />');
+			$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
 	
