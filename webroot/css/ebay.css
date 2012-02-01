@@ -431,16 +431,7 @@ div#hiddenblocks {
 }
 
 div#debug {
-  display: none;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  z-index: 2;
-  
   background-color: #ffffcc;
-  width: 10px;
-  height: 10px;
-  overflow: hidden;
 }
 
 iframe[name=posttarget] {

@@ -391,6 +391,7 @@ $.fn.extractObject = function() {
 			if (namev[0] == '') return;
 			
 			// todo: build array. ex:PaymentMethods
+			/*
 			if (accum[namev[0]] != undefined) {
 				if ($.isArray(accum[namev[0]])) {
 					accum[namev[0]].push(value);
@@ -402,9 +403,13 @@ $.fn.extractObject = function() {
 			} else {
 				accum[namev[0]] = value;
 			}
+			*/
+			
+			accum[namev[0]] = value;
 			
 		} else {
 			
+			/*
 			if (namev[1] == 0) {
 				namev = [namev[0]].concat(namev.slice(2));
 			} else if (namev[1] == 1) {
@@ -413,6 +418,7 @@ $.fn.extractObject = function() {
 					accum[namev[0]] = [tmpvalue];
 				}
 			}
+			*/
 			
 			if (accum[namev[0]] == null) {
 				accum[namev[0]] = {};
@@ -422,13 +428,16 @@ $.fn.extractObject = function() {
 		}
 	}; 
 	
-	//$('div#debug').html('');
+	var debugraw = [];
 	this.each(function() {
-		if ($(this).attr('name') != undefined) {
-			//$('div#debug').append($(this).attr('name')+' : '+$(this).val()+'<br/>');
-			add(accum, $(this).attr('name').split('.'), $(this).val());
-		}
+		if ($(this).attr('name') == undefined) return;
+		if ($(this).val() == '') return;
+		add(accum, $(this).attr('name').split('.'), $(this).val());
+		debugraw.push($(this).attr('name')+' = '+$(this).val());
 	});
+	
+	$('#debug').html('<pre>'+$.dump(debugraw)+'</pre>');
+	$('#debug').append('<pre>'+$.dump(accum)+'</pre>');
 	
 	return accum;
 };
@@ -1299,6 +1308,8 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
+	return;
+	
 	var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
 					 $(this).closest('div.detail')).extractAttrObject();
 	var attributeset = {};
@@ -1405,6 +1416,7 @@ var clickTitle = function() {
 			   $('td:nth-child(2)', '#'+id).show();
 			   $('div.detail', '#'+id).show();
 			   
+			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.PictureDetails)+'</pre>');
 			   dump(item);
 
 			   //$.scrollTo('#'+id, {axis:'y', offset:0});
@@ -1775,6 +1787,8 @@ function fval(dom, item, str)
 
 function showformvalues(item)
 {
+	item.PictureDetails.PictureURL = arrayize(item.PictureDetails.PictureURL);
+	
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
@@ -1796,12 +1810,12 @@ function showformvalues(item)
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
 		} catch (err) {
-			$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
+			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
 	
 	/* select */
-	$.each($('table.detail select', detail), function(i, form) {
+	$.each($('select', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		if (formname == null) return;
 		
