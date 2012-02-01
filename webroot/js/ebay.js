@@ -1,6 +1,6 @@
 /* store rows data */
 var rowsdata = new Array();
-//var hash;
+var hasmore = false;
 
 /* initialize */
 $(function() {
@@ -46,6 +46,20 @@ $(function() {
 function bindevents()
 {
 	$(window).resize(resizediv);
+	
+	$(window).scroll(function() {
+		if (hasmore == false) return;
+		
+		if ($(window).scrollTop() + $(window).height() == $('body').height()) {
+			$('div#loading').show();
+
+			var offset = parseInt($('table#hiddenforms input[name=offset]').val());
+			var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
+			
+			$('table#hiddenforms input[name=offset]').val(offset+limit-0);
+			items();
+		}
+	});
 	
 	$('a.Title').live('click', clickTitle);
 	
@@ -124,6 +138,7 @@ function bindevents()
 		$('select[name=UserID]').val(userid);
 		$('input[name=selling]').val('allitems');
 		$('input[name=offset]').val(0);
+		$('table#items tbody:gt(1)').remove();
 		items();
 		
 		$('ul.accounts li').removeClass('tabselected');
@@ -182,6 +197,7 @@ function bindevents()
 		} else {
 			$('input[name=sort]').val('ListingDetails_EndTime');
 		}
+		$('table#items tbody:gt(1)').remove();
 		items();
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
@@ -286,6 +302,13 @@ function bindevents()
 				   // todo: check javascript code at last line of htmlcode.
 			   },
 			   'json');
+	});
+	
+	$('div#debug').live('mouseover', function() {
+		var width = $('div#container').width();
+		var height = $('body').height();
+		$(this).width(width-10);
+		$(this).height(height-10);
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
@@ -519,37 +542,32 @@ function items()
 	$.post('/json/items',
 		   $('input.filter, select.filter').serialize(),
 		   function(data) {
-			   dump(data.json);
-			   paging(data.json.cnt);
-			   $('tbody:gt(1)', 'table#items').remove();
-			   if (data.cnt == 0) {
+			   
+			   if (data.json.cnt == 0) {
 				   $('tbody#rowloading > tr > td').html('No item data found.');
 				   $('tbody#rowloading').show();
 				   return;
 			   }
 			   $('tbody#rowloading').hide();
 			   
-			   var tmpids = new Array();
+			   var offset = parseInt($('table#hiddenforms input[name=offset]').val());
+			   var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
+			   
+			   $('#logo').html(data.json.cnt+'|'+(offset+limit));
+			   
+			   if (data.json.cnt > offset + limit) {
+				   hasmore = true;
+			   } else {
+				   hasmore = false;
+			   }
+			   
 			   $.each(data.json.items, function(idx, row) {
-				   dom = getrow(idx, row);
-				   $('#items').append(dom);
-				   //rowsdata[row['id']] = row;
-				   //tmpids.push(row['id']);
 				   rowsdata[idx] = row;
-				   tmpids.push(idx);
+				   var dom = getrow(idx, row);
+				   $('#items').append(dom);
 			   });
 		   },
 		   'json');
-	
-	// todo: get detail of each items
-	/*
-	$.post('/json/users/items/',
-		   $('input, select', '#filter').serialize(),
-		   function(data) {
-		   },
-		   'json');
-	*/
-	
 }
 
 function getrow(idx, row)
@@ -934,12 +952,12 @@ function getdetail(row)
 
 function resizediv()
 {
-	w = $('div#container').width()-195;
-	h = $('body').height() - 10;
+	var w = $('div#container').width()-195;
+	var h = $('body').height() - 10;
 	
 	$('div#content').width(w);
 	$('div#contentheader').width(w);
-	$('div#debug').width(w-20);
+	//$('div#debug').width(w-20);
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
 	$('table#itemsheader').width(w);

@@ -431,10 +431,15 @@ div#hiddenblocks {
 }
 
 div#debug {
+  display: none;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 2;
+  
   background-color: #ffffcc;
-  margin: 10px;
-  padding: 10px;
-  float: right;
+  width: 10px;
+  height: 10px;
   overflow: hidden;
 }
 

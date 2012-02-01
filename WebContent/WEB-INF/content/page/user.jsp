@@ -800,8 +800,6 @@ todo: "List multiple variations of this item in one listing"
 
 <div style="clear:both;"></div>
 
-<div id="debug"></div>
-
 </div>
 
 <script>
@@ -813,6 +811,8 @@ hash = ${initjson.hash};
 
 <script id="runtimejs">
 </script>
+
+<div id="debug"></div>
 
 </body>
 </html>
