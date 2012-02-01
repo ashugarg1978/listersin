@@ -421,7 +421,11 @@ $.fn.extractObject = function() {
 			*/
 			
 			if (accum[namev[0]] == null) {
-				accum[namev[0]] = {};
+				if (namev[1].match(/^[0-9]+$/)) {
+					accum[namev[0]] = [];
+				} else {
+					accum[namev[0]] = {};
+				}
 			}
 			
 			add(accum[namev[0]], namev.slice(1), value);
