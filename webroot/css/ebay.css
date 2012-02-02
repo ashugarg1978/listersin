@@ -431,6 +431,8 @@ div#hiddenblocks {
 }
 
 div#debug {
+  float:right;
+  margin: 10px;
   background-color: #ffffcc;
 }
 

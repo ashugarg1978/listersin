@@ -304,12 +304,14 @@ function bindevents()
 			   'json');
 	});
 	
+	/*
 	$('div#debug').live('mouseover', function() {
 		var width = $('div#container').width();
 		var height = $('body').height();
 		$(this).width(width-10);
 		$(this).height(height-10);
 	});
+	*/
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
@@ -382,16 +384,55 @@ $.fn.extractObject = function() {
 	var accum = {};
 	
 	function add(accum, namev, value) {
-		if (value == '') return;
-		if (value == null) return;
 		if (namev.length == 0) return; // todo: fix ext.categorypath.0 bug
 		
 		if (namev.length == 1) {
 			
 			if (namev[0] == '') return;
 			
+			accum[namev[0]] = value;
+			
+		} else {
+			
+			if (accum[namev[0]] == null) {
+				if (namev[1].match(/^[0-9]+$/)) {
+					accum[namev[0]] = [];
+				} else {
+					accum[namev[0]] = {};
+				}
+			}
+			
+			add(accum[namev[0]], namev.slice(1), value);
+		}
+	}; 
+	
+	this.each(function() {
+		if ($(this).attr('name') == undefined) return;
+		if ($(this).val() == '') return;
+		if ($(this).val() == null) return;
+		
+		add(accum, $(this).attr('name').split('.'), $(this).val());
+	});
+	
+	return accum;
+};
+
+/*
+$.fn.extractObject = function() {
+	var accum = {};
+	
+	function add(accum, namev, value) {
+		if (value == '') return;
+		if (value == null) return;
+		if (namev.length == 0) return; // todo: fix ext.categorypath.0 bug
+		
+		//$('#debug').append('<pre>'+$.dump(namev)+'</pre>');
+		
+		if (namev.length == 1) {
+			
+			if (namev[0] == '') return;
+			
 			// todo: build array. ex:PaymentMethods
-			/*
 			if (accum[namev[0]] != undefined) {
 				if ($.isArray(accum[namev[0]])) {
 					accum[namev[0]].push(value);
@@ -403,13 +444,11 @@ $.fn.extractObject = function() {
 			} else {
 				accum[namev[0]] = value;
 			}
-			*/
 			
 			accum[namev[0]] = value;
 			
 		} else {
 			
-			/*
 			if (namev[1] == 0) {
 				namev = [namev[0]].concat(namev.slice(2));
 			} else if (namev[1] == 1) {
@@ -418,7 +457,6 @@ $.fn.extractObject = function() {
 					accum[namev[0]] = [tmpvalue];
 				}
 			}
-			*/
 			
 			if (accum[namev[0]] == null) {
 				if (namev[1].match(/^[0-9]+$/)) {
@@ -436,15 +474,17 @@ $.fn.extractObject = function() {
 	this.each(function() {
 		if ($(this).attr('name') == undefined) return;
 		if ($(this).val() == '') return;
+		
+		$('#debug').append($(this).attr('name')+' = '+$(this).val()+'<br/>');
+		
 		add(accum, $(this).attr('name').split('.'), $(this).val());
-		debugraw.push($(this).attr('name')+' = '+$(this).val());
 	});
 	
-	$('#debug').html('<pre>'+$.dump(debugraw)+'</pre>');
 	$('#debug').append('<pre>'+$.dump(accum)+'</pre>');
 	
 	return accum;
 };
+*/
 
 $.fn.extractAttrObject = function() {
 	
@@ -970,7 +1010,7 @@ function resizediv()
 	
 	$('div#content').width(w);
 	$('div#contentheader').width(w);
-	//$('div#debug').width(w-20);
+	$('div#debug').width(w-20);
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
 	$('table#itemsheader').width(w);
@@ -1312,7 +1352,9 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
-	return;
+	$('#debug').append('<pre>'+$.dump(postdata)+'</pre>');
+	
+	return false;
 	
 	var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
 					 $(this).closest('div.detail')).extractAttrObject();
@@ -1796,7 +1838,7 @@ function showformvalues(item)
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('input[type=text]', detail), function(i, form) {
+	$.each($('input[type=text], input[type=hidden]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
@@ -1842,7 +1884,7 @@ function fillformvalues(item)
 {
 	var detail = $('div.detail', '#'+item.id);
 	
-	$.each($('input[type=text], select, textarea', detail), function(i, form) {
+	$.each($('input[type=text], input[type=hidden], select, textarea', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
@@ -1872,12 +1914,13 @@ function setItemSpecificsForms(item)
 	var recommkey = new Array();
 	var specificskey = new Array();
 	var specifics = item.ItemSpecifics.NameValueList;
-	var recomm = category['CategorySpecifics']['NameRecommendation'];
+	var recomm = category.CategorySpecifics.NameRecommendation;
 	
 	for (i in recomm) {
 		recommkey[recomm[i].Name] = i;
 	}
 	
+	/* Existing specifics */
 	for (i in specifics) {
 		if (specifics[i] == null) continue;
 		
@@ -1901,6 +1944,8 @@ function setItemSpecificsForms(item)
 		$('table.ItemSpecifics', detail).append(trtag);
 	}
 	
+	/* Remaining specifics */
+	/*
 	var addspidx = specifics.length;
 	for (i in recomm) {
 		if (specificskey[recomm[i].Name] != null) continue;
@@ -1924,6 +1969,7 @@ function setItemSpecificsForms(item)
 		
 		addspidx++;
 	}
+	*/
 	//$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recomm)+'</pre>');
 	
 	return;
