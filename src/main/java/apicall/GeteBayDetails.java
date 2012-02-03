@@ -50,29 +50,11 @@ public class GeteBayDetails extends ApiCall {
 		String site = resdbo.getString("CorrelationID");
 		writelog("GeteBayDetails/"+site+".xml", responsexml);
 		
-		for (Object idx : resdbo.keySet()) {
-			
-			DBCollection coll = db.getCollection(site+".eBayDetails."+idx.toString());
-			if (db.collectionExists(site+".eBayDetails."+idx.toString())) {
-				coll.drop();
-			}
-			
-			String classname = resdbo.get(idx).getClass().toString();
-			if (classname.equals("class com.mongodb.BasicDBList")) {
-				//coll.insert((List<DBObject>) resdbo.get(idx));
-			} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-				//coll.insert((DBObject) resdbo.get(idx));
-			} else {
-				//log("SKIP "+classname+" "+idx.toString());
-			}
-		}
-		
 		DBCollection coll = db.getCollection(site+".eBayDetails");
 		if (db.collectionExists(site+".eBayDetails")) {
 			coll.drop();
 		}
 		coll.insert(resdbo);
-		
 		
 		return responsexml;
 	}

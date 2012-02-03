@@ -417,75 +417,6 @@ $.fn.extractObject = function() {
 	return accum;
 };
 
-/*
-$.fn.extractObject = function() {
-	var accum = {};
-	
-	function add(accum, namev, value) {
-		if (value == '') return;
-		if (value == null) return;
-		if (namev.length == 0) return; // todo: fix ext.categorypath.0 bug
-		
-		//$('#debug').append('<pre>'+$.dump(namev)+'</pre>');
-		
-		if (namev.length == 1) {
-			
-			if (namev[0] == '') return;
-			
-			// todo: build array. ex:PaymentMethods
-			if (accum[namev[0]] != undefined) {
-				if ($.isArray(accum[namev[0]])) {
-					accum[namev[0]].push(value);
-				} else {
-					tmpvalue = accum[namev[0]];
-					accum[namev[0]] = [tmpvalue];
-					accum[namev[0]].push(value);
-				}
-			} else {
-				accum[namev[0]] = value;
-			}
-			
-			accum[namev[0]] = value;
-			
-		} else {
-			
-			if (namev[1] == 0) {
-				namev = [namev[0]].concat(namev.slice(2));
-			} else if (namev[1] == 1) {
-				if (accum[namev[0]][namev[1]] == null) {
-					tmpvalue = accum[namev[0]];
-					accum[namev[0]] = [tmpvalue];
-				}
-			}
-			
-			if (accum[namev[0]] == null) {
-				if (namev[1].match(/^[0-9]+$/)) {
-					accum[namev[0]] = [];
-				} else {
-					accum[namev[0]] = {};
-				}
-			}
-			
-			add(accum[namev[0]], namev.slice(1), value);
-		}
-	}; 
-	
-	var debugraw = [];
-	this.each(function() {
-		if ($(this).attr('name') == undefined) return;
-		if ($(this).val() == '') return;
-		
-		$('#debug').append($(this).attr('name')+' = '+$(this).val()+'<br/>');
-		
-		add(accum, $(this).attr('name').split('.'), $(this).val());
-	});
-	
-	$('#debug').append('<pre>'+$.dump(accum)+'</pre>');
-	
-	return accum;
-};
-*/
-
 $.fn.extractAttrObject = function() {
 	
 	var accum = [];
@@ -605,8 +536,6 @@ function items()
 			   
 			   var offset = parseInt($('table#hiddenforms input[name=offset]').val());
 			   var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
-			   
-			   $('#logo').html(data.json.cnt+'|'+(offset+limit));
 			   
 			   if (data.json.cnt > offset + limit) {
 				   hasmore = true;
@@ -743,36 +672,41 @@ function getdetail(row)
 	var detail = $('div.detail', '#'+id);
 	var site = row.Site;
 	
-	// Country
+	/* Country */
 	$.each(hash[site].eBayDetails.CountryDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Country).text(v.Description);
 		$('select[name=Country]', '#'+id).append(optiontag);
 	});
 	
-	// Currency
+	
+	/* Currency */
 	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Currency).text(v.Description);
 		$('select[name=Currency]', '#'+id).append(optiontag);
 	});
 	
-	// Categories
+	
+	/* Categories */
 	var tmppath = row.ext.categorypath.slice(0);
 	tmppath.unshift(0);
 	var tmppds = getcategorypulldowns(site, tmppath);
 	$('select[name="PrimaryCategory.CategoryID"]', detail).parent().html(tmppds);
 	
-	var category = hash[site]['Categories']['c'+row.ext.categorypath[row.ext.categorypath.length-2]]['c'+row.PrimaryCategory.CategoryID];
+	var tmppc = hash[site].Categories['c'+row.ext.categorypath[row.ext.categorypath.length-2]];
+	var category = tmppc['c'+row.PrimaryCategory.CategoryID];
 	
-	// CategoryFeatures
-	var conditions = category['CategoryFeatures']['ConditionValues']['Condition'];
+	
+	/* CategoryFeatures */
+	var conditions = category.CategoryFeatures.ConditionValues.Condition;
 	for (i in conditions) {
-		var value = conditions[i]['ID'];
-		var label = conditions[i]['DisplayName'];
+		var value = conditions[i].ID;
+		var label = conditions[i].DisplayName;
 		var optiontag = $('<option/>').val(value).html(label);
 		$('select[name=ConditionID]', detail).append(optiontag);
 	}
 	
-	// Category2CS
+	
+	/* Category2CS */
 	if (category.Category2CS && category.Category2CS.CatalogEnabled) {
 		// todo: find more than 2 Sets.
 		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
@@ -786,41 +720,47 @@ function getdetail(row)
 	$('form[name=APIForm]', detail)
 		.attr('id',   'APIForm'+id)
 		.attr('name', 'APIForm'+id);
-
+	
+	
 	/* ShippingService */
 	var dmstselect = $('<select/>').append($('<option/>'));
 	var intlselect = $('<select/>').append($('<option/>'));
 	
 	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
 		if (o.ValidForSellingFlow != 'true') return;
-		var dmst = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
-		var intl = $('select[name="ext.shippingtype.international"]', '#'+id).val();
 		
+		var dmst = row.ext.shippingtype.domestic;
+		var intl = row.ext.shippingtype.international;
 		
-		if (o.ShippingServiceID < 50000) {
+		if (parseInt(o.ShippingServiceID) < 50000) {
+			
 			if ($.inArray(dmst, o.ServiceType) >= 0 || o.ServiceType == dmst) {
 				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
 				$(dmstselect).append(optiontag);
 			}
+			
 		} else {
+			
 			if ($.inArray(intl, o.ServiceType) >= 0 || o.ServiceType == intl) {
 				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
 				$(intlselect).append(optiontag);
 			}
+			
 		}
 	});
-	var _sdsso  = 'ShippingDetails.ShippingServiceOptions';
-	var _sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
-	$('select[name="'+_sdsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_sdsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_sdsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_sdsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
 	
-	$('select[name="'+_sdisso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_sdisso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_sdisso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_sdisso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_sdisso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
+	var _dsso = 'ShippingDetails.ShippingServiceOptions';
+	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
+	$('select[name="'+_dsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_dsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_dsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_dsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="'+_isso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_isso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_isso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_isso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="'+_isso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
+	
 	
 	return;
 	
@@ -875,30 +815,6 @@ function getdetail(row)
 		$('td.shippingtype_international', detail).html(row.ext.shippingtype.international);
 	}
 	
-	/*
-	if (row.ShippingDetails.ShippingServiceOptions) {
-		sdsso = row.ShippingDetails.ShippingServiceOptions;
-		_sdsso = 'ShippingDetails.ShippingServiceOptions';
-		$.each(arrayize(sdsso), function(i, o) {
-			dsp(row, _sdsso+'.'+i+'.ShippingServiceCost.#text');
-			dsp(row, _sdsso+'.'+i+'.ShippingServiceCost.@currencyID');
-			dspv(row, _sdsso+'.'+i+'.ShippingService',
-				 hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description']);
-		});
-	}
-	
-	
-	if (row.ShippingDetails.InternationalShippingServiceOption) {
-		sdisso = row.ShippingDetails.InternationalShippingServiceOption;
-		_sdisso = 'ShippingDetails.InternationalShippingServiceOption';
-		$.each(arrayize(sdisso), function(i, o) {
-			dsp(row, _sdisso+'.'+i+'.ShippingServiceCost.#text');
-			dsp(row, _sdisso+'.'+i+'.ShippingServiceCost.@currencyID');
-			dspv(row, _sdisso+'.'+i+'.ShippingService',
-				 hash[row.Site]['ShippingServiceDetails'][o.ShippingService]['Description']);
-		});
-	}
-	*/
 	
 	if (row.ShippingDetails.CalculatedShippingRate) {
 		
@@ -1356,19 +1272,18 @@ var clickSave = function() {
 	
 	return false;
 	
-	var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
-					 $(this).closest('div.detail')).extractAttrObject();
-	var attributeset = {};
-	attributeset['@attributeSetID'] = 99;
-	attributeset.Attribute = attrdata;
+	if (false) {
+		var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
+						 $(this).closest('div.detail')).extractAttrObject();
+		var attributeset = {};
+		attributeset['@attributeSetID'] = 99;
+		attributeset.Attribute = attrdata;
+		
+		//postdata.AttributeSetArray = attributeset;
+		dump(attrdata);
 	
-	//postdata.AttributeSetArray = attributeset;
-	dump(attrdata);
-	
-	//return false;
-	
-	//dump(postdata);
-	//return false;
+		//return false;
+	}
 	
 	/*
 	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
@@ -1463,7 +1378,7 @@ var clickTitle = function() {
 			   $('div.detail', '#'+id).show();
 			   
 			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.PictureDetails)+'</pre>');
-			   dump(item);
+			   //dump(item);
 
 			   //$.scrollTo('#'+id, {axis:'y', offset:0});
 		   },

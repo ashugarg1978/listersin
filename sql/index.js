@@ -1,3 +1,5 @@
+/* todo: CategoryMapping:oldID */
+
 db.items.ensureIndex({'ext.UserID':1});
 db.items.ensureIndex({'ext.deleted':1});
 db.items.ensureIndex({'ItemID':1});

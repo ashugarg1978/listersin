@@ -80,7 +80,7 @@ public class ApiCallTask implements Callable {
         conn.connect();
 		
 		String savedir = "/var/www/ebaytool.jp/logs/apicall/"+callname;
-		String filename = callname+"."+siteid.toString()+".xml";
+		String filename = "_tmp."+siteid.toString()+".xml";
 		FileWriter fstream = new FileWriter(savedir+"/"+filename);
 		BufferedWriter out = new BufferedWriter(fstream);
 		

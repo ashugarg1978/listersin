@@ -3,6 +3,7 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class GetCategories extends ApiCall {
 	
@@ -11,16 +12,14 @@ public class GetCategories extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
-		Integer cnt = cur.count();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
 			
-			String  site   = row.get("Site").toString();
-			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
-			log(site+"("+siteid+")");
-			
-			if (!site.equals("US")) continue;
+			String  site   = ((BasicDBObject) sitedbo).getString("Site");
+			Integer siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+			log(site);
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
@@ -30,15 +29,19 @@ public class GetCategories extends ApiCall {
 			reqdbo.append("MessageID",      site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategories");
-			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategories"));
+			Future<String> future =
+				pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategories", "filename"));
+			future.get();
 		}
 		
 		return "";
 	}
 	
-	public String callback(String responsexml) throws Exception {
+	public String callback(String filename) throws Exception {
 		
+		String responsexml = readfile(filename);
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		
 		String site = resdbo.getString("CorrelationID");
 		writelog("GetCategories/"+site+".xml", responsexml);
 		

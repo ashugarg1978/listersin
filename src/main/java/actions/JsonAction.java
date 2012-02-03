@@ -255,8 +255,12 @@ public class JsonAction extends BaseAction {
 		DBObject ext = (DBObject) item.get("ext");
 		
 		/* categorypath */
+		// todo: update old categoryid to current active categoryid
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+		categoryid = mapcategoryid(item.getString("Site"), categoryid);
+		((BasicDBObject) item.get("PrimaryCategory")).put("PrimaryCategory", categoryid.toString());
+		
 		List path = categorypath(item.getString("Site"), categoryid);
 		ext.put("categorypath", path);
 		
@@ -932,6 +936,7 @@ public class JsonAction extends BaseAction {
 		DBCollection coll = db.getCollection(site+".Categories");
 		
 		while (true) {
+			log.debug(categoryid);
 			query.put("CategoryID", categoryid.toString());
 			BasicDBObject row = (BasicDBObject) coll.findOne(query);
 			path.add(0, Integer.parseInt(row.getString("CategoryID")));
@@ -1619,6 +1624,19 @@ public class JsonAction extends BaseAction {
 		}
 		
 		return map;
+	}
+
+	private Integer mapcategoryid(String site, Integer categoryid) {
+		
+		log.debug("map: "+categoryid);
+		DBObject newdbo = db.getCollection(site+".CategoryMappings")
+			.findOne(new BasicDBObject("@oldID", categoryid.toString()));
+		if (newdbo != null) {
+			log.debug("map: "+categoryid+" -> "+newdbo.get("@id").toString());
+			categoryid = Integer.parseInt(newdbo.get("@id").toString());
+		}
+		
+		return categoryid;
 	}
 	
 	private BasicDBObject getFilterQuery() {
