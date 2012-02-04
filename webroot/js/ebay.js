@@ -185,10 +185,11 @@ function bindevents()
 	});
 	
 	
-	$('ul.accounts > li > ul > li > a').live('click', function() {
+	$('ul.accountaction > li').live('click', function() {
 		
 		v = $(this).attr('class');
-		userid = $(this).parent().parent().attr('class').replace(/^accountaction /, '');
+		userid = $(this).parent().attr('class').replace(/^accountaction /, '');
+		alert(userid);return;
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
 		$('select[name=UserID]').val(userid);
@@ -547,6 +548,12 @@ function items()
 				   rowsdata[idx] = row;
 				   var dom = getrow(idx, row);
 				   $('#items').append(dom);
+			   });
+
+			   //$('table#items').css('min-height', h+'px');
+			   $.each($('tbody.itemrow:eq(1) tr.row1 td'), function(i, td) {
+				   $(td).css('border', '1px solid red');
+				   $('table#itemsheader td:eq('+i+')').width($(td).width());
 			   });
 		   },
 		   'json');
@@ -954,12 +961,6 @@ function resizediv()
 	$('table#itemsheader').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
-	
-	//$('table#items').css('min-height', h+'px');
-	$.each($('tbody.itemrow:eq(1) tr.row1 td'), function(i, td) {
-		$(td).css('border', '1px solid red');
-		$('table#itemsheader td:eq('+i+')').width($(td).width());
-	});
 	
 	return;
 }

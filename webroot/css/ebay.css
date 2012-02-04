@@ -54,6 +54,10 @@ div#logo {
   -webkit-border-radius: 2px;
 }
 
+div#bulkbuttons {
+  margin-bottom: 10px;
+}
+
 a {
   color: #000066;
   text-decoration: none;
@@ -81,6 +85,10 @@ table.items tr.row1 {
 
 table.itemsheader tr#filter {
   border-bottom: 1px solid #999999;
+}
+
+table#itemsheader td {
+  border: 1px solid blue;
 }
 
 tr.rowover {
@@ -335,7 +343,7 @@ span.more {
 
 
 
-ul.editbuttons {
+ul.editbutons {
   float: left;
   list-style: none;
   margin: 5px 0px 0px 10px;

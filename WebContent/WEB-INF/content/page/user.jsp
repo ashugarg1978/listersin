@@ -33,35 +33,15 @@
   <br>
   
   <ul class="accounts">
-	<li class="allitems">
-	  <a href="" class="allitems"><s:text name="allitems"/></a>
-	</li>
+	<li class="allitems"><s:text name="allitems"/></li>
 	<li>
 	  <ul class="accountaction">
-		<li>
-		  <img src="/icon/02/10/37.png">
-		  <a href="" class="scheduled"><s:text name="scheduled"/></a>
-		</li>
-		<li>
-		  <img src="/icon/04/10/02.png">
-		  <a href="" class="active"   ><s:text name="active"   /></a>
-		</li>
-		<li>
-		  <img src="/icon/02/10/50.png">
-		  <a href="" class="sold"     ><s:text name="sold"     /></a>
-		</li>
-		<li>
-		  <img src="/icon/04/10/10.png">
-		  <a href="" class="unsold"   ><s:text name="unsold"   /></a>
-		</li>
-		<li>
-		  <img src="/icon/04/10/10.png">
-		  <a href="" class="saved"    ><s:text name="saved"    /></a>
-		</li>
-		<li>
-		  <img src="/icon/04/10/09.png">
-		  <a href="" class="trash"    ><s:text name="trash"    /></a>
-		</li>
+		<li class="scheduled"><img src="/icon/02/10/37.png"><s:text name="scheduled"/></li>
+		<li class="active"   ><img src="/icon/04/10/02.png"><s:text name="active"   /></li>
+		<li class="sold"     ><img src="/icon/02/10/50.png"><s:text name="sold"     /></li>
+		<li class="unsold"   ><img src="/icon/04/10/10.png"><s:text name="unsold"   /></li>
+		<li class="saved"    ><img src="/icon/04/10/10.png"><s:text name="saved"    /></li>
+		<li class="trash"    ><img src="/icon/04/10/09.png"><s:text name="trash"    /></li>
 	  </ul>
 	</li>
   </ul>
@@ -147,6 +127,7 @@
 	><button class="relist btncenter"><s:text name="relist"/></button
 	><button class="revise btncenter"><s:text name="revise"/></button
 	><button class="end btnright"><s:text name="end"/></button>
+	<div style="clear:both;"></div>
   </div>
   
   <table id="itemsheader" class="items">
