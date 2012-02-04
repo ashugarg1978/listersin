@@ -20,7 +20,7 @@ $(function() {
 	$.ajaxSetup({async: false});
 	
 	$('ul.accounts > li > ul:first').slideToggle('fast');
-	$('a.active', $('ul.accountaction:first')).click();
+	$('li.active', $('ul.accountaction:first')).click();
 	
 	if (false) {
 		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
@@ -125,13 +125,13 @@ function bindevents()
 	});
 	
 	/* Left Navi */
-	$('ul.accounts > li > a').live('click', function() {
+	$('ul.accounts > li').live('click', function() {
 		
-		if ($(this).closest('li').attr('class') == 'allitems'
-			&& $('ul', $(this).parent().next()).css('display') == 'block') {
+		if ($(this).attr('class') == 'allitems'
+			&& $('ul', $(this).next()).css('display') == 'block') {
 			// don't collapse navi
 		} else {
-			$('ul', $(this).parent().next()).slideToggle('fast');
+			$('ul', $(this).next()).slideToggle('fast');
 		}
 		
 		userid = $(this).attr('class');
@@ -189,7 +189,7 @@ function bindevents()
 		
 		v = $(this).attr('class');
 		userid = $(this).parent().attr('class').replace(/^accountaction /, '');
-		alert(userid);return;
+		
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
 		$('select[name=UserID]').val(userid);
@@ -206,19 +206,6 @@ function bindevents()
 		return false;
 	});
 	
-	
-	/* Paging */
-	$('#paging > a').live('click', function() {
-		limit = $('input[name=limit]').val();
-		if ($(this).html() == '>>') {
-			offset = ($('input[name=offset]').val()-0) + (limit-0);
-		} else {
-			offset = ($(this).html() - 1) * limit;
-		}
-		$('input[name=offset]').val(offset);
-		items();
-		return false;
-	});
 	
 	/* Editor */
 	$('a.wysiwyg').live('click', function() {
@@ -496,22 +483,22 @@ function gethash()
 
 function summary()
 {
-	ulorg = $('ul.accounts').clone();
+	var ulorg = $('ul.accounts').clone();
 	
 	$.getJSON('/json/summary', function(data) {
 		
-		$('ul.accounts > li.allitems > a.allitems').append(' ('+data.json.alluserids.allitems+')');
+		$('ul.accounts > li.allitems').append(' ('+data.json.alluserids.allitems+')');
 		$.each(data.json.alluserids, function(k, v) {
-			$('ul.accounts > li > ul.accountaction a.'+k).append(' ('+v+')');
+			$('ul.accounts > li > ul.accountaction li.'+k).append(' ('+v+')');
 		});
 		
 		$.each(data.json, function(k, o) {
 			if (k == 'alluserids') return;
-			ul = ulorg.clone();
-			$('a.allitems', ul).attr('class', k).html(k+' ('+o.allitems+')');
+			var ul = ulorg.clone();
+			$('li.allitems', ul).attr('class', k).html(k+' ('+o.allitems+')');
 			$('ul.accountaction', ul).attr('class', 'accountaction '+k);
 			$.each(o, function(j, v) {
-				$('a.'+j, ul).append(' ('+v+')');
+				$('li.'+j, ul).append(' ('+v+')');
 			});
 			$('ul.accounts').append(ul.html());
 		});
@@ -551,10 +538,6 @@ function items()
 			   });
 
 			   //$('table#items').css('min-height', h+'px');
-			   $.each($('tbody.itemrow:eq(1) tr.row1 td'), function(i, td) {
-				   $(td).css('border', '1px solid red');
-				   $('table#itemsheader td:eq('+i+')').width($(td).width());
-			   });
 		   },
 		   'json');
 }
@@ -950,17 +933,16 @@ function getdetail(row)
 
 function resizediv()
 {
-	var w = $('div#container').width()-195;
+	var w = $('div#container').width()-215;
 	var h = $('body').height() - 10;
 	
 	$('div#content').width(w);
-	$('div#contentheader').width(w);
 	$('div#debug').width(w-20);
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
-	$('table#itemsheader').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
+	$('div#toolbar').height($(window).height()-20);
 	
 	return;
 }

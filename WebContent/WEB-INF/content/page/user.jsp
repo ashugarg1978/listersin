@@ -17,20 +17,37 @@
 <body>
 
 <div id="container">
-
-<div id="loading"><s:text name="loading"/></div>
-
-<div id="toolbar">
-  <div id="logo"><a href="/">Sandbox</a></div>
   
-  <div style="font-size:11px; margin-right:10px;">
-	<b>${user.email}</b><br>
-	<div style="text-align:right;">
+  <div id="loading"><s:text name="loading"/></div>
+  
+  <div id="header">
+	<div id="logo"><a href="/">Sandbox</a></div>
+	
+	<div id="bulkbuttons">
+	  <button class="checkall btnleft"><s:text name="checkall"/></button>
+	  <button class="checkallpage btncenter"><s:text name="checkallpage"/></button>
+	  <button class="uncheckall btnright"><s:text name="uncheckall"/></button>
+	  
+	  <button class="edit btnleft"><s:text name="edit"/></button>
+	  <button class="copy btncenter"><s:text name="copy"/></button>
+	  <button class="delete btnright"><s:text name="delete"/></button>
+	  
+	  <button class="add btnleft"><s:text name="add"/></button>
+	  <button class="relist btncenter"><s:text name="relist"/></button>
+	  <button class="revise btncenter"><s:text name="revise"/></button>
+	  <button class="end btnright"><s:text name="end"/></button>
+	  <div style="clear:both;"></div>
+	</div>
+	
+	<div id="search">
+	  <input type="text" class="filter" name="Title" value="" size="40">
+	  <b>${user.email}</b>
 	  <a href="/page/logout"><s:text name="signout"/></a>
 	</div>
+	
   </div>
-  
-  <br>
+
+<div id="toolbar">
   
   <ul class="accounts">
 	<li class="allitems"><s:text name="allitems"/></li>
@@ -95,6 +112,10 @@
 	  <td>allpages</td>
 	  <td><input type="checkbox" class="filter" name="allpages" value="1"></td>
 	</tr>
+	<tr>
+	  <td>user id</td>
+	  <td><input type="text" class="filter" name="UserID"></td>
+	</tr>
   </table>
   
   <br>
@@ -108,50 +129,6 @@
   <a href="#" onclick="preloadcategoryfeatures('US', 31387); return false;">features</a>
   
   <div id="msg"></div>
-  
-</div>
-
-
-<div id="contentheader">
-  
-  <div id="bulkbuttons">
-	<button class="checkall btnleft"><s:text name="checkall"/></button
-	><button class="checkallpage btncenter"><s:text name="checkallpage"/></button
-	><button class="uncheckall btnright"><s:text name="uncheckall"/></button>
-	
-	<button class="edit btnleft"><s:text name="edit"/></button
-	><button class="copy btncenter"><s:text name="copy"/></button
-	><button class="delete btnright"><s:text name="delete"/></button>
-	
-	<button class="add btnleft"><s:text name="add"/></button
-	><button class="relist btncenter"><s:text name="relist"/></button
-	><button class="revise btncenter"><s:text name="revise"/></button
-	><button class="end btnright"><s:text name="end"/></button>
-	<div style="clear:both;"></div>
-  </div>
-  
-  <table id="itemsheader" class="items">
-	<tbody id="filter">
-	  <tr>
-		<td></td>
-		<td>
-		  <input type="text" class="filter" name="Title" value="" size="40">
-		</td>
-		<td>
-		  <select class="filter" name="UserID" onchange="filter();">
-			<option value="">User ID</option>
-			<s:iterator value="user.userids.keySet">
-			  <option><s:property /></option>
-			</s:iterator>
-		  </select>
-		</td>
-		<td><input type="text" class="filter" name="ItemID" size="10"></td>
-		<td></td>
-		<td></td>
-		<td></td>
-	  </tr>
-	</tbody>
-  </table>
   
 </div>
 

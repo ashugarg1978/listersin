@@ -14,17 +14,32 @@ div#container {
   background-color: #eaeaea;
 }
 
+div#header {
+  width: 100%;
+  position: fixed;
+  background-color: #eaeaea;
+  left: 0px;
+  top: 0px;
+  padding: 20px;
+  z-index: 1;
+  border-bottom: 1px solid #aaa;
+}
+
 div#toolbar {
   width: 165px;
   float: left;
   position: fixed;
-  margin: 10px;
-  /* todo: scroll bar */
+  margin: 95px 20px 20px 20px;
+  overflow: hidden;
+}
+
+div#toolbar:hover {
+  overflow: scroll;
 }
 
 div#content {
   float:right;
-  margin: 110px 10px 10px 10px;
+  margin: 95px 20px 20px 20px;
   background-color: #fff;
   /*
   border-radius:5px;
@@ -32,23 +47,17 @@ div#content {
   */
 }
 
-div#contentheader {
-  position: fixed;
-  background-color: #eaeaea;
-  left: 185px;
-  top: 0px;
-  padding-top: 10px;
-  z-index: 1;
-}
 
 div#logo {
+  float: left;
   border: 1px solid #999999;
   background-color: #dadada;
-  margin-bottom: 10px;
   text-align: center;
   font-weight: bold;
   padding: 10px;
   font-size: 16px;
+  width: 143px;
+  margin-right: 10px;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -56,6 +65,12 @@ div#logo {
 
 div#bulkbuttons {
   margin-bottom: 10px;
+  float: left;
+}
+
+div#search {
+  margin-bottom: 10px;
+  float: left;
 }
 
 a {
@@ -85,10 +100,6 @@ table.items tr.row1 {
 
 table.itemsheader tr#filter {
   border-bottom: 1px solid #999999;
-}
-
-table#itemsheader td {
-  border: 1px solid blue;
 }
 
 tr.rowover {
@@ -291,18 +302,30 @@ ul.accounts {
   list-style-type: none;
 }
 
-ul.accounts li {
+ul.accounts > li:nth-child(odd) {
+  font-weight: bold;
+  color: #444;
+}
+
+ul.accounts > li:nth-child(odd),
+ul.accountaction > li {
   margin: 0px;
-  padding: 1px 0px 1px 5px;
+  padding: 1px 8px;
   line-height: 27px;
   font-size: 11px;
 }
 
-ul.accounts li:hover {
+ul.accountaction li img {
+  margin-right: 5px;
+}
+
+ul.accounts > li:nth-child(odd):hover,
+ul.accountaction > li:hover {
   cursor: pointer;
-  /*background-color: rgba(35, 35, 35, .85);*/
-  background-color: rgba(192, 192, 192, .85);
-  color: #eee;
+  background-color: rgba(208, 208, 208, .85);
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
 
 ul.accounts > li.allitems {
