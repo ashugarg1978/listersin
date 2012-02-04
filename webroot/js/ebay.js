@@ -1827,8 +1827,8 @@ function showformvalues(item)
 			
 			if (typeof(tmpvalue) == 'object') {
 				for (i in tmpvalue) {
-					if (tmpvalue[i] == '') {
-						
+					if (tmpvalue[i] == $(form).val()) {
+						$(form).replaceWith('[C]');
 					}
 				}
 			}
@@ -1838,7 +1838,12 @@ function showformvalues(item)
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
 		}
 	});
-	
+	$.each($('input[type=checkbox]', detail), function(i, form) {
+		var idforlabel = $(form).attr('id');
+		$(form).remove();
+		$('label[for="'+idforlabel+'"]').remove();
+	});
+		   
 	return;
 }
 
