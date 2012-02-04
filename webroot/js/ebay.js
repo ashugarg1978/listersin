@@ -597,7 +597,7 @@ function getrow(idx, row)
 		pictstr = row.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
-		//$('img.PictureURL', dom).attr('src', pictstr);
+		$('img.PictureURL', dom).attr('src', pictstr);
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
@@ -956,6 +956,10 @@ function resizediv()
 	$('div.tabContainer').width(w-32);
 	
 	//$('table#items').css('min-height', h+'px');
+	$.each($('tbody.itemrow:eq(1) tr.row1 td'), function(i, td) {
+		$(td).css('border', '1px solid red');
+		$('table#itemsheader td:eq('+i+')').width($(td).width());
+	});
 	
 	return;
 }
@@ -1905,7 +1909,7 @@ function setItemSpecificsForms(item)
 		var tdtag = $('<td />');
 		
 		var inputtag = $('<input />')
-			.attr('type', 'hidden')
+			.attr('type', 'text')
 			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
 		
 		$(tdtag).append(inputtag);
@@ -1987,11 +1991,10 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
 			   && recommref.ValidationRules.MaxValues != '1') {
 		
-		var tabletag = $('<table/>').addClass('checkboxes');
-		var trtag = $('<tr />');
+		var divtag = $('<div/>');
 		
 		var checkboxidx = 0;
-
+		
 		for (j in item.ItemSpecifics.NameValueList[i].Value) {
 			var value = item.ItemSpecifics.NameValueList[i].Value[j];
 			
@@ -2012,14 +2015,14 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 					.attr('type', 'checkbox')
 					.val(value);
 				
-				$(tdtag).append(checkboxtag);
-				
 				var labeltag = $('<label/>')
 					.attr('for', idforlabel)
 					.html(value+'('+checkboxidx+')');
 				
-				$(tdtag).append(labeltag);
-				$(tdtag).append('<br/>');
+				var divtag2 = $('<div/>');
+				$(divtag2).append(checkboxtag);
+				$(divtag2).append(labeltag);
+				$(divtag).append(divtag2);
 				
 				checkboxidx++;
 			}
@@ -2029,30 +2032,25 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 			
 			var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+checkboxidx;
 			
-			if (j > 0 && j % 3 == 0) {
-				$(tabletag).append(trtag);
-				trtag = $('<tr />');
-			}
-			var tdtag2 = $('<td />');
 			var checkboxtag = $('<input/>')
 				.attr('id', idforlabel)
 				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
 				.attr('type', 'checkbox')
 				.val(recommref.ValueRecommendation[j].Value);
 			
-			$(tdtag).append(checkboxtag);
-
 			var labeltag = $('<label/>')
 				.attr('for', idforlabel)
 				.html(recommref.ValueRecommendation[j].Value+'('+checkboxidx+')');
 			
-			$(tdtag).append(labeltag);
-			$(tdtag).append('<br/>');
+			var divtag2 = $('<div/>');
+			$(divtag2).append(checkboxtag);
+			$(divtag2).append(labeltag);
+			$(divtag).append(divtag2);
 			
 			checkboxidx++;
 		}
-		$(tabletag).append(trtag);
-		$(tdtag).append(tabletag);
+		
+		$(tdtag).append(divtag);
 		$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
 		
 	} else {

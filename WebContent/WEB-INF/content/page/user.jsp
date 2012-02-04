@@ -133,55 +133,43 @@
 
 
 <div id="contentheader">
-
-  <div id="bulkbuttons" style="float:left; margin:10px;">
-	<button class="checkall"><s:text name="checkall"/></button>
-	<button class="checkallpage"><s:text name="checkallpage"/></button>
-	<button class="uncheckall"><s:text name="uncheckall"/></button>
-	<button class="edit"><s:text name="edit"/></button>
-	<button class="copy"><s:text name="copy"/></button>
-	<button class="delete"><s:text name="delete"/></button>
-	<button class="add"><s:text name="add"/></button>
-	<button class="relist"><s:text name="relist"/></button>
-	<button class="revise"><s:text name="revise"/></button>
-	<button class="end"><s:text name="end"/></button>
+  
+  <div id="bulkbuttons">
+	<button class="checkall btnleft"><s:text name="checkall"/></button
+	><button class="checkallpage btncenter"><s:text name="checkallpage"/></button
+	><button class="uncheckall btnright"><s:text name="uncheckall"/></button>
+	
+	<button class="edit btnleft"><s:text name="edit"/></button
+	><button class="copy btncenter"><s:text name="copy"/></button
+	><button class="delete btnright"><s:text name="delete"/></button>
+	
+	<button class="add btnleft"><s:text name="add"/></button
+	><button class="relist btncenter"><s:text name="relist"/></button
+	><button class="revise btncenter"><s:text name="revise"/></button
+	><button class="end btnright"><s:text name="end"/></button>
   </div>
   
-  <div id="paging"></div>
-  
-  <div style="clear:both;"></div>
-  
   <table id="itemsheader" class="items">
-	<thead>
+	<tbody id="filter">
 	  <tr>
-		<th></th>
-		<th align="left"><s:text name="title"/></th>
-		<th align="left"><s:text name="account"/></th>
-		<th align="left"><s:text name="itemid"/></th>
-		<th align="right"><s:text name="now"/></th>
-		<th align="right"><s:text name="end"/></th>
-		<th align="left"><s:text name="pict"/></th>
+		<td></td>
+		<td>
+		  <input type="text" class="filter" name="Title" value="" size="40">
+		</td>
+		<td>
+		  <select class="filter" name="UserID" onchange="filter();">
+			<option value="">User ID</option>
+			<s:iterator value="user.userids.keySet">
+			  <option><s:property /></option>
+			</s:iterator>
+		  </select>
+		</td>
+		<td><input type="text" class="filter" name="ItemID" size="10"></td>
+		<td></td>
+		<td></td>
+		<td></td>
 	  </tr>
-	</thead>
-	
-	<tr id="filter">
-	  <td></td>
-	  <td>
-		<input type="text" class="filter" name="Title" value="" size="40">
-	  </td>
-	  <td>
-		<select class="filter" name="UserID" onchange="filter();">
-		  <option value="">User ID</option>
-		  <s:iterator value="user.userids.keySet">
-			<option><s:property /></option>
-		  </s:iterator>
-		</select>
-	  </td>
-	  <td><input type="text" class="filter" name="ItemID" size="10"></td>
-	  <td></td>
-	  <td></td>
-	  <td></td>
-	</tr>
+	</tbody>
   </table>
   
 </div>
@@ -195,7 +183,7 @@
 		<td>
 		  <div class="titlewrap">
 			<a href="" class="Title"></a><div class="labelwrap"></div>
-		</div>
+		  </div>
 		</td>
 		<td class="UserID"></td>
 		<td><a href="" class="ItemID" target="_blank"></a></td>
@@ -274,21 +262,21 @@
 				  
 				  <br/>
 				  
-				  Include Stock Photo
-				  <select name="ProductListingDetails.IncludeStockPhotoURL">
-					<option value=""></option>
-					<option value="true">true</option>
-					<option value="false">false</option>
-				  </select>
+				  <input type="checkbox" value="true"
+						 name="ProductListingDetails.IncludePrefilledItemInformation"/>
+				  Include the following product information in your listing
 				  
 				  <br/>
 				  
+				  <input type="checkbox" value="true"
+						 name="ProductListingDetails.IncludeStockPhotoURL"/>
+				  Include Stock Photo
+				  
+				  <br/>
+				  
+				  <input type="checkbox" value="true"
+						 name="ProductListingDetails.UseStockPhotoURLAsGallery"/>
 				  Use Stock Photo As Gallery
-				  <select name="ProductListingDetails.UseStockPhotoURLAsGallery">
-					<option value=""></option>
-					<option value="true">true</option>
-					<option value="false">false</option>
-				  </select>
 				  
 				  <br/>
 				  
@@ -304,17 +292,6 @@
 				  </div>
 				  
 				</div>
-				
-				<!--
-					<input type="checkbox" name="ProductListingDetails.IncludeStockPhotoURL"
-						   value="true"/>Include Stock Photo<br/>
-					
-					<input type="checkbox" name="ProductListingDetails.UseStockPhotoURLAsGallery"
-						   value="true"/>Use Stock Photo As Gallery<br/>
-					
-					todo: Why value is set to "false" when I use checkboxes?
-					-->
-				
 			  </td>
 			</tr>
 			<!--

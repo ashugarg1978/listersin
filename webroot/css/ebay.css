@@ -11,6 +11,7 @@ body {
 
 div#container {
   margin: 0px 0px 0px 0px;
+  background-color: #eaeaea;
 }
 
 div#toolbar {
@@ -23,7 +24,8 @@ div#toolbar {
 
 div#content {
   float:right;
-  margin: 120px 10px 10px 10px;
+  margin: 110px 10px 10px 10px;
+  background-color: #fff;
   /*
   border-radius:5px;
   -moz-border-radius:5px;
@@ -32,8 +34,10 @@ div#content {
 
 div#contentheader {
   position: fixed;
-  background-color: #fff;
+  background-color: #eaeaea;
   left: 185px;
+  top: 0px;
+  padding-top: 10px;
   z-index: 1;
 }
 
@@ -45,6 +49,9 @@ div#logo {
   font-weight: bold;
   padding: 10px;
   font-size: 16px;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
 }
 
 a {
@@ -69,7 +76,7 @@ table.items {
 }
 
 table.items tr.row1 {
-  border-top: 1px solid #cccccc;
+  border-top: 1px solid #eaeaea;
 }
 
 table.itemsheader tr#filter {
@@ -518,7 +525,21 @@ div.ProductSellingPages td:first-child {
   font-weight: normal;
 }
 
-button, submit, input {
+input {
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  height: 11px;
+  line-height: 11px;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 8px;
+  border: 1px solid #999;
+  font-family: arial, sans-serif;
+  color: #444;
+}
+
+button, submit {
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -526,10 +547,32 @@ button, submit, input {
   line-height: 27px;
   font-size: 11px;
   font-weight: bold;
-  padding: 0 8px;
+  padding: 0px 8px;
   border: 1px solid #999;
   font-family: arial, sans-serif;
   color: #444;
+  margin: 0px;
+}
+
+button.btnleft {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  margin-right: 0px;
+}
+
+button.btncenter {
+  border-right: 0px none;
+  border-left: 0px none;
+  border-radius: 0px;
+  border-radius: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+button.btnright {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  margin-left: 0px;
 }
 
 select {
