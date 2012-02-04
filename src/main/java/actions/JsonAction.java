@@ -259,7 +259,7 @@ public class JsonAction extends BaseAction {
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
 		categoryid = mapcategoryid(item.getString("Site"), categoryid);
-		((BasicDBObject) item.get("PrimaryCategory")).put("PrimaryCategory", categoryid.toString());
+		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
 		
 		List path = categorypath(item.getString("Site"), categoryid);
 		ext.put("categorypath", path);
@@ -300,9 +300,13 @@ public class JsonAction extends BaseAction {
 		BasicDBObject ebaydetails =
 			(BasicDBObject) db.getCollection(item.getString("Site")+".eBayDetails").findOne();
 		
+		BasicDBObject categoryfeatures =
+			(BasicDBObject) db.getCollection(item.getString("Site")+".CategoryFeatures").findOne();
+		
 		json.put("item", item);
 		json.put("Categories", children2.get("Categories"));
 		json.put("eBayDetails", ebaydetails);
+		json.put("CategoryFeatures", categoryfeatures);
 		
 		return SUCCESS;
 	}

@@ -696,7 +696,7 @@ function getdetail(row)
 	var category = tmppc['c'+row.PrimaryCategory.CategoryID];
 	
 	
-	/* CategoryFeatures */
+	/* Condition */
 	var conditions = category.CategoryFeatures.ConditionValues.Condition;
 	for (i in conditions) {
 		var value = conditions[i].ID;
@@ -720,6 +720,28 @@ function getdetail(row)
 	$('form[name=APIForm]', detail)
 		.attr('id',   'APIForm'+id)
 		.attr('name', 'APIForm'+id);
+	
+	
+	/* ListingDuration */
+	var durationsetid = null;
+	for (i in category.CategoryFeatures.ListingDuration) {
+		if (category.CategoryFeatures.ListingDuration[i]['@type'] == row.ListingType) {
+			durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
+			break;
+		}
+	}
+	var listingdurations =
+		hash[site].CategoryFeatures.FeatureDefinitions.ListingDurations.ListingDuration;
+	for (i in listingdurations) {
+		if (listingdurations[i]['@durationSetID'] == durationsetid) {
+			for (j in listingdurations[i].Duration) {
+				var value = listingdurations[i].Duration[j];
+				var optiontag = $('<option/>').val(value).html(value);
+				$('select[name=ListingDuration]', detail).append(optiontag);
+			}
+			break;
+		}
+	}
 	
 	
 	/* ShippingService */
@@ -1364,10 +1386,12 @@ var clickTitle = function() {
 		   function(data) {
 			   item = data.json.item;
 			   rowsdata[id] = item;
+			   dump(item);
 			   
 			   hash[item.Site] = new Object;
 			   hash[item.Site].eBayDetails = data.json.eBayDetails;
 			   hash[item.Site].Categories  = data.json.Categories;
+			   hash[item.Site].CategoryFeatures = data.json.CategoryFeatures;
 			   
 			   getdetail(item);
 			   showformvalues(item);
@@ -1378,7 +1402,6 @@ var clickTitle = function() {
 			   $('div.detail', '#'+id).show();
 			   
 			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.PictureDetails)+'</pre>');
-			   //dump(item);
 
 			   //$.scrollTo('#'+id, {axis:'y', offset:0});
 		   },
@@ -1771,6 +1794,7 @@ function showformvalues(item)
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
 		} catch (err) {
+			$(form).replaceWith('[E]');
 			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
@@ -1788,9 +1812,11 @@ function showformvalues(item)
 			var label = $('option[value='+tmpvalue+']', form).html();
 			$(form).replaceWith(label+'[S]');
 		} catch (err) {
+			$(form).replaceWith('[E]');
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
 		}
 	});
+
 	
 	return;
 }
@@ -1806,6 +1832,13 @@ function fillformvalues(item)
 		try {
 			eval("var tmpvalue = item"+formname);
 			$(form).val(tmpvalue);
+			
+			if ($(form).attr('name').match(/^PictureDetails.PictureURL./)) {
+				var imgclass = $(form).attr('name')
+					.replace(/^PictureDetails.PictureURL./, 'PD_PURL_');
+				$('img.'+imgclass, detail).attr('src', tmpvalue);
+			}
+			
 		} catch (err) {
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}

@@ -272,12 +272,15 @@
 				  
 				  <input name="ProductListingDetails.ProductID" type="hidden"/>
 				  
+				  <br/>
+				  
 				  Include Stock Photo
 				  <select name="ProductListingDetails.IncludeStockPhotoURL">
 					<option value=""></option>
 					<option value="true">true</option>
 					<option value="false">false</option>
 				  </select>
+				  
 				  <br/>
 				  
 				  Use Stock Photo As Gallery
@@ -286,6 +289,7 @@
 					<option value="true">true</option>
 					<option value="false">false</option>
 				  </select>
+				  
 				  <br/>
 				  
 				  <div class="foundproducts">
