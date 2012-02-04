@@ -1817,6 +1817,27 @@ function showformvalues(item)
 		}
 	});
 
+	/* checkbox */
+	$.each($('input[type=checkbox]', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		if (formname == null) return;
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("var tmpvalue = item"+formname);
+			
+			if (typeof(tmpvalue) == 'object') {
+				for (i in tmpvalue) {
+					if (tmpvalue[i] == '') {
+						
+					}
+				}
+			}
+			
+		} catch (err) {
+			$(form).replaceWith('[E]');
+			//$(detail).before('ERR: '+formname+' '+err+'<br />');
+		}
+	});
 	
 	return;
 }
@@ -1883,10 +1904,10 @@ function setItemSpecificsForms(item)
 			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
 		
 		$(tdtag).append(inputtag);
-		$(tdtag).append(specifics[i].Name);
 		$(trtag).append(tdtag);
 		
-		var tdtag = setItemSpecificsFormValue(recommref, specifics);
+		var tdtag = setItemSpecificsFormValue(item, i, recommref, specifics);
+		$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
 		
 		$(trtag).append(tdtag);
 		$('table.ItemSpecifics', detail).append(trtag);
@@ -1923,7 +1944,7 @@ function setItemSpecificsForms(item)
 	return;
 }
 
-function setItemSpecificsFormValue(recommref, specifics)
+function setItemSpecificsFormValue(item, i, recommref, specifics)
 {
 	var tdtag = $('<td/>');
 	
@@ -1965,17 +1986,28 @@ function setItemSpecificsFormValue(recommref, specifics)
 		var trtag = $('<tr />');
 		
 		for (j in recommref.ValueRecommendation) {
+			
+			var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+j;
+			
 			if (j > 0 && j % 3 == 0) {
 				$(tabletag).append(trtag);
 				trtag = $('<tr />');
 			}
 			var tdtag2 = $('<td />');
 			var checkboxtag = $('<input/>')
+				.attr('id', idforlabel)
 				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
 				.attr('type', 'checkbox')
 				.val(recommref.ValueRecommendation[j].Value);
+			
 			$(tdtag2).append(checkboxtag);
-			$(tdtag2).append(recommref.ValueRecommendation[j].Value);
+
+			var labeltag = $('<label/>')
+				.attr('for', idforlabel)
+				.html(recommref.ValueRecommendation[j].Value);
+			
+			$(tdtag2).append(labeltag);
+			
 			$(trtag).append(tdtag2);
 		}
 		$(tabletag).append(trtag);
