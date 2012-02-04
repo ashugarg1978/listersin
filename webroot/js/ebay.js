@@ -1912,7 +1912,7 @@ function setItemSpecificsForms(item)
 		$(trtag).append(tdtag);
 		
 		var tdtag = setItemSpecificsFormValue(item, i, recommref, specifics);
-		$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
+		//$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
 		
 		$(trtag).append(tdtag);
 		$('table.ItemSpecifics', detail).append(trtag);
@@ -1990,9 +1990,44 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		var tabletag = $('<table/>').addClass('checkboxes');
 		var trtag = $('<tr />');
 		
+		var checkboxidx = 0;
+
+		for (j in item.ItemSpecifics.NameValueList[i].Value) {
+			var value = item.ItemSpecifics.NameValueList[i].Value[j];
+			
+			var existinrecomm = false;
+			for (k in recommref.ValueRecommendation) {
+				if (recommref.ValueRecommendation[k].Value == value) {
+					existinrecomm = true;
+					break;
+				}
+			}
+			if (existinrecomm == false) {
+				
+				var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+checkboxidx;
+				
+				var checkboxtag = $('<input/>')
+					.attr('id', idforlabel)
+					.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
+					.attr('type', 'checkbox')
+					.val(value);
+				
+				$(tdtag).append(checkboxtag);
+				
+				var labeltag = $('<label/>')
+					.attr('for', idforlabel)
+					.html(value+'('+checkboxidx+')');
+				
+				$(tdtag).append(labeltag);
+				$(tdtag).append('<br/>');
+				
+				checkboxidx++;
+			}
+		}
+		
 		for (j in recommref.ValueRecommendation) {
 			
-			var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+j;
+			var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+checkboxidx;
 			
 			if (j > 0 && j % 3 == 0) {
 				$(tabletag).append(trtag);
@@ -2005,18 +2040,20 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 				.attr('type', 'checkbox')
 				.val(recommref.ValueRecommendation[j].Value);
 			
-			$(tdtag2).append(checkboxtag);
+			$(tdtag).append(checkboxtag);
 
 			var labeltag = $('<label/>')
 				.attr('for', idforlabel)
-				.html(recommref.ValueRecommendation[j].Value);
+				.html(recommref.ValueRecommendation[j].Value+'('+checkboxidx+')');
 			
-			$(tdtag2).append(labeltag);
+			$(tdtag).append(labeltag);
+			$(tdtag).append('<br/>');
 			
-			$(trtag).append(tdtag2);
+			checkboxidx++;
 		}
 		$(tabletag).append(trtag);
 		$(tdtag).append(tabletag);
+		$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
 		
 	} else {
 		
