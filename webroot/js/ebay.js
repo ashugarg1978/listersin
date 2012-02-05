@@ -933,16 +933,17 @@ function getdetail(row)
 
 function resizediv()
 {
-	var w = $('div#container').width()-215;
+	var w = $('div#container').width()-225;
 	var h = $('body').height() - 10;
 	
 	$('div#content').width(w);
+	$('div#header').width($('div#container').width()-40);
 	$('div#debug').width(w-20);
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
 	$('div.tabContainer').width(w-32);
-	$('div#toolbar').height($(window).height()-20);
+	$('div#toolbar').height($(window).height()-107);
 	
 	return;
 }

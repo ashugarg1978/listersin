@@ -5,31 +5,31 @@ html {
 
 body {
   margin: 0px 0px 0px 0px;
-  font-family: arial, sans-serif;
-  font-size: 14px;
+  font-family: sans-serif;
+  font-size: 13px;
+  color: #444;
 }
 
 div#container {
   margin: 0px 0px 0px 0px;
-  background-color: #eaeaea;
+  background-color: #f7f7f7;
 }
 
 div#header {
-  width: 100%;
   position: fixed;
-  background-color: #eaeaea;
+  background-color: #f7f7f7;
   left: 0px;
   top: 0px;
-  padding: 20px;
+  padding: 15px 20px 15px 20px;
   z-index: 1;
-  border-bottom: 1px solid #aaa;
+  border-bottom: 1px solid #c6c6c6;
 }
 
 div#toolbar {
   width: 165px;
   float: left;
   position: fixed;
-  margin: 95px 20px 20px 20px;
+  margin: 87px 20px 20px 20px;
   overflow: hidden;
 }
 
@@ -39,12 +39,8 @@ div#toolbar:hover {
 
 div#content {
   float:right;
-  margin: 95px 20px 20px 20px;
+  margin: 87px 20px 20px 20px;
   background-color: #fff;
-  /*
-  border-radius:5px;
-  -moz-border-radius:5px;
-  */
 }
 
 
@@ -57,20 +53,24 @@ div#logo {
   padding: 10px;
   font-size: 16px;
   width: 143px;
-  margin-right: 10px;
+  margin-right: 20px;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
 }
 
 div#bulkbuttons {
-  margin-bottom: 10px;
+  margin-top: 14px;
   float: left;
 }
 
 div#search {
-  margin-bottom: 10px;
+  margin-top: 14px;
   float: left;
+}
+
+div#useremail {
+  float: right;
 }
 
 a {
@@ -91,11 +91,15 @@ table.items {
   margin: 0px 0px 0px 0px;
   border-spacing: 0px;
   border-collapse: collapse;
-  /* width: 940px; */
 }
 
-table.items tr.row1 {
-  border-top: 1px solid #eaeaea;
+table.items tr.row1:hover {
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+table.items tr.row2 {
+  border-bottom: 1px solid #eaeaea;
 }
 
 table.itemsheader tr#filter {
@@ -114,7 +118,7 @@ tr#filter td {
 
 table.items th {
   color: #20201e;
-  font-size: 9pt;
+  font-size: 13px;
   padding: 3px 10px 3px 10px;
   background-color: #eeeeee;
 }
@@ -125,15 +129,13 @@ table.items th a {
 }
 
 table.items tr.row1 > td {
-  font-size: 14px;
   padding: 0px 10px 0px 10px;
   height: 40px;
   white-space: nowrap;
 }
 
 table.items tr.row2 > td {
-  font-size: 10pt;
-  padding: 0px 10px 0px 10px;
+  padding: 0px 20px 0px 20px;
 }
 
 div.titlewrap {
@@ -484,8 +486,8 @@ iframe[name=posttarget] {
 }
 
 div#debugseparator {
-  margin: 30px 10px 10px 0;
-  border-bottom: 2px dotted #999999;
+  margin: 10px 0px;
+  border-bottom: 1px solid #c6c6c6;
 }
 
 /*
@@ -570,6 +572,13 @@ input {
   color: #444;
 }
 
+div#toolbar input,
+div#toolbar select {
+  padding: 0px;
+  border: 0px none;
+  line-height: 13px;
+}
+
 button, submit {
   border-radius: 2px;
   -moz-border-radius: 2px;
@@ -592,7 +601,6 @@ button.btnleft {
 }
 
 button.btncenter {
-  border-right: 0px none;
   border-left: 0px none;
   border-radius: 0px;
   border-radius: 0px;
@@ -601,9 +609,11 @@ button.btncenter {
 }
 
 button.btnright {
+  border-left: 0px none;
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   margin-left: 0px;
+  margin-right: 15px;
 }
 
 select {
@@ -624,3 +634,4 @@ button:hover,
 select:hover {
   cursor: pointer;
 }
+

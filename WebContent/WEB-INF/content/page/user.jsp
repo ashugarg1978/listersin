@@ -23,26 +23,29 @@
   <div id="header">
 	<div id="logo"><a href="/">Sandbox</a></div>
 	
+	<div id="useremail">
+	  <span style="font-weight:bold;">${user.email}</span>
+	  <a href="/page/logout"><s:text name="signout"/></a>
+	</div>
+	
 	<div id="bulkbuttons">
-	  <button class="checkall btnleft"><s:text name="checkall"/></button>
-	  <button class="checkallpage btncenter"><s:text name="checkallpage"/></button>
-	  <button class="uncheckall btnright"><s:text name="uncheckall"/></button>
+	  <button class="checkall btnleft"><s:text name="checkall"/></button
+	  ><button class="checkallpage btncenter"><s:text name="checkallpage"/></button
+	  ><button class="uncheckall btnright"><s:text name="uncheckall"/></button>
 	  
-	  <button class="edit btnleft"><s:text name="edit"/></button>
-	  <button class="copy btncenter"><s:text name="copy"/></button>
-	  <button class="delete btnright"><s:text name="delete"/></button>
+	  <button class="edit btnleft"><s:text name="edit"/></button
+	  ><button class="copy btncenter"><s:text name="copy"/></button
+	  ><button class="delete btnright"><s:text name="delete"/></button>
 	  
-	  <button class="add btnleft"><s:text name="add"/></button>
-	  <button class="relist btncenter"><s:text name="relist"/></button>
-	  <button class="revise btncenter"><s:text name="revise"/></button>
-	  <button class="end btnright"><s:text name="end"/></button>
+	  <button class="add btnleft"><s:text name="add"/></button
+	  ><button class="relist btncenter"><s:text name="relist"/></button
+	  ><button class="revise btncenter"><s:text name="revise"/></button
+	  ><button class="end btnright"><s:text name="end"/></button>
 	  <div style="clear:both;"></div>
 	</div>
 	
 	<div id="search">
-	  <input type="text" class="filter" name="Title" value="" size="40">
-	  <b>${user.email}</b>
-	  <a href="/page/logout"><s:text name="signout"/></a>
+	  <input type="text" class="filter" name="Title" value="" size="20">
 	</div>
 	
   </div>
@@ -121,12 +124,6 @@
   <br>
   
   <iframe name="posttarget" src="/blank.html"></iframe>
-  
-  <a href="file://localhost/var/www/dev.xboo.st/app/tmp/apilogs" target="apilogs">apilogs</a>
-  <a href="http://sandbox.ebay.com/" target="sandbox">sandbox</a>
-  <br><br><br>
-  
-  <a href="#" onclick="preloadcategoryfeatures('US', 31387); return false;">features</a>
   
   <div id="msg"></div>
   
