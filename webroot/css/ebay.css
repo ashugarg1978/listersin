@@ -320,6 +320,8 @@ ul.accountaction > li {
   padding: 1px 8px;
   line-height: 27px;
   font-size: 11px;
+  color: #666;
+  text-shadow: #eee 0px 1px 0px;
 }
 
 ul.accountaction li img {
@@ -387,6 +389,10 @@ ul.tabNav {
   padding: 0px;
 }
 
+ul.tabNav li:last-child {
+  margin-right: 7px;
+}
+
 ul.tabNav li {
   float: left;
   margin-right: 0px;
@@ -404,6 +410,7 @@ ul.tabNav li {
 
 ul.tabNav li:hover {
   cursor: pointer;
+  background-color: #f4f4f4;
 }
 
 ul.tabNav li.current {
