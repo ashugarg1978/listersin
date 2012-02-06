@@ -48,6 +48,9 @@
 	  <input type="text" class="filter" name="Title" value="" size="20">
 	</div>
 	
+	<div style="float:right;">
+	  <a href="#" id="toggledebug">DEBUG</a>
+	</div>
   </div>
 
 <div id="toolbar">
@@ -135,10 +138,9 @@
 	<tbody id="rowtemplate" class="itemrow">
 	  <tr class="row1">
 		<td><input type="checkbox" name="id"></td>
-		<td>
-		  <div class="titlewrap">
-			<a href="" class="Title"></a><div class="labelwrap"></div>
-		  </div>
+		<td class="status"></td>
+		<td class="Title">
+		  <div class="labelwrap"></div>
 		</td>
 		<td class="UserID"></td>
 		<td><a href="" class="ItemID" target="_blank"></a></td>
@@ -159,9 +161,9 @@
 	
   </table>
   
+  <div id="debug"></div>
+  
 </div>
-
-<div id="debug"></div>
 
 <div style="clear:both;"></div>
 
@@ -752,9 +754,6 @@ var hash;
 hash = ${initjson.hash};
 //var summary;
 //summary = ${initjson.summary};
-</script>
-
-<script id="runtimejs">
 </script>
 
 </body>
