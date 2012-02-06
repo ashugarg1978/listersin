@@ -30,7 +30,7 @@ div#toolbar {
   width: 165px;
   float: left;
   position: fixed;
-  margin: 82px 20px 20px 20px;
+  margin: 79px 20px 20px 20px;
   overflow: hidden;
 }
 
@@ -40,7 +40,7 @@ div#toolbar:hover {
 
 div#content {
   float:right;
-  margin: 82px 20px 20px 20px;
+  margin: 79px 20px 20px 20px;
   background-color: #fff;
 }
 
@@ -272,7 +272,7 @@ tbody#rowtemplate {
 
 div.detail {
   display: none;
-  margin-bottom: 10px;
+  margin: 0px 0px 10px 0px;
 }
 
 div#editform {
@@ -373,53 +373,49 @@ span.more {
 
 
 
-ul.editbutons {
+div.editbutons {
   float: left;
-  list-style: none;
-  margin: 5px 0px 0px 10px;
+  margin: 0px 0px 0px 7px;
   padding: 0px;
-}
-
-ul.editbuttons li {
-  float: left;
-  margin-right: 5px;
-  padding: 3px 5px 3px 5px;
-  font-weight: bold;
 }
 
 /* item detail tab navigation */
 ul.tabNav {
   float: left;
   list-style: none;
-  margin: 5px 0px 0px 10px;
+  margin: 0px 0px 0px 0px;
   padding: 0px;
 }
 
 ul.tabNav li {
   float: left;
-  margin-right: 5px;
-  background: #fafafa;
-  padding: 3px 5px 3px 5px;
-  border: 1px solid #eeeeee;
+  margin-right: 0px;
+  /*background: #fafafa;*/
+  line-height: 34px;
+  padding: 0px 7px;
+  /*border: 1px solid #eeeeee;*/
+  color: #666;
+  text-shadow: #eee 0px 1px 0px;
   /*
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
   */
 }
 
+ul.tabNav li:hover {
+  cursor: pointer;
+}
+
 ul.tabNav li.current {
-  background-color: #dddddd;
-  border: 1px solid #999999;
+  background-color: #f4f4f4;
 }
 
 div.tabContainer {
   clear: both;
-  float: left;
-  margin-bottom: 10px;
-  margin-top: -1px;
-  border: 1px solid #999999;
+  /*float: left;*/
+  margin-bottom: 20px;
   padding: 5px;
-  background-color: #fafafa;
+  background-color: #f4f4f4;
   /*
   border-radius:5px;
   */

@@ -171,11 +171,11 @@ function bindevents()
 		updateduration(id);
 	});
 	
-	$('ul.tabNav a').live('click', function() {
+	$('ul.tabNav li').live('click', function() {
 		id = $(this).closest('tbody').attr('id');
-		var curIdx = $(this).parent().prevAll().length + 1;
-		$(this).parent().parent().children('.current').removeClass('current');
-		$(this).parent().addClass('current');
+		var curIdx = $(this).prevAll().length + 1;
+		$(this).parent().children('.current').removeClass('current');
+		$(this).addClass('current');
 		$('div.tabContainer', 'tbody#'+id).children('.current').hide();
 		$('div.tabContainer', 'tbody#'+id).children('.current').removeClass('current');
 		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').show();
@@ -507,35 +507,36 @@ function summary()
 /* list items */
 function items()
 {
-	$.post('/json/items',
-		   $('input.filter, select.filter').serialize(),
-		   function(data) {
-			   
-			   if (data.json.cnt == 0) {
-				   $('tbody#rowloading > tr > td').html('No item data found.');
-				   $('tbody#rowloading').show();
-				   return;
-			   }
-			   $('tbody#rowloading').hide();
-			   
-			   var offset = parseInt($('table#hiddenforms input[name=offset]').val());
-			   var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
-			   
-			   if (data.json.cnt > offset + limit) {
-				   hasmore = true;
-			   } else {
-				   hasmore = false;
-			   }
-			   
-			   $.each(data.json.items, function(idx, row) {
-				   rowsdata[idx] = row;
-				   var dom = getrow(idx, row);
-				   $('#items').append(dom);
-			   });
-
-			   //$('table#items').css('min-height', h+'px');
-		   },
-		   'json');
+	$.post
+	('/json/items',
+	 $('input.filter, select.filter').serialize(),
+	 function(data) {
+		 
+		 if (data.json.cnt == 0) {
+			 $('tbody#rowloading > tr > td').html('No item data found.');
+			 $('tbody#rowloading').show();
+			 return;
+		 }
+		 $('tbody#rowloading').hide();
+		 
+		 var offset = parseInt($('table#hiddenforms input[name=offset]').val());
+		 var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
+		 
+		 if (data.json.cnt > offset + limit) {
+			 hasmore = true;
+		 } else {
+			 hasmore = false;
+		 }
+		 
+		 $.each(data.json.items, function(idx, row) {
+			 rowsdata[idx] = row;
+			 var dom = getrow(idx, row);
+			 $('#items').append(dom);
+		 });
+		 
+		 //$('table#items').css('min-height', h+'px');
+	 },
+	 'json');
 }
 
 function getrow(idx, row)
@@ -603,20 +604,16 @@ function getrow(idx, row)
 	
 	$('td.UserID', dom).html(row.ext.UserID);
 	
+	/* status icon */
+	var src = '/icon/04/10/10.png';
 	if (row.ext.SellingStatus) {
 		if (row.ext.SellingStatus.ListingStatus == 'Active') {
-			st = $('<img/>').attr('src', '/icon/04/10/02.png').css('margin-right', '5px');
+			src = '/icon/04/10/02.png';
 		} else if (row.ext.SellingStatus.ListingStatus == 'Completed') {
-			st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
-		} else {
-			st = $(row.ext.SellingStatus.ListingStatus);
+			src = '/icon/04/10/10.png';
 		}
-		$('a.Title', dom).before(st);
-	} else {
-		st = $('<img/>').attr('src', '/icon/04/10/10.png').css('margin-right', '5px');
-		$('a.Title', dom).before(st);
 	}
-	$('a.Title', dom).attr('href', '#');
+	$('img.status', dom).attr('src', src);
 	
 	if (row.ext.errors) {
 		$.each(row.ext.errors, function(k, v) {
@@ -938,8 +935,8 @@ function resizediv()
 	//$('div#toolbar').height(h);
 	$('table#items').width(w);
 	$('a.Title').parent().width(w-600);
-	$('div.tabContainer').width(w-32);
-	$('div#toolbar').height($(window).height()-107);
+	//$('div.tabContainer').width(w-80);
+	$('div#toolbar').height($(window).height()-99);
 	
 	return;
 }

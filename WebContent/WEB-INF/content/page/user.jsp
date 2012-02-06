@@ -137,18 +137,29 @@
   <table id="items" class="items">
 	<tbody id="rowtemplate" class="itemrow">
 	  <tr class="row1">
-		<td><input type="checkbox" name="id"></td>
-		<td class="status"></td>
+		<td>
+		  <input type="checkbox" name="id">
+		</td>
+		<td>
+		  <img class="status" src="/icon/04/10/10.png"/>
+		</td>
 		<td class="Title">
 		  <div class="labelwrap"></div>
 		</td>
 		<td class="UserID"></td>
-		<td><a href="" class="ItemID" target="_blank"></a></td>
+		<td>
+		  <a href="" class="ItemID" target="_blank"></a>
+		</td>
 		<td class="price"></td>
 		<td class="EndTime"></td>
-		<td align="center" valign="middle"><img class="PictureURL" height="40"></td>
+		<td align="center" valign="middle">
+		  <img class="PictureURL" height="40">
+		</td>
 	  </tr>
-	  <tr class="row2"><td colspan="7"></td></tr>
+	  <tr class="row2">
+		<td colspan="8">
+		</td>
+	  </tr>
 	</tbody>
 	
 	<tbody id="rowloading">
@@ -172,27 +183,30 @@
   <div class="detail">
 	
 	<ul class="tabNav">
-	  <li class="current"><a href="#"><s:text name="CategoryAndTitle"/></a></li>
-	  <li><a href="#"><s:text name="Pictures"/></a></li>
-	  <li><a href="#"><s:text name="Description"/></a></li>
-	  <li><a href="#"><s:text name="Price"/></a></li>
-	  <li><a href="#"><s:text name="Payment"/></a></li>
-	  <li><a href="#"><s:text name="Shipping"/></a></li>
-	  <li><a href="#"><s:text name="Other"/></a></li>
+	  <li class="current"><s:text name="CategoryAndTitle"/></li>
+	  <li><s:text name="Pictures"/></li>
+	  <li><s:text name="Description"/></li>
+	  <li><s:text name="Price"/></li>
+	  <li><s:text name="Payment"/></li>
+	  <li><s:text name="Shipping"/></li>
+	  <li><s:text name="Other"/></li>
 	</ul>
 	
-	<ul class="editbuttons">
-	  <li><a href="#" class="edit">Edit</a></li>
-	  <li><a href="#" class="copy">Copy</a></li>
-	  <li><a href="#" class="delete">Delete</a></li>
-	  <li><a href="#" class="add">Add</a></li>
-	  <li><a href="#" class="relist">ReList</a></li>
-	  <li><a href="#" class="revise">Revise</a></li>
-	  <li><a href="#" class="end">End</a></li>
-	  <li style="display:none;"><a href="#" class="save">Save</a></li>
-	  <li style="display:none;"><a href="#" class="cancel">Cancel</a></li>
-	</ul>
-
+	<div class="editbuttons">
+	  <button class="edit btnleft"><s:text name="edit"/></button
+	  ><button class="copy btncenter"><s:text name="copy"/></button
+	  ><button class="delete btnright"><s:text name="delete"/></button>
+	  
+	  <button class="add btnleft"><s:text name="add"/></button
+	  ><button class="relist btncenter"><s:text name="relist"/></button
+	  ><button class="revise btncenter"><s:text name="revise"/></button
+	  ><button class="end btnright"><s:text name="end"/></button>
+	  
+	  <button class="save btnleft" style="display:none;"><s:text name="save"/></button
+	  ><button class="cancel btncenter" style="display:none;"><s:text name="cancel"/>
+		
+	</div>
+	
 	<div class="tabContainer">
 
 	  <div class="tab current">
