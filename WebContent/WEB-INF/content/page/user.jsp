@@ -26,6 +26,9 @@
 	<div id="useremail">
 	  <span style="font-weight:bold;">${user.email}</span>
 	  <a href="/page/logout"><s:text name="signout"/></a>
+	  
+	  <br/>
+	  <a href="#" id="toggledebug">DEBUG</a>
 	</div>
 	
 	<div id="bulkbuttons">
@@ -48,9 +51,6 @@
 	  <input type="text" class="filter" name="Title" value="" size="20">
 	</div>
 	
-	<div style="float:right;">
-	  <a href="#" id="toggledebug">DEBUG</a>
-	</div>
   </div>
 
 <div id="toolbar">

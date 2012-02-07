@@ -66,11 +66,11 @@ function bindevents()
 	$('select[name=Site]').live('change', changeSite);
 	$('select.category').live('change', changeCategory);
 	
-	$('ul.editbuttons > li > a.edit',   'div.detail').live('click', clickEdit);
-	$('ul.editbuttons > li > a.save',   'div.detail').live('click', clickSave);
-	$('ul.editbuttons > li > a.cancel', 'div.detail').live('click', clickCancel);
-	$('ul.editbuttons > li > a.delete', 'div.detail').live('click', clickDelete);
-	$('ul.editbuttons > li > a.copy',   'div.detail').live('click', clickCopy);
+	$('div.editbuttons button.edit',   'div.detail').live('click', clickEdit);
+	$('div.editbuttons button.save',   'div.detail').live('click', clickSave);
+	$('div.editbuttons button.cancel', 'div.detail').live('click', clickCancel);
+	$('div.editbuttons button.delete', 'div.detail').live('click', clickDelete);
+	$('div.editbuttons button.copy',   'div.detail').live('click', clickCopy);
 	
 	/* Bulk Buttons */
 	$('div#bulkbuttons button').live('click', function() {
@@ -585,6 +585,7 @@ function getrow(idx, row)
 	}
 	if (pictstr != '') {
 		//$('img.PictureURL', dom).attr('src', pictstr);
+		$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
@@ -1014,41 +1015,8 @@ var clickEdit = function() {
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 	
-	fval(dom, item, 'Title');
-	fval(dom, item, 'SubTitle');
-	fval(dom, item, 'StartPrice.@currencyID');
-	fval(dom, item, 'StartPrice.#text');
-	fval(dom, item, 'ListingDetails.BestOfferAutoAcceptPrice.@currencyID');
-	fval(dom, item, 'ListingDetails.BestOfferAutoAcceptPrice.#text');
-	fval(dom, item, 'ListingDetails.MinimumBestOfferPrice.@currencyID');
-	fval(dom, item, 'ListingDetails.MinimumBestOfferPrice.#text');
-	fval(dom, item, 'Quantity');
-	fval(dom, item, 'Site');
-	fval(dom, item, 'ListingType');
-	fval(dom, item, 'BuyItNowPrice.@currencyID');
-	fval(dom, item, 'BuyItNowPrice.#text');
-	fval(dom, item, 'BuyerGuaranteePrice.@currencyID');
-	fval(dom, item, 'BuyerGuaranteePrice.#text');
-	fval(dom, item, 'PostalCode');
-	fval(dom, item, 'Location');
-	
 	/* Dimensions */
 	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
-	fval(dom, item, _sdcsr+'.PackageLength.@unit');
-	fval(dom, item, _sdcsr+'.PackageLength.#text');
-	fval(dom, item, _sdcsr+'.PackageLength.@measurementSystem');
-	fval(dom, item, _sdcsr+'.PackageWidth.@unit');
-	fval(dom, item, _sdcsr+'.PackageWidth.#text');
-	fval(dom, item, _sdcsr+'.PackageWidth.@measurementSystem');
-	fval(dom, item, _sdcsr+'.PackageDepth.@unit');
-	fval(dom, item, _sdcsr+'.PackageDepth.#text');
-	fval(dom, item, _sdcsr+'.PackageDepth.@measurementSystem');
-	fval(dom, item, _sdcsr+'.WeightMajor.@unit');
-	fval(dom, item, _sdcsr+'.WeightMajor.#text');
-	fval(dom, item, _sdcsr+'.WeightMajor.@measurementSystem');
-	fval(dom, item, _sdcsr+'.WeightMinor.@unit');
-	fval(dom, item, _sdcsr+'.WeightMinor.#text');
-	fval(dom, item, _sdcsr+'.WeightMinor.@measurementSystem');
 	
 	if (item.Description != null) {
 		$('textarea[name=Description]',   dom).val(item.Description);
@@ -1573,48 +1541,13 @@ function filter()
 	return;
 }
 
-function paging(cnt)
-{
-	var limit;
-	var offset;
-	
-	limit  = $('input[name=limit]').val() - 0;
-	offset = $('input[name=offset]').val() - 0;
-	
-	html = (offset+1)+' - ';
-	if (offset+limit >= cnt) {
-		html += cnt;
-	} else {
-		html += (offset+limit);
-	}
-	html += ' of '+cnt+'&nbsp;';
-	
-	if (cnt > limit) {
-		for (i=0; i<(cnt/limit); i++) {
-			if (offset/limit < i-5 || i+5 < offset/limit) continue;
-			if (offset == i*limit) {
-				html += '<a href="" style="background-color:#cccccc;">'+(i+1)+'</a>';
-			} else {
-				html += '<a href="">'+(i+1)+'</a>';
-			}
-		}
-		if (offset+limit<cnt) {
-			html += '<a href="">&lt;&lt;</a>';
-		}
-	}
-	
-	$('#paging').html(html);
-	
-	return;
-}
-
 function showbuttons(detail, buttons)
 {
-	buttons = 'a.'+buttons.replace(/,/g, ',a.');
+	buttons = 'button.'+buttons.replace(/,/g, ',button.');
 	
-	ulbtn = $('ul.editbuttons', detail);
-	$('ul.editbuttons > li', detail).hide();
-	$(buttons, ulbtn).parent().show();
+	ulbtn = $('div.editbuttons', detail);
+	$('div.editbuttons button', detail).hide();
+	$(buttons, ulbtn).show();
 	
 	return;
 }
