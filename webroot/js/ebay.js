@@ -580,7 +580,7 @@ function getrow(idx, row)
 		$('img.PictureURL', dom).attr('src', pictstr);
 		//$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
-		//$('img.PictureURL', dom).remove();
+		$('img.PictureURL', dom).remove();
 	}
 	
 	/* Labels */
@@ -1322,7 +1322,7 @@ var clickTitle = function() {
 	$.post('/json/item',
 		   'id='+id,
 		   function(data) {
-			   item = data.json.item;
+			   var item = data.json.item;
 			   rowsdata[id] = item;
 			   
 			   dump(item);

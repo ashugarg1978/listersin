@@ -153,7 +153,9 @@
 		<td class="price"></td>
 		<td class="EndTime"></td>
 		<td class="PictureURL">
-		  <img class="PictureURL" src="/img/gray.png"/>
+		  <div>
+			<img class="PictureURL" src="/img/gray.png"/>
+		  </div>
 		</td>
 	  </tr>
 	  <tr class="row2">
