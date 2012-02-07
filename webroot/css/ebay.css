@@ -145,6 +145,8 @@ table.items tr.row1 > td {
 table.items tr.row1 img.PictureURL {
   max-height: 40px;
   max-width: 40px;
+  margin: 0px;
+  padding: 0px;
 }
 
 table.items tr.row1 td.PictureURL {
@@ -160,6 +162,8 @@ table.items tr.row1 td.PictureURL div {
   display: table-cell;
   text-align: center;
   vertical-align: middle;
+  margin: 0px;
+  padding: 0px;
 }
 
 table.items tr.row2 > td {
@@ -413,7 +417,7 @@ ul.tabNav {
 }
 
 ul.tabNav li:last-child {
-  margin-right: 7px;
+  margin-right: 15px;
 }
 
 ul.tabNav li {
