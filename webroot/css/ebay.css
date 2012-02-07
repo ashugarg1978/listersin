@@ -107,6 +107,10 @@ table.items tr.row2 {
   border-bottom: 1px solid #eaeaea;
 }
 
+tbody#rowloading {
+  border-bottom: 1px solid #eaeaea;
+}
+
 table.itemsheader tr#filter {
   border-bottom: 1px solid #999999;
 }
@@ -134,9 +138,22 @@ table.items th a {
 }
 
 table.items tr.row1 > td {
-  padding: 0px 10px 0px 10px;
+  padding: 1px;
   height: 40px;
   white-space: nowrap;
+}
+
+table.items tr.row1 img.PictureURL {
+  max-height: 40px;
+  max-width: 40px;
+}
+
+table.items tr.row1 td.PictureURL {
+  margin: 1px;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 table.items tr.row2 > td {
@@ -487,7 +504,7 @@ div#debug {
 
 iframe[name=posttarget] {
   width: 161px;
-  height:200px;
+  height:100px;
   margin: 10px 10px 0 0;
   background-color: #ffffdd;
   border: 1px solid #999966;

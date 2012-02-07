@@ -169,17 +169,18 @@ public class JsonAction extends BaseAction {
 		
 		/* field */
 		BasicDBObject field = new BasicDBObject();
-		field.put("UserID", 1); // todo: use ext.UserID ?
-		field.put("ItemID", 1);
-		field.put("Title",  1);
-		field.put("Site",   1);
-		field.put("StartPrice", 1);
-		field.put("ListingDetails.ViewItemURL",  1);
-		field.put("ListingDetails.EndTime",      1);
-		field.put("PictureDetails.PictureURL",   1);
-		field.put("PictureDetails.GalleryURL",   1);
-		field.put("SellingStatus.ListingStatus", 1);
-		field.put("ext", 1);
+		
+		field.put("mod.Title",  1);
+		field.put("mod.Site",   1);
+		field.put("mod.PictureDetails.PictureURL",   1);
+		field.put("mod.PictureDetails.GalleryURL",   1);
+		
+		field.put("org.Seller.UserID", 1);
+		field.put("org.ItemID", 1);
+		field.put("org.StartPrice", 1);
+		field.put("org.ListingDetails.ViewItemURL",  1);
+		field.put("org.ListingDetails.EndTime",      1);
+		field.put("org.SellingStatus.ListingStatus", 1);
 		
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("ListingDetails.EndTime", 1);
@@ -194,22 +195,24 @@ public class JsonAction extends BaseAction {
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		json.put("cnt", cur.count());
 		while (cur.hasNext()) {
+			
 			DBObject item = cur.next();
+			DBObject org = (DBObject) item.get("org");
+			
 			String id = item.get("_id").toString();
-			DBObject ext = (DBObject) item.get("ext");
 			
 			/* price */
-			DBObject sp = (DBObject) item.get("StartPrice");
+			DBObject sp = (DBObject) org.get("StartPrice");
 			Float startprice = Float.parseFloat(sp.get("#text").toString());
-			ext.put("price", sp.get("@currencyID")+" "+startprice.intValue());
+			item.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 			
 			/* endtime */
-			if (((DBObject) item.get("ListingDetails")).containsField("EndTime")) {
+			if (((DBObject) org.get("ListingDetails")).containsField("EndTime")) {
 				formatter.applyPattern("yyyy-MM-dd");
-				String endtime = ((DBObject) item.get("ListingDetails")).get("EndTime").toString();
+				String endtime = ((DBObject) org.get("ListingDetails")).get("EndTime").toString();
 				Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-				ext.put("dfnow", sdf.format(now));
-				ext.put("dfend", sdf.format(dfendtime));
+				item.put("dfnow", sdf.format(now));
+				item.put("dfend", sdf.format(dfendtime));
 				if (formatter.format(now).equals(formatter.format(dfendtime))) {
 					formatter.applyPattern("h:mm a");
 					//formatter.applyPattern("MM-dd HH:mm");
@@ -217,7 +220,7 @@ public class JsonAction extends BaseAction {
 					formatter.applyPattern("MMM d");
 					//formatter.applyPattern("MM-dd HH:mm");
 				}
-				ext.put("endtime", formatter.format(dfendtime));
+				item.put("endtime", formatter.format(dfendtime));
 			}
 			
 			item.removeField("_id");
@@ -249,20 +252,18 @@ public class JsonAction extends BaseAction {
 		
 		/* execute query */
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
+		BasicDBObject mod = (BasicDBObject) item.get("org");
 		item.put("id", item.get("_id").toString());
-		
-		/* extend data */
-		DBObject ext = (DBObject) item.get("ext");
 		
 		/* categorypath */
 		// todo: update old categoryid to current active categoryid
 		Integer categoryid =
-			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
+			Integer.parseInt(((BasicDBObject) mod.get("PrimaryCategory")).getString("CategoryID"));
 		categoryid = mapcategoryid(item.getString("Site"), categoryid);
-		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
+		((BasicDBObject) mod.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
 		
-		List path = categorypath(item.getString("Site"), categoryid);
-		ext.put("categorypath", path);
+		List path = categorypath(mod.getString("Site"), categoryid);
+		item.put("categorypath", path);
 		
 		/* grandchildren */
 		String[] pathstr = new String[path.size()+1];
@@ -270,24 +271,24 @@ public class JsonAction extends BaseAction {
 		for (int i = 0; i < path.size(); i++) {
 			pathstr[i+1] = path.get(i).toString();
 		}
-		BasicDBObject children2 = children2(item.getString("Site"), pathstr);
+		BasicDBObject children2 = children2(mod.getString("Site"), pathstr);
 		
-		LinkedHashMap<Integer,String> path2 = categorypath2(item.getString("Site"), categoryid);
+		LinkedHashMap<Integer,String> path2 = categorypath2(mod.getString("Site"), categoryid);
 		
 		String categoryname = "";
 		for (Integer cid : path2.keySet()) {
 			if (!categoryname.equals("")) categoryname += " > ";
 			categoryname += path2.get(cid);
 		}
-		ext.put("categorypath2", path2);
-		ext.put("categoryname", categoryname);
+		item.put("categorypath2", path2);
+		item.put("categoryname", categoryname);
 		
 		/* shipping */
-		ext.put("shippingtype", shippingtypelabel2(item));
+		item.put("shippingtype", shippingtypelabel2(item));
 		
 		/*
 		if (item.containsField("ShippingDetails")) {
-			BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
+			BasicDBObject sd = (BasicDBObject) mod.get("ShippingDetails");
 			if (sd.containsField("ShippingType")) {
 				String st = sd.get("ShippingType").toString();
 			}
@@ -298,10 +299,10 @@ public class JsonAction extends BaseAction {
 		item.removeField("_id");
 		
 		BasicDBObject ebaydetails =
-			(BasicDBObject) db.getCollection(item.getString("Site")+".eBayDetails").findOne();
+			(BasicDBObject) db.getCollection(mod.getString("Site")+".eBayDetails").findOne();
 		
 		BasicDBObject categoryfeatures =
-			(BasicDBObject) db.getCollection(item.getString("Site")+".CategoryFeatures").findOne();
+			(BasicDBObject) db.getCollection(mod.getString("Site")+".CategoryFeatures").findOne();
 		
 		json.put("item", item);
 		json.put("Categories", children2.get("Categories"));
@@ -837,7 +838,7 @@ public class JsonAction extends BaseAction {
 		for (String k : selling.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query = selling.get(k);
-			query.put("ext.UserID", new BasicDBObject("$in", userids));
+			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
 			
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);
@@ -849,7 +850,7 @@ public class JsonAction extends BaseAction {
 			for (String k : selling.keySet()) {
 				BasicDBObject query = new BasicDBObject();
 				query = selling.get(k);
-				query.put("ext.UserID", u);
+				query.put("org.Seller.UserID", u);
 				
 				Long cnt = coll.count(query);
 				summary.put(k, cnt);
@@ -870,28 +871,28 @@ public class JsonAction extends BaseAction {
 		BasicDBObject saved     = new BasicDBObject();
 		BasicDBObject trash     = new BasicDBObject();
 		
-		allitems.put("ext.deleted", new BasicDBObject("$exists", 0));
+		allitems.put("deleted", new BasicDBObject("$exists", 0));
 		
-		scheduled.put("ext.deleted", new BasicDBObject("$exists", 0));
-		scheduled.put("ItemID", new BasicDBObject("$exists", 0));
+		scheduled.put("deleted",    new BasicDBObject("$exists", 0));
+		scheduled.put("org.ItemID", new BasicDBObject("$exists", 0));
 		
-		active.put("ext.deleted", new BasicDBObject("$exists", 0));
-		active.put("ItemID", new BasicDBObject("$exists", 1));
-		active.put("ext.SellingStatus.ListingStatus", "Active");
+		active.put("deleted",    new BasicDBObject("$exists", 0));
+		active.put("org.ItemID", new BasicDBObject("$exists", 1));
+		active.put("org.SellingStatus.ListingStatus", "Active");
 		
-		sold.put("ext.deleted", new BasicDBObject("$exists", 0));
-		sold.put("ItemID", new BasicDBObject("$exists", 1));
-		sold.put("ext.SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
+		sold.put("deleted",    new BasicDBObject("$exists", 0));
+		sold.put("org.ItemID", new BasicDBObject("$exists", 1));
+		sold.put("org.SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
 		
-		unsold.put("ext.deleted", new BasicDBObject("$exists", 0));
-		unsold.put("ItemID", new BasicDBObject("$exists", 1));
-		unsold.put("ext.SellingStatus.ListingStatus", "Completed");
-		unsold.put("ext.SellingStatus.QuantitySold", "0");
+		unsold.put("deleted",    new BasicDBObject("$exists", 0));
+		unsold.put("org.ItemID", new BasicDBObject("$exists", 1));
+		unsold.put("org.SellingStatus.ListingStatus", "Completed");
+		unsold.put("org.SellingStatus.QuantitySold", "0");
 		
-		saved.put("ext.deleted", new BasicDBObject("$exists", 0));
-		saved.put("ItemID", new BasicDBObject("$exists", 0));
+		saved.put("deleted",    new BasicDBObject("$exists", 0));
+		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
 		
-		trash.put("ext.deleted", new BasicDBObject("$exists", 1));
+		trash.put("deleted", new BasicDBObject("$exists", 1));
 		
 		
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
@@ -1525,7 +1526,8 @@ public class JsonAction extends BaseAction {
 	private LinkedHashMap<String,String> shippingtypelabel2(BasicDBObject item) {
 		LinkedHashMap<String,String> label = new LinkedHashMap<String,String>();
 		
-		BasicDBObject sd = (BasicDBObject) item.get("ShippingDetails");
+		BasicDBObject mod = (BasicDBObject) item.get("org");
+		BasicDBObject sd = (BasicDBObject) mod.get("ShippingDetails");
 		if (sd.containsField("ShippingType")) {
 			String shippingtype = sd.getString("ShippingType");
 			if (shippingtype.equals("Flat")) {
@@ -1660,7 +1662,7 @@ public class JsonAction extends BaseAction {
 				ids.add(new ObjectId(id));
 			}
 			query.put("_id", new BasicDBObject("$in", ids));
-			query.put("ext.UserID", new BasicDBObject("$in", userids));
+			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
 			
 		} else {
 			
@@ -1678,26 +1680,26 @@ public class JsonAction extends BaseAction {
 				query = sellingquery.get(selling);
 			
 			// notice: put UserID here, because sellingquery above.
-			query.put("ext.UserID", new BasicDBObject("$in", userids));
+			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
 			
 			// todo: check the UserID exists in users collection.
 			if (parameters.containsKey("UserID"))
 				userid = ((String[]) parameters.get("UserID"))[0];
 			
 			if (!userid.equals(""))
-				query.put("ext.UserID", userid);
+				query.put("org.Seller.UserID", userid);
 			
 			if (parameters.containsKey("Title"))
 				title = ((String[]) parameters.get("Title"))[0];
 			
 			if (!title.equals(""))
-				query.put("Title", Pattern.compile(title));
+				query.put("mod.Title", Pattern.compile(title));
 			
 			if (parameters.containsKey("ItemID")) 
 				itemid = ((String[]) parameters.get("ItemID"))[0];
 			
 			if (!itemid.equals(""))
-				query.put("ItemID", itemid);
+				query.put("org.ItemID", itemid);
 			
 		}
 		

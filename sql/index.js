@@ -1,8 +1,8 @@
 /* todo: CategoryMapping:oldID */
 
-db.items.ensureIndex({'ext.UserID':1});
-db.items.ensureIndex({'ext.deleted':1});
-db.items.ensureIndex({'ItemID':1});
+db.items.ensureIndex({'org.ItemID':1});
+db.items.ensureIndex({'org.Seller.UserID':1});
+db.items.ensureIndex({'deleted':1});
 
 print('Categories');
 db.getCollectionNames().forEach(

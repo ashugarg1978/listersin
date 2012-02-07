@@ -99,27 +99,31 @@ public class GetItem extends ApiCall implements Callable {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-		BasicDBObject item = (BasicDBObject) responsedbo.get("Item");
-
-		String callbackuserid = ((BasicDBObject) item.get("Seller")).getString("UserID");
-		String callbackitemid = item.getString("ItemID");
+		BasicDBObject item = new BasicDBObject();
+		BasicDBObject org = (BasicDBObject) responsedbo.get("Item");
+		BasicDBObject mod = (BasicDBObject) org.copy();
+		
+		String callbackuserid = ((BasicDBObject) org.get("Seller")).getString("UserID");
+		String callbackitemid = org.getString("ItemID");
 		
 		writelog("GetItem/"+callbackuserid+"."+callbackitemid+".xml", responsexml);
 		
 		DBCollection coll = db.getCollection("items");
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.UserID", callbackuserid);
-		query.put("ItemID", callbackitemid);
+		query.put("org.Seller.UserID", callbackuserid);
+		query.put("org.ItemID", callbackitemid);
 		
 		/* add extended information */
 		BasicDBObject ext = new BasicDBObject();
-		ext.put("UserID", callbackuserid);
-		ext.put("labels", new BasicDBList());
-		item.put("ext", ext);
+		//item.put("UserID", callbackuserid);
+		item.put("labels", new BasicDBList());
+		item.put("org", org);
+		item.put("mod", mod);
 		
 		// todo: copy from GetSellerList code.
 		/* move some fields which is not necessary in AddItem families */
+		/*
 		String[] movefields = {"ItemSpecifics.NameValueList.Source",
 							   "SellingStatus",
 							   "TimeLeft",
@@ -132,6 +136,7 @@ public class GetItem extends ApiCall implements Callable {
 		for (String fieldname : movefields) {
 			movefield(item, ext, fieldname);
 		}
+		*/
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);

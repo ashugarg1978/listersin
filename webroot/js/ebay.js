@@ -549,22 +549,15 @@ function getrow(idx, row)
 	
 	dom = $('#rowtemplate').clone().attr('id', id);
 	
-	$.each(row, function(colname, colval) {
-		
-		// todo: why @ mark error?
-		//if (colname.match(/\@/)) return;
-		//if (colname == 'PictureDetails_PictureURL') return;
-		
-		$('.'+colname, dom).html(colval);
-	});
+	$('td.Title', dom).html(row.mod.Title);
 	
-	if (row.ListingDetails.ViewItemURL) {
-		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+	if (row.org.ListingDetails.ViewItemURL) {
+		$('a.ItemID', dom).attr('href', row.org.ListingDetails.ViewItemURL);
 	} else {
-		$('a.ItemID', dom).attr('href', row.ListingDetails.ViewItemURL);
+		$('a.ItemID', dom).attr('href', row.org.ListingDetails.ViewItemURL);
 	}
-	$('td.EndTime', dom).html(row.ext.endtime);
-	$('td.price',   dom).html(row.ext.price);
+	$('td.EndTime', dom).html(row.endtime);
+	$('td.price',   dom).html(row.price);
 	
 	if (typeof(row.status) == 'string') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
@@ -574,50 +567,50 @@ function getrow(idx, row)
 	
 	/* Picture */
 	var pictstr = '';
-	if (typeof(row.PictureDetails.PictureURL) == 'string') {
-		pictstr = row.PictureDetails.PictureURL;
-	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
-		pictstr = row.PictureDetails.PictureURL[0];
-	} else if (typeof(row.PictureDetails.GalleryURL) == 'string') {
-		pictstr = row.PictureDetails.GalleryURL;
-	} else if (typeof(row.PictureDetails.GalleryURL) == 'object') {
-		pictstr = row.PictureDetails.GalleryURL[0];
+	if (typeof(row.mod.PictureDetails.PictureURL) == 'string') {
+		pictstr = row.mod.PictureDetails.PictureURL;
+	} else if (typeof(row.mod.PictureDetails.PictureURL) == 'object') {
+		pictstr = row.mod.PictureDetails.PictureURL[0];
+	} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'string') {
+		pictstr = row.mod.PictureDetails.GalleryURL;
+	} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'object') {
+		pictstr = row.mod.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
-		//$('img.PictureURL', dom).attr('src', pictstr);
-		$('img.PictureURL', dom).attr('src', '/img/gray.png');
+		$('img.PictureURL', dom).attr('src', pictstr);
+		//$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
-		$('img.PictureURL', dom).remove();
+		//$('img.PictureURL', dom).remove();
 	}
 	
 	/* Labels */
-	if (typeof(row.ext) == 'object' && typeof(row.ext.labels) == 'object') {
-		$.each(row.ext.labels, function(k, v) {
+	if (typeof(row.labels) == 'object') {
+		$.each(row.labels, function(k, v) {
 			$('div.labelwrap', dom).append($('<div>').attr('class', 'label').text(v));
 		});
 	}
 	
-	if (row['ext.status'] == 'listing') {
+	if (row.status == 'listing') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
 		$('input:checkbox', dom).parent().addClass('loading');
 	}
 	$('input:checkbox', dom).val(id);
 	
-	$('td.UserID', dom).html(row.ext.UserID);
+	$('td.UserID', dom).html(row.org.Seller.UserID);
 	
 	/* status icon */
 	var src = '/icon/04/10/10.png';
-	if (row.ext.SellingStatus) {
-		if (row.ext.SellingStatus.ListingStatus == 'Active') {
+	if (row.org.SellingStatus) {
+		if (row.org.SellingStatus.ListingStatus == 'Active') {
 			src = '/icon/04/10/02.png';
-		} else if (row.ext.SellingStatus.ListingStatus == 'Completed') {
+		} else if (row.org.SellingStatus.ListingStatus == 'Completed') {
 			src = '/icon/04/10/10.png';
 		}
 	}
 	$('img.status', dom).attr('src', src);
 	
-	if (row.ext.errors) {
-		$.each(row.ext.errors, function(k, v) {
+	if (row.errors) {
+		$.each(row.errors, function(k, v) {
 			if (v != '') {
 				$('a.Title', dom).after('<span class="error">'+v.LongMessage+'</span>');
 				$('a.Title', dom).after('<br>');
@@ -654,30 +647,30 @@ function getdetail(row)
 {
 	var id = row.id;
 	var detail = $('div.detail', '#'+id);
-	var site = row.Site;
+	var site = row.mod.Site;
 	
 	/* Country */
 	$.each(hash[site].eBayDetails.CountryDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Country).text(v.Description);
-		$('select[name=Country]', '#'+id).append(optiontag);
+		$('select[name="mod.Country"]', '#'+id).append(optiontag);
 	});
 	
 	
 	/* Currency */
 	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Currency).text(v.Description);
-		$('select[name=Currency]', '#'+id).append(optiontag);
+		$('select[name="mod.Currency"]', '#'+id).append(optiontag);
 	});
 	
 	
 	/* Categories */
-	var tmppath = row.ext.categorypath.slice(0);
+	var tmppath = row.categorypath.slice(0);
 	tmppath.unshift(0);
 	var tmppds = getcategorypulldowns(site, tmppath);
-	$('select[name="PrimaryCategory.CategoryID"]', detail).parent().html(tmppds);
+	$('select[name="mod.PrimaryCategory.CategoryID"]', detail).parent().html(tmppds);
 	
-	var tmppc = hash[site].Categories['c'+row.ext.categorypath[row.ext.categorypath.length-2]];
-	var category = tmppc['c'+row.PrimaryCategory.CategoryID];
+	var tmppc = hash[site].Categories['c'+row.categorypath[row.categorypath.length-2]];
+	var category = tmppc['c'+row.mod.PrimaryCategory.CategoryID];
 	
 	
 	/* Condition */
@@ -686,14 +679,14 @@ function getdetail(row)
 		var value = conditions[i].ID;
 		var label = conditions[i].DisplayName;
 		var optiontag = $('<option/>').val(value).html(label);
-		$('select[name=ConditionID]', detail).append(optiontag);
+		$('select[name="mod.ConditionID"]', detail).append(optiontag);
 	}
 	
 	
 	/* Category2CS */
 	if (category.Category2CS && category.Category2CS.CatalogEnabled) {
 		// todo: find more than 2 Sets.
-		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
+		$('input[name="mod.ProductSearch.CharacteristicSetIDs.ID"]', detail)
 			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
 	} else {
 		$('div.productsearchform', detail).hide();
@@ -709,7 +702,7 @@ function getdetail(row)
 	/* ListingDuration */
 	var durationsetid = null;
 	for (i in category.CategoryFeatures.ListingDuration) {
-		if (category.CategoryFeatures.ListingDuration[i]['@type'] == row.ListingType) {
+		if (category.CategoryFeatures.ListingDuration[i]['@type'] == row.mod.ListingType) {
 			durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
 			break;
 		}
@@ -721,7 +714,7 @@ function getdetail(row)
 			for (j in listingdurations[i].Duration) {
 				var value = listingdurations[i].Duration[j];
 				var optiontag = $('<option/>').val(value).html(value);
-				$('select[name=ListingDuration]', detail).append(optiontag);
+				$('select[name="mod.ListingDuration"]', detail).append(optiontag);
 			}
 			break;
 		}
@@ -735,8 +728,8 @@ function getdetail(row)
 	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
 		if (o.ValidForSellingFlow != 'true') return;
 		
-		var dmst = row.ext.shippingtype.domestic;
-		var intl = row.ext.shippingtype.international;
+		var dmst = row.shippingtype.domestic;
+		var intl = row.shippingtype.international;
 		
 		if (parseInt(o.ShippingServiceID) < 50000) {
 			
@@ -757,16 +750,15 @@ function getdetail(row)
 	
 	var _dsso = 'ShippingDetails.ShippingServiceOptions';
 	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
-	$('select[name="'+_dsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_dsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_dsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_dsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="'+_isso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_isso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_isso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_isso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="'+_isso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
-	
+	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="mod.'+_dsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="mod.'+_dsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="mod.'+_dsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
+	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="mod.'+_isso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="mod.'+_isso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="mod.'+_isso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
+	$('select[name="mod.'+_isso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
 	
 	return;
 	
@@ -809,8 +801,8 @@ function getdetail(row)
 	}
 	
 	// todo: arrayize if size = 1
-	if (row.ItemSpecifics) {
-		$.each(row.ItemSpecifics.NameValueList, function(k, v) {
+	if (row.mod.ItemSpecifics) {
+		$.each(row.mod.ItemSpecifics.NameValueList, function(k, v) {
 			$('td.ItemSpecifics', detail).append(v.Name+' : '+v.Value+'<br />');
 		});
 	}
@@ -932,12 +924,9 @@ function resizediv()
 	
 	$('div#content').width(w);
 	$('div#header').width($('div#container').width()-40);
-	//$('div#debug').width(w-20);
-	//$('div#toolbar').height(h);
 	$('table#items').width(w);
-	$('a.Title').parent().width(w-600);
-	//$('div.tabContainer').width(w-80);
 	$('div#toolbar').height($(window).height()-99);
+	$('tbody#rowloading td').height($(window).height()-99);
 	
 	return;
 }
@@ -1062,14 +1051,14 @@ var clickEdit = function() {
 				  item.DispatchTimeMax);
 	
 	tmpgc = hash[site]['Categories'];
-	$.each(item.ext.categorypath, function(i, cid) {
+	$.each(item.categorypath, function(i, cid) {
 		if (i == 0) {
 			tmpgc = tmpgc['c'+cid];
 		} else {
 			tmpgc = tmpgc['children']['c'+cid];
 		}
 		
-		if (i == item.ext.categorypath.length - 1) {
+		if (i == item.categorypath.length - 1) {
 			
 			$.each(tmpgc.CategoryFeatures.ConditionValues.Condition, function(j, o) {
 				var option = $('<option/>').val(o.ID).text(o.DisplayName);
@@ -1168,8 +1157,8 @@ var clickEdit = function() {
 	}
 	
 	/* ItemSpecifics */
-	if (item.ItemSpecifics) {
-		$.each(item.ItemSpecifics.NameValueList, function(k, v) {
+	if (item.mod.ItemSpecifics) {
+		$.each(item.mod.ItemSpecifics.NameValueList, function(k, v) {
 			inputname = $('<input/>')
 				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Name')
 				.attr('type', 'text')
@@ -1335,23 +1324,26 @@ var clickTitle = function() {
 		   function(data) {
 			   item = data.json.item;
 			   rowsdata[id] = item;
-			   dump(item);
 			   
-			   hash[item.Site] = new Object;
-			   hash[item.Site].eBayDetails = data.json.eBayDetails;
-			   hash[item.Site].Categories  = data.json.Categories;
-			   hash[item.Site].CategoryFeatures = data.json.CategoryFeatures;
+			   dump(item);
+
+			   var site = item.mod.Site;
+			   
+			   hash[site] = new Object;
+			   hash[site].eBayDetails = data.json.eBayDetails;
+			   hash[site].Categories  = data.json.Categories;
+			   hash[site].CategoryFeatures = data.json.CategoryFeatures;
 			   
 			   getdetail(item);
 			   showformvalues(item);
 			   $('div.productsearchform', '#'+id).remove();
 			   
-			   //$('td:nth-child(2)', '#'+id).fadeIn('fast');
-			   $('td:nth-child(2)', '#'+id).show();
-			   $('div.detail', '#'+id).show();
+			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
+			   //$('td:nth-child(2)', '#'+id).show();
+			   $('div.detail',      '#'+id).show();
 			   
-			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.PictureDetails)+'</pre>');
-
+			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.mod.PictureDetails)+'</pre>');
+			   
 			   //$.scrollTo('#'+id, {axis:'y', offset:0});
 		   },
 		   'json');
@@ -1410,7 +1402,7 @@ function getcategorypulldowns(site, path)
 		var categoryid = path[i];
 		if (hash[site]['Categories']['c'+categoryid] == undefined) break;
 		
-		var selecttag = $('<select class="category"/>').attr('name', 'ext.categorypath.'+i);
+		var selecttag = $('<select class="category"/>').attr('name', 'categorypath.'+i);
 		var optiontag = $('<option/>').val('').text('');
 		selecttag.append(optiontag);		
 		
@@ -1430,7 +1422,7 @@ function getcategorypulldowns(site, path)
 		$(form).val(path[i+1]);
 	});
 	
-	$('select.category:last', wrapper).attr('name', 'PrimaryCategory.CategoryID');
+	$('select.category:last', wrapper).attr('name', 'mod.PrimaryCategory.CategoryID');
 	
 	return wrapper.children();
 }
@@ -1685,7 +1677,7 @@ function fval(dom, item, str)
 
 function showformvalues(item)
 {
-	item.PictureDetails.PictureURL = arrayize(item.PictureDetails.PictureURL);
+	item.mod.PictureDetails.PictureURL = arrayize(item.mod.PictureDetails.PictureURL);
 	
 	var detail = $('div.detail', '#'+item.id);
 	
@@ -1702,9 +1694,9 @@ function showformvalues(item)
 			var htmlencoded = $('<div/>').text(tmpvalue+'[T]').html();
 			$(form).replaceWith(htmlencoded);
 
-			if ($(form).attr('name').match(/^PictureDetails.PictureURL./)) {
+			if ($(form).attr('name').match(/^mod.PictureDetails.PictureURL./)) {
 				var imgclass = $(form).attr('name')
-					.replace(/^PictureDetails.PictureURL./, 'PD_PURL_');
+					.replace(/^mod.PictureDetails.PictureURL./, 'PD_PURL_');
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
 		} catch (err) {
@@ -1791,17 +1783,17 @@ function fillformvalues(item)
 
 function setItemSpecificsForms(item)
 {
-	if (item.ItemSpecifics == undefined) return;
+	if (item.mod.ItemSpecifics == undefined) return;
 	
 	var detail = $('div.detail', '#'+item.id);
 	
-	var categoryid = item.PrimaryCategory.CategoryID;
-	var parentid = item.ext.categorypath[item.ext.categorypath.length-2];
-	var category = hash[item.Site]['Categories']['c'+parentid]['c'+categoryid];
+	var categoryid = item.mod.PrimaryCategory.CategoryID;
+	var parentid = item.categorypath[item.categorypath.length-2];
+	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
 	var recommkey = new Array();
 	var specificskey = new Array();
-	var specifics = item.ItemSpecifics.NameValueList;
+	var specifics = item.mod.ItemSpecifics.NameValueList;
 	var recomm = category.CategorySpecifics.NameRecommendation;
 	
 	for (i in recomm) {
@@ -1820,7 +1812,7 @@ function setItemSpecificsForms(item)
 		
 		var inputtag = $('<input />')
 			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Name');
+			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Name');
 		
 		$(tdtag).append(inputtag);
 		$(trtag).append(tdtag);
@@ -1871,7 +1863,7 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		
 		var inputtag = $('<input/>')
 			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
+			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
 		$(tdtag).append(inputtag);
 		
 	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
@@ -1879,12 +1871,12 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		
 		var inputtag = $('<input/>')
 			.attr('type', 'text')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value');
+			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
 		$(tdtag).append(inputtag);
 		
 		if (recommref.ValueRecommendation != null) {
 			var selecttag = $('<select/>')
-				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value.selector')
+				.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value.selector')
 				.addClass('remove')
 				.append($('<option/>').html('(select from list)'));
 			
@@ -1905,8 +1897,8 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		
 		var checkboxidx = 0;
 		
-		for (j in item.ItemSpecifics.NameValueList[i].Value) {
-			var value = item.ItemSpecifics.NameValueList[i].Value[j];
+		for (j in item.mod.ItemSpecifics.NameValueList[i].Value) {
+			var value = item.mod.ItemSpecifics.NameValueList[i].Value[j];
 			
 			var existinrecomm = false;
 			for (k in recommref.ValueRecommendation) {
@@ -1921,7 +1913,7 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 				
 				var checkboxtag = $('<input/>')
 					.attr('id', idforlabel)
-					.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
+					.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value')
 					.attr('type', 'checkbox')
 					.val(value);
 				
@@ -1944,7 +1936,7 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 			
 			var checkboxtag = $('<input/>')
 				.attr('id', idforlabel)
-				.attr('Name', 'ItemSpecifics.NameValueList.'+i+'.Value')
+				.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value')
 				.attr('type', 'checkbox')
 				.val(recommref.ValueRecommendation[j].Value);
 			
