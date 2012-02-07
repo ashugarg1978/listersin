@@ -17,7 +17,7 @@ $(function() {
 		$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
 	});
 	
-	$.ajaxSetup({async: false});
+	//$.ajaxSetup({async: false});
 	
 	$('ul.accounts > li > ul:first').slideToggle('fast');
 	$('li.active', $('ul.accountaction:first')).click();
@@ -62,6 +62,14 @@ function bindevents()
 	});
 	
 	$('tr.row1').live('click', clickTitle);
+	
+	$('tr.row1 input[type=checkbox]').live('click', function(event) {
+		event.stopPropagation();
+	});
+	
+	$('a.ItemID').live('click', function(event) {
+		event.stopPropagation();
+	});
 	
 	$('select[name=Site]').live('change', changeSite);
 	$('select.category').live('change', changeCategory);
@@ -134,8 +142,12 @@ function bindevents()
 			$('ul', $(this).next()).slideToggle('fast');
 		}
 		
-		userid = $(this).attr('class');
-		$('select[name=UserID]').val(userid);
+		userid = $(this).attr('class')
+			.replace('tabselected', '')
+			.replace('allitems', '')
+			.replace(' ', '');
+		
+		$('input[name=UserID]').val(userid);
 		$('input[name=selling]').val('allitems');
 		$('input[name=offset]').val(0);
 		$('table#items tbody:gt(1)').remove();
@@ -188,11 +200,11 @@ function bindevents()
 	$('ul.accountaction > li').live('click', function() {
 		
 		v = $(this).attr('class');
-		userid = $(this).parent().attr('class').replace(/^accountaction /, '');
+		userid = $(this).parent().attr('class').replace(/^accountaction/, '').replace(' ', '');
 		
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
-		$('select[name=UserID]').val(userid);
+		$('input[name=UserID]').val(userid);
 		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
 			$('input[name=sort]').val('ListingDetails_EndTime DESC');
 		} else {
@@ -552,9 +564,11 @@ function getrow(idx, row)
 	$('td.Title', dom).html(row.mod.Title);
 	
 	if (row.org.ListingDetails.ViewItemURL) {
-		$('a.ItemID', dom).attr('href', row.org.ListingDetails.ViewItemURL);
+		$('a.ItemID', dom)
+			.attr('href', row.org.ListingDetails.ViewItemURL)
+			.html(row.org.ItemID);
 	} else {
-		$('a.ItemID', dom).attr('href', row.org.ListingDetails.ViewItemURL);
+		$('a.ItemID', dom).remove();
 	}
 	$('td.EndTime', dom).html(row.endtime);
 	$('td.price',   dom).html(row.price);
@@ -1317,7 +1331,7 @@ var clickTitle = function() {
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
 	$('tr.row2 td', '#'+id).html(detail);
-	//$('div.detail', '#'+id).slideToggle('fast');
+	$('div.detail', '#'+id).slideToggle('fast');
 	
 	$.post('/json/item',
 		   'id='+id,
@@ -1326,7 +1340,7 @@ var clickTitle = function() {
 			   rowsdata[id] = item;
 			   
 			   dump(item);
-
+			   
 			   var site = item.mod.Site;
 			   
 			   hash[site] = new Object;

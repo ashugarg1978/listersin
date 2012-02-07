@@ -148,7 +148,7 @@
 		</td>
 		<td class="UserID"></td>
 		<td>
-		  <a href="" class="ItemID" target="_blank"></a>
+		  <a href="#" class="ItemID" target="_blank"></a>
 		</td>
 		<td class="price"></td>
 		<td class="EndTime"></td>
