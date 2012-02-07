@@ -93,13 +93,13 @@ public class GetSellerList extends ApiCall {
 			return responsexml;
 		}
 		
-		log(userid
-			+" "+pagenumber
-			+"/"+((BasicDBObject) resdbo.get("PaginationResult"))
-			.get("TotalNumberOfPages").toString()
-			+" "+itemcount
-			+"/"+((BasicDBObject) resdbo.get("PaginationResult"))
-			.get("TotalNumberOfEntries").toString());
+		log(userid+" "
+			+pagenumber+" of "
+			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
+			+" page(s) "
+			+itemcount+" of "
+			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
+			+" item(s)");
 		
 		DBCollection coll = db.getCollection("items");
 		
