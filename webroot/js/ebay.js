@@ -14,7 +14,7 @@ $(function() {
 	// todo: same code
 	$.each(hash, function(k, v) {
 		var optiontag = $('<option />').val(k).html(k);
-		$('select[name=mod.Site]', $('div#detailtemplate')).append(optiontag);
+		$('select[name="mod.Site"]', $('div#detailtemplate')).append(optiontag);
 	});
 	
 	//$.ajaxSetup({async: false});
@@ -669,13 +669,11 @@ function getdetail(row)
 		$('select[name="mod.Country"]', '#'+id).append(optiontag);
 	});
 	
-	
 	/* Currency */
 	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Currency).text(v.Description);
 		$('select[name="mod.Currency"]', '#'+id).append(optiontag);
 	});
-	
 	
 	/* Categories */
 	var tmppath = row.categorypath.slice(0);
@@ -686,7 +684,6 @@ function getdetail(row)
 	var tmppc = hash[site].Categories['c'+row.categorypath[row.categorypath.length-2]];
 	var category = tmppc['c'+row.mod.PrimaryCategory.CategoryID];
 	
-	
 	/* Condition */
 	var conditions = category.CategoryFeatures.ConditionValues.Condition;
 	for (i in conditions) {
@@ -696,22 +693,21 @@ function getdetail(row)
 		$('select[name="mod.ConditionID"]', detail).append(optiontag);
 	}
 	
-	
 	/* Category2CS */
 	if (category.Category2CS && category.Category2CS.CatalogEnabled) {
 		// todo: find more than 2 Sets.
-		$('input[name="mod.ProductSearch.CharacteristicSetIDs.ID"]', detail)
+		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
 			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
 	} else {
 		$('div.productsearchform', detail).hide();
 	}
 	
+	/* ItemSpecifics */
 	setItemSpecificsForms(row);
 	
 	$('form[name=APIForm]', detail)
 		.attr('id',   'APIForm'+id)
 		.attr('name', 'APIForm'+id);
-	
 	
 	/* ListingDuration */
 	var durationsetid = null;
@@ -734,11 +730,9 @@ function getdetail(row)
 		}
 	}
 	
-	
 	/* ShippingService */
 	var dmstselect = $('<select/>').append($('<option/>'));
 	var intlselect = $('<select/>').append($('<option/>'));
-	
 	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
 		if (o.ValidForSellingFlow != 'true') return;
 		
@@ -773,6 +767,27 @@ function getdetail(row)
 	$('select[name="mod.'+_isso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
 	$('select[name="mod.'+_isso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
 	$('select[name="mod.'+_isso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
+	
+	/* PaymentMethods */
+	// Do not use GeteBayDetails to discover the valid payment methods for a site.
+	$.each(hash[site].CategoryFeatures.SiteDefaults.PaymentMethod, function(i, o) {
+		var idforlabel = id+'.PaymentMethods.'+i;
+		
+		var checkboxtag = $('<input/>')
+			.attr('type', 'checkbox')
+			.attr('id', idforlabel)
+			.attr('name', 'mod.PaymentMethods')
+			.val(o);
+		
+		var labeltag = $('<label/>')
+			.attr('for', idforlabel)
+			.html(o+'('+i+')');
+		
+		var divtag2 = $('<div/>');
+		$(divtag2).append(checkboxtag);
+		$(divtag2).append(labeltag);
+		$('td.paymentmethod', '#'+id).append(divtag2);
+	});
 	
 	return;
 	
@@ -1761,6 +1776,10 @@ function showformvalues(item)
 						$(form).replaceWith('[C]');
 					}
 				}
+			} else {
+				if (tmpvalue == $(form).val()) {
+					$(form).replaceWith('[C]');
+				}
 			}
 			
 		} catch (err) {
@@ -1801,6 +1820,28 @@ function fillformvalues(item)
 	});
 	
 	// todo: checkbox forms
+	$.each($('input[type=checkbox]', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("var tmpvalue = item"+formname);
+			
+			if (typeof(tmpvalue) == 'object') {
+				for (i in tmpvalue) {
+					if (tmpvalue[i] == $(form).val()) {
+						$(form).attr('checked', 'checked');
+					}
+				}
+			} else {
+				if (tmpvalue == $(form).val()) {
+					$(form).attr('checked', 'checked');
+				}
+			}
+			
+		} catch (err) {
+			//$(detail).prepend('ERR: '+err.description+'<br />');
+		}
+	});
 	
 	return;
 }
@@ -1977,7 +2018,7 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		}
 		
 		$(tdtag).append(divtag);
-		$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
+		//$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
 		
 	} else {
 		

@@ -227,14 +227,15 @@ table.items a:hover {
 }
 */
 
-table.detail {
+table.detail,
+table.ItemSpecifics {
   border-spacing: 0px;
   border-collapse: collapse;
   margin: 0px;
 }
 
 table.detail td {
-  padding: 5px;
+  padding: 2px;
 }
 
 table.detail td:first-child {
@@ -243,7 +244,7 @@ table.detail td:first-child {
   white-space: nowrap;
   vertical-align: top;
   color: #999;
-  line-height: 27px;
+  padding: 7px;
 }
 
 
