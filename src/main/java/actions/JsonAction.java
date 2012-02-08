@@ -321,6 +321,7 @@ public class JsonAction extends BaseAction {
 		log.debug(form);
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
+		BasicDBObject mod  = (BasicDBObject) item.get("mod");
 		
 		/* CategoryName */
 		/*
@@ -339,7 +340,7 @@ public class JsonAction extends BaseAction {
 		*/
 		
 		/* ShippingType */
-		BasicDBObject ssd = (BasicDBObject) ((BasicDBObject) item.get("ext")).get("shippingtype");
+		BasicDBObject ssd = (BasicDBObject) item.get("shippingtype");
 		LinkedHashMap<String,LinkedHashMap> smap = shippingmap();
 		for (String st : smap.keySet()) {
 			
@@ -349,7 +350,7 @@ public class JsonAction extends BaseAction {
 			if (ssd.getString("domestic").equals(dmst)
 				&& ssd.getString("international").equals(intl)) {
 				
-				((BasicDBObject) item.get("ShippingDetails")).put("ShippingType", st);
+				((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", st);
 				break;
 			}
 		}
@@ -394,7 +395,7 @@ public class JsonAction extends BaseAction {
 		}
 		attributeset.put("Attribute", attributes);
 		attributesetarray.put("AttributeSet", attributeset);
-		item.put("AttributeSetArray", attributesetarray);
+		mod.put("AttributeSetArray", attributesetarray);
 		
 		/* Delete */
 		item.removeField("ButtonLoad");

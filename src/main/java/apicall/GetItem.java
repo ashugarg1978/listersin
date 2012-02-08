@@ -123,20 +123,37 @@ public class GetItem extends ApiCall implements Callable {
 		
 		// todo: copy from GetSellerList code.
 		/* move some fields which is not necessary in AddItem families */
-		/*
-		String[] movefields = {"ItemSpecifics.NameValueList.Source",
-							   "SellingStatus",
-							   "TimeLeft",
-							   "BuyerProtection",
-							   "BuyerGuaranteePrice",
-							   "PaymentAllowedSite",
-							   "PrimaryCategory.CategoryName",
-							   "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
-							   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin"};
+		String[] movefields =
+			{"ItemSpecifics.NameValueList.Source",
+			 "SellingStatus",
+			 "TimeLeft",
+			 "BuyerProtection",
+			 "BuyerGuaranteePrice",
+			 "PaymentAllowedSite",
+			 "PrimaryCategory.CategoryName",
+			 "Seller.AboutMePage",
+			 "Seller.Email",
+			 "Seller.FeedbackPrivate",
+			 "Seller.FeedbackRatingStar",
+			 "Seller.FeedbackScore",
+			 "Seller.IDVerified",
+			 "Seller.NewUser",
+			 "Seller.PositiveFeedbackPercent",
+			 "Seller.RegistrationDate",
+			 "Seller.SellerInfo",
+			 "Seller.Site",
+			 "Seller.Status",
+			 "Seller.UserID",
+			 "Seller.UserIDChanged",
+			 "Seller.UserIDLastChanged",
+			 "Seller.VATStatus",
+			 "Seller.eBayGoodStanding",
+			 "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
+			 "ShippingDetails.ShippingServiceOptions.ShippingTimeMin",
+			 "WatchCount"};
 		for (String fieldname : movefields) {
-			movefield(item, ext, fieldname);
+			movefield(mod, ext, fieldname);
 		}
-		*/
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", item);

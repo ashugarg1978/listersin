@@ -14,7 +14,7 @@ $(function() {
 	// todo: same code
 	$.each(hash, function(k, v) {
 		var optiontag = $('<option />').val(k).html(k);
-		$('select[name=Site]', $('div#detailtemplate')).append(optiontag);
+		$('select[name=mod.Site]', $('div#detailtemplate')).append(optiontag);
 	});
 	
 	//$.ajaxSetup({async: false});
@@ -591,8 +591,8 @@ function getrow(idx, row)
 		pictstr = row.mod.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
-		$('img.PictureURL', dom).attr('src', pictstr);
-		//$('img.PictureURL', dom).attr('src', '/img/gray.png');
+		//$('img.PictureURL', dom).attr('src', pictstr);
+		$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
@@ -1203,7 +1203,7 @@ var clickSave = function() {
 	detail = $(this).closest('div.detail');
 	
 	// temp remove
-	$('input.remove', detail).remove();
+	$('input.remove',  detail).remove();
 	$('select.remove', detail).remove();
 	
 	// todo: varidation check
@@ -1242,9 +1242,19 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
-	$('#debug').append('<pre>'+$.dump(postdata)+'</pre>');
+	/*
+	postdata = $('input[name^=mod][type=text],'
+				 + 'input[name^=mod]:checked,'
+				 + 'input[name^=mod][type=hidden],'
+				 + 'select[name^=mod],'
+				 + 'textarea[naem^=mode]',
+				 $(this).closest('div.detail')).extractObject();
+	*/
 	
-	return false;
+	dump(postdata);
+	//$('#debug').append('<pre>'+$.dump(postdata)+'</pre>');
+	
+	//return false;
 	
 	if (false) {
 		var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
