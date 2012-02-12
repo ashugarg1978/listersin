@@ -591,8 +591,8 @@ function getrow(idx, row)
 		pictstr = row.mod.PictureDetails.GalleryURL[0];
 	}
 	if (pictstr != '') {
-		//$('img.PictureURL', dom).attr('src', pictstr);
-		$('img.PictureURL', dom).attr('src', '/img/gray.png');
+		$('img.PictureURL', dom).attr('src', pictstr);
+		//$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
 		$('img.PictureURL', dom).remove();
 	}

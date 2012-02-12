@@ -18,6 +18,7 @@ public class GetSellerList extends ApiCall {
 	private String daterange;
 	private String datestart;
 	private String dateend;
+	private String targetuserid;
 	
 	public GetSellerList() throws Exception {
 	}
@@ -30,10 +31,24 @@ public class GetSellerList extends ApiCall {
 		this.daterange = daterange;
 		this.datestart = datestart;
 		this.dateend   = dateend;
+		this.targetuserid = "";
+	}
+	
+	public GetSellerList(String email, String userid,
+						 String daterange, String datestart, String dateend,
+						 String targetuserid) throws Exception {
+		
+		this.email     = email;
+		this.userid    = userid;
+		this.daterange = daterange;
+		this.datestart = datestart;
+		this.dateend   = dateend;
+		this.targetuserid = targetuserid;
 	}
 	
 	public String call() throws Exception {
 		
+		log(email+" "+userid);
 		String token = gettoken(email, userid);
 		
 		/* GetSellerList */
@@ -46,7 +61,9 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",7).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		dbobject.put("MessageID", email+" "+userid);
-		//dbobject.put("UserID", "testuser_sbmsku");
+		if (!targetuserid.equals("")) {
+			dbobject.put("UserID", targetuserid);
+		}
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
@@ -72,7 +89,8 @@ public class GetSellerList extends ApiCall {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
-		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
+		String userid = "";
+		//userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
