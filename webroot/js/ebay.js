@@ -1730,7 +1730,7 @@ function showformvalues(item)
 			
 			if (tmpvalue == null) tmpvalue = '';
 			
-			var htmlencoded = $('<div/>').text(tmpvalue+'[T]').html();
+			var htmlencoded = $('<div/>').text(tmpvalue).html();
 			$(form).replaceWith(htmlencoded);
 
 			if ($(form).attr('name').match(/^mod.PictureDetails.PictureURL./)) {
@@ -1739,7 +1739,7 @@ function showformvalues(item)
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
 		} catch (err) {
-			$(form).replaceWith('[E]');
+			$(form).replaceWith('-');
 			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
@@ -1755,7 +1755,7 @@ function showformvalues(item)
 			//var tmpvalue = item[formname];
 			if (tmpvalue == null) tmpvalue = '';
 			var label = $('option[value='+tmpvalue+']', form).html();
-			$(form).replaceWith(label+'[S]');
+			$(form).replaceWith(label);
 		} catch (err) {
 			$(form).replaceWith('[E]');
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
