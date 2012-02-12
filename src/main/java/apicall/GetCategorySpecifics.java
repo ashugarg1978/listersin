@@ -13,17 +13,15 @@ public class GetCategorySpecifics extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
-		Integer cnt = cur.count();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
 			
-			String  site   = row.get("Site").toString();
-			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
-			
-			//if (!site.equals("Poland")) continue;
+			String  site   = ((BasicDBObject) sitedbo).getString("Site");
+			Integer siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
 			//if (!site.equals("US")) continue;
-			if (!site.equals("US")) continue;
+			log(site);
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
@@ -33,14 +31,15 @@ public class GetCategorySpecifics extends ApiCall {
 			reqdbo.append("MessageID",    site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategorySpecifics");
-			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategorySpecifics"));
+			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategorySpecifics", "filename"));
 		}
 		
 		return "";
 	}
 	
-	public String callback(String responsexml) throws Exception {
+	public String callback(String filename) throws Exception {
 		
+		String responsexml = readfile(filename);
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
 		writelog("GetCategorySpecifics/"+site+".xml", responsexml);

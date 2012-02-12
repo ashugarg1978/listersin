@@ -1,11 +1,13 @@
 package ebaytool.apicall;
 
+import com.mongodb.*;
 import ebaytool.apicall.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
+import net.sf.json.xml.XMLSerializer;
 
 public class ApiCallTask implements Callable {
 	
@@ -13,12 +15,17 @@ public class ApiCallTask implements Callable {
 	private String requestxml;
 	private String callname; // todo: get from caller class.
 	private String resulttype; // todo: get from caller class.
+	private String basedir;
+	private BasicDBObject configdbo;
 	
 	public ApiCallTask(Integer siteid, String requestxml, String callname) throws Exception {
 		this.siteid = siteid;
 		this.requestxml = requestxml;
 		this.callname = callname;
 		this.resulttype = "";
+
+		basedir = System.getProperty("user.dir");
+		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 	}
 	
 	public ApiCallTask(Integer siteid, String requestxml, String callname, String resulttype) throws Exception {
@@ -26,9 +33,20 @@ public class ApiCallTask implements Callable {
 		this.requestxml = requestxml;
 		this.callname   = callname;
 		this.resulttype = resulttype;
+
+		basedir = System.getProperty("user.dir");
+		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 	}
 	
 	public String call() throws Exception {
+		
+		/* make log directory for each call */
+		boolean exists = (new File(basedir+"/logs/apicall/"+callname)).exists();
+		if (exists) {
+			
+		} else {
+			new File(basedir+"/logs/apicall/"+callname).mkdir();
+		}
 		
 		if (siteid == 100) siteid = 0;
 		
@@ -43,10 +61,10 @@ public class ApiCallTask implements Callable {
 		*/
 		
 		/* Sandbox */
-		String apiurl   = "https://api.sandbox.ebay.com/ws/api.dll";
-		String devname  = "e60361cd-e306-496f-ad7d-ba7b688e2207";
-		String appname  = "Yoshihir-1b29-4aad-b39f-1be3a37e06a7";
-		String certname = "8118c1eb-e879-47f3-a172-2b08ca680770";
+		String apiurl   = configdbo.getString("apiurl");
+		String devname  = configdbo.getString("devname");
+		String appname  = configdbo.getString("appname");
+		String certname = configdbo.getString("certname");
 		
 		/* Production */
 		if (false) {
@@ -64,7 +82,8 @@ public class ApiCallTask implements Callable {
         conn.setDoInput(true);
         conn.setDoOutput(true);
 		conn.setRequestProperty("Content-Type", "text/xml");
-		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", "753");
+		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL",
+								configdbo.getString("compatlevel"));
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
 		conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
 
@@ -79,7 +98,7 @@ public class ApiCallTask implements Callable {
 		osw.close();
         conn.connect();
 		
-		String savedir = "/var/www/ebaytool.jp/logs/apicall/"+callname;
+		String savedir = basedir+"/logs/apicall/"+callname;
 		String filename = "_tmp."+siteid.toString()+".xml";
 		FileWriter fstream = new FileWriter(savedir+"/"+filename);
 		BufferedWriter out = new BufferedWriter(fstream);
@@ -119,4 +138,32 @@ public class ApiCallTask implements Callable {
 		return result;
 	}
 	
+	// todo: many same methods...
+	public BasicDBObject convertXML2DBObject(String xml) {
+		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		//xmlSerializer.setTypeHintsCompatibility(true);
+		xmlSerializer.setTypeHintsEnabled(false);
+		
+		net.sf.json.JSON json = xmlSerializer.read(xml);
+		
+		BasicDBObject dbobject = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+		
+		return dbobject;
+	}
+	
+	public String readfile(String filename) throws Exception {
+		
+		String data = "";
+		
+		FileReader fr = new FileReader(filename);
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			data = data + line;
+		}
+		br.close();
+		
+		return data;
+	}
 }

@@ -11,13 +11,14 @@ public class GetCategory2CS extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		DBCursor cur = db.getCollection("US.eBayDetails.SiteDetails").find();
-		Integer cnt = cur.count();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
 			
-			String  site   = row.get("Site").toString();
-			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
+			String  site   = ((BasicDBObject) sitedbo).getString("Site");
+			Integer siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+			log(site);
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));

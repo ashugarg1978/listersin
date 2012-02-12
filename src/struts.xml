@@ -7,5 +7,5 @@
   
   <constant name="struts.devMode" value="false" />
   <constant name="struts.custom.i18n.resources" value="global" />
-  
+
 </struts>

@@ -547,7 +547,7 @@ public class JsonAction extends BaseAction {
 		
 		json.put("result", result);
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("AddItems "+session.get("email"));
 		out.close();
@@ -577,7 +577,7 @@ public class JsonAction extends BaseAction {
 		
 		json.put("result", result);
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("RelistItem "+session.get("email"));
 		out.close();
@@ -596,7 +596,7 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/import")
 	public String importitems() throws Exception {
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("GetSellerList");
 		out.close();
@@ -621,7 +621,7 @@ public class JsonAction extends BaseAction {
 		
 		WriteResult result = db.getCollection("items").update(query, update, false, true);
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("EndItems");
 		out.close();
@@ -650,7 +650,7 @@ public class JsonAction extends BaseAction {
 		}
 		
 		/* GetProductSearchResultID */
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -678,7 +678,7 @@ public class JsonAction extends BaseAction {
 		String productid      = ((String[]) parameters.get("productid"))[0];
 		String attributesetid = ((String[]) parameters.get("attributesetid"))[0];
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -775,7 +775,7 @@ public class JsonAction extends BaseAction {
 		log.debug(xml);
 		
 		// XML to HTML
-		String logpath = "/var/www/ebaytool.jp/logs/apicall";
+		String logpath = basedir+"/logs/apicall";
 		
 		
 		String decoded = "";

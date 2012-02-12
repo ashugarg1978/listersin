@@ -21,8 +21,6 @@ public class GetItemRecommendations extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		//String tmptoken = "AgAAAA**AQAAAA**aAAAAA**tzUjTw**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wNmYujAZKEpwqdj6x9nY+seQ**bwYBAA**AAMAAA**ePoopeUk1B6r20McoOgQ3e3JkxioqhJPeYW7xflFSKuxbImCPWBqPM5fzpk7WfBCBCACRN7uJyt2hE4Jz33tmOddLnuwzaUIEyhYoIU5kPT2R8J6OvhJzgHT5sLmwkiX1LEa84JfPPgshxK6PjaQhfAb0l+YSTxz9e86OXbUawtXg3nMu33h1aYSD0W0pdSp65KcTXm0VRZimdGHcEZ0laQeSoSG5vxZW8qVLbHcYFuYjySx1Tyu0StMAFMWBrwIES+oX5e1wkoZgPojLDZBlgus2ZW8mLckz6Kdozw9k+uVCp+v5GJXXGEWRabhsqqd7D/aYNNeramp3ZgQx/jVioRZBWUa529JShBkKz8kbCbx3I4cjjRKFcNhDHStxZHCs0qm06J2Be5/9V/KzT36Rx+rM4Nu4BMSFJ2XiG0Fn32nMjkglapQaQSYkL+osspwqUfRU2pDeKhHXZbNjBpJBYRiA7WytYAPEhNyuvOQmD9iVydWY6YKVNaRGUIjVhppmUZeiCb7Tyl4o/xCZzoPpr0haEorAKmnBlge9bC+1HmlyK9OhzKlB7vvAi5ew9H7DTq5KClwdlR2N8lQhKt+5578qtuBDgIZv8P3ri51ycy8NSFQvqMa/0E3UcI3eCuJl+VPBXbw5Y4JtQl8H5NDfoeA04mB5Ln5YK2D8DMJW4Vy6uVfDbeFFrziZ2AYLsqUUC6XdpTkEW2hh6XQsKCtGI3A5A65PFGEzoRQSM/La4th7bnKcsEQp/NiNS7mhpHH";
-		
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");

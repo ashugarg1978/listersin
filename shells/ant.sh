@@ -1,12 +1,23 @@
 #!/bin/sh
 
+BASEDIR="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )"
+BASENAME=${BASEDIR/*\//}
+
+echo "basedir [$BASEDIR]"
+echo "basename [$BASENAME]"
+
+if [ $BASENAME = "ebaytool.jp" ]
+then
+	echo "!!! PRODUCTION !!!"
+fi
+
 export JAVA_HOME=/usr/local/jdk
 
-/etc/init.d/ebaytoold stop
+$BASEDIR/shells/ebaytoold stop
 
-cd /var/www/ebaytool.jp
+cd $BASEDIR
 /usr/local/apache-ant/bin/ant
 
-cp ./dist/ebaytool.jp.war /usr/local/apache-tomcat/webapps/
+cp ./dist/$BASENAME.war /usr/local/apache-tomcat/webapps/
 
-/etc/init.d/ebaytoold start
+$BASEDIR/shells/ebaytoold start

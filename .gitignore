@@ -2,6 +2,7 @@
 # git update-index --assume-unchanged
 
 build/*
+config/*
 dist/*
 logs/*
 webroot/itemimage/*

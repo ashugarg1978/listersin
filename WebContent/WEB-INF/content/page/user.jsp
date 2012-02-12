@@ -21,14 +21,11 @@
   <div id="loading"><s:text name="loading"/></div>
   
   <div id="header">
-	<div id="logo"><a href="/">Sandbox</a></div>
+	<div id="logo"><a href="/">Production</a></div>
 	
 	<div id="useremail">
 	  <span style="font-weight:bold;">${user.email}</span>
 	  <a href="/page/logout"><s:text name="signout"/></a>
-	  
-	  <br/>
-	  <a href="#" id="toggledebug">DEBUG</a>
 	</div>
 	
 	<div id="bulkbuttons">
@@ -70,65 +67,15 @@
   </ul>
   
   <a href="/page/addaccount"><s:text name="addnewaccount"/></a>
-
-  <div id="debugseparator"></div>
   
-  <div id="importform">
-
-	<select name="UserID">
-	  <option value="">User ID</option>
-	  <s:iterator value="user.userids.keySet">
-		<option><s:property /></option>
-	  </s:iterator>
-	</select><br>
-	
-	<select name="daterange">
-	  <option value="Start">StartTime</option>
-	  <option value="End">EndTime</option>
-	</select>
-	
-	<input type="text" name="from" size="12" value=""><br>
-	<input type="text" name="to"   size="12" value=""><br>
-	<input type="button" value="Import">
-	
-  </div>
-  
-  <div id="debugseparator"></div>
-  
-  <table id="hiddenforms">
-	<tr>
-	  <td>offset</td>
-	  <td><input type="text" class="filter" name="offset" value="0" size="3"></td>
-	</tr>
-	<tr>
-	  <td>limit</td>
-	  <td><input type="text" class="filter" name="limit" value="20" size="3"></td>
-	</tr>
-	<tr>
-	  <td>selling</td>
-	  <td><input type="text" class="filter" name="selling" value="active" size="13"></td>
-	</tr>
-	<tr>
-	  <td>sort</td>
-	  <td>
-		<input type="text" class="filter" name="sort" value="ListingDetails_EndTime" size="13">
-	  </td>
-	</tr>
-	<tr>
-	  <td>allpages</td>
-	  <td><input type="checkbox" class="filter" name="allpages" value="1"></td>
-	</tr>
-	<tr>
-	  <td>user id</td>
-	  <td><input type="text" class="filter" name="UserID"></td>
-	</tr>
-  </table>
-  
-  <br>
+  <input type="hidden" class="filter" name="offset" value="0"/>
+  <input type="hidden" class="filter" name="limit" value="20"/>
+  <input type="hidden" class="filter" name="selling" value="active"/>
+  <input type="hidden" class="filter" name="sort" value="ListingDetails_EndTime"/>
+  <input type="checkbox" class="filter" name="allpages" value="1"/>
+  <input type="hidden" class="filter" name="UserID"/>
   
   <iframe name="posttarget" src="/blank.html"></iframe>
-  
-  <div id="msg"></div>
   
 </div>
 
@@ -173,8 +120,6 @@
 	</tbody>
 	
   </table>
-  
-  <div id="debug"></div>
   
 </div>
 

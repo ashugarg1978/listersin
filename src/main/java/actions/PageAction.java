@@ -57,7 +57,7 @@ public class PageAction extends BaseAction {
 		String password = "";
 		
 		// for development
-		session.put("email", "fd3s.boost@gmail.com");
+		//session.put("email", "fd3s.boost@gmail.com");
 		
 		if (session.get("email") != null) {
 			
@@ -172,7 +172,8 @@ public class PageAction extends BaseAction {
 	public String addaccount() throws Exception {
 		
 		/* GetSessionID */
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
+		
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -201,7 +202,7 @@ public class PageAction extends BaseAction {
 		String sessionid = user.get("sessionid").toString();
 		
 		/* FetchToken */
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -213,7 +214,7 @@ public class PageAction extends BaseAction {
 		socket.close();
 		
 		/* SetNotificationPreferences */
-		socket = new Socket("localhost", 8181);
+		socket = new Socket("localhost", daemonport);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -232,7 +233,7 @@ public class PageAction extends BaseAction {
 		String start = formatter.format(cal.getTime());
 		
 		/* GetSellerList */
-		socket = new Socket("localhost", 8181);
+		socket = new Socket("localhost", daemonport);
 		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		out = new PrintWriter(socket.getOutputStream(), true);
 		
@@ -303,7 +304,7 @@ public class PageAction extends BaseAction {
 			
 			WriteResult result = coll.update(query, update, false, true);
 			
-			Socket socket = new Socket("localhost", 8181);
+			Socket socket = new Socket("localhost", daemonport);
 			PrintWriter sout = new PrintWriter(socket.getOutputStream(), true);
 			//sout.println("RelistItem "+session.get("email"));
 			sout.println("RelistItem fd3s.boost@gmail.com");
@@ -343,7 +344,7 @@ public class PageAction extends BaseAction {
 		String productid      = ((String[]) parameters.get("productid"))[0];
 		String attributesetid = ((String[]) parameters.get("attributesetid"))[0];
 		
-		Socket socket = new Socket("localhost", 8181);
+		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		

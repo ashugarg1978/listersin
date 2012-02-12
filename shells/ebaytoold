@@ -6,17 +6,18 @@
 # description: ebaytool daemon
 #
 
-# todo: which is better? pool18 count.
-CPBASE=/var/www/ebaytool.jp/build/WEB-INF
-#CPBASE=/usr/local/apache-tomcat/webapps/ROOT/WEB-INF
+BASEDIR="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )"
+BASENAME=${BASEDIR/*\//}
+
+CPBASE=$BASEDIR/build/WEB-INF
 
 PATH=/usr/local/jdk/bin:$PATH
 export CLASSPATH=$CPBASE/classes:$CPBASE/lib/*
 
 start() {
 	# option "-Xms1000m" is needed to read large xml files.
-	#java -Xms1000m ebaytool.apicall.Daemon start >> /var/www/ebaytool.jp/logs/daemon.log 2>&1 &
-	java ebaytool.apicall.Daemon start >> /var/www/ebaytool.jp/logs/daemon.log 2>&1 &
+	#java -Xms1000m ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
+	java ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
 }
 
 stop() {

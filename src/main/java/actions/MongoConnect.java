@@ -8,18 +8,18 @@ public class MongoConnect {
 	private static MongoConnect _instance;
 	private DB db;
 	
-	private MongoConnect() throws Exception {
+	private MongoConnect(String database) throws Exception {
 		
 		Logger log = Logger.getLogger(this.getClass());
-		log.debug("connecting to MongoDB");
+		log.debug("connecting to MongoDB ["+database+"]");
 		
-		db = new Mongo().getDB("ebay");
+		db = new Mongo().getDB(database);
 	}
 	
-	public static synchronized MongoConnect getInstance() throws Exception {
+	public static synchronized MongoConnect getInstance(String database) throws Exception {
 		
 		if (_instance == null) {
-			_instance = new MongoConnect();
+			_instance = new MongoConnect(database);
 		}
 		
 		return _instance;

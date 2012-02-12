@@ -25,7 +25,7 @@ public class downloadFile extends ApiCall {
 	
 	public String callback(String site) throws Exception {
 		
-		String savedir = "/var/www/ebaytool.jp/logs/apicall/downloadFile";
+		String savedir = basedir+"/logs/apicall/downloadFile";
 		
 		FileDataSource fds = new FileDataSource(savedir+"/"+site+".raw");
 		MimeMultipart mmp = new MimeMultipart(fds);
@@ -54,17 +54,13 @@ public class downloadFile extends ApiCall {
 		
 		net.sf.json.JSON json = xmlSerializer.readFromFile(file);
 		
-		log(site+" done 0.5?");
 		BasicDBObject resdbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
-		log(site+" done 1?");
 		
 		DBCollection coll = db.getCollection(site+".CategorySpecifics");
 		if (db.collectionExists(site+".CategorySpecifics")) {
 			coll.drop();
 		}
-		log(site+" done 2?");
 		coll.insert((List<DBObject>) resdbo.get("Recommendations"));
-		log(site+" done?");
 		
 		return "";
 	}

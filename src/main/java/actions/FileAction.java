@@ -22,7 +22,7 @@ public class FileAction extends BaseAction {
 		String fileindex = ((String[]) parameters.get("fileindex"))[0];
 		String id        = ((String[]) parameters.get("id"))[0];
 		
-		String savedir = "/var/www/ebaytool.jp/webroot/itemimage";
+		String savedir = basedir + "/webroot/itemimage";
 		
 		// todo: get basedir
 		//ActionContext context = ActionContext.getContext();

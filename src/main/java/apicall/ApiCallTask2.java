@@ -1,5 +1,6 @@
 package ebaytool.apicall;
 
+import com.mongodb.*;
 import ebaytool.apicall.*;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -7,6 +8,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
+import net.sf.json.xml.XMLSerializer;
 
 public class ApiCallTask2 implements Callable {
 	
@@ -14,19 +16,34 @@ public class ApiCallTask2 implements Callable {
 	private String requestxml;
 	private String callname; // todo: get from caller class.
 	private String site;
+	private String basedir;
+	private BasicDBObject configdbo;
 	
-	public ApiCallTask2(Integer siteid, String requestxml, String callname, String site) throws Exception {
+	public ApiCallTask2(Integer siteid, String requestxml, String callname, String site)
+		throws Exception {
+		
 		this.siteid     = siteid;
 		this.requestxml = requestxml;
 		this.callname   = callname;
 		this.site       = site;
+
+		basedir = System.getProperty("user.dir");
+		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 	}
 	
 	public String call() throws Exception {
 		
+		/* make log directory for each call */
+		boolean exists = (new File(basedir+"/logs/apicall/"+callname)).exists();
+		if (exists) {
+			
+		} else {
+			new File(basedir+"/logs/apicall/"+callname).mkdir();
+		}
+		
 		if (siteid == 100) siteid = 0;
 		
-        URL url = new URL("https://storage.sandbox.ebay.com/FileTransferService");
+        URL url = new URL(configdbo.getString("apiftsurl"));
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
         conn.setRequestMethod("POST");
@@ -35,7 +52,7 @@ public class ApiCallTask2 implements Callable {
 		conn.setRequestProperty("Content-Type", "text/xml");
 		
 		conn.setRequestProperty("X-EBAY-SOA-OPERATION-NAME", "downloadFile");
-		conn.setRequestProperty("X-EBAY-SOA-SECURITY-TOKEN", "AgAAAA**AQAAAA**aAAAAA**KHmBTA**nY+sHZ2PrBmdj6wVnY+sEZ2PrA2dj6wFk4CoD5mKpw2dj6x9nY+seQ**Q0UBAA**AAMAAA**vIfXjO5I7JEMxVTJem2CIu9tUmKl1ybRTAGc4Bo/RNktrvd+MQ0NMHvUp7qRyWknHZ10fPIGLaSKq0FDQDQVg8hQafeYcmtfPcxvHnESRPSx6IIcad4GPne8vJjvzRgj1quv40pVatq4mId5tRU8D1DwEm930K3JShD92Z+8AXG6qO8TVBf/r4auftBdGNnwStY/01gz0dUXyDhyi3G94yu9Cv8HcyhAvM67yUQKW+45A9WnWuRCrxVgx3xYFUKhTT+8tJb4KtDgH65zfQuk4og6TvqD6qO85FPS+hSpAX7dFYxFPgw5R61VXJBm4LD4seJA1/E+2fA1Ge5UUplH0aS8hTs0yZYIeBx2WHs9OhV5HaAY5lj2kNm3h59GbheSsBfjReMk/Yxm3X9rLRalw20utx4Z4MU+JZgMePouNAcceDHsFRylE+e2nnDfddx3peQOpwrbEtIm9fOqBahBs7MAy+IVVY8CcvoEn+Msoevz18jpTj0P+1h/fBvdliedAPOmMuiafYfqtYmIfTSTWIJzAfvcpBsZD3cW+ilo6GfJ4875x2R221qEUwS1AYT1GIK5Ctip/pKAxKT/ugf18PtLd3FJ5jVWziTsFFZ07ZVjihShtsXLsORQBInvMqE1PgniJ3Hpdsqp85eIo1pwhlLBD/2rsCRTodGOFX9t47RMST1WKAjzAqPW0XnqfPvYfuII7kaqL/YT0pV/eyNzdiFjtXklWGDSPNdQfoSC1Uh7mxMXNxx5HHlV98QS/jTB");
+		conn.setRequestProperty("X-EBAY-SOA-SECURITY-TOKEN", configdbo.getString("admintoken"));
 		
 		// todo: trap network error.
 		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
@@ -45,7 +62,7 @@ public class ApiCallTask2 implements Callable {
         conn.connect();
 		
 		/* save response */
-		File file = new File("/var/www/ebaytool.jp/logs/apicall/downloadFile/"+site+".raw");
+		File file = new File(basedir+"/logs/apicall/downloadFile/"+site+".raw");
 		InputStream is = conn.getInputStream();
 		OutputStream os = new FileOutputStream(file);
 		
@@ -70,4 +87,32 @@ public class ApiCallTask2 implements Callable {
 		return result;
 	}
 	
+	// todo: many same methods...
+	public BasicDBObject convertXML2DBObject(String xml) {
+		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		//xmlSerializer.setTypeHintsCompatibility(true);
+		xmlSerializer.setTypeHintsEnabled(false);
+		
+		net.sf.json.JSON json = xmlSerializer.read(xml);
+		
+		BasicDBObject dbobject = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+		
+		return dbobject;
+	}
+	
+	public String readfile(String filename) throws Exception {
+		
+		String data = "";
+		
+		FileReader fr = new FileReader(filename);
+		BufferedReader br = new BufferedReader(fr);
+		String line;
+		while ((line = br.readLine()) != null) {
+			data = data + line;
+		}
+		br.close();
+		
+		return data;
+	}
 }
