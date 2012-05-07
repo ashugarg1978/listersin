@@ -25,12 +25,14 @@ public class EndItems extends ApiCall {
 	private String site;
 	private String chunkidx;
 	private String requestxml;
+	private String taskid;
 	
 	public EndItems() throws Exception {
 	}
 	
-	public EndItems(String email) throws Exception {
-		this.email = email;
+	public EndItems(String email, String taskid) throws Exception {
+		this.email  = email;
+		this.taskid = taskid;
 	}
 	
 	public String call() throws Exception {
@@ -39,26 +41,34 @@ public class EndItems extends ApiCall {
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
+		BasicDBObject userdbo =
+			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
+		
 		BasicDBObject query = new BasicDBObject();
-		query.put("ItemID",      new BasicDBObject("$exists", 1));
-		query.put("ext.deleted", new BasicDBObject("$exists", 0));
-		query.put("ext.status", "end");
+		query.put("deleted",    new BasicDBObject("$exists", 0));
+		query.put("org.ItemID", new BasicDBObject("$exists", 1));
+		query.put("status",     taskid);
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "ending"));
+		update.put("$set", new BasicDBObject("status", taskid+"_processing"));
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+userdbo.getString("_id"));
 		WriteResult result = coll.update(query, update, false, true);
 		
-		query.put("ext.status", "ending");
+		/* re-query */
+		query.put("status", taskid+"_processing");
 		
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
 		DBCursor cur = coll.find(query);
+		Integer count = cur.count();
+		updatemessage(email, "Ending "+count+" items on eBay...");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
+			DBObject mod = (DBObject) item.get("mod");
+			DBObject org = (DBObject) item.get("org");
 			
-			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
-			site   = item.get("Site").toString();
+			userid = ((DBObject) org.get("Seller")).get("UserID").toString();
+			site   = mod.get("Site").toString();
 			
 			if (!lhm.containsKey(userid)) {
 				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
@@ -79,9 +89,10 @@ public class EndItems extends ApiCall {
 			
 			// add item data to each userid.site.chunk array.
 			((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).add(item);
-		}		
+		}
 		
 		// each userid
+		Integer currentnum = 0;
 		for (String tmpuserid : lhm.keySet()) {
 			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
 			
@@ -99,20 +110,17 @@ public class EndItems extends ApiCall {
 									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
 					int messageid = 0;
+					Integer tmpcnt = 0;
 					List<DBObject> ldbo = new ArrayList<DBObject>();
 					for (Object tmpidx : litems) {
-						
 						String id     = ((BasicDBObject) tmpidx).get("_id").toString();
-						String itemid = ((BasicDBObject) tmpidx).get("ItemID").toString();
+						String itemid = ((BasicDBObject) ((BasicDBObject) tmpidx)
+										 .get("org")).getString("ItemID");
 						
-						log(tmpuserid
-							+" "+tmpsite
-							+" "+tmpchunk+"."+messageid
-							+":"+itemid);
-						
-						ldbo.add(new BasicDBObject("MessageID", id)
+						ldbo.add(new BasicDBObject("MessageID", userdbo.getString("_id")+" "+id)
 								 .append("ItemID", itemid)
 								 .append("EndingReason", "NotAvailable"));
+						tmpcnt++;
 					}
 					
 					requestdbo.append("EndItemRequestContainer", ldbo);
@@ -126,37 +134,68 @@ public class EndItems extends ApiCall {
 					xmls.setTypeHintsEnabled(false);
 					String requestxml = xmls.write(jso);
 					
-					writelog("EIs"
-							 +"."+((String) tmpuserid)
+					writelog("EndItems/"
+							 +((String) tmpuserid)
 							 +"."+((String) tmpsite)
 							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
 							 +".xml", requestxml);
 					
-					pool18.submit(new ApiCallTask(0, requestxml, "EndItems"));
+					updatemessage(email, "Ending "+(currentnum+1)+"-"+(currentnum+tmpcnt)
+								  + " of "+count+" items on eBay...");
+					currentnum += tmpcnt;
+					
+					Future<String> future = pool18.submit
+						(new ApiCallTask(0, requestxml, "EndItems"));
+					future.get(); // wait
 				}
 			}
 		}
+		
+		updatemessage(email, "");
 		
 		return "OK";
 	}
 	
 	public String callback(String responsexml) throws Exception {
 		
+		writelog("EndItems/res.xml", responsexml);
+		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
-		log(responsedbo.get("Ack").toString());
+		log("Ack: "+responsedbo.get("Ack").toString());
 		
-		DBCollection coll = db.getCollection("items");
-		
+		// todo: case for one item (not BasicDBList)
 		BasicDBList dbl = (BasicDBList) responsedbo.get("EndItemResponseContainer");
-		for (Object item : dbl) {
+		for (Object oitem : dbl) {
 			
-			String id      = ((BasicDBObject) item).getString("CorrelationID");
-			String endtime = ((BasicDBObject) item).getString("EndTime");
+			BasicDBObject item = (BasicDBObject) oitem;
+			
+			String[] messages = item.getString("CorrelationID").split(" ");
+			String itemcollectionname_id = messages[0];
+			String id = messages[1];
+			
+			DBCollection coll = db.getCollection("items."+itemcollectionname_id);
 			
 			BasicDBObject upditem = new BasicDBObject();
-			upditem.put("ListingDetails.EndTime", endtime);
-			upditem.put("ext.status", "");
+			upditem.put("status", "");
+			
+			if (item.containsField("EndTime")) {
+				upditem.put("org.ListingDetails.EndTime", item.getString("EndTime"));
+			}
+			if (item.containsField("Errors")) {
+				String errorclass = item.get("Errors").getClass().toString();
+				
+				BasicDBList errors = new BasicDBList();
+				if (errorclass.equals("class com.mongodb.BasicDBObject")) {
+					errors.add((BasicDBObject) item.get("Errors"));
+				} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
+					errors = (BasicDBList) item.get("Errors");
+				} else {
+					log("Class Error:"+errorclass);
+					continue;
+				}
+				upditem.put("errors", errors);
+			}
 			
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(id));

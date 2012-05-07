@@ -83,10 +83,22 @@ public class ApiCall implements Callable {
 	
 	public void writelog(String filename, String content) throws Exception {
 		
+		// todo: auto create directory
 		FileWriter fstream = new FileWriter(basedir+"/logs/apicall/"+filename);
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(content);
 		out.close();
+		
+		return;
+	}
+	
+	public void updatemessage(String email, String message) {
+		
+		db.getCollection("users").update
+			(new BasicDBObject("email", email),
+			 new BasicDBObject("$set", new BasicDBObject("message", message)));
+		
+		log(email+" "+message);
 		
 		return;
 	}

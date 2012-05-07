@@ -54,7 +54,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		
 		BasicDBObject adp = new BasicDBObject();
 		adp.put("ApplicationEnable", "Enable");
-		adp.put("ApplicationURL", "http://ebaytool.jp/page/receivenotify");
+		adp.put("ApplicationURL", "http://"+configdbo.getString("hostname")+"/page/receivenotify");
 		
 		BasicDBObject dbobject = new BasicDBObject();
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
@@ -72,6 +72,8 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
 		
+		writelog("SetNotificationPreferences/"+userid+".req.xml", requestxml);
+		
 		Future<String> future =
 			pool18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
 		future.get();
@@ -81,7 +83,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		writelog("SNP.res.xml", responsexml);
+		writelog("SetNotificationPreferences/"+userid+".res.xml", responsexml);
 		
 		return "";
 	}

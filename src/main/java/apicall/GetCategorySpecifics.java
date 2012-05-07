@@ -3,6 +3,7 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
@@ -31,7 +32,11 @@ public class GetCategorySpecifics extends ApiCall {
 			reqdbo.append("MessageID",    site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategorySpecifics");
-			pool18.submit(new ApiCallTask(siteid, requestxml, "GetCategorySpecifics", "filename"));
+			
+			Future<String> future =
+				pool18.submit(new ApiCallTask
+							  (siteid, requestxml, "GetCategorySpecifics", "filename"));
+			future.get();
 		}
 		
 		return "";
@@ -59,7 +64,9 @@ public class GetCategorySpecifics extends ApiCall {
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
 		
-		pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile", site));
+		Future<String> future =
+			pool18.submit(new ApiCallTask2(0, requestxml, "downloadFile", site));
+		future.get();
 		
 		return "";
 	}

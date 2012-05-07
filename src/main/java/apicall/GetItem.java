@@ -49,9 +49,9 @@ public class GetItem extends ApiCall implements Callable {
 		/* GetItem */
 		query = new BasicDBObject();
 		query.put("ItemID",           new BasicDBObject("$exists", 1));
-		query.put("ext.deleted",      new BasicDBObject("$exists", 0));
-		query.put("ext.importstatus", "waiting GetItem");
-		query.put("ext.UserID",       userid);
+		query.put("deleted",      new BasicDBObject("$exists", 0));
+		query.put("importstatus", "waiting GetItem");
+		query.put("UserID",       userid);
 		if (itemid != null) {
 			query.put("ItemID",       itemid);
 		}
@@ -69,8 +69,8 @@ public class GetItem extends ApiCall implements Callable {
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-			reqdbo.append("WarningLevel", "High");
-			reqdbo.append("DetailLevel", "ReturnAll");
+			reqdbo.append("WarningLevel",                 "High");
+			reqdbo.append("DetailLevel",             "ReturnAll");
 			reqdbo.append("IncludeCrossPromotion",        "true");
 			reqdbo.append("IncludeItemCompatibilityList", "true");
 			reqdbo.append("IncludeItemSpecifics",         "true");
@@ -99,66 +99,53 @@ public class GetItem extends ApiCall implements Callable {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-		BasicDBObject item = new BasicDBObject();
 		BasicDBObject org = (BasicDBObject) responsedbo.get("Item");
 		BasicDBObject mod = (BasicDBObject) org.copy();
 		
 		String callbackuserid = ((BasicDBObject) org.get("Seller")).getString("UserID");
 		String callbackitemid = org.getString("ItemID");
+		String timestamp = responsedbo.getString("Timestamp").replaceAll("\\.", "_");
 		
 		writelog("GetItem/"+callbackuserid+"."+callbackitemid+".xml", responsexml);
 		
-		DBCollection coll = db.getCollection("items");
+		/* get collection name for each users */
+		BasicDBObject userquery = new BasicDBObject();
+		userquery.put("userids."+callbackuserid, new BasicDBObject("$exists", true));
+		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
+		String user_id = userdbo.getString("_id");
+		
+		DBCollection coll = db.getCollection("items."+user_id);
+		
+		/* delete fields which is not necessary in AddItem families */
+		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
+		for (Object fieldname : movefields) {
+			movefield(mod, fieldname.toString());
+		}
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", callbackuserid);
-		query.put("org.ItemID", callbackitemid);
-		
-		/* add extended information */
-		BasicDBObject ext = new BasicDBObject();
-		//item.put("UserID", callbackuserid);
-		item.put("labels", new BasicDBList());
-		item.put("org", org);
-		item.put("mod", mod);
-		
-		// todo: copy from GetSellerList code.
-		/* move some fields which is not necessary in AddItem families */
-		String[] movefields =
-			{"ItemSpecifics.NameValueList.Source",
-			 "SellingStatus",
-			 "TimeLeft",
-			 "BuyerProtection",
-			 "BuyerGuaranteePrice",
-			 "PaymentAllowedSite",
-			 "PrimaryCategory.CategoryName",
-			 "Seller.AboutMePage",
-			 "Seller.Email",
-			 "Seller.FeedbackPrivate",
-			 "Seller.FeedbackRatingStar",
-			 "Seller.FeedbackScore",
-			 "Seller.IDVerified",
-			 "Seller.NewUser",
-			 "Seller.PositiveFeedbackPercent",
-			 "Seller.RegistrationDate",
-			 "Seller.SellerInfo",
-			 "Seller.Site",
-			 "Seller.Status",
-			 "Seller.UserID",
-			 "Seller.UserIDChanged",
-			 "Seller.UserIDLastChanged",
-			 "Seller.VATStatus",
-			 "Seller.eBayGoodStanding",
-			 "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
-			 "ShippingDetails.ShippingServiceOptions.ShippingTimeMin",
-			 "WatchCount"};
-		for (String fieldname : movefields) {
-			movefield(mod, ext, fieldname);
-		}
+		query.put("org.ItemID",        callbackitemid);
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", item);
 		
-		coll.update(query, update, true, true);
+		BasicDBObject set = new BasicDBObject();
+		set.append("org", org);
+		
+		BasicDBObject exists = (BasicDBObject) coll.findOne(query);
+		if (exists == null) {
+			set.append("mod", mod);
+			
+			update.append("$push", new BasicDBObject
+						  ("log", new BasicDBObject(timestamp, "GetItem initial import")));
+		} else {
+			
+			update.append("$push", new BasicDBObject
+						  ("log", new BasicDBObject(timestamp, "GetItem update")));
+		}
+		
+		update.append("$set",  set);
+		
+		coll.update(query, update, true, false);
 		
 		return "";
 	}
@@ -167,63 +154,28 @@ public class GetItem extends ApiCall implements Callable {
 	 *
 	 * ref: https://jira.mongodb.org/browse/JAVA-260
 	 */
-	private void movefield(DBObject dbo, DBObject ext, String field) throws Exception {
+	private void movefield(DBObject dbo, String field) throws Exception {
 		
 		String[] path = field.split("\\.", 2);
 		
-		if (!dbo.containsField(path[0])) {
-			log(path[0]+" : NOT EXISTS.");
-			return;
-		}
+		if (!dbo.containsField(path[0])) return;
 		
 		String classname = dbo.get(path[0]).getClass().toString();
 		
 		/* leaf */
 		if (path.length == 1) {
-			ext.put(path[0], dbo.get(path[0]));
 			dbo.removeField(path[0]);
-			//log(path[0]+" : (leaf)");
 			return;
 		}
 		
 		/* not leaf */
-		//log(path[0]+" : "+classname+" ("+path[1]+")");
 		if (classname.equals("class com.mongodb.BasicDBList")) {
-			
-			if (!ext.containsField(path[0])) {
-				ext.put(path[0], new BasicDBList());
-			}
-			
 			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
-			BasicDBList extdbl = (BasicDBList) ext.get(path[0]);
-			
 			for (int i = 0; i < orgdbl.size(); i++) {
-				if (extdbl.size() < (i+1)) {
-					extdbl.add(new BasicDBObject());
-				}
-				
-				movefield((DBObject) orgdbl.get(i),
-						  (DBObject) extdbl.get(i),
-						  path[1]);
+				movefield((DBObject) orgdbl.get(i), path[1]);
 			}
-			
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-			
-			//log("ext:"+ext.toString());
-			//log(((DBObject) dbo.get(path[0])).toString());
-			
-			if (!ext.containsField(path[0])) {
-				ext.put(path[0], new BasicDBObject());
-			}
-			
-			movefield((DBObject) dbo.get(path[0]),
-					  (DBObject) ext.get(path[0]),
-					  path[1]);
-			
-		} else {
-			
-			log("movefield ERROR "+classname);
-			
+			movefield((DBObject) dbo.get(path[0]), path[1]);
 		}
 		
 		return;

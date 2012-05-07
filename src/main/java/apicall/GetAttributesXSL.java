@@ -24,8 +24,6 @@ public class GetAttributesXSL extends ApiCall {
 			Integer siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
 			log(site);
 			
-			//if (!site.equals("HongKong")) continue;
-			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 			reqdbo.append("WarningLevel", "High");
@@ -34,15 +32,16 @@ public class GetAttributesXSL extends ApiCall {
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetAttributesXSL");
 			Future<String> future =
-				pool18.submit(new ApiCallTask(siteid, requestxml, "GetAttributesXSL"));
+				pool18.submit(new ApiCallTask(siteid, requestxml, "GetAttributesXSL", "filename"));
 			future.get();
 		}
 		
 		return "";
 	}
 	
-	public String callback(String responsexml) throws Exception {
+	public String callback(String filename) throws Exception {
 		
+		String responsexml = readfile(filename);
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		String site = resdbo.getString("CorrelationID");
 		if (site == null) {
@@ -51,11 +50,11 @@ public class GetAttributesXSL extends ApiCall {
 		writelog("GetAttributesXSL/"+site+".xml", responsexml);
 		
 		String data     = ((BasicDBObject) resdbo.get("XSLFile")).getString("FileContent");
-		String filename = ((BasicDBObject) resdbo.get("XSLFile")).getString("FileName");
+		String xslfilename = ((BasicDBObject) resdbo.get("XSLFile")).getString("FileName");
 		
 		String decoded = new String(Base64.decodeBase64(data));
 		
-		writelog("GetAttributesXSL/"+site+"."+filename, decoded);
+		writelog("GetAttributesXSL/"+site+"."+xslfilename, decoded);
 		
 		return "";
 	}

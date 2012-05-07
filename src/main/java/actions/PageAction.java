@@ -24,8 +24,7 @@ import org.apache.struts2.convention.annotation.Results;
 @ParentPackage("json-default")
 public class PageAction extends BaseAction {
 	
-	protected LinkedHashMap<String, String> initjson;
-	protected String html;
+	protected LinkedHashMap<String, Object> initjson;
 	
 	public PageAction() throws Exception {
 	}
@@ -34,12 +33,8 @@ public class PageAction extends BaseAction {
 		return user;
 	}
 	
-	public LinkedHashMap<String, String> getInitjson() {
+	public LinkedHashMap<String, Object> getInitjson() {
 		return initjson;
-	}
-	
-	public String getHtml() {
-		return html;
 	}
 	
 	/* todo: session management in useraction json request */
@@ -56,14 +51,11 @@ public class PageAction extends BaseAction {
 		String email = "";
 		String password = "";
 		
-		// for development
-		//session.put("email", "fd3s.boost@gmail.com");
-		
 		if (session.get("email") != null) {
 			
 			query.put("email", session.get("email").toString());
 			user = (BasicDBObject) coll.findOne(query);
-			initjson = new LinkedHashMap<String, String>();
+			initjson = new LinkedHashMap<String, Object>();
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
@@ -76,47 +68,17 @@ public class PageAction extends BaseAction {
 					hash.put(((BasicDBObject) sitedbo).getString("Site"), null);
 				}
 				
-				/*
-				DBCollection collsd = db.getCollection("US.eBayDetails.SiteDetails");
-				DBCursor cur = collsd.find();
-				while (cur.hasNext()) {
-					DBObject row = cur.next();
-					hash.put(row.get("Site").toString(), null);
-				}
-				*/				
 				initjson.put("hash", hash.toString());
-				
-				/*
-				if (true) {
-					JsonAction ja = new JsonAction();
-					LinkedHashMap<String, Object> st = ja.initdata();
-					JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(st);
-					initjson.put("hash", tmpj.toString());
+
+				BasicDBObject timezoneids = new BasicDBObject();
+				for (String tzid : TimeZone.getAvailableIDs()) {
+					if (tzid.length() <= 2) continue;
+					if (!tzid.substring(0, 3).equals("Etc")) continue;
 					
-					FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/initcache");
-					BufferedWriter out = new BufferedWriter(fstream);
-					out.write(initjson.get("hash"));
-					out.close();
-				} else {
-					String data = "";
-					
-					FileReader fr = new FileReader("/var/www/ebaytool.jp/logs/initcache");
-					BufferedReader br = new BufferedReader(fr);
-					String line;
-					while ((line = br.readLine()) != null) {
-						data = data + line;
-					}
-					br.close();
-					initjson.put("hash", data);
+					TimeZone tz = TimeZone.getTimeZone(tzid);
+					timezoneids.put(tzid, tz.getDisplayName());
 				}
-				*/
-				
-				/*
-				JsonAction ja = new JsonAction();
-				LinkedHashMap<String,Object> summary = ja.summarydata();
-				JSONObject tmpj = (JSONObject) new JSONSerializer().toJSON(summary);
-				initjson.put("summary", tmpj.toString());
-				*/
+				initjson.put("timezoneids", timezoneids);
 				
 				return "alreadyloggedin";
 			}
@@ -126,6 +88,7 @@ public class PageAction extends BaseAction {
 			
 			email    = ((String[]) parameters.get("email"))[0];
 			password = ((String[]) parameters.get("password"))[0];
+			// todo: encrypt password
 			
 			query.put("email", email);
 			query.put("password", password);
@@ -148,53 +111,7 @@ public class PageAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	@Action(value="/page/register", results={@Result(name="success",type="json")})
-	public String register() throws Exception {
-		
-		// todo: password validation, check existing user record.
-		if (parameters.get("email") != null
-			&& parameters.get("password") != null
-			&& parameters.get("password2") != null) {
-			
-			// todo: password encryption
-			BasicDBObject user = new BasicDBObject();
-			user.put("email",    ((String[]) parameters.get("email"))[0]);
-			user.put("password", ((String[]) parameters.get("password"))[0]);
-			
-			WriteResult result = db.getCollection("users").insert(user, WriteConcern.SAFE);
-		}
-		
-		return SUCCESS;
-	}
-	
-	/* todo: redirect to ebay */
-	@Action(value="/page/addaccount", results={@Result(name="success",location="addaccount.jsp")})
-	public String addaccount() throws Exception {
-		
-		/* GetSessionID */
-		Socket socket = new Socket("localhost", daemonport);
-		
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("GetSessionID "+session.get("email").toString());
-		String sessionid = in.readLine();
-		
-		out.close();
-		in.close();
-		socket.close();
-		
-		user = new BasicDBObject();
-		user.put("sessionid", sessionid);
-		
-		// todo: redirect
-		//@Result(location="${url}", type="redirect")                                       
-		//The ${url} means "use the value of the getUrl method"                             
-								
-		return SUCCESS;
-	}
-	
-	@Action(value="/page/accept", results={@Result(name="success",location="user.jsp")})
+	@Action(value="/page/accept", results={@Result(name="success",type="redirect",location="/page/index")})
 	public String accept() throws Exception {
 		
 		String username  = ((String[]) parameters.get("username"))[0];
@@ -207,7 +124,7 @@ public class PageAction extends BaseAction {
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		
 		out.println("FetchToken "+email+" "+sessionid+" "+username);
-		in.readLine(); // DO WAIT
+		in.readLine(); // wait
 		
 		out.close();
 		in.close();
@@ -250,51 +167,87 @@ public class PageAction extends BaseAction {
 	@Action(value="/page/receivenotify", results={@Result(name="success",location="receivenotify.jsp")})
 	public String receivenotify() throws Exception {
 		
+		// read XML
 		String notifyxml = "";
 		String line = "";
-		
 		BufferedReader br = request.getReader();
-		
 		while ((line = br.readLine()) != null) {
 			notifyxml += line + "\n";
 		}
 		
-		//GetSellerList gsl = new GetSellerList();
-		//gsl.parsenotifyxml(notifyxml);
+		// convert XML to JSON
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		xmlSerializer.setTypeHintsEnabled(false);
+		net.sf.json.JSON notifyjson = xmlSerializer.read(notifyxml);
+		BasicDBObject dbobject = (BasicDBObject) com.mongodb.util.JSON.parse(notifyjson.toString());
 		
-		JSONObject json = (JSONObject) new XMLSerializer().read(notifyxml);
+		BasicDBObject soapenvbody = (BasicDBObject) dbobject.get("soapenv:Body");
+		BasicDBObject itemresponse = (BasicDBObject) soapenvbody.get("GetItemResponse");
+		BasicDBObject item = new BasicDBObject();
+		BasicDBObject org = (BasicDBObject) itemresponse.get("Item");
+		BasicDBObject mod = (BasicDBObject) org.copy();
 		
-		JSONObject item = json
-			.getJSONObject("soapenv:Body")
-			.getJSONObject("GetItemResponse")
-			.getJSONObject("Item");
+		String eventname = itemresponse.getString("NotificationEventName");
+		String timestamp = itemresponse.getString("Timestamp").replaceAll("\\.", "_");
 		
-		String notificationeventname = json
-			.getJSONObject("soapenv:Body")
-			.getJSONObject("GetItemResponse")
-			.get("NotificationEventName")
-			.toString();
+		String userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
+		String itemid = org.getString("ItemID");
 		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
-		Date now = new Date();
-		String timestamp = sdf.format(now).toString();
-		
-		FileWriter fstream = new FileWriter("/var/www/ebaytool.jp/logs/apicall/Notification/"
-											+ notificationeventname+"."+timestamp+".xml");
+		// save xml file
+		FileWriter fstream = new FileWriter
+			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+timestamp+".xml");
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(notifyxml);
 		out.close();
 		
-		// todo: event name operation
+		log.debug("notify: "+userid+" "+eventname);
 		
-		String userid = ((JSONObject) item.get("Seller")).get("UserID").toString();
-		String itemid = item.get("ItemID").toString();
+		// todo: merge to GetItem callback()?
 		
-		DBCollection coll = db.getCollection("items");
-
-		if (notificationeventname.equals("ItemUnsold")) {
+		// get user info
+		BasicDBObject userquery = new BasicDBObject();
+		userquery.put("userids."+userid, new BasicDBObject("$exists", 1));
+		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
+		
+		DBCollection coll = db.getCollection("items."+userdbo.getString("_id"));
+		
+		/* delete fields which is not necessary in AddItem families */
+		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
+		for (Object fieldname : movefields) {
+			movefield(mod, fieldname.toString());
+		}
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("org.Seller.UserID", userid);
+		query.put("org.ItemID",        itemid);
+		
+		BasicDBObject update = new BasicDBObject();
+		
+		BasicDBObject set = new BasicDBObject();
+		set.append("org", org);
+		
+		BasicDBObject exists = (BasicDBObject) coll.findOne(query);
+		if (exists == null) {
+			set.append("mod", mod);
 			
-			BasicDBObject query = new BasicDBObject();
+			update.append("$push", new BasicDBObject
+						  ("log", new BasicDBObject(timestamp, eventname+" initial import")));
+		} else {
+			
+			update.append("$push", new BasicDBObject
+						  ("log", new BasicDBObject(timestamp, eventname+" update")));
+		}
+		
+		update.append("$set",  set);
+		
+		coll.update(query, update, true, false);
+		
+		
+		// todo: are ItemUnsold and ItemClosed same?
+		
+		if (eventname.equals("ItemUnsold")) {
+			
+			/*
 			query.put("ext.UserID", userid);
 			query.put("ItemID",     itemid);
 			query.put("ext.status", new BasicDBObject("$ne", "relist"));
@@ -310,61 +263,40 @@ public class PageAction extends BaseAction {
 			sout.println("RelistItem fd3s.boost@gmail.com");
 			sout.close();
 			socket.close();
+			*/
 		}
-		
-		/*
-		if (false) {
-			
-			BasicDBObject ext = new BasicDBObject();
-			ext.put("UserID", userid);
-			ext.put("labels", new BasicDBList());
-			
-			// convert JSON to DBObject
-			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
-			dbobject.put("ext", ext);
-			
-			
-			BasicDBObject update = new BasicDBObject();
-			update.put("$set", dbobject);
-			
-			// insert into mongodb
-			coll.findAndRemove(query);
-			coll.update(query, update, true, true);
-			
-		}
-		*/
 		
 		return SUCCESS;
 	}
 	
-	@Action(value="/page/productsellingpage",
-			results={@Result(name="success", location="productsellingpage.jsp")})
-	public String productsellingpage() throws Exception {
+	/**
+	 * todo: duplicate in GetItem
+	 * ref: https://jira.mongodb.org/browse/JAVA-260
+	 */
+	private void movefield(DBObject dbo, String field) throws Exception {
 		
-		String productid      = ((String[]) parameters.get("productid"))[0];
-		String attributesetid = ((String[]) parameters.get("attributesetid"))[0];
+		String[] path = field.split("\\.", 2);
 		
-		Socket socket = new Socket("localhost", daemonport);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		if (!dbo.containsField(path[0])) return;
 		
-		out.println("GetProductSellingPages "+productid+" "+attributesetid);
-		String result = in.readLine();
-		html = result;
+		String classname = dbo.get(path[0]).getClass().toString();
 		
-		out.close();
-		in.close();
-		socket.close();
+		/* leaf */
+		if (path.length == 1) {
+			dbo.removeField(path[0]);
+			return;
+		}
 		
-		/*
-		Pattern p = Pattern.compile("<script[^>]*>(.*?)</script>");
-		Matcher m = p.matcher(result);
-		while(m.find()) {
-			log.debug(m.group());
-        }
-		*/
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				movefield((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			movefield((DBObject) dbo.get(path[0]), path[1]);
+		}
 		
-		return SUCCESS;
+		return;
 	}
-	
 }

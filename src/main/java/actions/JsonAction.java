@@ -1,26 +1,39 @@
 package ebaytool.actions;
 
+import com.mongodb.*;
 import com.opensymphony.xwork2.ActionSupport;
 import com.opensymphony.xwork2.ActionContext;
-import com.mongodb.*;
 import ebaytool.actions.BaseAction;
+
 import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.Message.RecipientType;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.*;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
-//import org.json.JSONObject;
-//import org.apache.log4j.Logger;
+
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Actions;
 import org.apache.struts2.convention.annotation.ParentPackage;
@@ -43,120 +56,146 @@ public class JsonAction extends BaseAction {
 		return json;
 	}
 	
-	@Action(value="/json/hash")
-	public String hash() throws Exception {
-		
-		if (true) {
-			//json = getinitdata();
-			log.debug("JsonAction.hash() called.");
-			return SUCCESS;
-		}
+	@Action(value="/json/register")
+	public String register() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
 		
-		// todo: SiteDetails in each country?
-		DBCollection coll = db.getCollection("US.eBayDetails.SiteDetails");
-		DBCursor cur = coll.find();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
+		boolean result = false;
+		String message = "registration error";
+		
+		if (parameters.get("email") != null
+			&& parameters.get("password") != null
+			&& parameters.get("password2") != null) {
 			
-			String  site   = row.get("Site").toString();
-			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
+			String email = ((String[]) parameters.get("email"))[0];
+			String password = ((String[]) parameters.get("password"))[0];
+			String password2 = ((String[]) parameters.get("password2"))[0];
 			
-			LinkedHashMap<String,Object> hash = new LinkedHashMap<String,Object>();
-			
-			hash.put("SiteID", siteid.toString());
-			
-			hash.put("category", children(site, 0));
-			((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
-			((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
-			
-			String[] category0 = new String[1];
-			category0[0] = "0";
-			hash.put("Categories",             grandchildren2(site, category0, 1, null));
-			
-			hash.put("ShippingType",           shippingtype(site));
-			hash.put("ShippingServiceDetails", shippingservicedetails(site));
-			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
-			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
-			hash.put("CountryDetails",         countrydetails(site));
-			hash.put("CurrencyDetails",        currencydetails(site));
-			
-			hash.put("ShippingLocationDetails",
-					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
-									"ShippingLocation",
-									"Description"));
-			
-			json.put(site, hash);
+			if (email.equals("") || password.equals("") || password2.equals("")) {
+				
+				message = "empty value";
+				
+			} else if (!password.equals(password2)) {
+				
+				message = "password mismatch";
+				
+			} else {
+				
+				/* check existing user */
+				BasicDBObject query = new BasicDBObject();
+				query.put("email", email);
+				
+				BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
+				
+				if (user != null) {
+					
+					message = "already exists";
+					
+				} else {
+					
+					// todo: password encryption
+					// todo: confirmation mail
+					// todo: onetime security token
+					BasicDBObject field = new BasicDBObject();
+					field.put("email",    email);
+					field.put("password", password);
+					
+					field.put("language", "English");
+					field.put("timezone", "Etc/GMT+8");
+					
+					db.getCollection("users").insert(field, WriteConcern.SAFE);
+					
+					sendmail(email);
+					
+					result = true;
+					
+					message = "success";
+				}
+			}
 		}
+		
+		json.put("result", result);
+		json.put("message", message);
 		
 		return SUCCESS;
 	}
 	
-	public LinkedHashMap<String,Object> initdata() {
+	private String sendmail(String email) throws Exception {
 		
-		log.debug("start initdata");
-		LinkedHashMap<String,Object> initdata = new LinkedHashMap<String,Object>();
-		if (true) {
-			//return initdata;
-		}
+		Properties props = new Properties();
+		props.put("mail.smtp.host", "localhost");
+		props.put("mail.smtp.port", "25");
 		
-		// todo: SiteDetails in each country?
-		DBCollection coll = db.getCollection("US.eBayDetails.SiteDetails");
-		DBCursor cur = coll.find();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
-			
-			String  site   = row.get("Site").toString();
-			Integer siteid = Integer.parseInt(row.get("SiteID").toString());
-			
-			LinkedHashMap<String,Object> hash = new LinkedHashMap<String,Object>();
-			
-			hash.put("SiteID", siteid.toString());
-			
-			//hash.put("category", children(site, 0));
-			//((LinkedHashMap) hash.get("category")).put("grandchildren", new ArrayList());
-			//((LinkedHashMap) hash.get("category")).put("features",      new ArrayList());
-			
-			log.debug(site+" gc2");
-			String[] category0 = new String[1];
-			category0[0] = "0";
-			//hash.put("Categories",             grandchildren2(site, category0, 1, null));
-			
-			log.debug(site+" shippingtype");
-			hash.put("ShippingType",           shippingtype(site));
-			hash.put("ShippingServiceDetails", shippingservicedetails(site));
-			hash.put("DispatchTimeMaxDetails", dispatchtimemaxdetails(site));
-			hash.put("ShippingPackageDetails", shippingpackagedetails(site));
-			hash.put("CountryDetails",         countrydetails(site));
-			hash.put("CurrencyDetails",        currencydetails(site));
-			
-			log.debug(site+" shippinglocation");
-			hash.put("ShippingLocationDetails",
-					 getebaydetails(site+".eBayDetails.ShippingLocationDetails",
-									"ShippingLocation",
-									"Description"));
-			
-			initdata.put(site, hash);
-			//break;
-		}
-		log.debug("done initdata");
+		Session mailSession = Session.getDefaultInstance(props);
+		Message simpleMessage = new MimeMessage(mailSession);
 		
-		return initdata;
+		InternetAddress fromAddress = null;
+		InternetAddress toAddress = null;
+		
+		fromAddress = new InternetAddress("support@sandbox.ebaytool.jp");
+		toAddress = new InternetAddress(email);
+		
+		simpleMessage.setFrom(fromAddress);
+		simpleMessage.setRecipient(RecipientType.TO, toAddress);
+		simpleMessage.setSubject("user registration");
+		simpleMessage.setText("thank you.");
+		
+		Transport.send(simpleMessage);
+		
+		return "";
 	}
+	
+	
+	/* todo: redirect to ebay */
+	@Action(value="/json/addaccount")
+	public String addaccount() throws Exception {
+		
+		/* GetSessionID */
+		Socket socket = new Socket("localhost", daemonport);
+		
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("GetSessionID "+session.get("email").toString());
+		String sessionid = in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		/* return JSON */
+		String url = configdbo.getString("signinurl")
+			+ "?SignIn"
+			+ "&runame=" + configdbo.getString("runame")
+			+ "&SessID=" + sessionid;
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("url", url);
+		
+		return SUCCESS;
+	}
+	
 	
 	@Action(value="/json/items")
 	public String items() throws Exception {
 		
-		json = new LinkedHashMap<String,Object>();
+		json = _items();
+		json.put("message", user.getString("message"));
+		
+		return SUCCESS;
+	}
+	
+	private LinkedHashMap<String,Object> _items() throws Exception {
+		
+		LinkedHashMap<String,Object> itemjson = new LinkedHashMap<String,Object>();
+		
 		LinkedHashMap<String,Object> items = new LinkedHashMap<String,Object>();
 		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
-		/* connect to database */
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
-		/* handling post parameters */
 		int limit = 40;
 		int offset = 0;
 		if (parameters.containsKey("limit"))
@@ -164,26 +203,28 @@ public class JsonAction extends BaseAction {
 		if (parameters.containsKey("offset"))
 			offset = Integer.parseInt(((String[]) parameters.get("offset"))[0]);
 		
-		/* query */
 		BasicDBObject query = getFilterQuery();
 		
-		/* field */
 		BasicDBObject field = new BasicDBObject();
 		
-		field.put("mod.Title",  1);
-		field.put("mod.Site",   1);
+		field.put("status",                          1);
+		field.put("errors",                          1);
+		
+		field.put("mod.Title",                       1);
+		field.put("mod.Site",                        1);
 		field.put("mod.PictureDetails.PictureURL",   1);
 		field.put("mod.PictureDetails.GalleryURL",   1);
 		
-		field.put("org.Seller.UserID", 1);
-		field.put("org.ItemID", 1);
-		field.put("org.StartPrice", 1);
-		field.put("org.ListingDetails.ViewItemURL",  1);
+		field.put("org.ItemID",                      1);
 		field.put("org.ListingDetails.EndTime",      1);
+		field.put("org.ListingDetails.ViewItemURL",  1);
+		field.put("org.Seller.UserID",               1);
 		field.put("org.SellingStatus.ListingStatus", 1);
+		field.put("org.StartPrice",                  1);
+		field.put("org.TimeLeft",                    1);
 		
 		BasicDBObject sort = new BasicDBObject();
-		sort.put("ListingDetails.EndTime", 1);
+		sort.put("org.ListingDetails.EndTime", 1);
 		
         Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -193,7 +234,7 @@ public class JsonAction extends BaseAction {
 		//String today = sdf.format(calendar.getTime());
 		
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
-		json.put("cnt", cur.count());
+		itemjson.put("cnt", cur.count());
 		while (cur.hasNext()) {
 			
 			DBObject item = cur.next();
@@ -228,9 +269,9 @@ public class JsonAction extends BaseAction {
 			/* add */
 			items.put(id, item);
 		}
-		json.put("items", items);
+		itemjson.put("items", items);
 		
-		return SUCCESS;
+		return itemjson;
 	}
 	
 	@Actions({
@@ -241,7 +282,7 @@ public class JsonAction extends BaseAction {
 		
 		json = new LinkedHashMap<String,Object>();
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		/* handling post parameters */
 		String id = parameters.get("id")[0];
@@ -252,17 +293,19 @@ public class JsonAction extends BaseAction {
 		
 		/* execute query */
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
-		BasicDBObject mod = (BasicDBObject) item.get("org");
+		BasicDBObject mod  = (BasicDBObject) item.get("org");
 		item.put("id", item.get("_id").toString());
+		
+		String site = mod.getString("Site");
 		
 		/* categorypath */
 		// todo: update old categoryid to current active categoryid
 		Integer categoryid =
 			Integer.parseInt(((BasicDBObject) mod.get("PrimaryCategory")).getString("CategoryID"));
-		categoryid = mapcategoryid(item.getString("Site"), categoryid);
+		categoryid = mapcategoryid(site, categoryid);
 		((BasicDBObject) mod.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
 		
-		List path = categorypath(mod.getString("Site"), categoryid);
+		List path = categorypath(site, categoryid);
 		item.put("categorypath", path);
 		
 		/* grandchildren */
@@ -271,43 +314,58 @@ public class JsonAction extends BaseAction {
 		for (int i = 0; i < path.size(); i++) {
 			pathstr[i+1] = path.get(i).toString();
 		}
-		BasicDBObject children2 = children2(mod.getString("Site"), pathstr);
+		BasicDBObject children2 = children2(site, pathstr);
 		
-		LinkedHashMap<Integer,String> path2 = categorypath2(mod.getString("Site"), categoryid);
+		LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
+		item.put("categorypath2", path2);
 		
+		/*
 		String categoryname = "";
 		for (Integer cid : path2.keySet()) {
 			if (!categoryname.equals("")) categoryname += " > ";
 			categoryname += path2.get(cid);
 		}
-		item.put("categorypath2", path2);
 		item.put("categoryname", categoryname);
+		*/
 		
 		/* shipping */
-		item.put("shippingtype", shippingtypelabel2(item));
+		item.put("ShippingDetails", new BasicDBObject("ShippingType", shippingtypelabel2(item)));
 		
-		/*
-		if (item.containsField("ShippingDetails")) {
-			BasicDBObject sd = (BasicDBObject) mod.get("ShippingDetails");
-			if (sd.containsField("ShippingType")) {
-				String st = sd.get("ShippingType").toString();
+		/* ListingDesigner */
+		json.put("DescriptionTemplate", "");
+		if (mod.containsField("ListingDesigner")) {
+			BasicDBObject listingdesigner = (BasicDBObject) mod.get("ListingDesigner");
+			if (listingdesigner.containsField("ThemeID")) {
+				String themeid = listingdesigner.getString("ThemeID");
+				
+				BasicDBObject desctmpl =
+					(BasicDBObject) db.getCollection
+					(site+".DescriptionTemplates.DescriptionTemplate")
+					.findOne(new BasicDBObject("ID", themeid));
+				
+				String groupid = desctmpl.getString("GroupID");
+				item.put("ListingDesigner", new BasicDBObject("GroupID", groupid));
+				
+				json.put("DescriptionTemplate", _descriptiontemplate(site, groupid));
+				
+				log.debug("themeid["+themeid+"] groupid["+groupid+"]");
 			}
 		}
-		*/
 		
 		/* remove fields */
 		item.removeField("_id");
 		
 		BasicDBObject ebaydetails =
-			(BasicDBObject) db.getCollection(mod.getString("Site")+".eBayDetails").findOne();
+			(BasicDBObject) db.getCollection(site+".eBayDetails").findOne();
 		
 		BasicDBObject categoryfeatures =
-			(BasicDBObject) db.getCollection(mod.getString("Site")+".CategoryFeatures").findOne();
+			(BasicDBObject) db.getCollection(site+".CategoryFeatures").findOne();
 		
-		json.put("item", item);
-		json.put("Categories", children2.get("Categories"));
-		json.put("eBayDetails", ebaydetails);
+		json.put("item",             item);
+		json.put("Categories",       children2.get("Categories"));
+		json.put("eBayDetails",      ebaydetails);
 		json.put("CategoryFeatures", categoryfeatures);
+		json.put("ThemeGroup",       themegroup(site));
 		
 		return SUCCESS;
 	}
@@ -315,40 +373,32 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/save")
 	public String save() throws Exception {
 		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
 		String id   = ((String[]) parameters.get("id"))[0];
 		String form = ((String[]) parameters.get("json"))[0];
-		log.debug("save id:"+id);
+		log.debug("save: items."+user.getString("_id")+" "+id);
 		log.debug(form);
 		
 		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		BasicDBObject mod  = (BasicDBObject) item.get("mod");
-		
-		/* CategoryName */
-		/*
-		Integer categoryid =
-			Integer.parseInt(((BasicDBObject) item.get("PrimaryCategory")).getString("CategoryID"));
-		
-		LinkedHashMap<Integer,String> categorypath =
-			categorypath2(item.getString("Site"), categoryid);
-		
-		String categoryname = "";
-		for (Integer cid : categorypath.keySet()) {
-			if (!categoryname.equals("")) categoryname += ":";
-			categoryname += categorypath.get(cid);
-		}
-		((BasicDBObject) item.get("PrimaryCategory")).put("CategoryName", categoryname);
-		*/
+		BasicDBObject org  = (BasicDBObject) item.get("org");
 		
 		/* ShippingType */
-		BasicDBObject ssd = (BasicDBObject) item.get("shippingtype");
+		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
+		BasicDBObject shippingtype    = (BasicDBObject) shippingdetails.get("ShippingType");
 		LinkedHashMap<String,LinkedHashMap> smap = shippingmap();
 		for (String st : smap.keySet()) {
 			
 			String dmst = ((Map) smap.get(st)).get("domestic").toString();
 			String intl = ((Map) smap.get(st)).get("international").toString();
 			
-			if (ssd.getString("domestic").equals(dmst)
-				&& ssd.getString("international").equals(intl)) {
+			if (shippingtype.getString("domestic").equals(dmst)
+				&& shippingtype.getString("international").equals(intl)) {
 				
 				((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", st);
 				break;
@@ -363,6 +413,7 @@ public class JsonAction extends BaseAction {
 		BasicDBList attributes = new BasicDBList();
 		String removeattr = "";
 		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
+		boolean attributesetarrayexists = false;
 		for (String key : item.keySet()) {
 			
 			Matcher m = p.matcher(key);
@@ -391,11 +442,15 @@ public class JsonAction extends BaseAction {
 				
 				attributes.add(attribute);
 				removeattr += key+"|";
+
+				attributesetarrayexists = true;
 			}
 		}
 		attributeset.put("Attribute", attributes);
 		attributesetarray.put("AttributeSet", attributeset);
-		mod.put("AttributeSetArray", attributesetarray);
+		if (attributesetarrayexists == true) {
+			mod.put("AttributeSetArray", attributesetarray);
+		}
 		
 		/* Delete */
 		item.removeField("ButtonLoad");
@@ -412,40 +467,42 @@ public class JsonAction extends BaseAction {
 			log.debug(e.toString());
 		}
 		
-		DBCollection coll = db.getCollection("items");
-		DBCollection coll2 = db.getCollection("itemsdiff");
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
+		DBCollection colldiff = db.getCollection("itemsdiff");
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		
 		BasicDBObject before = (BasicDBObject) coll.findOne(query);
+		//BasicDBObject modbefore = (BasicDBObject) before.get("mod");
+		
+		BasicDBObject set = new BasicDBObject();
+		set.put("mod", mod);
+		set.put("org.Seller.UserID", ((BasicDBObject) org.get("Seller")).getString("UserID"));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", item);
+		update.put("$set", set);
+		update.append("$push", new BasicDBObject
+					  ("log", new BasicDBObject(timestamp, "Saved by user")));
 		
 		WriteResult result = coll.update(query, update);
 		
-		coll2.remove(query);
+		/* check diff */
+		colldiff.remove(query);
 		
 		item.put("_id", new ObjectId(id));
-		coll2.insert(item);
+		colldiff.insert(item);
 		
-		BasicDBObject after  = (BasicDBObject) coll2.findOne(query);
+		BasicDBObject after  = (BasicDBObject) coll.findOne(query);
+		//BasicDBObject after  = (BasicDBObject) colldiff.findOne(query);
+		//BasicDBObject modafter = (BasicDBObject) after.get("mod");
 		
 		/* save before and after file for diff */
 		DiffLogger dl = new DiffLogger();
-		dl.savediff(id, before.toString(), after.toString());
+		dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
+		//dl.savediff(id, modbefore.toString(), modafter.toString(), basedir+"/logs/diff");
 		
-		if (false) {
-			/* for debug */
-			json = new LinkedHashMap<String,Object>();
-			json.put("result", result);
-			json.put("update", item);
-			return SUCCESS;
-		} else {
-			/* chaining action to item() */
-			return "item";
-		}
+		return "item";
 	}
 	
 	@Action(value="/json/copy")
@@ -453,12 +510,12 @@ public class JsonAction extends BaseAction {
 		
 		json = new LinkedHashMap<String,Object>();
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		BasicDBObject query = getFilterQuery();
 		
 		BasicDBObject field = new BasicDBObject();
-		field.put("ItemID", 0);
+		field.put("org.ItemID", 0);
 		
 		Integer d = 0;
 		
@@ -466,16 +523,20 @@ public class JsonAction extends BaseAction {
 		//DBCursor cur = coll.find(query, field).snapshot();
 		DBCursor cur = coll.find(query).snapshot();
 		while (cur.hasNext()) {
-			DBObject item = cur.next();
+			BasicDBObject item = (BasicDBObject) cur.next();
+			BasicDBObject org  = (BasicDBObject) item.get("org");
+			
+			log.debug("copy: "+org.getString("ItemID"));
 			
 			item.removeField("_id");
-			item.removeField("ItemID");
-			item.removeField("SellingStatus");
+			org.removeField("ItemID");
+			org.removeField("SellingStatus");
 			
-			newdblist.add(item);
+			newdblist.add((BasicDBObject) item.copy());
 		}
 		
-		coll.insert(newdblist, WriteConcern.SAFE);
+		WriteResult res = coll.insert(newdblist, WriteConcern.SAFE);
+		log.debug("result:"+res.toString());
 		
 		if (true) {
 			return SUCCESS;
@@ -493,8 +554,9 @@ public class JsonAction extends BaseAction {
 			item.removeField("_id");
 			item.removeField("SellingStatus");
 			
-			BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
-			dbl.add("copied");
+			// todo: add "copied" label
+			//BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
+			//dbl.add("copied");
 
 			if (true) {
 				json.put("item", item);
@@ -511,23 +573,40 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/delete")
 	public String delete() throws Exception {
-
+		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
 		json = new LinkedHashMap<String,Object>();
 		
 		BasicDBObject query = getFilterQuery();
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.deleted", 1));
+		update.put("$set", new BasicDBObject("deleted", 1));
+		update.append("$push", new BasicDBObject
+					  ("log", new BasicDBObject(timestamp, "Deleted by user")));
 		
-		WriteResult result = db.getCollection("items").update(query, update, false, true);
-		
+		/*
+		WriteResult result = db.getCollection("items."+user.getString("_id"))
+			.update(query, update, false, true);
 		json.put("result", result);
+		*/
+		db.getCollection("items."+user.getString("_id")).remove(query);
 		
 		return SUCCESS;
 	}
 	
 	@Action(value="/json/add")
 	public String add() throws Exception {
+		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
 		
 		json = new LinkedHashMap<String,Object>();
 		
@@ -536,20 +615,25 @@ public class JsonAction extends BaseAction {
 			ids.add(new ObjectId(id));
 		}
 		
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		query.put("ext.status", new BasicDBObject("$ne", "add"));
+		//query.put("status", ""); // todo: re-enable this line. also end, revise?
+		
+		Long count = coll.count(query);
+		String message = "Listing "+count+" items...";
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "add"));
+		update.put("$set", new BasicDBObject("status", "add_"+timestamp));
 		
-		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		WriteResult result = coll.update(query, update, false, true);
 		
 		json.put("result", result);
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("AddItems "+session.get("email"));
+		out.println("AddItems "+session.get("email")+" add_"+timestamp);
 		out.close();
 		socket.close();
 		
@@ -559,6 +643,12 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/relist")
 	public String relist() throws Exception {
 		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
 		json = new LinkedHashMap<String,Object>();
 		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
@@ -568,18 +658,61 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		query.put("ext.status", new BasicDBObject("$ne", "relist"));
+		query.put("status", new BasicDBObject("$ne", "relist"));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "relist"));
+		update.put("$set", new BasicDBObject("status", "relist_"+timestamp));
 		
-		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		WriteResult result = db.getCollection("items."+user.getString("_id"))
+			.update(query, update, false, true);
 		
 		json.put("result", result);
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("RelistItem "+session.get("email"));
+		out.println("RelistItem "+session.get("email")+" relist_"+timestamp);
+		out.close();
+		socket.close();
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/json/verifyadditem")
+	public String verifyadditem() throws Exception {
+		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
+		json = new LinkedHashMap<String,Object>();
+		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) parameters.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		//query.put("status", new BasicDBObject("$ne", "relist")); // todo: re-enable this line
+		
+		Long count = coll.count(query);
+		String message = "Verifying "+count+" items...";
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("status", "verifyadditem_"+timestamp));
+		
+		WriteResult result = db.getCollection("items."+user.getString("_id"))
+			.update(query, update, false, true);
+		
+		json.put("result", result);
+		
+		Socket socket = new Socket("localhost", daemonport);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("VerifyAddItem "+session.get("email")+" verifyadditem_"+timestamp);
 		out.close();
 		socket.close();
 		
@@ -596,9 +729,20 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/import")
 	public String importitems() throws Exception {
 		
+		String userid  = ((String[]) parameters.get("userid"))[0];
+		String email   = user.get("email").toString();
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 1);
+		String end   = formatter.format(cal.getTime());
+		cal.add(Calendar.DATE, -119);
+		String start = formatter.format(cal.getTime());
+		
+		/* GetSellerList */
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("GetSellerList");
+		out.println("GetSellerList "+email+" "+userid+" Start "+start+" "+end);
 		out.close();
 		socket.close();
 		
@@ -608,22 +752,30 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/end")
 	public String end() throws Exception {
 		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
 		
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "end"));
+		update.put("$set", new BasicDBObject("status", "end_"+timestamp));
 		
-		WriteResult result = db.getCollection("items").update(query, update, false, true);
+		WriteResult result = coll.update(query, update, false, true);
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("EndItems");
+		out.println("EndItems "+session.get("email")+" end_"+timestamp);
 		out.close();
 		socket.close();
 		
@@ -823,6 +975,32 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
+	@Action(value="/json/settings")
+	public String settings() throws Exception {
+		
+		BasicDBObject settings = new BasicDBObject();
+		settings.put("language", user.getString("language"));
+		settings.put("timezone", user.getString("timezone"));
+		
+		BasicDBObject userids = (BasicDBObject) ((BasicDBObject) user.get("userids")).copy();
+		// todo: remove tokens etc...
+		for (Object userid : userids.keySet()) {
+			BasicDBObject tmp = (BasicDBObject) userids.get(userid.toString());
+			tmp.removeField("@xmlns");
+			tmp.removeField("Ack");
+			tmp.removeField("CorrelationID");
+			tmp.removeField("Version");
+			tmp.removeField("Build");
+			tmp.removeField("eBayAuthToken");
+		}
+		settings.put("userids", userids);
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("settings", settings);
+		
+		return SUCCESS;
+	}
+	
 	public LinkedHashMap<String,Object> summarydata() throws Exception {
 		LinkedHashMap<String,Object> summarydata = new LinkedHashMap<String,Object>();
 		
@@ -833,7 +1011,7 @@ public class JsonAction extends BaseAction {
 			userids.add(userid.toString());
 		}
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		LinkedHashMap<String,Long> allsummary = new LinkedHashMap<String,Long>();
 		for (String k : selling.keySet()) {
@@ -862,6 +1040,20 @@ public class JsonAction extends BaseAction {
 		return summarydata;
 	}
 
+	private LinkedHashMap<String,BasicDBObject> themegroup(String site) {
+		
+		LinkedHashMap<String,BasicDBObject> rows = new LinkedHashMap<String,BasicDBObject>();
+		
+		DBCursor cur = db.getCollection(site+".DescriptionTemplates.ThemeGroup").find();
+		while (cur.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cur.next();
+			String id = row.get("_id").toString();
+			rows.put(id, row);
+		}		
+		
+		return rows;
+	}
+	
 	private LinkedHashMap<String,BasicDBObject> getsellingquery() {
 		
 		BasicDBObject allitems  = new BasicDBObject();
@@ -954,6 +1146,61 @@ public class JsonAction extends BaseAction {
 		return path;
 	}
 	
+	@Action(value="/json/site")
+	public String site() {
+		
+		/* handling post parameters */
+		String site = ((String[]) parameters.get("site"))[0];
+		
+		json = new LinkedHashMap<String,Object>();
+		
+		/* grandchildren */
+		String[] pathstr = {"0"};
+		BasicDBObject children2 = children2(site, pathstr);
+		
+		BasicDBObject ebaydetails =
+			(BasicDBObject) db.getCollection(site+".eBayDetails").findOne();
+		
+		BasicDBObject categoryfeatures =
+			(BasicDBObject) db.getCollection(site+".CategoryFeatures").findOne();
+		
+		json.put("Categories",       children2.get("Categories"));
+		json.put("eBayDetails",      ebaydetails);
+		json.put("CategoryFeatures", categoryfeatures);
+		json.put("ThemeGroup",       themegroup(site));
+		
+		return SUCCESS;
+	}
+
+	@Action(value="/json/descriptiontemplate")
+	public String descriptiontemplate() {
+		
+		String site    = ((String[]) parameters.get("site"))[0];
+		String groupid = ((String[]) parameters.get("groupid"))[0];
+		
+		json = _descriptiontemplate(site, groupid);
+		
+		return SUCCESS;
+	}	
+
+	private LinkedHashMap<String,Object> _descriptiontemplate(String site, String groupid) {
+		
+		LinkedHashMap<String,Object> lhm = new LinkedHashMap<String,Object>();
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("GroupID", groupid);
+		
+		DBCollection coll = db.getCollection(site+".DescriptionTemplates.DescriptionTemplate");
+		DBCursor cur = coll.find(query);
+		while (cur.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cur.next();
+			String id = row.get("_id").toString();
+			lhm.put(id, row);
+		}		
+		
+		return lhm;
+	}
+	
 	@Action(value="/json/gc2")
 	public String gc2() {
 		
@@ -967,132 +1214,20 @@ public class JsonAction extends BaseAction {
 		
 		return SUCCESS;
 	}
-	
-	private BasicDBObject grandchildren2(String site,
-										 String[] path,
-										 int recursive,
-										 BasicDBObject features) {
+
+	@Action(value="/json/refresh")
+	public String refresh() throws Exception {
 		
-		BasicDBObject result = new BasicDBObject();
-		
-		BasicDBObject field = new BasicDBObject();
-		field.put("CategoryID",   1);
-		field.put("CategoryName", 1);
-		
-		BasicDBObject query = new BasicDBObject();
-		
-		DBCollection coll    = db.getCollection(site+".Categories");
-		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
-		DBCollection collft  = db.getCollection(site+".CategoryFeatures.Category");
-		
-		/* CategoryFeatures SiteDefaults */
-		if (features == null) {
-			features = getsitedefaults(site);
-		}
-		
-		/* CategoryID */
-		String categoryid = path[0];
-		
-		query = new BasicDBObject();
-		if (categoryid.equals("0")) {
-			query.put("CategoryLevel", "1");
+		if (parameters.containsKey("id")) {
+			json = _items();
 		} else {
-			// todo: use CategoryLevel for query? -> slow.
-			query.put("CategoryParentID", categoryid);
-			//query.put("CategoryID", new BasicDBObject("$ne", categoryid));
-			
-			/* CategoryFeatures */
-			BasicDBObject dboft = 
-				(BasicDBObject) collft.findOne(new BasicDBObject("CategoryID", categoryid));
-			if (dboft != null) {
-				for (Object o : dboft.keySet()) {
-					features.put(o.toString(), dboft.get(o.toString()));
-				}
-			}
-			
-		}
-		DBCursor cur = coll.find(query, field).sort(new BasicDBObject("_id", 1));
-		if (cur.count() == 0) {
-			return null;
+			json = new LinkedHashMap<String,Object>();
 		}
 		
-		while (cur.hasNext()) {
-			BasicDBObject row = (BasicDBObject) cur.next();
-			String key = "c"+row.getString("CategoryID");
-			if (row.getString("CategoryID").equals(categoryid)) continue;
-			
-			/* CategorySpecifics */
-			DBObject dbo = collspc.findOne(new BasicDBObject("CategoryID",
-															 row.getString("CategoryID")));
-			if (dbo != null) {
-				dbo.removeField("_id");
-				dbo.removeField("CategoryID");
-				row.put("CategorySpecifics", dbo);
-			}
-			
-			/* children */
-			if (path.length >= 2 && row.getString("CategoryID").equals(path[1])) {
-				
-				String[] shifted = new String[path.length - 1];
-				for (int i = 1; i < path.length; i++) {
-					shifted[i - 1] = path[i];
-				}
-				
-				BasicDBObject tmpchildren = grandchildren2(site, shifted, 1,
-														   (BasicDBObject) features.copy());
-				if (tmpchildren != null) {
-					row.put("children", tmpchildren);
-				}
-				
-			} else if (recursive == 1) {
-				
-				String[] shifted = new String[1];
-				shifted[0] = row.getString("CategoryID");
-				
-				BasicDBObject tmpchildren = grandchildren2(site, shifted, 0,
-														   (BasicDBObject) features.copy());
-				if (tmpchildren != null) {
-					row.put("children", tmpchildren);
-				}
-				
-			} else if (recursive == 0) {
-				
-				BasicDBObject query2 = new BasicDBObject();
-				query2.put("CategoryParentID", row.getString("CategoryID"));
-				Long cnt = coll.count(query2);
-				if (cnt > 0) {
-					row.put("children", cnt);
-				}
-				
-			}
-			
-			/* when it is a leaf category */
-			if (!row.containsField("children")) {
-				
-				/* CategoryFeatures */
-				//BasicDBObject features2 = (BasicDBObject) features.clone();
-				BasicDBObject features2 = (BasicDBObject) features.copy();
-				BasicDBObject dboft = (BasicDBObject)
-					collft.findOne(new BasicDBObject("CategoryID", row.getString("CategoryID")));
-				if (dboft != null) {
-					for (Object o : dboft.keySet()) {
-						features.put(o.toString(), dboft.get(o.toString()));
-						if (row.getString("CategoryID").equals("16709")) {
-							log.debug(o.toString()+":"+dboft.get(o.toString()));
-						}
-					}
-					log.debug("features:"+row.getString("CategoryID"));
-				}
-				row.put("CategoryFeatures", features2);
-			}
-			
-			row.removeField("_id");
-			row.removeField("CategoryID");
-			
-			result.put(key, row);
-		}
+		json.put("message", user.getString("message"));
+		json.put("summary", summarydata());
 		
-		return result;
+		return SUCCESS;
 	}
 	
 	private BasicDBObject children2(String site, String[] path) {
@@ -1188,218 +1323,6 @@ public class JsonAction extends BaseAction {
 		BasicDBObject sitedefaults = (BasicDBObject) dbo.get("SiteDefaults");
 		
 		return sitedefaults;
-	}
-
-	private LinkedHashMap<String,LinkedHashMap> children(String site, Integer categoryid) {
-		
-		LinkedHashMap<String,LinkedHashMap> data = new LinkedHashMap<String,LinkedHashMap>();
-		LinkedHashMap<Integer,String>       name = new LinkedHashMap<Integer,String>();
-		LinkedHashMap<Integer,Object>   children = new LinkedHashMap<Integer,Object>();
-		
-		ArrayList<Integer> arrchildren = new ArrayList<Integer>();
-		ArrayList<Integer> leafval = new ArrayList<Integer>();
-		leafval.add(0);
-		
-		BasicDBObject query = new BasicDBObject();
-		if (categoryid == 0) {
-			query.put("CategoryLevel", "1");
-		} else {
-			query.put("CategoryParentID", categoryid.toString());
-			query.put("CategoryID", new BasicDBObject("$ne", categoryid.toString()));
-		}
-		
-		DBCollection coll = db.getCollection(site+".Categories");
-		DBCursor cur = coll.find(query);
-		if (cur.count() > 0) {
-			while (cur.hasNext()) {
-				BasicDBObject row = (BasicDBObject) cur.next();
-				Integer childid = Integer.parseInt(row.get("CategoryID").toString());
-				String childname = row.get("CategoryName").toString();
-				
-				name.put(childid, childname);
-				arrchildren.add(childid);
-				
-				if (row.get("LeafCategory") != null
-					&& row.get("LeafCategory").toString().equals("true")) {
-					children.put(childid, "children");
-				}
-				
-			}
-			children.put(categoryid, arrchildren);
-		} else {
-			children.put(categoryid, "leaf");
-		}
-		
-		data.put("name", name);
-		data.put("children", children);
-		
-		return data;
-	}
-
-	@Action(value="/json/grandchildren")
-	public String grandchildren() {
-		
-		json = new LinkedHashMap<String,Object>();
-		
-		LinkedHashMap<Integer,String>  name          = new LinkedHashMap<Integer,String>();
-		LinkedHashMap<Integer,Object>  children      = new LinkedHashMap<Integer,Object>();
-		LinkedHashMap<Integer,Integer> grandchildren = new LinkedHashMap<Integer,Integer>();
-		
-		/* handling post parameters */
-		String site    = ((String[]) parameters.get("site"))[0];
-		String pathstr = ((String[]) parameters.get("pathstr"))[0];
-		
-		String[] arrs = pathstr.split("\\.");
-		for (String s : arrs) {
-			Integer categoryid = Integer.parseInt(s);
-			grandchildren.put(categoryid, 1);
-			LinkedHashMap p = children(site, categoryid);
-			json.put("chk"+categoryid.toString(), p.get("children").getClass().toString());
-			
-			if (((LinkedHashMap) p.get("children")).get(categoryid)
-				.getClass().toString().equals("class java.lang.String")) {
-				continue;
-			}
-			
-			ArrayList childids = (ArrayList) ((LinkedHashMap) p.get("children")).get(categoryid);
-			for (Object ochildid : childids) {
-				Integer childid = Integer.parseInt(ochildid.toString());
-				LinkedHashMap c = children(site, childid);
-				LinkedHashMap gchildids = (LinkedHashMap) c.get("children");
-				for (Object ogchildid : gchildids.keySet()) {
-					Integer gchildid = Integer.parseInt(ogchildid.toString());
-					
-					if (gchildids.get(gchildid).getClass().toString()
-						.equals("class java.lang.String")) {
-						children.put(gchildid, "leaf");
-					} else {
-						children.put(gchildid, (ArrayList<Integer>) gchildids.get(gchildid));
-					}
-				}
-				LinkedHashMap names = (LinkedHashMap) c.get("name");
-				for (Object tmpname : names.keySet()) {
-					name.put(Integer.parseInt(tmpname.toString()), names.get(tmpname).toString());
-				}
-			}
-		}
-		
-		json.put("grandchildren", grandchildren);
-		json.put("children", children);
-		json.put("name", name);
-		
-		return SUCCESS;
-	}
-	
-	@Action(value="/json/categoryfeatures")
-	public String categoryfeatures() {
-		json = new LinkedHashMap<String,Object>();
-		
-		/* handling post parameters */
-		String site       = ((String[]) parameters.get("site"))[0];
-		String categoryid = ((String[]) parameters.get("categoryid"))[0];
-		
-		
-		/* DurationSet */
-		BasicDBObject query = new BasicDBObject();
-		BasicDBObject keys = new BasicDBObject();
-		keys.put("FeatureDefinitions.ListingDurations.ListingDuration", 1);
-		
-		DBCollection collection = db.getCollection(site+".CategoryFeatures");
-		DBObject res = collection.findOne(query, keys);
-		BasicDBObject fd  = (BasicDBObject) res.get("FeatureDefinitions");
-		BasicDBObject lds = (BasicDBObject)  fd.get("ListingDurations");
-		BasicDBList   ald = (BasicDBList)   lds.get("ListingDuration");
-		
-		LinkedHashMap<Integer,LinkedHashMap> durationset =
-			new LinkedHashMap<Integer,LinkedHashMap>();
-		for (Object ld : ald) {
-			BasicDBObject lddbo = (BasicDBObject) ld;
-			
-			String durationsetid = lddbo.get("@durationSetID").toString();
-			Integer setid = Integer.parseInt(durationsetid);
-			LinkedHashMap<String,String> dset = new LinkedHashMap<String,String>();
-			
-			// todo: only chinese auction?
-			dset.put("Days_1", "1 Day");
-			
-			// todo: more easy way to handle string or array
-			String classname = lddbo.get("Duration").getClass().toString();
-			if (classname.equals("class java.lang.String")) {
-				
-				dset.put(lddbo.getString("Duration"),
-						 lddbo.getString("Duration"));
-				
-			} else {
-				
-				for (Object d : (BasicDBList) lddbo.get("Duration")) {
-					String dname = d.toString();
-					String dval = dname
-						.replaceAll("^Days_([\\d]+)$", "$1 Days")
-						.replace("GTC", "Good 'Til Cancelled");
-					dset.put(dname, dval);
-				}
-				
-			}
-			
-			durationset.put(setid, dset);
-		}
-		//log.debug(durationset);
-		json.put("durationset", durationset);
-		
-		
-		/* SiteDefaults */
-		DBObject dbo = collection.findOne(null, new BasicDBObject("SiteDefaults", true));
-		BasicDBObject   sd = (BasicDBObject) dbo.get("SiteDefaults");
-		BasicDBList   sdld = (BasicDBList)    sd.get("ListingDuration");
-		
-		LinkedHashMap<String,LinkedHashMap> typedefault = new LinkedHashMap<String,LinkedHashMap>();
-		
-		for (Object ldo : sdld) {
-			String   type = ((BasicDBObject) ldo).get("@type").toString();
-			Integer setid = Integer.parseInt(((BasicDBObject) ldo).get("#text").toString());
-			typedefault.put(type, durationset.get(setid));
-		}
-		
-		json.put("sdld", sdld);
-		json.put("sd", sd);
-		json.put("typedefault", typedefault);
-		/*
-		for (String key : ((BasicDBObject) dbo.get("SiteDefaults")).keySet()) {
-			json.put("k-"+key, dbo.get("key"));
-		}
-		for (Object ld : (List) sd.get("ListingDuration")) {
-		//json.put("ld-"+ld, ((List) ld).get("@type"));
-		}
-		*/
-		
-		/* CategoryPath */
-		DBCollection coll2 = db.getCollection(site+".CategoryFeatures.Category");
-		LinkedHashMap<Integer,String> path = categorypath2(site, Integer.parseInt(categoryid));
-		for (Integer cid : path.keySet()) {
-			dbo = coll2.findOne(new BasicDBObject("CategoryID", cid.toString()));
-			json.put("p-"+cid.toString(), dbo);
-			if (dbo != null && dbo.containsField("ConditionValues")) {
-				
-				BasicDBObject cv = (BasicDBObject) dbo.get("ConditionValues");
-				LinkedHashMap<Integer,String> cvl = new LinkedHashMap<Integer,String>();
-				for (Object cvo : (BasicDBList) cv.get("Condition")) {
-					cvl.put(Integer.parseInt(((BasicDBObject) cvo).getString("ID")),
-							((BasicDBObject) cvo).getString("DisplayName"));
-				}
-				
-				((BasicDBObject) dbo.get("ConditionValues")).put("Condition", cvl);
-				sd.put("ConditionValues", dbo.get("ConditionValues"));
-			}
-		}
-		json.put("path", path);
-		
-		sd.put("ListingDuration", typedefault);
-		
-		HashMap<String,Map> cf = new HashMap<String,Map>();
-		cf.put(categoryid, sd);
-		json.put("features", cf);
-		
-		return SUCCESS;
 	}
 	
 	// todo: check UK:courier?

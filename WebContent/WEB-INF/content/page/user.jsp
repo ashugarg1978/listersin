@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ebaytool.jp</title>
+<title>listers.in</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
@@ -19,33 +19,41 @@
 <div id="container">
   
   <div id="loading"><s:text name="loading"/></div>
+  <div id="message"></div>
   
   <div id="header">
-	<div id="logo"><a href="/">Production</a></div>
+	<div id="logo"><a href="/">ListersIn</a></div>
 	
-	<div id="useremail">
-	  <span style="font-weight:bold;">${user.email}</span>
-	  <a href="/page/logout"><s:text name="signout"/></a>
+	<div id="headerupper">
+	  <div id="headerupper_right">
+		${user.email}
+	  </div>
 	</div>
 	
 	<div id="bulkbuttons">
-	  <button class="checkall btnleft"><s:text name="checkall"/></button
-	  ><button class="checkallpage btncenter"><s:text name="checkallpage"/></button
-	  ><button class="uncheckall btnright"><s:text name="uncheckall"/></button>
 	  
-	  <button class="edit btnleft"><s:text name="edit"/></button
-	  ><button class="copy btncenter"><s:text name="copy"/></button
-	  ><button class="delete btnright"><s:text name="delete"/></button>
+	  <button class="checkall btnleft"><s:text name="checkall"/></button>
+	  <!--button class="checkallpage btncenter"><s:text name="checkallpage"/></button-->
+	  <button class="uncheckall btnright"><s:text name="uncheckall"/></button>
 	  
-	  <button class="add btnleft"><s:text name="add"/></button
-	  ><button class="relist btncenter"><s:text name="relist"/></button
-	  ><button class="revise btncenter"><s:text name="revise"/></button
-	  ><button class="end btnright"><s:text name="end"/></button>
+	  <!--button class="edit btnleft"><s:text name="edit"/></button-->
+	  <button class="copy btnleft"><s:text name="copy"/></button>
+	  <button class="delete btnright"><s:text name="delete"/></button>
+	  
+	  <button class="add btnleft"><s:text name="add"/></button>
+	  <button class="relist btncenter"><s:text name="relist"/></button>
+	  <button class="revise btncenter"><s:text name="revise"/></button>
+	  <button class="verifyadditem btncenter"><s:text name="verify"/></button>
+	  <button class="end btnright"><s:text name="end"/></button>
+	  
+	  <input id="filtertitle" type="text" class="filter" name="Title" value="" size="20">
+	  <button class="end btnright"><s:text name="search"/></button>
+	  
+	  <button id="settingsbutton"><s:text name="settings"/></button>
+	  
+	  <a id="signout" href="/page/logout"><s:text name="signout"/></a>
+	  
 	  <div style="clear:both;"></div>
-	</div>
-	
-	<div id="search">
-	  <input type="text" class="filter" name="Title" value="" size="20">
 	</div>
 	
   </div>
@@ -62,17 +70,22 @@
 		<li class="unsold"   ><img src="/icon/04/10/10.png"><s:text name="unsold"   /></li>
 		<li class="saved"    ><img src="/icon/04/10/10.png"><s:text name="saved"    /></li>
 		<li class="trash"    ><img src="/icon/04/10/09.png"><s:text name="trash"    /></li>
+		<li class="setting"  ><img src="/icon/01/10/41.png"><s:text name="setting"  /></li>
 	  </ul>
 	</li>
   </ul>
   
-  <a href="/page/addaccount"><s:text name="addnewaccount"/></a>
+  <button id="addaccount"><s:text name="addnewaccount"/></button>
+
+  <br/><br/>
+  <a href="#" id="toggledebug">DEBUG</a>
+  <div id="log"></div>
   
   <input type="hidden" class="filter" name="offset" value="0"/>
   <input type="hidden" class="filter" name="limit" value="20"/>
   <input type="hidden" class="filter" name="selling" value="active"/>
   <input type="hidden" class="filter" name="sort" value="ListingDetails_EndTime"/>
-  <input type="checkbox" class="filter" name="allpages" value="1"/>
+  <input type="hidden" class="filter" name="allpages" value=""/>
   <input type="hidden" class="filter" name="UserID"/>
   
   <iframe name="posttarget" src="/blank.html"></iframe>
@@ -121,6 +134,61 @@
 	
   </table>
   
+  <div id="settings">
+	<table class="detail">
+	  <tbody>
+		<tr>
+		  <td>Language</td>
+		  <td>
+			<select name="Language">
+			  <option value="English">English</option>
+			</select>
+		  </td>
+		</tr>
+		<tr>
+		  <td>TimeZone</td>
+		  <td>
+			<select name="TimeZone">
+			</select>
+		  </td>
+		</tr>
+	  </tbody>
+	</table>
+  </div>
+  
+  <div id="ebayaccountsetting">
+	<div id="ebayaccountsettingtarget"></div>
+	<table class="detail">
+	  <tbody>
+		<tr>
+		  <td>
+			Items
+		  </td>
+		  <td>
+			<button id="import">Import items from eBay</button>
+		  </td>
+		</tr>
+		<tr>
+		  <td>Token</td>
+		  <td>
+			<button>Update token</button>
+		  </td>
+		</tr>
+		<tr>
+		  <td>
+			Account
+		  </td>
+		  <td>
+			<button>Delete from ListersIn</button>
+		  </td>
+		</tr>
+	  </tbody>
+	</table>	  
+  </div>
+  
+  
+  <div id="debug"></div>
+  
 </div>
 
 <div style="clear:both;"></div>
@@ -137,6 +205,7 @@
 	  <li><s:text name="Payment"/></li>
 	  <li><s:text name="Shipping"/></li>
 	  <li><s:text name="Other"/></li>
+	  <li><s:text name="Setting"/></li>
 	</ul>
 	
 	<div class="editbuttons">
@@ -219,7 +288,11 @@
 			  -->
 			<tr>
 			  <td><s:text name="title"/></td>
-			  <td><input name="mod.Title" type="text" size="60"/></td>
+			  <td>
+				<input name="mod.Title" type="text" size="60"/><br/>
+				<input type="checkbox" name="mod.ListingEnhancement" value="BoldTitle"/>
+				Attract buyers' attention by making the title of your listing appear in Bold
+			  </td>
 			</tr>
 			<tr>
 			  <td><s:text name="subtitle"/></td>
@@ -230,19 +303,12 @@
 			  <td><select name="mod.ConditionID"></select></td>
 			</tr>
 			<tr>
-			  <td><s:text name="UPC"/></td>
-			  <td></td>
-			</tr>
-			<tr>
 			  <td><s:text name="ItemSpecifics"/></td>
 			  <td class="ItemSpecifics">
 				<form method="post" id="APIForm" name="APIForm" class="apiform"
 					  onsubmit="apiformsubmit();return false;">
 				  
 				  <div class="ProductSellingPages">
-					<!--
-						<iframe name="productselllingpages" src="/blank.html"></iframe>
-						-->
 				  </div>
 				</form>
 				<table class="ItemSpecifics">
@@ -256,14 +322,6 @@
 	  <div class="tab">
 		<div class="pictures">
 		  
-		  GalleryType
-		  <select name="mod.PictureDetails.GalleryType">
-			<option value=""></option>
-			<option value="Gallery">Gallery</option>
-			<option value="Plus">Plus</option>
-		  </select>
-		  <br/>
-		  
 		  <form method="post" action="/file/upload" target="posttarget"
 				enctype="multipart/form-data">
 			<table>
@@ -272,9 +330,9 @@
 				  <td>
 					<div class="picdiv">
 					  <img class="PictureDetails_PictureURL PD_PURL_<s:property />"
-						   src="/img/noimage.jpg">
+						   src="/img/noimage.jpg"/>
 					</div>
-					<input type="file" name="<s:property />" style="width:50px;">
+					<input type="file" name="<s:property />"/>
 				  </td>
 				</s:iterator>
 			  </tr>
@@ -283,9 +341,9 @@
 				  <td>
 					<div class="picdiv">
 					  <img class="PictureDetails_PictureURL PD_PURL_<s:property />"
-						   src="/img/noimage.jpg">
+						   src="/img/noimage.jpg"/>
 					</div>
-					<input type="file" name="<s:property />" style="width:50px;">
+					<input type="file" name="<s:property />"/>
 				  </td>
 				</s:iterator>
 			  </tr>
@@ -293,15 +351,73 @@
 		  </form>
 		  
 		  <s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
-			<input type="text" name="mod.PictureDetails.PictureURL.<s:property />" size="40"><br>
+			<input type="hidden" name="mod.PictureDetails.PictureURL.<s:property />"/>
 		  </s:iterator>
 		</div>
+		
+		<table class="detail">
+		  <tbody>
+			<tr>
+			  <td>
+				GalleryType
+			  </td>
+			  <td>
+				<select name="mod.PictureDetails.GalleryType">
+				  <option value=""></option>
+				  <option value="Gallery">Gallery</option>
+				  <option value="Plus">Plus</option>
+				</select>
+			  </td>
+			</tr>
+		  </tbody>
+		</table>
 	  </div>
 	  
 	  <div class="tab">
 		<div class="description">
 		  <textarea name="mod.Description" cols="100" rows="10"></textarea>
 		</div>
+
+		<table class="detail">
+		  <tbody>
+			<tr>
+			  <td colspan="2">
+				<s:text name="ListingDesigner"/>
+			  </td>
+			</tr>
+			<tr>
+			  <td><s:text name="SelectTheme"/></td>
+			  <td>
+				<select name="ListingDesigner.GroupID">
+				  <option value=""></option>
+				</select>
+			  </td>
+			</tr>
+			<tr>
+			  <td><s:text name="SelectDesign"/></td>
+			  <td>
+				<select name="mod.ListingDesigner.ThemeID">
+				  <option value=""></option>
+				</select>
+			  </td>
+			</tr>
+			<tr>
+			  <td><s:text name="HitCounter"/></td>
+			  <td>
+				<select name="mod.HitCounter">
+				  <option value=""></option>
+				  <option value="BasicStyle">BasicStyle</option>
+				  <option value="GreenLED">GreenLED</option>
+				  <option value="Hidden">Hidden</option>
+				  <option value="HiddenStyle">HiddenStyle</option>
+				  <option value="HonestyStyle">HonestyStyle</option>
+				  <option value="NoHitCounter">NoHitCounter</option>
+				  <option value="RetroStyle">RetroStyle</option>
+				</select>
+			  </td>
+			</tr>
+		  </tbody>
+		</table>
 	  </div>
 	  
 	  
@@ -338,6 +454,13 @@
 			  <td><input name="mod.Quantity" type="text" size="5"></td>
 			</tr>
 			<tr>
+			  <td><s:text name="LotSize"/></td>
+			  <td>
+				<!-- todo: disable if CategoryArray.Category.LSD is true. -->
+				<input name="mod.LotSize" type="text" size="5">
+			  </td>
+			</tr>
+			<tr>
 			  <td><s:text name="ListingType"/></td>
 			  <td>
 				<select name="mod.ListingType">
@@ -349,7 +472,19 @@
 			</tr>
 			<tr>
 			  <td><s:text name="ListingDuration"/></td>
-			  <td><select name="mod.ListingDuration"></select></td>
+			  <td>
+				<select name="mod.ListingDuration"></select>
+				<br/>
+				- Start listing immediately<br/>
+				- Schedule start time ($0.10)
+			  </td>
+			</tr>
+			<tr>
+			  <td><s:text name="PrivateListing"/></td>
+			  <td>
+				<input type="checkbox" name="mod.PrivateListing" value="true"/>
+				Allow buyers to remain anonymous to other eBay users
+			  </td>
 			</tr>
 			<tr>
 			  <td><s:text name="BuyItNowPrice"/></td>
@@ -377,12 +512,6 @@
 			  <td class="paymentmethod">
 			  </td>
 			</tr>
-			<tr>
-			  <td><s:text name="AutoPay"/></td>
-			  <td>
-				<input name="mod.AutoPay" type="checkbox" value="true">[AutoPay]
-			  </td>
-			</tr>
 		  </tbody>
 		</table>
 	  </div>
@@ -394,8 +523,8 @@
 			<tbody>
 			  <tr>
 				<td><s:text name="Shippingtype"/></td>
-				<td class="shippingtype_domestic">
-				  <select name="shippingtype.domestic">
+				<td>
+				  <select name="ShippingDetails.ShippingType.domestic">
 					<option value="Flat">Flat: same cost to all buyers</option>
 					<option value="Calculated">Calculated: Cost varies by buyer location</option>
 					<option value="Freight">Freight: large items over 150 lbs.</option>
@@ -403,7 +532,9 @@
 				  </select>
 				</td>
 			  </tr>
-			  <tr>
+			</tbody>
+			<tbody class="shippingmainrows">
+			  <tr class="packagetype">
 				<td><s:text name="Packagetype"/></td>
 				<td>
 				  <select name="mod.<s:text name="_SDCSR"/>.ShippingPackage"></select>
@@ -411,7 +542,7 @@
 				  Irregular package
 				</td>
 			  </tr>
-			  <tr>
+			  <tr class="dimensions">
 				<td><s:text name="Dimensions"/></td>
 				<td class="dimensions">
 				  <input  name="mod.<s:text name="_SDCSR"/>.PackageLength.#text"
@@ -445,7 +576,7 @@
 				  </select>
 				</td>
 			  </tr>
-			  <tr>
+			  <tr class="weight">
 				<td><s:text name="Weight"/></td>
 				<td class="weight">
 				  <input  name="mod.<s:text name="_SDCSR"/>.WeightMajor.#text"
@@ -469,38 +600,40 @@
 				  </select>
 				</td>
 			  </tr>
-			  <tr>
+			  <tr class="services">
 				<td><s:text name="Services"/></td>
 				<td>
-				  <s:iterator value="{0,1,2,3}" status="rowstatus">
-					<div class="ShippingService">
-					  <!--
-					  <input name="<s:text name="_SDSSO"/>.<s:property />.ShippingServicePriority"
-							 type="text" size="1" value="<s:property value="#rowstatus.count"/>">
-					  -->
-					  <select name="mod.<s:text name="_SDSSO"/>.<s:property />.ShippingService"
-							  class="ShippingService">
-						<option></option>
-					  </select>
-					  
-					  <s:text name="Cost"/>
-					  <input name="mod.<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.@currencyID"
-							 type="text" size="5">
-					  <input name="mod.<s:text name="_SDSSO"/>.<s:property />.ShippingServiceCost.#text"
-							 type="text" size="5">
-					  
-					  <s:if test="%{#rowstatus.index == 0}">
-						<input name="mod.<s:text name="_SDSSO"/>.<s:property />.FreeShipping"
-							   value="true" type="checkbox">Free shipping
-					  </s:if>
-					  
-					</div>
-				  </s:iterator>
+				  <div class="ShippingService0">
+					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
+						   type="text" size="1">
+					<select name="mod.<s:text name="_SDSSO"/>.0.ShippingService"
+							class="ShippingService">
+					</select>
+					
+					<s:text name="Cost"/>
+					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
+						   type="text" size="5">
+					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
+						   type="text" size="5">
+					
+					<input name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
+						   value="true" type="checkbox">Free shipping
+					
+					<a href="#" class="removesso">Remove service</a>
+				  </div>
+				  <a href="#" class="addsso">Offer additional service</a>
 				</td>
 			  </tr>
-			  <tr>
+			  <tr class="handlingtime">
 				<td><s:text name="Handlingtime"/></td>
 				<td><select name="mod.DispatchTimeMax"></select></td>
+			  </tr>
+			  <tr>
+				<td><s:text name="Options"/></td>
+				<td>
+				  <input type="checkbox" name="mod.GetItFast" value="true"/>
+				  GetItFast
+				</td>
 			  </tr>
 			  <tr>
 				<td colspan="2" style="text-align:left;">
@@ -509,44 +642,44 @@
 			  </tr>
 			  <tr>
 				<td><s:text name="Shippingtype"/></td>
-				<td class="shippingtype_international">
-				  
-				  <select name="shippingtype.international">
+				<td>
+				  <select name="ShippingDetails.ShippingType.international">
 					<option value="Flat">Flat: same cost to all buyers</option>
 					<option value="Calculated">Calculated: Cost varies by buyer location</option>
 					<option value="NoShipping">No international shipping</option>
 				  </select>
-				  
 				</td>
 			  </tr>
+			</tbody>
+			<tbody class="internationalshippingmainrows">
 			  <tr>
 				<td><s:text name="Services"/></td>
-				<td class="intlshippingservice">
-				  <s:iterator value="{0,1,2,3,4}" status="rowstatus">
-					<div class="ShippingService">
-					  <!--
-					  <input name="<s:text name="_SDISSO"/>.<s:property />.ShippingServicePriority"
-							 type="text" size="1" value="<s:property value="#rowstatus.count"/>">
-					  -->
-					  <select name="mod.<s:text name="_SDISSO"/>.<s:property />.ShippingService"
-							  class="ShippingService">
-						<option></option>
-					  </select>
-					  <s:text name="Cost"/>
-					  <input name="mod.<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.@currencyID"
-							 type="text" size="5">
-					  <input name="mod.<s:text name="_SDISSO"/>.<s:property />.ShippingServiceCost.#text"
-							 type="text" size="5">
-					  
-					</div>
-				  </s:iterator>
+				<td>
+				  <div class="ShippingService0">
+					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
+						   type="text" size="1">
+					<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
+							class="ShippingService">
+					</select>
+					
+					<s:text name="Cost"/>
+					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
+						   type="text" size="5">
+					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
+						   type="text" size="5">
+					
+					<a href="#" class="removesso">Remove service</a>
+					<br />
+
+					<s:text name="Shipto"/>
+					<div class="ShipToLocation"></div>
+					
+				  </div>
+				  <a href="#" class="addsso">Offer additional service</a>
 				</td>
 			  </tr>
-			  <tr>
-				<td><s:text name="Shipto"/></td>
-				<td class="shipto">
-				</td>
-			  </tr>
+			</tbody>
+			<tbody>
 			  <tr>
 				<td><s:text name="PostalCode"/></td>
 				<td>
@@ -559,12 +692,6 @@
 				  <input type="text" name="mod.Location" size="10" />
 				</td>
 			  </tr>
-			  <tr>
-				<td><s:text name="UserID"/></td>
-				<td>
-				  <input type="text" name="UserID" size="10" />
-				</td>
-			  </tr>
 			</tbody>
 		  </table>
 		</div>
@@ -573,21 +700,6 @@
 	  <div class="tab">
 		<table class="detail">
 		  <tbody>
-			<tr>
-			  <td><s:text name="Site"/></td>
-			  <td>
-				<select name="mod.Site">
-				</select>
-			  </td>
-			</tr>
-			<tr>
-			  <td><s:text name="Country"/></td>
-			  <td><select name="mod.Country"></select></td>
-			</tr>
-			<tr>
-			  <td><s:text name="Currency"/></td>
-			  <td><select name="mod.Currency"></select></td>
-			</tr>
 			<tr>
 			  <td><s:text name="BuyerRequirements"/></td>
 			  <td>
@@ -685,11 +797,11 @@
 			<tr>
 			  <td><s:text name="SalesTax"/></td>
 			  <td>
-				<select name="mod.BuyerRequirementDetails.x">
+				<select name="mod.SalesTax.ShippingIncludedInTax">
 				  <option value=""></option>
 				</select>
-				<input type="" name="">%<br/>
-
+				<input type="text" name="mod.SalesTax.SalesTaxPercent">%<br/>
+				
 				<input type="checkbox" value="true"
 					   name="mod.BuyerRequirementDetails.y"/>
 				Also apply to shipping & handling costs
@@ -698,27 +810,68 @@
 			<tr>
 			  <td><s:text name="ReturnPolicy"/></td>
 			  <td>
-				<iput type="radio" name="" value=""/>
-				Returns Accepted<br/>
-
-				After receiving the item, your buyer should contact you within:<br/>
+				<select name="mod.ReturnPolicy.ReturnsAcceptedOption">
+				  <option value=""></option>
+				</select>
+				<br/>
 				
+				After receiving the item, your buyer should contact you within:
+				<select name="mod.ReturnPolicy.ReturnsWithinOption">
+				  <option value=""></option>
+				</select>
+				<br/>
 				
-				<iput type="radio" name="" value=""/>
-				No returns accepted
+				Refund will be given as
+				<select name="mod.ReturnPolicy.RefundOption">
+				  <option value=""></option>
+				</select>
+				<br/>
+				
+				Return shipping will be paid by
+				<select name="mod.ReturnPolicy.ShippingCostPaidByOption">
+				  <option value=""></option>
+				</select>
+				<br/>
+				
+				Additional return policy details<br/>
+				<textarea name="mod.ReturnPolicy.Description" cols="60" rows="3"></textarea>
+				
 			  </td>
 			</tr>
 			<tr>
 			  <td><s:text name="AdditionalCheckoutInstructions"/></td>
 			  <td>
-				<textarea name="mod.BuyerRequirementDetails.z"></textarea>
+				<textarea name="mod.ShippingDetails.PaymentInstructions"
+						  cols="60" rows="3"></textarea>
 			  </td>
 			</tr>
 		  </tbody>
 		</table>
 	  </div>
-
-
+	  
+	  <div class="tab">
+		<table class="detail">
+		  <tbody>
+			<tr>
+			  <td><s:text name="UserID"/></td>
+			  <td><select name="org.Seller.UserID"></select></td>
+			</tr>
+			<tr>
+			  <td><s:text name="Site"/></td>
+			  <td><select name="mod.Site"></select></td>
+			</tr>
+			<tr>
+			  <td><s:text name="Country"/></td>
+			  <td><select name="mod.Country"></select></td>
+			</tr>
+			<tr>
+			  <td><s:text name="Currency"/></td>
+			  <td><select name="mod.Currency"></select></td>
+			</tr>
+		  </tbody>
+		</table>
+	  </div><!-- tab -->
+	  
 	</div>
 
   </div>
@@ -732,6 +885,9 @@
 <script>
 var hash;
 hash = ${initjson.hash};
+
+var timezoneids = ${initjson.timezoneids};
+
 //var summary;
 //summary = ${initjson.summary};
 </script>

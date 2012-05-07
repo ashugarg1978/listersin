@@ -18,7 +18,6 @@ public class GetSellerList extends ApiCall {
 	private String daterange;
 	private String datestart;
 	private String dateend;
-	private String targetuserid;
 	
 	public GetSellerList() throws Exception {
 	}
@@ -31,24 +30,10 @@ public class GetSellerList extends ApiCall {
 		this.daterange = daterange;
 		this.datestart = datestart;
 		this.dateend   = dateend;
-		this.targetuserid = "";
-	}
-	
-	public GetSellerList(String email, String userid,
-						 String daterange, String datestart, String dateend,
-						 String targetuserid) throws Exception {
-		
-		this.email     = email;
-		this.userid    = userid;
-		this.daterange = daterange;
-		this.datestart = datestart;
-		this.dateend   = dateend;
-		this.targetuserid = targetuserid;
 	}
 	
 	public String call() throws Exception {
 		
-		log(email+" "+userid);
 		String token = gettoken(email, userid);
 		
 		/* GetSellerList */
@@ -61,9 +46,7 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",7).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		dbobject.put("MessageID", email+" "+userid);
-		if (!targetuserid.equals("")) {
-			dbobject.put("UserID", targetuserid);
-		}
+		//dbobject.put("UserID", "testuser_sbmsku");
 		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
@@ -79,8 +62,12 @@ public class GetSellerList extends ApiCall {
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
 			requestxml = convertDBObject2XML(dbobject, "GetSellerList");
-			pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+			
+			future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+			future.get();
 		}
+		
+		updatemessage(email, "");
 		
 		return "OK";
 	}
@@ -89,8 +76,7 @@ public class GetSellerList extends ApiCall {
 		
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
-		String userid = "";
-		//userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
+		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
@@ -103,6 +89,7 @@ public class GetSellerList extends ApiCall {
 		
 		int pagenumber = Integer.parseInt(resdbo.getString("PageNumber"));
 		int itemcount  = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
+		int itemsperpage = Integer.parseInt(resdbo.getString("ItemsPerPage"));
 		
 		writelog("GetSellerList/"+email+"."+userid+"."+pagenumber+".xml", responsexml);
 		
@@ -111,13 +98,20 @@ public class GetSellerList extends ApiCall {
 			return responsexml;
 		}
 		
-		log(userid+" "
-			+pagenumber+" of "
+		log(userid+": "
+			+pagenumber+"/"
 			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
-			+" page(s) "
-			+itemcount+" of "
+			+" pages, "
+			+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)+"/"
 			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
-			+" item(s)");
+			+" items");
+		
+		String message = "Importing "+userid+"'s items from eBay."
+			+ " "+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)
+			+ " of "
+			+ ((BasicDBObject) resdbo.get("PaginationResult")).getString("TotalNumberOfEntries")
+			+ " items.";
+		updatemessage(email, message);
 		
 		DBCollection coll = db.getCollection("items");
 		
@@ -133,54 +127,21 @@ public class GetSellerList extends ApiCall {
 			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
 			String itemid = dbobject.get("ItemID").toString();
 			
-if (false) {
-			/* add extended information */
-			BasicDBObject ext = new BasicDBObject();
-			ext.put("UserID", userid);
-			ext.put("labels", new BasicDBList());
-			ext.put("importstatus", "waiting GetItem");
-			dbobject.put("ext", ext);
-			
-			/* move some fields which is not necessary in AddItem families */
-			String[] movefields = {"SellingStatus",
-								   "TimeLeft",
-								   "BuyerProtection",
-								   "BuyerGuaranteePrice",
-								   "PaymentAllowedSite",
-								   "PrimaryCategory.CategoryName",
-								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMax",
-								   "ShippingDetails.ShippingServiceOptions.ShippingTimeMin"};
-			for (String fieldname : movefields) {
-				movefield(dbobject, ext, fieldname);
-			}
-			
-			/* insert into mongodb */
-			BasicDBObject query = new BasicDBObject();
-			query.put("ItemID", itemid);
-			
-			BasicDBObject update = new BasicDBObject();
-			update.put("$set", dbobject);
-			
-			coll.findAndRemove(query);
-			coll.update(query, update, true, true);
-}
-
 			/* GetItem */
 			// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-			reqdbo.append("WarningLevel", "High");
-			reqdbo.append("DetailLevel", "ReturnAll");
+			reqdbo.append("WarningLevel",                 "High");
+			reqdbo.append("DetailLevel",             "ReturnAll");
 			reqdbo.append("IncludeCrossPromotion",        "true");
 			reqdbo.append("IncludeItemCompatibilityList", "true");
 			reqdbo.append("IncludeItemSpecifics",         "true");
 			reqdbo.append("IncludeTaxTable",              "true");
 			reqdbo.append("IncludeWatchCount",            "true");
 			reqdbo.append("ItemID", itemid);
+			
 			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
 			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
-			
-			//Thread.sleep(3000);
 		}
 		
 		return responsexml;

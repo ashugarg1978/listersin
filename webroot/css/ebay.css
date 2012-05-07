@@ -35,12 +35,12 @@ div#toolbar {
 }
 
 div#toolbar:hover {
-  overflow: scroll;
+  overflow: auto;
 }
 
 div#content {
   float:right;
-  margin: 79px 20px 20px 20px;
+  margin: 80px 20px 20px 20px;
   background-color: #fff;
 }
 
@@ -60,20 +60,36 @@ div#logo {
   -webkit-border-radius: 2px;
 }
 
-div#bulkbuttons {
-  margin-top: 14px;
+a#signout {
+  float: right;
+  margin-top: 5px;
+}
+
+div#bulkbuttons button,
+div#bulkbuttons input {
   float: left;
 }
 
 div#search {
-  margin-top: 14px;
   float: left;
 }
 
-div#useremail {
-  float: right;
+div#headerupper {
+  height: 13px;
 }
-
+div#headerupper_right {
+  text-align: right;
+  font-weight: bold;
+  height: 13px;
+}
+div#message {
+  position: fixed;
+  z-index: 2;
+  text-align: center;
+  font-weight: bold;
+  color: #bd451d;
+  top: 5px;
+}
 a {
   color: #000066;
   text-decoration: none;
@@ -138,7 +154,7 @@ table.items th a {
 }
 
 table.items tr.row1 > td {
-  white-space: nowrap;
+  /*white-space: nowrap;*/
   padding: 1px 5px;
 }
 
@@ -170,11 +186,10 @@ table.items tr.row2 > td {
   padding: 0px 20px 0px 20px;
 }
 
-div.titlewrap {
+td.Title {
   min-width: 300px;
   overflow: hidden;
-  white-space: nowrap;
-  position: relative;
+  /*white-space: nowrap;*/
 }
 
 div.titlewrap > div.labelwrap {
@@ -240,10 +255,9 @@ table.detail td {
 
 table.detail td:first-child {
   text-align: right;
-  font-weight: bold;
   white-space: nowrap;
   vertical-align: top;
-  color: #999;
+  color: #666;
   padding: 7px;
 }
 
@@ -300,7 +314,7 @@ tbody#rowtemplate {
 
 div.detail {
   display: none;
-  margin: 7px 0px 10px 0px;
+  margin: 10px 0px 10px 0px;
 }
 
 div#editform {
@@ -308,9 +322,8 @@ div#editform {
 }
 
 iframe.description {
-  width: 750px;
-  height: 300px;
-  border: 1px dotted #999999;
+  width: 100%;
+  background-color: #fff;
 }
 
 div.description {
@@ -438,22 +451,18 @@ ul.tabNav li {
 
 ul.tabNav li:hover {
   cursor: pointer;
-  background-color: #f7f7f7;
+  background-color: #f4f5f7;
 }
 
 ul.tabNav li.current {
-  background-color: #f7f7f7;
+  background-color: #eaeaea;
 }
 
 div.tabContainer {
   clear: both;
-  /*float: left;*/
   margin-bottom: 20px;
-  padding: 5px;
-  background-color: #f7f7f7;
-  /*
-  border-radius:5px;
-  */
+  padding: 10px;
+  border: 1px solid #eaeaea;
 }
 
 div.tabContainer div.tab {
@@ -483,6 +492,11 @@ span.error {
   color: red;
   font-size: 8pt;
   padding-left: 15px;
+  /*font-weight: bold;*/
+}
+span.status {
+  color: orange;
+  font-size: 8pt;
   font-weight: bold;
 }
 
@@ -514,29 +528,8 @@ div#debug {
 }
 
 iframe[name=posttarget] {
-  width: 161px;
-  height:100px;
-  margin: 10px 10px 0 0;
-  background-color: #ffffdd;
-  border: 1px solid #999966;
-  border-radius:5px;
+  display: none;
 }
-
-div#debugseparator {
-  margin: 10px 0px;
-  border-bottom: 1px solid #c6c6c6;
-}
-
-/*
-table#hiddenforms td:first-child {
-  text-align: right;
-  font-weight: bold;
-}
-table#hiddenforms input {
-  border: 0px none;
-  padding: 0px;
-}
-*/
 
 input.aslabel {
   border: 0px none;
@@ -599,25 +592,28 @@ input {
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
-  padding: 3px 1px;
+  padding: 3px 3px;
   border: 1px solid #999;
   font-family: arial, sans-serif;
   color: #444;
+  height: 21px;
 }
 
-div#toolbar input,
-div#toolbar select {
-  padding: 0px;
-  border: 0px none;
-  line-height: 13px;
+div.pictures input[type=file] {
+  width: 100px;
 }
 
-button, submit {
+
+
+button,
+submit,
+input[type=submit] {
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
-  height: 27px;
-  line-height: 27px;
+  height: 29px;
+  min-width: 54px;
+  line-height: 29px;
   font-size: 11px;
   font-weight: bold;
   padding: 0px 8px;
@@ -657,6 +653,7 @@ select {
   border: 1px solid #999;
   font-family: arial, sans-serif;
   color: #444;
+  height: 29px;
 }
 
 button:hover,
@@ -664,3 +661,49 @@ select:hover {
   cursor: pointer;
 }
 
+input#filtertitle {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  margin-right: 0px;
+}
+
+div#signinbox {
+  background-color: whiteSmoke;
+  border: 1px solid #e5e5e5;
+  padding:20px;
+  float: left;
+}
+
+div#settings {
+  display: none;
+  padding: 20px;
+  border: 1px solid #eaeaea;
+}
+
+div#ebayaccountsetting {
+  display: none;
+  padding: 20px;
+  border: 1px solid #eaeaea;
+}
+
+div.ShippingService0,
+div.ShippingService1,
+div.ShippingService2,
+div.ShippingService3,
+div.ShippingService4 {
+  clear: both;
+}
+
+
+div.ShippingService0 a.removesso,
+div.InternationalShippingService0 a.removesso {
+  display: none;
+}
+
+div.ShipToLocation div {
+  float: left;
+}
+
+a.addsso {
+  clear: both;
+}

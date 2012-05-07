@@ -1,6 +1,8 @@
 /* store rows data */
 var rowsdata = new Array();
-var hasmore = false;
+var hasmore  = false;
+var strdiff  = '';
+var timeout  = null;
 
 /* initialize */
 $(function() {
@@ -8,8 +10,7 @@ $(function() {
 	resizediv();
 	bindevents();
 	summary();
-	//gethash();
-	dump(hash);
+	//dump(hash);
 	
 	// todo: same code
 	$.each(hash, function(k, v) {
@@ -35,9 +36,6 @@ $(function() {
 	
 	//setTimeout('autoclick()', 2000);
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
-	
-	//setInterval(refresh, 2000);
-	
 	//setTimeout(autoclick, 3000);
 	
 	return;
@@ -47,16 +45,40 @@ function bindevents()
 {
 	$(window).resize(resizediv);
 	
+	$('button#register').live('click', function() {
+		var postdata = $('input', $(this).closest('form')).serialize();
+		
+		$.post('/json/register',
+			   postdata,
+			   function(data) {
+				   $('button#register').parent().append('<pre>'+$.dump(data)+'</pre>');
+			   },
+			   'json');
+		
+		return false;
+	});
+
+	$('button#addaccount').live('click', function() {
+		$.post('/json/addaccount',
+			   null,
+			   function(data) {
+				   //$('button#addaccount').append(data.json.url);
+				   window.location.href = data.json.url;
+			   },
+			   'json');
+	});
+	
 	$(window).scroll(function() {
 		if (hasmore == false) return;
 		
 		if ($(window).scrollTop() + $(window).height() == $('body').height()) {
 			$('div#loading').show();
-
-			var offset = parseInt($('table#hiddenforms input[name=offset]').val());
-			var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
 			
-			$('table#hiddenforms input[name=offset]').val(offset+limit-0);
+			var offset = parseInt($('input.filter[name=offset]').val());
+			var limit  = parseInt($('input.filter[name=limit]' ).val());
+			
+			// todo: check offset number after calling refresh(). ex: after 3 items listed.
+			$('input.filter[name=offset]').val(offset+limit-0);
 			items();
 		}
 	});
@@ -71,7 +93,7 @@ function bindevents()
 		event.stopPropagation();
 	});
 	
-	$('select[name=Site]').live('change', changeSite);
+	$('select[name="mod.Site"]').live('change', changeSite);
 	$('select.category').live('change', changeCategory);
 	
 	$('div.editbuttons button.edit',   'div.detail').live('click', clickEdit);
@@ -82,18 +104,24 @@ function bindevents()
 	
 	/* Bulk Buttons */
 	$('div#bulkbuttons button').live('click', function() {
-		action = $(this).attr('class');
+		if ($(this).attr('id') == 'settingsbutton') return;
+		action = $(this).attr('class').replace(/ .+$/, '');
 		
 		if (action == 'checkall') {
+			
 			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			//$("input[name='allpages']").attr('checked', '');
 			$("input[name='allpages']").removeAttr('checked');
 			return;
+			
 		} else if (action == 'checkallpage') {
+			
 			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			$("input[name='allpages']").attr('checked', 'checked');
 			return;
+			
 		} else if (action == 'uncheckall') {
+			
 			//$("input[name='id'][value!=on]").attr('checked', '');
 			//$("input[name='allpages']").attr('checked', '');
 			$("input[name='id'][value!=on]").removeAttr('checked');
@@ -114,26 +142,38 @@ function bindevents()
 			$(this).parent().addClass('loading');
 		});
 		
-		$.post('/json/'+action,
-			   postdata,
-			   function(data) {
-				   if (action == 'copy' || action == 'delete') {
-					   $("td.loading").removeClass('loading');
-					   $("input[name='id'][value!=on]:checked")
-						   .css('visibility', '')
-						   .attr('checked', '');
-				   }
-				   if (action == 'delete') {
-					   //items();
-				   }
-				   dump(data);
-			   });
+		$.post
+		('/json/'+action,
+		 postdata,
+		 function(data) {
+			 if (action == 'add'
+				 || action == 'end'
+				 || action == 'relist'
+				 || action == 'verifyadditem') {
+				 refresh();
+			 }
+			 if (action == 'copy' || action == 'delete') {
+				 $("td.loading").removeClass('loading');
+				 $("input[name='id'][value!=on]:checked")
+					 .css('visibility', '')
+					 .attr('checked', '');
+			 }
+			 dump(data);
+		 });
 		
 		return;
 	});
 	
-	/* Left Navi */
+	/* Left Navi (eBay account name click) */
 	$('ul.accounts > li').live('click', function() {
+		
+		if ($(this).attr('class') == undefined) {
+			return;
+		}
+		
+		$('div#settings').hide();
+		$('div#ebayaccountsetting').hide();
+		$('table#items').show();
 		
 		if ($(this).attr('class') == 'allitems'
 			&& $('ul', $(this).next()).css('display') == 'block') {
@@ -159,15 +199,56 @@ function bindevents()
 		return false;
 	});
 	
+	/* Left navi (item status click) */
+	$('ul.accountaction > li').live('click', function() {
+		
+		var v = $(this).attr('class').replace('tabselected', '').replace(' ', '');
+		
+		var userid = $(this).parent().attr('class')
+			.replace(/^accountaction/, '')
+			.replace(' ', '');
+		
+		if (v == 'setting') {
+			
+			$('div#ebayaccountsettingtarget').html(userid);
+			
+			$('div#settings').hide();
+			$('table#items').hide();
+			$('div#ebayaccountsetting').show();
+			
+		} else {
+		
+			$('div#settings').hide();
+			$('div#ebayaccountsetting').hide();
+			$('table#items').show();
+			
+			$('input[name=selling]').val(v);
+			$('input[name=offset]').val(0);
+			$('input[name=UserID]').val(userid);
+			if (v == 'unsold' || v == 'sold' || v == 'allitems') {
+				$('input[name=sort]').val('ListingDetails_EndTime DESC');
+			} else {
+				$('input[name=sort]').val('ListingDetails_EndTime');
+			}
+			$('table#items tbody:gt(1)').remove();
+			items();
+			
+		}
+		$('ul.accounts li').removeClass('tabselected');
+		$(this).closest('li').addClass('tabselected');
+		
+		return false;
+	});
+	
 	/* Picture */
     $('input:file').live('change', function() {
 		
-		id = $(this).closest('tbody.itemrow').attr('id');
-		idform = $('<input>').attr('name', 'id').val(id);
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var idform = $('<input/>').attr('name', 'id').val(id);
 		$(this).closest('form').append(idform);
 		
-		fileindex = $(this).attr('name');
-		fileindexform = $('<input>').attr('name', 'fileindex').val(fileindex);
+		var fileindex = $(this).attr('name');
+		var fileindexform = $('<input/>').attr('name', 'fileindex').val(fileindex);
 		$(this).closest('form').append(fileindexform);
 		
 		$(this).attr('name', 'uploadfile')
@@ -184,36 +265,17 @@ function bindevents()
 	});
 	
 	$('ul.tabNav li').live('click', function() {
-		id = $(this).closest('tbody').attr('id');
+		var id = $(this).closest('tbody').attr('id');
+		
 		var curIdx = $(this).prevAll().length + 1;
+		
 		$(this).parent().children('.current').removeClass('current');
 		$(this).addClass('current');
-		$('div.tabContainer', 'tbody#'+id).children('.current').hide();
-		$('div.tabContainer', 'tbody#'+id).children('.current').removeClass('current');
-		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').show();
-		$('div.tabContainer', 'tbody#'+id).children('div:nth-child('+curIdx+')').addClass('current');
 		
-		return false;
-	});
-	
-	
-	$('ul.accountaction > li').live('click', function() {
-		
-		v = $(this).attr('class');
-		userid = $(this).parent().attr('class').replace(/^accountaction/, '').replace(' ', '');
-		
-		$('input[name=selling]').val(v);
-		$('input[name=offset]').val(0);
-		$('input[name=UserID]').val(userid);
-		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
-			$('input[name=sort]').val('ListingDetails_EndTime DESC');
-		} else {
-			$('input[name=sort]').val('ListingDetails_EndTime');
-		}
-		$('table#items tbody:gt(1)').remove();
-		items();
-		$('ul.accounts li').removeClass('tabselected');
-		$(this).closest('li').addClass('tabselected');
+		$('div.tabContainer', '#'+id).children('.current').hide();
+		$('div.tabContainer', '#'+id).children('.current').removeClass('current');
+		$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').show();
+		$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').addClass('current');
 		
 		return false;
 	});
@@ -226,19 +288,72 @@ function bindevents()
 	});
 	
 	/* ShippingType */
-	// todo: check all browsers can detect [domestic] selector
 	$('select[name="ShippingDetails.ShippingType.domestic"]').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
-		sel = getshippingservice(id);
-		$('td.shippingservice', '#'+id).html(sel);
-		
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var item_modifing =
+			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			.extractObject();
+		item_modifing.id = id;
+		setformelements_shipping(item_modifing);
+		return;
+	});
+	$('select[name="ShippingDetails.ShippingType.international"]').live('change', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var item_modifing =
+			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			.extractObject();
+		item_modifing.id = id;
+		setformelements_shipping(item_modifing);
+		return;
+	});
+
+	/* ShippingPackage */
+	var _sdcsr = 'ShippingDetails.CalculatedShippingRate';
+	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]').live('change', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var item_modifing =
+			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			.extractObject();
+		item_modifing.id = id;
+		setformelements_shipping(item_modifing);
 		return;
 	});
 	
+	/* Offer additional service */
+	$('a.addsso').live('click', function() {
+		addsso(this);
+		$.each($('input[name$=Priority]', $(this).parent()), function(i, o) {
+			if ($(o).val() == '') $(o).val(i+1);
+		});
+		return false;
+	});
+	
+	/* Remove service */
+	$('a.removesso').live('click', function() {
+		var pdiv = $(this).parent().parent();
+		
+		$(this).parent().remove();
+		$('a.addsso', $(pdiv)).show();
+		
+		$.each($('div[class^=ShippingService]', pdiv), function(k, v) {
+			if (k == 0) return;
+			
+			$(v).attr('class', 'ShippingService'+k);
+			$('input[name$=ShippingServicePriority]', v).val(k+1);
+			
+			$.each($('select, input', v), function(j, o) {
+				var orgname = $(o).attr('name');
+				$(o).attr('name', orgname.replace(/\.[0-9]\./, '.'+k+'.'));
+			});
+		});
+		
+		return false;
+	});
+	
 	/* Import */
-	$('div#importform input[type=button]').live('click', function() {
+	$('button#import', 'div#ebayaccountsetting').live('click', function() {
 		$.post('/json/import',
-			   $('select, input', 'div#importform').serialize(),
+			   'userid='+$('div#ebayaccountsettingtarget').html(),
 			   function(data) {
 				   
 			   });
@@ -305,13 +420,83 @@ function bindevents()
 	});
 	
 	$('a#toggledebug').live('click', function() {
-		$('div#debug').toggle();
+		if ($('div#debug').css('display') == 'none') {
+			$('div#debug').show();
+			$('table#items').hide();
+		} else {
+			$('div#debug').hide();
+			$('table#items').show();
+		}
 		return false;
+	});
+	
+	// Title Search
+	$('input.filter[name=Title]').live('keyup', function() {
+		setTimeout('titlesearch_keyupdone("' + $(this).val() + '")', 500);
+	});
+	
+	// Settings button
+	$('button#settingsbutton').live('click', function() {
+
+		$.post('/json/settings',
+			   null,
+			   function(data) {
+				   $('div#settings').append('<pre>'+$.dump(data)+'</pre>');
+			   },
+			   'json');
+		
+		// setformelements
+		$('select[name=TimeZone]', 'div#settings').children().remove();
+		$.each(timezoneids, function(k, v) {
+			var optiontag = $('<option/>').val(k).text(v);
+			$('select[name=TimeZone]', 'div#settings').append(optiontag);
+		});
+		
+		$('table#items').hide();
+		$('div#ebayaccountsetting').hide();
+		$('div#settings').show();
+	});
+	
+	// Theme select
+	$('select[name="ListingDesigner.GroupID"]').live('change', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var site = $('select[name="mod.Site"]', '#'+id).val();
+		if ($(this).val() == '') {
+			// todo: unset layout pulldown
+			return;
+		}
+		
+		$.getJSON
+		('/json/descriptiontemplate?site='+site+'&groupid='+$(this).val(),
+		 function(data) {
+			 dump(data);
+			 
+			 $('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).children().remove();
+			 var emptyoptiontag = $('<option/>').val('').text('(not selected)');
+			 $.each(data.json, function(i, o) {
+				 var optiontag = $('<option/>').val(o.ID).text(o.Name);
+				 $('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).append(optiontag);
+			 });
+		 });
 	});
 	
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
+
+function titlesearch_keyupdone(str)
+{
+	var str2 = $('input.filter[name=Title]').val();
+	if (str == str2 && str != strdiff) {
+		$('input[name=offset]').val(0);
+		$('table#items tbody:gt(1)').remove();
+		items();
+	}
+	strdiff = str;
+	
+	return;
+}
+
 
 function apiformsubmit(formname)
 {
@@ -380,13 +565,26 @@ $.fn.extractObject = function() {
 	var accum = {};
 	
 	function add(accum, namev, value) {
-		if (namev.length == 0) return; // todo: fix ext.categorypath.0 bug
+		if (namev.length == 0) return;
 		
 		if (namev.length == 1) {
 			
 			if (namev[0] == '') return;
 			
-			accum[namev[0]] = value;
+			if (accum[namev[0]] != undefined) {
+                if ($.isArray(accum[namev[0]])) {
+                    accum[namev[0]].push(value);
+                    //accum[namev[0]].push(encodeURI(value));
+                } else {
+                    var tmpvalue = accum[namev[0]];
+                    accum[namev[0]] = [tmpvalue];
+                    accum[namev[0]].push(value);
+                    //accum[namev[0]].push(encodeURI(value));
+                }
+            } else {
+				accum[namev[0]] = value;
+				//accum[namev[0]] = encodeURI(value);
+			}
 			
 		} else {
 			
@@ -413,102 +611,29 @@ $.fn.extractObject = function() {
 	return accum;
 };
 
-$.fn.extractAttrObject = function() {
-	
-	var accum = [];
-	var existnames = {};
-	
-	this.each(function() {
-		
-		var name = $(this).attr('name');
-		
-		var value = $(this).val();
-		
-		var attribute = {};
-
-		attribute['@attributeID'] = name;
-		
-		if (existnames[name] == null) {
-			attribute.Value = {};
-			attribute.Value.ValueID = value;
-		} else {
-			/*
-			if ($.isArray(accum[name])) {
-				accum[name].push(value);
-			} else {
-				var tmpvalue = accum[name];
-				accum[name] = [tmpvalue];
-				accum[name].push(value);
-			}
-			*/
-		}
-		existnames[name] = 1;
-		
-		accum.push(attribute);
-	});
-	
-	return accum;
-}
-
-
-function gethash()
-{
-	tmp = localStorage.getItem('hash');
-	if (false && tmp != undefined) {
-		hash = JSON.parse(tmp);
-		
-		// todo: same code
-		$.each(hash, function(k, v) {
-			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
-		});
-		
-		return;
-	}
-	
-	$.getJSON('/json/hash', function(data) {
-		hash = data.json;
-		
-		// todo: same code
-		$.each(hash, function(k, v) {
-			$('select[name=Site]', $('div#detailtemplate')).append('<option>'+k+'</option>');
-		});
-		
-		localStorage.setItem('hash', JSON.stringify(hash));
-	});
-	
-	return;
-	
-//	$.get('/json/hash', function(data) {
-//		dump(data);
-//		localStorage.setItem('hashdata', data);
-//		parsed = $.parseJSON(data);
-//		hash = parsed.json;
-//	},
-//		 'html');
-//	tmp = localStorage.getItem('hashdata');
-	
-}
-
 function summary()
 {
 	var ulorg = $('ul.accounts').clone();
 	
 	$.getJSON('/json/summary', function(data) {
-		
-		$('ul.accounts > li.allitems').append(' ('+data.json.alluserids.allitems+')');
+		$('ul.accounts > li.allitems').append(' (<span>'+data.json.alluserids.allitems+'</span>)');
 		$.each(data.json.alluserids, function(k, v) {
-			$('ul.accounts > li > ul.accountaction li.'+k).append(' ('+v+')');
+			$('ul.accounts > li > ul.accountaction li.'+k).append(' (<span>'+v+'</span>)');
 		});
 		
 		$.each(data.json, function(k, o) {
 			if (k == 'alluserids') return;
+			
 			var ul = ulorg.clone();
-			$('li.allitems', ul).attr('class', k).html(k+' ('+o.allitems+')');
+			$('li.allitems', ul).attr('class', k).html(k+' (<span>'+o.allitems+'</span>)');
 			$('ul.accountaction', ul).attr('class', 'accountaction '+k);
 			$.each(o, function(j, v) {
-				$('li.'+j, ul).append(' ('+v+')');
+				$('li.'+j, ul).append(' (<span>'+v+'</span>)');
 			});
 			$('ul.accounts').append(ul.html());
+			
+			var optiontag = $('<option />').val(k).html(k);
+			$('select[name="org.Seller.UserID"]', $('div#detailtemplate')).append(optiontag);
 		});
 		
 	});
@@ -531,8 +656,8 @@ function items()
 		 }
 		 $('tbody#rowloading').hide();
 		 
-		 var offset = parseInt($('table#hiddenforms input[name=offset]').val());
-		 var limit  = parseInt($('table#hiddenforms input[name=limit]' ).val());
+		 var offset = parseInt($('input.filter[name=offset]').val());
+		 var limit  = parseInt($('input.filter[name=limit]' ).val());
 		 
 		 if (data.json.cnt > offset + limit) {
 			 hasmore = true;
@@ -546,6 +671,10 @@ function items()
 			 $('#items').append(dom);
 		 });
 		 
+		 if (data.json.message != '') {
+			 $('div#message').html(data.json.message);
+			 timeout = setTimeout('refresh()', 1000);
+		 }
 		 //$('table#items').css('min-height', h+'px');
 	 },
 	 'json');
@@ -553,13 +682,13 @@ function items()
 
 function getrow(idx, row)
 {
-	var id;
-	var dom;
-	
-	//id = row['id'];
-	id = idx;
-	
-	dom = $('#rowtemplate').clone().attr('id', id);
+	var id = idx;
+	var dom = $('#rowtemplate').clone().attr('id', id);
+
+	if (row.mod == null) {
+		$('td.Title', dom).html('ERROR!!! MOD DOES NOT EXISTS.');
+		return dom;
+	}
 	
 	$('td.Title', dom).html(row.mod.Title);
 	
@@ -570,10 +699,12 @@ function getrow(idx, row)
 	} else {
 		$('a.ItemID', dom).remove();
 	}
-	$('td.EndTime', dom).html(row.endtime);
+	$('td.EndTime', dom).html(row.endtime+'<br/>'
+							  +row.org.ListingDetails.EndTime);
 	$('td.price',   dom).html(row.price);
 	
-	if (typeof(row.status) == 'string') {
+	/* status(loading icon) */
+	if (typeof(row.status) == 'string' && row.status != '') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
 		$('input:checkbox', dom).parent().addClass('loading');
 	}
@@ -581,18 +712,19 @@ function getrow(idx, row)
 	
 	/* Picture */
 	var pictstr = '';
-	if (typeof(row.mod.PictureDetails.PictureURL) == 'string') {
-		pictstr = row.mod.PictureDetails.PictureURL;
-	} else if (typeof(row.mod.PictureDetails.PictureURL) == 'object') {
-		pictstr = row.mod.PictureDetails.PictureURL[0];
-	} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'string') {
-		pictstr = row.mod.PictureDetails.GalleryURL;
-	} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'object') {
-		pictstr = row.mod.PictureDetails.GalleryURL[0];
+	if (row.mod.PictureDetails) {
+		if (typeof(row.mod.PictureDetails.PictureURL) == 'string') {
+			pictstr = row.mod.PictureDetails.PictureURL;
+		} else if (typeof(row.mod.PictureDetails.PictureURL) == 'object') {
+			pictstr = row.mod.PictureDetails.PictureURL[0];
+		} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'string') {
+			pictstr = row.mod.PictureDetails.GalleryURL;
+		} else if (typeof(row.mod.PictureDetails.GalleryURL) == 'object') {
+			pictstr = row.mod.PictureDetails.GalleryURL[0];
+		}
 	}
 	if (pictstr != '') {
 		$('img.PictureURL', dom).attr('src', pictstr);
-		//$('img.PictureURL', dom).attr('src', '/img/gray.png');
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
@@ -604,11 +736,13 @@ function getrow(idx, row)
 		});
 	}
 	
+	/*
 	if (row.status == 'listing') {
 		$('input:checkbox', dom).css('visibility', 'hidden');
 		$('input:checkbox', dom).parent().addClass('loading');
 	}
 	$('input:checkbox', dom).val(id);
+	*/
 	
 	$('td.UserID', dom).html(row.org.Seller.UserID);
 	
@@ -623,11 +757,17 @@ function getrow(idx, row)
 	}
 	$('img.status', dom).attr('src', src);
 	
+	if (row.status) {
+		$('td.Title', dom).append('<br/><span class="status">'+row.status+'</span>');
+	}
 	if (row.errors) {
 		$.each(row.errors, function(k, v) {
 			if (v != '') {
-				$('a.Title', dom).after('<span class="error">'+v.LongMessage+'</span>');
-				$('a.Title', dom).after('<br>');
+				$('td.Title', dom).append('<br/>');
+				var spantag = $('<span/>')
+					.addClass('error')
+					.text(v.LongMessage);
+				$('td.Title', dom).append(spantag);
 			}
 		});
 	}
@@ -655,64 +795,81 @@ function getrow(idx, row)
 	return dom;
 }
 
-// todo: consider about how to generate strings for display
-// todo: if build a clone of python version, it's easy if generation is in javascript.
-function getdetail(row)
+// todo: skip some forms if selected category is not a leaf category.
+function setformelements(item)
 {
-	var id = row.id;
-	var detail = $('div.detail', '#'+id);
-	var site = row.mod.Site;
+	var id = item.id;
+	var site = item.mod.Site;
 	
 	/* Country */
+	$('select[name="mod.Country"]', '#'+id).children().remove();
 	$.each(hash[site].eBayDetails.CountryDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Country).text(v.Description);
 		$('select[name="mod.Country"]', '#'+id).append(optiontag);
 	});
 	
 	/* Currency */
+	$('select[name="mod.Currency"]', '#'+id).children().remove();
 	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
 		var optiontag = $('<option/>').val(v.Currency).text(v.Description);
 		$('select[name="mod.Currency"]', '#'+id).append(optiontag);
 	});
 	
 	/* Categories */
-	var tmppath = row.categorypath.slice(0);
+	var tmppath = item.categorypath.slice(0); // just copy?
 	tmppath.unshift(0);
 	var tmppds = getcategorypulldowns(site, tmppath);
-	$('select[name="mod.PrimaryCategory.CategoryID"]', detail).parent().html(tmppds);
+	$('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
 	
-	var tmppc = hash[site].Categories['c'+row.categorypath[row.categorypath.length-2]];
-	var category = tmppc['c'+row.mod.PrimaryCategory.CategoryID];
+	var tmppc = hash[site].Categories;
+	if (item.categorypath.length >= 2) {
+		tmppc = tmppc['c'+item.categorypath[item.categorypath.length-2]];
+	}
+	var category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
 	
 	/* Condition */
-	var conditions = category.CategoryFeatures.ConditionValues.Condition;
-	for (i in conditions) {
-		var value = conditions[i].ID;
-		var label = conditions[i].DisplayName;
-		var optiontag = $('<option/>').val(value).html(label);
-		$('select[name="mod.ConditionID"]', detail).append(optiontag);
+	if (category.CategoryFeatures.ConditionEnabled == 'Disabled') {
+		var optiontag = $('<option/>').html('(disabled)');
+		$('select[name="mod.ConditionID"]', '#'+id).children().remove();
+		$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+	} else {
+		$('select[name="mod.ConditionID"]', '#'+id).html($('<option/>'));
+		var conditions = category.CategoryFeatures.ConditionValues.Condition;
+		for (i in conditions) {
+			var value = conditions[i].ID;
+			var label = conditions[i].DisplayName;
+			var optiontag = $('<option/>').val(value).html(label);
+			$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+		}
 	}
 	
 	/* Category2CS */
 	if (category.Category2CS && category.Category2CS.CatalogEnabled) {
 		// todo: find more than 2 Sets.
-		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', detail)
+		
+		$('span.CharacteristicsSetsName', '#'+id)
+			.html(category.Category2CS.CharacteristicsSets.Name);
+		
+		$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id)
 			.val(category.Category2CS.CharacteristicsSets.AttributeSetID);
+		
+		$('div.productsearchform', '#'+id).show();
 	} else {
-		$('div.productsearchform', detail).hide();
+		$('div.productsearchform', '#'+id).hide();
 	}
 	
 	/* ItemSpecifics */
-	setItemSpecificsForms(row);
+	setItemSpecificsForms(item);
 	
-	$('form[name=APIForm]', detail)
+	$('form[name=APIForm]', '#'+id)
 		.attr('id',   'APIForm'+id)
 		.attr('name', 'APIForm'+id);
 	
 	/* ListingDuration */
+	$('select[name="mod.ListingDuration"]', '#'+id).children().remove();
 	var durationsetid = null;
 	for (i in category.CategoryFeatures.ListingDuration) {
-		if (category.CategoryFeatures.ListingDuration[i]['@type'] == row.mod.ListingType) {
+		if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
 			durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
 			break;
 		}
@@ -724,52 +881,37 @@ function getdetail(row)
 			for (j in listingdurations[i].Duration) {
 				var value = listingdurations[i].Duration[j];
 				var optiontag = $('<option/>').val(value).html(value);
-				$('select[name="mod.ListingDuration"]', detail).append(optiontag);
+				$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
 			}
 			break;
 		}
 	}
 	
-	/* ShippingService */
-	var dmstselect = $('<select/>').append($('<option/>'));
-	var intlselect = $('<select/>').append($('<option/>'));
-	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
-		if (o.ValidForSellingFlow != 'true') return;
-		
-		var dmst = row.shippingtype.domestic;
-		var intl = row.shippingtype.international;
-		
-		if (parseInt(o.ShippingServiceID) < 50000) {
-			
-			if ($.inArray(dmst, o.ServiceType) >= 0 || o.ServiceType == dmst) {
-				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
-				$(dmstselect).append(optiontag);
-			}
-			
-		} else {
-			
-			if ($.inArray(intl, o.ServiceType) >= 0 || o.ServiceType == intl) {
-				var optiontag = $('<option/>').val(o.ShippingService).html(o.Description);
-				$(intlselect).append(optiontag);
-			}
-			
-		}
+	/* ShippingPackage */
+	var _sdcsr = 'ShippingDetails.CalculatedShippingRate';
+	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').html('');
+	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.ShippingPackageDetails, function(i, o) {
+		var optiontag = $('<option/>').val(o.ShippingPackage).html(o.Description);
+		$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).append(optiontag);
 	});
 	
-	var _dsso = 'ShippingDetails.ShippingServiceOptions';
-	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
-	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="mod.'+_dsso+'.1.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="mod.'+_dsso+'.2.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="mod.'+_dsso+'.3.ShippingService"]', '#'+id).html(dmstselect.html());
-	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="mod.'+_isso+'.1.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="mod.'+_isso+'.2.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="mod.'+_isso+'.3.ShippingService"]', '#'+id).html(intlselect.html());
-	$('select[name="mod.'+_isso+'.4.ShippingService"]', '#'+id).html(intlselect.html());
+	/* ShippingService */
+	setformelements_shipping(item);
+
+	/* DispatchTimeMax */
+	$('select[name="mod.DispatchTimeMax"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').html('Select a handling time');
+	$('select[name="mod.DispatchTimeMax"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.DispatchTimeMaxDetails, function(i, o) {
+		var optiontag = $('<option/>').val(o.DispatchTimeMax).html(o.Description);
+		$('select[name="mod.DispatchTimeMax"]', '#'+id).append(optiontag);
+	});
 	
 	/* PaymentMethods */
 	// Do not use GeteBayDetails to discover the valid payment methods for a site.
+	$('td.paymentmethod', '#'+id).children().remove();
 	$.each(hash[site].CategoryFeatures.SiteDefaults.PaymentMethod, function(i, o) {
 		var idforlabel = id+'.PaymentMethods.'+i;
 		
@@ -786,176 +928,259 @@ function getdetail(row)
 		var divtag2 = $('<div/>');
 		$(divtag2).append(checkboxtag);
 		$(divtag2).append(labeltag);
+
+		if (o == 'PayPal') {
+			var inputtag = $('<input/>')
+				.attr('type', 'text')
+				.attr('name', 'mod.PayPalEmailAddress');
+			$(divtag2).append('<br/>&nbsp;&nbsp;&nbsp;&nbsp;PayPal email address : ');
+			$(divtag2).append(inputtag);
+
+			var checkbox = $('<input/>')
+				.attr('type', 'checkbox')
+				.attr('name', 'mod.AutoPay')
+				.attr('value', 'true');
+			$(divtag2).append('<br/>&nbsp;&nbsp;&nbsp;&nbsp;');
+			$(divtag2).append(checkbox);
+			$(divtag2).append('Require immediate payment when buyer uses Buy It Now');
+		}
+		
 		$('td.paymentmethod', '#'+id).append(divtag2);
 	});
 	
-	return;
-	
-	getshippingservice(id)
-	
-	/* description */
-	// todo: check html5 srcdoc attribute
-	iframe = $('<iframe/>')
-		.attr('class', 'description')
-		.attr('src', 'about:blank');
-	
-	iframe.load(function() {
-		$(this).contents().find('body').append(row.Description);
+	/* ReturnPolicy */
+	$('select[name="mod.ReturnPolicy.ReturnsAcceptedOption"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').text('');
+	$('select[name="mod.ReturnPolicy.ReturnsAcceptedOption"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.ReturnPolicyDetails.ReturnsAccepted, function(i, o) {
+		var optiontag = $('<option/>').val(o.ReturnsAcceptedOption).text(o.Description);
+		$('select[name="mod.ReturnPolicy.ReturnsAcceptedOption"]', '#'+id).append(optiontag);
 	});
-	$('textarea[name=Description]', detail).replaceWith(iframe);
+	
+	$('select[name="mod.ReturnPolicy.ReturnsWithinOption"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').text('');
+	$('select[name="mod.ReturnPolicy.ReturnsWithinOption"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.ReturnPolicyDetails.ReturnsWithin, function(i, o) {
+		var optiontag = $('<option/>').val(o.ReturnsWithinOption).text(o.Description);
+		$('select[name="mod.ReturnPolicy.ReturnsWithinOption"]', '#'+id).append(optiontag);
+	});
+	
+	$('select[name="mod.ReturnPolicy.RefundOption"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').text('');
+	$('select[name="mod.ReturnPolicy.RefundOption"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.ReturnPolicyDetails.Refund, function(i, o) {
+		var optiontag = $('<option/>').val(o.RefundOption).text(o.Description);
+		$('select[name="mod.ReturnPolicy.RefundOption"]', '#'+id).append(optiontag);
+	});
+	
+	$('select[name="mod.ReturnPolicy.ShippingCostPaidByOption"]', '#'+id).children().remove();
+	var optiontag = $('<option/>').val('').text('');
+	$('select[name="mod.ReturnPolicy.ShippingCostPaidByOption"]', '#'+id).append(optiontag);
+	$.each(hash[site].eBayDetails.ReturnPolicyDetails.ShippingCostPaidBy, function(i, o) {
+		var optiontag = $('<option/>').val(o.ShippingCostPaidByOption).text(o.Description);
+		$('select[name="mod.ReturnPolicy.ShippingCostPaidByOption"]', '#'+id).append(optiontag);
+	});
+	
+	/* ThemeGroup */
+	$('select[name="ListingDesigner.GroupID"]', '#'+id).children().remove();
+	var emptyoptiontag = $('<option/>').val('').text('(not selected)');
+	$('select[name="ListingDesigner.GroupID"]', '#'+id).append(emptyoptiontag);
+	$.each(hash[site].ThemeGroup, function(i, o) {
+		var optiontag = $('<option/>').val(o.GroupID).text(o.GroupName);
+		$('select[name="ListingDesigner.GroupID"]', '#'+id).append(optiontag);
+	});
+	
+	$('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).children().remove();
+	var emptyoptiontag = $('<option/>').val('').text('(not selected)');
+	$('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).append(emptyoptiontag);
+	$.each(hash[site].DescriptionTemplate, function(i, o) {
+		var optiontag = $('<option/>').val(o.ID).text(o.Name);
+		$('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).append(optiontag);
+	});
 	
 	return;
-	
-	/* paymentmethods */
-	var pmstr = '<span style="color:#aaaaaa;">-</span>';
-	if (typeof(row.PaymentMethods) == 'string') {
-		pmstr = row.PaymentMethods;
-	} else if (typeof(row.PaymentMethods) == 'object') {
-		pmstr = row.PaymentMethods.join('<br>');
-	}
-	pmstr = pmstr.replace(/PayPal/, 'PayPal ('+row.PayPalEmailAddress+')');
-	$('td.paymentmethod', detail).html(pmstr);
-	
-	$('select[name=ListingDuration]', detail)
-		.replaceWith(getListingDurationLabel(row.ListingDuration));
-	
-	/* pictures */
-	if (typeof(row.PictureDetails.PictureURL) == 'string') {
-		$('img.PD_PURL_0', detail).attr('src', row.PictureDetails.PictureURL);
-	} else if (typeof(row.PictureDetails.PictureURL) == 'object') {
-		$.each(row.PictureDetails.PictureURL, function(i, url) {
-			if (url == '') return;
-			$('img.PD_PURL_'+i, detail).attr('src', url);
-		});
-	}
-	
-	// todo: arrayize if size = 1
-	if (row.mod.ItemSpecifics) {
-		$.each(row.mod.ItemSpecifics.NameValueList, function(k, v) {
-			$('td.ItemSpecifics', detail).append(v.Name+' : '+v.Value+'<br />');
-		});
-	}
-	
-	/* shippingtype */
-	if (row.ext.shippingtype) {
-		$('td.shippingtype_domestic', detail).html(row.ext.shippingtype.domestic);
-		$('td.shippingtype_international', detail).html(row.ext.shippingtype.international);
-	}
-	
-	
-	if (row.ShippingDetails.CalculatedShippingRate) {
-		
-		sdcsr = row.ShippingDetails.CalculatedShippingRate;
-		_sdcsr = 'ShippingDetails.CalculatedShippingRate';
-		
-		dspv(row,
-			 _sdcsr+'.ShippingPackage',
-			 hash[row.Site]['ShippingPackageDetails'][sdcsr.ShippingPackage]['Description']);
-		
-		//if (csro.ShippingIrregular == 'true') sp += ' (Irregular package)';
-		
-		dsp(row, _sdcsr+'.PackageLength.#text');
-		dsp(row, _sdcsr+'.PackageLength.@unit');
-		dsp(row, _sdcsr+'.PackageLength.@measurementSystem');
-		dsp(row, _sdcsr+'.PackageWidth.#text');
-		dsp(row, _sdcsr+'.PackageWidth.@unit');
-		dsp(row, _sdcsr+'.PackageWidth.@measurementSystem');
-		dsp(row, _sdcsr+'.PackageDepth.#text');
-		dsp(row, _sdcsr+'.PackageDepth.@unit');
-		dsp(row, _sdcsr+'.PackageDepth.@measurementSystem');
-		dsp(row, _sdcsr+'.WeightMajor.#text');
-		dsp(row, _sdcsr+'.WeightMajor.@unit');
-		dsp(row, _sdcsr+'.WeightMajor.@measurementSystem');
-		dsp(row, _sdcsr+'.WeightMinor.#text');
-		dsp(row, _sdcsr+'.WeightMinor.@unit');
-		dsp(row, _sdcsr+'.WeightMinor.@measurementSystem');
-	}
-	
-	dspv(row, 'DispatchTimeMax', hash[row.Site]['DispatchTimeMaxDetails'][row.DispatchTimeMax]);
-	
-	$('select, input', detail).replaceWith('<span style="color:#aaaaaa;">-</span>');
-	
-	
-	
-	return;
-	
-	
+}
 
-	/* preserve selected tab */
-	/*
-	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	tabnum = tab.parent().prevAll().length + 1;
-	$('.tabNav', detail).children('li:nth-child('+tabnum+')').addClass('current');
-	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
-	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
-	*/
+function setformelements_shipping(item)
+{
+	var id = item.id;
+	var site = item.mod.Site;
 	
-	if (row['PictureDetails_PictureURL']) {
-		$.each(row['PictureDetails_PictureURL'], function(i, url) {
-			$('img.PD_PURL_'+i, detail).attr('src', url);
-		});
+	var dmsttype = item.ShippingDetails.ShippingType.domestic;
+	var intltype = item.ShippingDetails.ShippingType.international;
+	var packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
+	log(packagetype);
+	
+	// hide and show
+	if (dmsttype == 'NoShipping') {
+		$('tbody.shippingmainrows', '#'+id).hide();
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+		// todo: remove 2>=
+		return;
+	} else {
+		$('tbody.shippingmainrows', '#'+id).show();
+		$('tbody.internationalshippingmainrows', '#'+id).show();
+	}
+	if (intltype == 'NoShipping') {
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+		// todo: remove 2>=
+	} else {
+		$('tbody.internationalshippingmainrows', '#'+id).show();
 	}
 	
-	/* listingtype */
-	
-	$('input:file', detail).remove();
-	
-	/* duration */
-	var ldstr = getListingDurationLabel(row['ListingDuration']);
-	$('td.duration', detail).text(ldstr);
-	
-	/* shippingservice */
-	//dump(hash[row['Site']]['ShippingType']);
-	if (row['ShippingDetails_ShippingType']) {
-		dmstmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['domestic'];
-		intlmap = hash['shippingmap'][row['ShippingDetails_ShippingType']]['international'];
-		dmst = hash[row['Site']]['ShippingType']['domestic'][dmstmap];
-		intl = hash[row['Site']]['ShippingType']['international'][intlmap];
-		$('td.shippingtype_domestic', detail).html(dmst);
-		$('td.shippingtype_international', detail).html(intl);
+	if (dmsttype == 'Calculated') {
+		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).show();
+	} else {
+		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).hide();
 	}
 	
-	if (row['ShippingDetails_ShippingServiceOptions']) {
-		ssstr = '';
-		$.each(row['ShippingDetails_ShippingServiceOptions'], function(i, o) {
-			ssstr += hash[row['Site']]['ShippingServiceDetails'][o['ShippingService']+'']['Description'];
-			if (o['ShippingServiceCost']) {
-				ssstr += ' '+o['ShippingServiceCost@currencyID']+o['ShippingServiceCost'];
-			}
-			ssstr += '<br>';
-		});
-		$('td.shippingservice', detail).html(ssstr);
-	}	
-	if (row['ShippingDetails_InternationalShippingServiceOption']) {
-		ssstr = '';
-		$.each(row['ShippingDetails_InternationalShippingServiceOption'], function(i, o) {
-			ssstr += hash[row['Site']]['ShippingServiceDetails'][o['ShippingService']+'']['Description'];
-			if (o['ShippingServiceCost']) {
-				ssstr += ' '+o['ShippingServiceCost@currencyID']+o['ShippingServiceCost'];
-			}
-			ssstr += '<br>';
-		});
-		$('td.intlshippingservice', detail).html(ssstr);
-	}	
+	var _dsso = 'ShippingDetails.ShippingServiceOptions';
+	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
 	
+	// set <option> tags
+	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id).children().remove();
+	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+		.append($('<option/>').val('').text('(not selected)'));
 	
-	$.each(row, function(colname, colval) {
-		$('input[name='+colname+']', detail).replaceWith($('<div>'+colval+'</div>'));
+	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id).children().remove();
+	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
+		.append($('<option/>').val('').text('(not selected)'));
+	
+	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
+		if (o.ValidForSellingFlow != 'true') return;
+		
+		if (parseInt(o.ShippingServiceID) < 50000) {
+			if ($.inArray(dmsttype, o.ServiceType) >= 0 || o.ServiceType == dmsttype) {
+				
+				if (dmsttype == 'Calculated') {
+					var packages = arrayize(o.ShippingServicePackageDetails);
+
+					for (i in packages) {
+						if (packages[i].Name == packagetype) {
+							$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+								.append($('<option/>').val(o.ShippingService).html(o.Description));
+						}
+					}
+				} else {
+					$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+						.append($('<option/>').val(o.ShippingService).html(o.Description));
+				}
+				
+			}
+		} else {
+			if ($.inArray(intltype, o.ServiceType) >= 0 || o.ServiceType == intltype) {
+				$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
+					.append($('<option/>').val(o.ShippingService).html(o.Description));
+			}
+		}
+	});
+
+	// ShippingLocation
+	$('div.ShipToLocation', '#'+id).children().remove();
+	$.each(hash[site].eBayDetails.ShippingLocationDetails, function(i, o) {
+		var idforlabel = id+'.'+_isso+'.0.ShipToLocation.'+o.ShippingLocation;
+		
+		var checkboxtag = $('<input/>')
+			.attr('type', 'checkbox')
+			.attr('id', idforlabel)
+			.attr('name', 'mod.'+_isso+'.0.ShipToLocation')
+			.val(o.ShippingLocation);
+		
+		var labeltag = $('<label/>')
+			.attr('for', idforlabel)
+			.html(o.Description);
+		
+		var divtag = $('<div/>');
+		$(divtag).append(checkboxtag);
+		$(divtag).append(labeltag);
+		
+		$('div.ShipToLocation', '#'+id).append(divtag);
 	});
 	
+	// copy 2,3,4,...
+	// todo: don't copy when already 2, 3, ... is shown.
+	var div0s = $('div.ShippingService0', '#'+id);
+	if ($.isArray(item.mod.ShippingDetails.ShippingServiceOptions)) {
+		$.each(item.mod.ShippingDetails.ShippingServiceOptions, function(k, v) {
+			if (v.ShippingServicePriority == 1) return;
+			addsso($('a.addsso:first', '#'+id).get());
+		});
+	}
+	if ($.isArray(item.mod.ShippingDetails.InternationalShippingServiceOption)) {
+		$.each(item.mod.ShippingDetails.InternationalShippingServiceOption, function(k, v) {
+			if (v.ShippingServicePriority == 1) return;
+			addsso($('a.addsso:last', '#'+id).get());
+		});
+	}
+	
 	return;
+}
+
+function addsso(elm)
+{
+	var divs = $('div[class^=ShippingService]', $(elm).parent());
+	
+	var tmpname = $('input:first', divs[0]).attr('name')
+		.replace(/^mod\.ShippingDetails\./, '')
+		.replace(/\..+$/, '');
+	
+	if (tmpname == 'ShippingServiceOptions') {
+		if (divs.length >= 4) return;
+	} else if (tmpname == 'InternationalShippingServiceOption') {
+		if (divs.length >= 5) return;
+	}
+	
+	var id = $(elm).closest('tbody.itemrow').attr('id');
+	var sscopy = $(divs[0]).clone();
+	
+	var ssidx = divs.length;
+	$(sscopy).attr('class', 'ShippingService'+ssidx);
+	$.each($('select, input[type=text]', sscopy), function(j, o) {
+		var orgname = $(o).attr('name');
+		$(o).val('').attr('name', orgname.replace('.0.', '.'+ssidx+'.'));
+	});
+	$.each($('input[type=checkbox]', sscopy), function(j, o) {
+		var orgname = $(o).attr('name');
+		$(o).removeAttr('checked').attr('name', orgname.replace('.0.', '.'+ssidx+'.'));
+		if (orgname.match(/ShipToLocation/)) {
+			var orgid = $(o).attr('id');
+			$(o).attr('id', orgid.replace('.0.', '.'+ssidx+'.'));
+		}
+	});
+	$.each($('label[for*=ShipToLocation]', sscopy), function(j, o) {
+		var orgfor = $(o).attr('for');
+		$(o).attr('for', orgfor.replace('.0.', '.'+ssidx+'.'));
+	});
+	//alert(ssidx);
+	//$('input[name^=Priority]', sscopy).val(ssidx+1);
+	
+	$(elm).before(sscopy);
+	
+	if (tmpname == 'ShippingServiceOptions') {
+		if (divs.length >= 3) $(elm).hide();
+	} else if (tmpname == 'InternationalShippingServiceOption') {
+		if (divs.length >= 4) $(elm).hide();
+	}
+	
+	return false;
 }
 
 function resizediv()
 {
 	var w = $('div#container').width()-225;
 	var h = $('body').height() - 10;
+	//var headerheight = $('div#header').height();
+	//alert(headerheight);
 	
 	$('div#content').width(w);
 	$('div#header').width($('div#container').width()-40);
+	$('div#message').width($('div#container').width());
 	$('table#items').width(w);
 	$('div#toolbar').height($(window).height()-99);
 	$('tbody#rowloading td').height($(window).height()-99);
+	
+	//$('div#content').css('margin-top', headerheight+'px');
+	//$('div#toolbar').css('margin-top', headerheight+'px');
 	
 	return;
 }
@@ -963,45 +1188,34 @@ function resizediv()
 var changeCategory = function() {
 	
 	var id = $(this).closest('tbody.itemrow').attr('id');
-	var site = $('select[name=Site]', '#'+id).val();
+	var site = $('select[name="mod.Site"]', '#'+id).val();
 	
 	$(this).nextAll().remove();
-	$('select.category:last', '#'+id).attr('name', 'PrimaryCategory.CategoryID');
+	$('select.category:last', '#'+id).attr('name', 'mod.PrimaryCategory.CategoryID');
 	
-	var prevslct = $('select.category', '#'+id).get();
-	
-	var path = new Array();
-	for (node in prevslct) {
-		path.push(prevslct[node].value);
+	var categorypulldowns = $('select.category', '#'+id).get();
+	var categorypath = new Array();
+	for (node in categorypulldowns) {
+		categorypath.push(categorypulldowns[node].value);
 	}
-	path.unshift(0);
 	
 	$.getJSON
-	('/json/gc2?site='+site+'&path='+path.join('.'),
+	('/json/gc2?site='+site+'&path=0.'+categorypath.join('.'),
 	 function(data) {
 		 
-		 hash[site]['Categories'] = data.json.gc2.Categories;
+		 hash[site].Categories = data.json.gc2.Categories;
 		 
-		 var tmppds = getcategorypulldowns(site, path);
-		 $('select[name="PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
+		 var item_modifing =
+			 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			 .extractObject();
 		 
-		 var category =
-			 hash[site]['Categories']['c'+path[path.length-2]]['c'+path[path.length-1]];
-		 if (category.Category2CS && category.Category2CS.CatalogEnabled) {
-			 
-			 // todo: what is "ProductSearchPageAvailable" ?
-			 
-			 $('span.CharacteristicsSetsName', '#'+id)
-				 .html(category.Category2CS.CharacteristicsSets.Name);
-			 
-			 $('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id)
-				 .val(category.Category2CS.CharacteristicsSets.AttributeSetID);
-			 
-			 $('div.productsearchform', '#'+id).show();
-			 
-		 } else {
-			 $('div.productsearchform', '#'+id).hide();
-		 }
+		 item_modifing.id = id;
+		 item_modifing.categorypath = categorypath;
+		 
+		 setformelements(item_modifing);
+		 fillformvalues(item_modifing);
+		 
+		 return;
 	 });
 	
 	return;
@@ -1013,19 +1227,9 @@ var clickEdit = function() {
 	item = rowsdata[id];
 	dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 	
-	$('div.detail', 'tbody#'+id).replaceWith(dom);
-	
-	getdetail(item);
-	fillformvalues(item);
-	
-	showbuttons(dom, 'save,cancel');
-
-	
-	return false;
-	
 	/* preserve selected tab */
-	tab = $('ul.tabNav > li.current > a', $('tbody#'+id));
-	tabnum = tab.parent().prevAll().length + 1;
+	tab = $('ul.tabNav > li.current', 'tbody#'+id);
+	tabnum = tab.prevAll().length + 1;
 	$('.tabNav',       dom).children('.current').removeClass('current');
 	$('.tabContainer', dom).children('.current').hide();
 	$('.tabContainer', dom).children('.current').removeClass('current');
@@ -1033,183 +1237,17 @@ var clickEdit = function() {
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').show();
 	$('.tabContainer', dom).children('div:nth-child('+tabnum+')').addClass('current');
 	
-	/* Dimensions */
-	_sdcsr = 'ShippingDetails.CalculatedShippingRate';
-	
-	if (item.Description != null) {
-		$('textarea[name=Description]',   dom).val(item.Description);
-	}
-	
-	showbuttons(dom, 'save,cancel');
 	$('div.detail', 'tbody#'+id).replaceWith(dom);
-	$('input[name=Title]', 'tbody#'+id).focus();
+	
+	setformelements(item);
+	fillformvalues(item);
 	
 	// todo: compare to CKEditor
-	//$('textarea[name=Description]', 'tbody#'+id).wysiwyg();
+	$('textarea[name="mod.Description"]', 'tbody#'+id).wysiwyg();
 	
-	/* pictures */
-	for (i=0; i<=11; i++) {
-		$('img.PD_PURL_'+i, dom).attr('id', 'PD_PURL_'+id+'_'+i);
-	}
-	if (typeof(item.PictureDetails.PictureURL) == 'string') {
-		$('img.PD_PURL_0', dom).attr('src', item.PictureDetails.PictureURL);
-		$('input[name="PictureDetails.PictureURL.0"]', dom).val(item.PictureDetails.PictureURL);
-	} else if (typeof(item.PictureDetails.PictureURL) == 'object') {
-		$.each(item.PictureDetails.PictureURL, function(i, url) {
-			if (url == '') return;
-			$('img.PD_PURL_'+i, dom).attr('src', url);
-			$('input[name="PictureDetails.PictureURL.'+i+'"]', dom).val(url);
-		});
-	} 
+	showbuttons(dom, 'save,cancel');
 	
-	site = item.Site;
-	categoryid = item.PrimaryCategory.CategoryID;
-	
-	/* Country */
-	setoptiontags('Country',
-				  hash[site]['CountryDetails'],
-				  item.Country);
-	
-	setoptiontags('Currency',
-				  hash[site]['CurrencyDetails'],
-				  item.Currency);
-	
-	/* Handling time */
-	setoptiontags('DispatchTimeMax',
-				  hash[site]['DispatchTimeMaxDetails'],
-				  item.DispatchTimeMax);
-	
-	tmpgc = hash[site]['Categories'];
-	$.each(item.categorypath, function(i, cid) {
-		if (i == 0) {
-			tmpgc = tmpgc['c'+cid];
-		} else {
-			tmpgc = tmpgc['children']['c'+cid];
-		}
-		
-		if (i == item.categorypath.length - 1) {
-			
-			$.each(tmpgc.CategoryFeatures.ConditionValues.Condition, function(j, o) {
-				var option = $('<option/>').val(o.ID).text(o.DisplayName);
-				if (o.ID == item.ConditionID) option.attr('selected', 'selected');
-				$('select[name=ConditionID]', dom).append(option);
-			});
-			
-			$.each(tmpgc.CategorySpecifics.NameRecommendation, function(j, o) {
-				$('td.ItemSpecifics', dom).append(o.Name);
-				if (o.ValueRecommendation) {
-					$.each(o.ValueRecommendation, function(k, v) {
-						$('td.ItemSpecifics', dom).append(v.Value+', ');
-					});
-				}
-				$('td.ItemSpecifics', dom).append('<br />');
-			});
-			$('td.ItemSpecifics', dom).append
-			('<pre>'+$.dump(tmpgc.CategorySpecifics.NameRecommendation)+'</pre>');
-		}
-	});
-	
-	/* Listing duration */
-	setoptiontags
-	('ListingDuration',
-	 hash[site]['category']['features'][categoryid]['ListingDuration'][item.ListingType],
-	 item.DispatchTimeMax);
-
-	setoptiontags
-	('ConditionID',
-	 hash[site]['category']['features'][categoryid]['ConditionValues']['Condition'],
-	 item.ConditionID);
-	
-	if (false) {
-		/* pictures */
-		for (i=0; i<=11; i++) {
-			$('input:file[name=PD_PURL_'+i+']', dom).attr('name', 'PD_PURL_'+id+'_'+i);
-			$('img.PD_PURL_'+i,                 dom).attr('id',   'PD_PURL_'+id+'_'+i);
-		}
-		
-		$.each(rowsdata[id], function(colname, colval) {
-			$('input:text[name='+colname+']', dom).val(colval+'');
-		});
-	}		
-	
-	/* payment method */
-	tmpo = hash[site]['category']['features'][categoryid]['PaymentMethod'];
-	i=0;
-	$.each(tmpo, function(k, v) {
-		//chk = $('<input/>').attr('name', 'PaymentMethods.'+i).attr('type', 'checkbox').val(v);
-		chk = $('<input/>').attr('name', 'PaymentMethods').attr('type', 'checkbox').val(v);
-		if (rowsdata[id]['PaymentMethods'].indexOf(v) >= 0) {
-			chk.attr('checked', 'checked');
-		}
-		$('td.paymentmethod', dom).append(chk);
-		$('td.paymentmethod', dom).append(v);
-		if (v == 'PayPal') {
-			input = $('<input />')
-				.attr('type', 'text')
-				.attr('name', 'PayPalEmailAddress')
-				.val(rowsdata[id]['PayPalEmailAddress']);
-			$('td.paymentmethod', dom).append(input);
-		}
-		$('td.paymentmethod', dom).append('<br />');
-		i++;
-	});
-	
-	//$('td.shippingservice', '#'+id).append(getshippingservice(id));
-	
-	/* ShippingDetails */
-	sdsso = item.ShippingDetails.ShippingServiceOptions;
-	_sdsso = 'ShippingDetails.ShippingServiceOptions';
-	getshippingservice(id)
-	if ($.isArray(sdsso)) {
-		
-		$.each(sdsso, function(i, o) {
-			$('select[name="'+_sdsso+'.'+i+'.ShippingService"]', dom).val(o.ShippingService);
-			if (o.ShippingServiceCost != null) {
-				$('input[name="'+_sdsso+'.'+i+'.ShippingServiceCost.@currencyID"]', dom)
-					.val(o.ShippingServiceCost['@currencyID']);
-				
-				$('input[name="'+_sdsso+'.'+i+'.ShippingServiceCost.#text"]', dom)
-					.val(o.ShippingServiceCost['#text']);
-			}
-		});
-		
-	} else {
-		
-		$('select[name="'+_sdsso+'.0.ShippingService"]', dom).val(sdsso.ShippingService);
-		if (sdsso.ShippingServiceCost != null) {
-			$('input[name="'+_sdsso+'.0.ShippingServiceCost.@currencyID"]', dom)
-				.val(sdsso.ShippingServiceCost['@currencyID']);
-			
-			$('input[name="'+_sdsso+'.0.ShippingServiceCost.#text"]', dom)
-				.val(sdsso.ShippingServiceCost['#text']);
-		}
-	}
-	
-	/* ItemSpecifics */
-	if (item.mod.ItemSpecifics) {
-		$.each(item.mod.ItemSpecifics.NameValueList, function(k, v) {
-			inputname = $('<input/>')
-				.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Name')
-				.attr('type', 'text')
-				.val(v.Name);
-			$('td.ItemSpecifics', dom).append(inputname);
-			$('td.ItemSpecifics', dom).append(' : ');
-			
-			$.each(arrayize(v.Value), function(i, f) {
-				inputvalue = $('<input/>')
-					.attr('name', 'ItemSpecifics.NameValueList.'+k+'.Value')
-					.attr('type', 'text')
-					.val(f);
-				$('td.ItemSpecifics', dom).append(inputvalue);
-			});
-			
-			$('td.ItemSpecifics', dom).append('<br />');
-		});
-	}
-	
-	
-	
-	return false;
+	return;
 }
 
 var clickSave = function() {
@@ -1257,32 +1295,8 @@ var clickSave = function() {
 	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
 				 $(this).closest('div.detail')).extractObject();
 	
-	/*
-	postdata = $('input[name^=mod][type=text],'
-				 + 'input[name^=mod]:checked,'
-				 + 'input[name^=mod][type=hidden],'
-				 + 'select[name^=mod],'
-				 + 'textarea[naem^=mode]',
-				 $(this).closest('div.detail')).extractObject();
-	*/
-	
 	dump(postdata);
 	//$('#debug').append('<pre>'+$.dump(postdata)+'</pre>');
-	
-	//return false;
-	
-	if (false) {
-		var attrdata = $('input[name^=attr], select[name^=attr], input[name^=attr][checked]',
-						 $(this).closest('div.detail')).extractAttrObject();
-		var attributeset = {};
-		attributeset['@attributeSetID'] = 99;
-		attributeset.Attribute = attrdata;
-		
-		//postdata.AttributeSetArray = attributeset;
-		dump(attrdata);
-	
-		//return false;
-	}
 	
 	/*
 	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
@@ -1295,18 +1309,31 @@ var clickSave = function() {
 	*/
 	
 	postdata = JSON.stringify(postdata);
-	
-	// todo: escape "&" character
-	postdata = postdata.replace(/&/g, 'AND');
-	
+	postdata = encodeURIComponent(postdata);
+	//postdata = encodeURI(postdata);
+	//postdata = escape(postdata);
 	
 	$.post('/json/save',
 		   'id='+id+'&json='+postdata,
 		   function(data) {
-			   rowsdata[id] = data.json.item;
+			   var item = data.json.item;
+			   rowsdata[id] = item;
 			   dump(data.json);
-			   getdetail(data.json.item);
+			   
+			   var site = item.mod.Site;
+			   
+			   hash[site] = new Object;
+			   hash[site].eBayDetails         = data.json.eBayDetails;
+			   hash[site].Categories          = data.json.Categories;
+			   hash[site].CategoryFeatures    = data.json.CategoryFeatures;
+			   hash[site].ThemeGroup          = data.json.ThemeGroup;
+			   hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+			   
+			   setformelements(data.json.item);
+			   showformvalues(item);
 			   showbuttons(detail, 'edit,copy,delete');
+			   $('div.productsearchform', '#'+id).remove();
+			   
 		   },
 		   'json');
 	
@@ -1316,7 +1343,7 @@ var clickSave = function() {
 var clickCancel = function() {
 	
 	id = $(this).closest('tbody.itemrow').attr('id');
-	getdetail(rowsdata[id]);
+	setformelements(rowsdata[id]);
 	showformvalues(rowsdata[id]);
 	showbuttons('#'+id, 'edit,copy,delete');
 	
@@ -1333,13 +1360,30 @@ var clickCopy = function() {
 
 
 var changeSite = function() {
-	id = $(this).closest('tbody.itemrow').attr('id');
-	site = $(this).val();
+	var id = $(this).closest('tbody.itemrow').attr('id');
+	var site = $(this).val();
 	
-	sel = getcategorypulldown(site, 0);
-	$('td.category', '#'+id).html(sel);
-	
-	if (!hash[site]['category']['grandchildren'][0]) preloadcategory(site, []);
+	$.getJSON
+	('/json/site?site='+site,
+	 function(data) {
+		 
+		 hash[site] = new Object;
+		 hash[site].eBayDetails      = data.json.eBayDetails;
+		 hash[site].Categories       = data.json.Categories;
+		 hash[site].CategoryFeatures = data.json.CategoryFeatures;
+		 
+		 var item_modifing =
+			 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			 .extractObject();
+		 
+		 item_modifing.id = id;
+		 item_modifing.categorypath = [];
+		 
+		 setformelements(item_modifing);
+		 fillformvalues(item_modifing);
+		 
+		 return;
+	 });
 	
 	return;
 }
@@ -1349,43 +1393,44 @@ var clickTitle = function() {
 	var id = $(this).closest('tbody').attr('id');
 	
 	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
-		$('div.detail', '#'+id).slideToggle('fast');
+		//$('div.detail', '#'+id).slideToggle('fast');
+		$('div.detail', '#'+id).toggle();
 		return false;
 	}
 	
 	detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
 	$('tr.row2 td', '#'+id).html(detail);
-	$('div.detail', '#'+id).slideToggle('fast');
+	$('div.detail', '#'+id).toggle();
 	
-	$.post('/json/item',
-		   'id='+id,
-		   function(data) {
-			   var item = data.json.item;
-			   rowsdata[id] = item;
-			   
-			   dump(item);
-			   
-			   var site = item.mod.Site;
-			   
-			   hash[site] = new Object;
-			   hash[site].eBayDetails = data.json.eBayDetails;
-			   hash[site].Categories  = data.json.Categories;
-			   hash[site].CategoryFeatures = data.json.CategoryFeatures;
-			   
-			   getdetail(item);
-			   showformvalues(item);
-			   $('div.productsearchform', '#'+id).remove();
-			   
-			   $('td:nth-child(2)', '#'+id).fadeIn('fast');
-			   //$('td:nth-child(2)', '#'+id).show();
-			   $('div.detail',      '#'+id).show();
-			   
-			   $('div.pictures', '#'+id).append('<pre>'+$.dump(item.mod.PictureDetails)+'</pre>');
-			   
-			   //$.scrollTo('#'+id, {axis:'y', offset:0});
-		   },
-		   'json');
+	$.post
+	('/json/item',
+	 'id='+id,
+	 function(data) {
+		 var item = data.json.item;
+		 rowsdata[id] = item;
+		 dump(data.json);
+		 
+		 var site = item.mod.Site;
+		 
+		 hash[site] = new Object;
+		 hash[site].eBayDetails         = data.json.eBayDetails;
+		 hash[site].Categories          = data.json.Categories;
+		 hash[site].CategoryFeatures    = data.json.CategoryFeatures;
+		 hash[site].ThemeGroup          = data.json.ThemeGroup;
+		 hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+		 
+		 
+		 setformelements(item);
+		 showformvalues(item);
+		 $('div.productsearchform', '#'+id).remove();
+		 
+		 $('td:nth-child(2)', '#'+id).show();
+		 
+		 //$('div.pictures', '#'+id).append('<pre>'+$.dump(item.mod.PictureDetails)+'</pre>');
+		 //$.scrollTo('#'+id, {axis:'y', offset:0});
+	 },
+	 'json');
 	
 	return false;
 }
@@ -1406,32 +1451,6 @@ function getcategorypulldown(site, categoryid)
 	return sel;
 }
 
-function getcategorypulldown2(site, path)
-{
-	ctgr = hash[site]['Categories'];
-	for (i in path) {
-		if (i == 0) {
-			ctgr = ctgr['c'+path[i]];
-		} else {
-			ctgr = ctgr['children']['c'+path[i]];
-		}
-	}
-	
-	sel = $('<select class="category"/>');
-	opt = $('<option/>').val('').text('');
-	sel.append(opt);
-	
-	$.each(ctgr['children'], function(i, o) {
-		str = o.CategoryName;
-		cid = i.replace(/^c/, '');
-		if (o.children) str += ' &gt;';
-		opt = $('<option/>').val(cid).html(str);
-		sel.append(opt);
-	});
-	
-	return sel;
-}
-
 function getcategorypulldowns(site, path)
 {
 	wrapper = $('<div/>');
@@ -1439,7 +1458,7 @@ function getcategorypulldowns(site, path)
 	for (i in path) {
 		
 		var categoryid = path[i];
-		if (hash[site]['Categories']['c'+categoryid] == undefined) break;
+		if (hash[site].Categories['c'+categoryid] == undefined) break;
 		
 		var selecttag = $('<select class="category"/>').attr('name', 'categorypath.'+i);
 		var optiontag = $('<option/>').val('').text('');
@@ -1466,84 +1485,78 @@ function getcategorypulldowns(site, path)
 	return wrapper.children();
 }
 
-function preloadcategory2(site, path)
-{
-	
-	$.getJSON('/json/gc2?site='+site+'&path='+path.join('.'),
-			  function(data) {
-				  dump(data);
-				  hash[site]['Categories']['c'+path[0]]['children'] = data.json.gc2;
-			  });
-	
-	return;
-}
-
-function preloadcategory(site, path)
-{
-	msg('pre:'+path);
-	var npath = new Array();
-	
-	if (!hash[site]['category']['grandchildren'][0]) npath.push(0);
-	
-	$.each(path, function(i, categoryid) {
-		if (hash[site]['category']['grandchildren'][categoryid]) return;
-		npath.push(categoryid);
-	});
-	
-	$.getJSON('/json/grandchildren?site='+site+'&pathstr='+npath.join('.'),
-			  function(data) {
-				  $.each(hash[site]['category'], function(n, a) {
-					  var tmpo = $.extend({}, hash[site]['category'][n], data.json[n]);
-					  hash[site]['category'][n] = tmpo;
-				  });
-			  });
-	
-	return;
-}
-
-function preloadcategoryfeatures(site, categoryid)
-{
-	if (hash[site]['category']['features'][categoryid]) return;
-
-	$.ajax({
-		url: '/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
-		async: false,
-		success: function(data) {
-			//dump(data);
-			var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
-			hash[site]['category']['features'] = tmpo;
-		}
-	});
-	
-	/*
-	$.getJSON('/json/categoryfeatures?site='+site+'&categoryid='+categoryid,
-			  function(data) {
-				  dump(data);
-				  var tmpo = $.extend({}, hash[site]['category']['features'], data.json.features);
-				  hash[site]['category']['features'] = tmpo;
-			  });
-	*/
-	
-}
-
-function preloadshippingtype(site)
-{
-	if (hash[site]['ShippingType']) return;
-	
-	$.getJSON('/json/getShippingType/'+site,
-			  function(data) {
-				  hash[site]['ShippingType'] = data;
-			  });
-}
-
 function refresh()
 {
-	loadings = $('td.loading');
-	if (loadings.length <= 0) return;
+	var postdata = '';
+	
+	var loadings = $('td.loading > input:checkbox[name=id][value!=on]');
+	if (loadings.length > 0) {
+		$.each($('td.loading > input:checkbox[name=id][value!=on]'), function(k, v) {
+			postdata += '&id='+$(v).attr('value');
+		});
+	}
+	
+	$.post
+	('/json/refresh',
+	 postdata,
+	 function(data) {
+		 
+		 dump(data.json);
+		 
+		 /* message */
+		 if (data.json.message == '') {
+			 $('div#message').html('');
+		 } else {
+			 $('div#message').html(data.json.message);
+		 }
+		 
+		 /* summary */
+		 if (data.json.summary) {
+			 
+			 $('ul.accounts > li.allitems > span').html(data.json.summary.alluserids.allitems);
+			 $.each(data.json.summary.alluserids, function(k, v) {
+				 $('ul.accounts > li > ul[class=accountaction] > li.'+k+' > span').html(v);
+			 });
+			 
+			 $.each(data.json.summary, function(k, o) {
+				 if (k == 'alluserids') return;
+				 
+				 $('ul.accounts > li.'+k+' > span').html(o.allitems);
+				 $.each(data.json.summary.alluserids, function(j, v) {
+					 $('ul.accounts > li > ul[class="accountaction '+k+'"] > li.'+j+' > span').html(v);
+				 });
+			 });
+		 }
+		 
+		 /* items */
+		 if (data.json.items) {
+			 $.each(data.json.items, function(idx, row) {
+				 dom = getrow(idx, row);
+				 $('#'+idx).replaceWith(dom);
+				 if (typeof(row.status) == 'string' && row.status != '') {
+					 //
+				 } else {
+					 //$('input:checkbox', dom).css('visibility', '').removeAttr('checked');
+					 $('input:checkbox', dom).parent().removeClass('loading');
+				 }
+				 rowsdata[idx] = row;
+			 });
+		 }
+		 
+		 /* timeout */
+		 if (data.json.message != '') {
+			 timeout = setTimeout('refresh()', 1000);
+		 } else if (postdata != '') {
+			 timeout = setTimeout('refresh()', 1000);
+		 } else {
+			 clearTimeout(timeout);
+		 }
+	 },
+	 'json');
+	
+	return;
 	
 	// todo: check firefox pseudo class .... warning
-	loadings = $('td.loading > input:checkbox[name=id][value!=on]');
-	dump(loadings);
 	
 	$.post('/json/items',
 		   loadings.serialize(),
@@ -1551,7 +1564,7 @@ function refresh()
 			   dump(data.json);
 			   $.each(data.json.items, function(idx, row) {
 				   dom = getrow(idx, row);
-				   if (row.ext.status == '') {
+				   if (row.status == '') {
 					   //$('input:checkbox', dom).css('visibility', '').attr('checked', '');
 					   $('input:checkbox', dom).css('visibility', '').removeAttr('checked');
 					   $('input:checkbox', dom).parent().removeClass('loading');
@@ -1593,6 +1606,11 @@ function dump(o)
 	$('div#debug').html('<pre>'+$.dump(o)+'</pre>');
 }
 
+function log(str)
+{
+	$('#log').append(str+'<br/>');
+}
+
 function updateduration(id)
 {
 	site = $('select[name=Site]', '#'+id).val();
@@ -1605,46 +1623,6 @@ function updateduration(id)
 		sel.append(opt);
 	});
 	$('select[name=ListingDuration]', '#'+id).replaceWith(sel);
-	
-	return;
-}
-
-function getshippingservice(id)
-{
-	var site = $('select[name=Site]', '#'+id).val();
-	var type = $('select[name="ext.shippingtype.domestic"]', '#'+id).val();
-	var intltype = $('select[name="ext.shippingtype.international"]', '#'+id).val();
-	
-	var select = $('<select/>').append($('<option/>'));
-	var intl = $('<select/>').append($('<option/>'));
-	$.each(hash[site]['ShippingServiceDetails'], function(i, o) {
-		if (o['ValidForSellingFlow'] != 'true') return;
-		
-		if (o['ShippingServiceID'] < 50000) {
-			if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == type) {
-				$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(select);
-			}
-		} else {
-			if ($.inArray(type, o['ServiceType']) >= 0 || o['ServiceType'] == intltype) {
-				$('<option/>').val(o['ShippingService']).html(o['Description']).appendTo(intl);
-			}
-		}
-		
-	});
-	
-	var _sdsso = 'ShippingDetails.ShippingServiceOptions';
-	var _sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
-	
-	$('select[name="'+_sdsso+'.0.ShippingService"]', '#'+id).html(select.html());
-	$('select[name="'+_sdsso+'.1.ShippingService"]', '#'+id).html(select.html());
-	$('select[name="'+_sdsso+'.2.ShippingService"]', '#'+id).html(select.html());
-	$('select[name="'+_sdsso+'.3.ShippingService"]', '#'+id).html(select.html());
-
-	$('select[name="'+_sdisso+'.0.ShippingService"]', '#'+id).html(intl.html());
-	$('select[name="'+_sdisso+'.1.ShippingService"]', '#'+id).html(intl.html());
-	$('select[name="'+_sdisso+'.2.ShippingService"]', '#'+id).html(intl.html());
-	$('select[name="'+_sdisso+'.3.ShippingService"]', '#'+id).html(intl.html());
-	$('select[name="'+_sdisso+'.4.ShippingService"]', '#'+id).html(intl.html());
 	
 	return;
 }
@@ -1684,44 +1662,21 @@ function arrayize(object)
 	return result;
 }
 
-function dsp(item, str)
-{
-	jstr = "['"+str.replace(/\./g, "']['")+"']";
-	try {
-		eval("val = item"+jstr);
-		$('input[name="'+str+'"]',  'tbody#'+item.id).replaceWith(val);
-		$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-	} catch (err) {
-		msg(err.description);
-	}
-}
-
-function dspv(item, str, val)
-{
-	$('input[name="'+str+'"]',  'tbody#'+item.id).replaceWith(val);
-	$('select[name="'+str+'"]', 'tbody#'+item.id).replaceWith(val);
-}
-
-function fval(dom, item, str)
-{
-	jstr = "['"+str.replace(/\./g, "']['")+"']";
-	try {
-		eval("val = item"+jstr);
-		$('input[name="'+str+'"]',  dom).val(val);
-		$('select[name="'+str+'"]', dom).val(val);
-	} catch (err) {
-		msg(err.description);
-	}
-}
-
 function showformvalues(item)
 {
-	item.mod.PictureDetails.PictureURL = arrayize(item.mod.PictureDetails.PictureURL);
+	if (item.mod.PictureDetails) {
+		item.mod.PictureDetails.PictureURL
+			= arrayize(item.mod.PictureDetails.PictureURL);
+	}
+	if (item.mod.ShippingDetails.ShippingServiceOptions) {
+		item.mod.ShippingDetails.ShippingServiceOptions
+			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+	}
 	
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('input[type=text], input[type=hidden]', detail), function(i, form) {
+	$.each($('input[type=text]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
@@ -1739,10 +1694,29 @@ function showformvalues(item)
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
 		} catch (err) {
-			$(form).replaceWith('-');
+			$(form).replaceWith('');
 			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
+
+	/* textarea */
+	$.each($('textarea', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+		try {
+			eval("tmpvalue = item"+formname);
+			
+			if (tmpvalue == null) tmpvalue = '';
+			
+			var htmlencoded = $('<div/>').text(tmpvalue).html();
+			$(form).replaceWith(htmlencoded);
+
+		} catch (err) {
+			$(form).replaceWith('');
+			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
+		}
+	});
+	
 	
 	/* select */
 	$.each($('select', detail), function(i, form) {
@@ -1757,7 +1731,7 @@ function showformvalues(item)
 			var label = $('option[value='+tmpvalue+']', form).html();
 			$(form).replaceWith(label);
 		} catch (err) {
-			$(form).replaceWith('[E]');
+			$(form).replaceWith('');
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
 		}
 	});
@@ -1773,17 +1747,17 @@ function showformvalues(item)
 			if (typeof(tmpvalue) == 'object') {
 				for (i in tmpvalue) {
 					if (tmpvalue[i] == $(form).val()) {
-						$(form).replaceWith('[C]');
+						$(form).replaceWith('');
 					}
 				}
 			} else {
 				if (tmpvalue == $(form).val()) {
-					$(form).replaceWith('[C]');
+					$(form).replaceWith('');
 				}
 			}
 			
 		} catch (err) {
-			$(form).replaceWith('[E]');
+			$(form).replaceWith('');
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
 		}
 	});
@@ -1792,12 +1766,39 @@ function showformvalues(item)
 		$(form).remove();
 		$('label[for="'+idforlabel+'"]').remove();
 	});
-		   
+	
+	/* PictureDetails */
+	if (item.mod.PictureDetails) {
+		$.each($('img.PictureDetails_PictureURL', detail), function(i, imgtag) {
+			if (item.mod.PictureDetails.PictureURL[i]) {
+				$(this).attr('src', item.mod.PictureDetails.PictureURL[i]);
+			}
+		});
+	}
+	$('input[type=file]', detail).remove();
+	
+	/* Description */
+	iframe = $('<iframe/>')
+		.attr('class', 'description')
+		.attr('src', 'about:blank');
+	
+	iframe.load(function() {
+		$(this).contents().find('body').append(item.mod.Description);
+		var iframeheight = $(this).contents().find('body').height() + 16
+		$(this).css('height', iframeheight+'px');
+	});
+	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	
 	return;
 }
 
 function fillformvalues(item)
 {
+	if (item.mod.ShippingDetails.ShippingServiceOptions) {
+		item.mod.ShippingDetails.ShippingServiceOptions
+			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+	}
+	
 	var detail = $('div.detail', '#'+item.id);
 	
 	$.each($('input[type=text], input[type=hidden], select, textarea', detail), function(i, form) {
@@ -1851,6 +1852,7 @@ function setItemSpecificsForms(item)
 	if (item.mod.ItemSpecifics == undefined) return;
 	
 	var detail = $('div.detail', '#'+item.id);
+	$('table.ItemSpecifics', '#'+item.id).children().remove();
 	
 	var categoryid = item.mod.PrimaryCategory.CategoryID;
 	var parentid = item.categorypath[item.categorypath.length-2];

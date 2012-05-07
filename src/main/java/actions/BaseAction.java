@@ -30,6 +30,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	protected DB db;
 	protected BasicDBObject user;
 	protected String basedir;
+	protected String version;
 	protected BasicDBObject configdbo;
 	protected int daemonport;
 	
@@ -46,6 +47,12 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			
 			basedir = context.getRealPath("");
 			basedir = basedir.replace("/usr/local/apache-tomcat/webapps", "/var/www");
+			version = basedir;
+			
+			basedir = basedir.replaceAll("##.+$", "");
+			version = version.replaceAll("^.+##", "");
+			
+			log.debug("basedir: "+basedir+" "+version);
 			
 			configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 			daemonport = Integer.parseInt(configdbo.getString("daemonport"));
@@ -64,8 +71,6 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			e.printStackTrace();
 			
 		}
-		
-		log.debug("basedir: "+basedir);
     }
 	
     @Override

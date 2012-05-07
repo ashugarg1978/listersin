@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ebaytool.jp</title>
+<title>ListersIn - Listing tool for eBay sellers.</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
@@ -15,43 +15,42 @@
 <div id="container">
 
   <div id="header">
-	<div id="logo"><a href="/">Production</a></div>
+	<div id="logo"><a href="/">ListersIn</a></div>
   </div>
   
-  <div id="toolbar">
+  <div id="content">
 	
-	<div style="font-size:11px; margin-right:10px;">
+	<div id="signinbox">
 	  <form method="post" action="/">
-		Email<br />
-		<input type="text" name="email" size="15" value=""><br />
-		Password<br />
-		<input type="password" name="password" size="15" value=""><br />
+		<label for="email">Email</label>
+		<input type="text" id="email" name="email" size="20" value=""><br />
+		<label for="password">Password</label>
+		<input type="password" id="password" name="password" size="20" value=""><br />
 		<input type="submit" value="Login">
 	  </form>
 	</div>
 	
-  </div>
-
-  <div id="content">
-	
-	<div style="margin:10px;">
+	<div style="margin:10px; clear:both;">
 	  <b>Service description</b><br><br>
-	  brabrabra....<br>
-	  brabrabra....<br>
-	  brabrabra....<br>
+	  <ul>
+		<li style="color:red;">This service is under construction.</li>
+		<li>Mailer like user interface.</li>
+		<li>Tablet friendly user interface.</li>
+		<li>Manage multiple ebay accounts.</li>
+	  </ul>
 	</div>
 	
-	<div style="margin:10px;">
+	<div style="margin:10px; clear:both;">
 	  <b>New user registration</b><br><br>
 	  
-	  <form method="post" action="/page/register">
+	  <form method="post" action="/json/register">
 		Email
 		<input type="text" name="email" size="20"><br>
 		Password
 		<input type="text" name="password" size="20"><br>
 		Re-type password
 		<input type="text" name="password2" size="20"><br>
-		<input type="submit" value="Register">
+		<button id="register">Register</button>
 	  </form>
 	  
 	</div>

@@ -17,8 +17,6 @@ public class GetProductSellingPages extends ApiCall {
 	private String attributesetid;
 	
 	public GetProductSellingPages() throws Exception {
-		this.productid      = "117984:2:21418:2973043373:399582263:04d3441a3b1502e7d47cb87912668538:1:1:1:1422410458";
-		this.attributesetid = "5918";
 	}
 	
 	public GetProductSellingPages(String productid, String attributesetid) throws Exception {
@@ -32,7 +30,7 @@ public class GetProductSellingPages extends ApiCall {
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");
 		reqdbo.append("DetailLevel",  "ReturnAll");
-		reqdbo.append("MessageID",    "US");
+		reqdbo.append("MessageID",    "US"+" "+productid+" "+attributesetid);
 		
 		BasicDBObject product = new BasicDBObject();
 		product.append("@productID", productid);
@@ -41,7 +39,6 @@ public class GetProductSellingPages extends ApiCall {
 		reqdbo.append("UseCase", "AddItem");
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetProductSellingPages");
-		writelog("GetProductSellingPages/req.xml", requestxml);
 		Future<String> future =
 			pool18.submit(new ApiCallTask(0, requestxml, "GetProductSellingPages"));
 		String result = future.get();
@@ -52,8 +49,14 @@ public class GetProductSellingPages extends ApiCall {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		String site = resdbo.getString("CorrelationID");
-		writelog("GetProductSellingPages/"+site+".xml", responsexml);
+		
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
+		String site    = messages[0];
+		productid      = messages[1];
+		attributesetid = messages[2];
+		
+		writelog("GetProductSellingPages/"+site+"."+productid+"."+attributesetid+".xml",
+				 responsexml);
 		
 		String data = resdbo.getString("ProductSellingPagesData");
 		String decoded = StringEscapeUtils.unescapeHtml(data);
@@ -77,7 +80,7 @@ public class GetProductSellingPages extends ApiCall {
 		BasicDBObject attrs = (BasicDBObject) decodeddbo.get("Attributes");
 		BasicDBObject attr = (BasicDBObject) attrs.get("AttributeSet");
 		String attributesetid =	attr.getString("@id");
-
+		
 		log("attributesetid:"+attributesetid);
 		
 		decoded = decoded.replace("<DataElements>",
@@ -94,7 +97,7 @@ public class GetProductSellingPages extends ApiCall {
 		
 		
 		// XML to HTML
-		String logpath = "/var/www/ebaytool.jp/logs/apicall";
+		String logpath = basedir+"/logs/apicall";
 		
 		TransformerFactory factory = TransformerFactory.newInstance();
 		Transformer transformer = factory.newTransformer
@@ -116,6 +119,8 @@ public class GetProductSellingPages extends ApiCall {
 		br.close();
 		
 		html = html.replaceAll("\n", "_L_I_N_E_F_E_E_D_");
+		
+		writelog("GetProductSellingPages/"+site+"."+productid+"."+attributesetid+".html", html);
 		
 		return html;
 	}

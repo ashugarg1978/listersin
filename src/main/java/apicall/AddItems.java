@@ -26,12 +26,14 @@ public class AddItems extends ApiCall {
 	private String chunkidx;
 	private String[] itemids;
 	private String requestxml;
+	private String taskid;
 	
 	public AddItems() throws Exception {
 	}
 	
-	public AddItems(String email) throws Exception {
-		this.email = email;
+	public AddItems(String email, String taskid) throws Exception {
+		this.email  = email;
+		this.taskid = taskid;
 	}
 	
 	public String call() throws Exception {
@@ -40,39 +42,42 @@ public class AddItems extends ApiCall {
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
+		BasicDBObject userdbo =
+			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
+		String user_id = userdbo.getString("_id");
+		String uuidprefix = user_id.substring(user_id.length()-8);
+		
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.deleted", new BasicDBObject("$exists", 0));
-		query.put("ext.status", "add");
-		query.put("ItemID", new BasicDBObject("$exists", 0));
+		query.put("deleted", new BasicDBObject("$exists", 0));
+		query.put("ItemID",  new BasicDBObject("$exists", 0));
+		query.put("status",  taskid);
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "adding"));
+		update.put("$set", new BasicDBObject("status", taskid+"_processing"));
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+userdbo.getString("_id"));
 		WriteResult result = coll.update(query, update, false, true);
 		
 		/* re-query */
-		query.put("ext.status", "adding");
+		query.put("status", taskid+"_processing");
 		
 		/* build userid.site.chunk array */
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
 		DBCursor cur = coll.find(query);
+		Integer count = cur.count();
+		updatemessage(email, "Listing "+count+" items to eBay...");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
+			DBObject mod = (DBObject) item.get("mod");
+			DBObject org = (DBObject) item.get("org");
 			
-			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
-			site   = item.get("Site").toString();
+			String uuid = uuidprefix + item.get("_id").toString();
+			uuid = uuid.toUpperCase();
+			mod.put("UUID", uuid);
 			
-			// todo: remove more fields
-			//item.removeField("_id"); // if delete here, can't mapping result data.
-			item.removeField("BuyerProtection");
-			item.removeField("SellingStatus");
-			item.removeField("ext");
-			((BasicDBObject) item.get("ShippingDetails")).removeField("SalesTax");
-			
-			// todo: don't remove following field. it is just test.
-			((BasicDBObject) item.get("PictureDetails")).removeField("PictureURL");
+			userid = ((DBObject) org.get("Seller")).get("UserID").toString();
+			site   = mod.get("Site").toString();
 			
 			if (!lhm.containsKey(userid)) {
 				lhm.put(userid, new LinkedHashMap<String,LinkedHashMap>());
@@ -96,6 +101,7 @@ public class AddItems extends ApiCall {
 		}		
 		
 		/* each userid */
+		Integer currentnum = 0;
 		for (String tmpuserid : lhm.keySet()) {
 			LinkedHashMap lhmuserid = lhm.get(tmpuserid);
 			
@@ -115,21 +121,16 @@ public class AddItems extends ApiCall {
 					
 					String[] itemids = new String[5];
 					int messageid = 0;
+					Integer tmpcnt = 0;
 					List<DBObject> ldbo = new ArrayList<DBObject>();
 					for (Object tmpidx : litems) {
 						
 						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
 						String id = ((BasicDBObject) tmpidx).get("_id").toString();
-						log(tmpuserid
-							+" "+tmpsite
-							+" "+tmpchunk+"."+messageid
-							+":"+itemids[messageid]);
 						
-						((BasicDBObject) tmpidx).removeField("_id"); // remove _id here, not before.
-						
-						ldbo.add(new BasicDBObject("MessageID", id).append("Item", tmpidx));
-						
-						String title = ((BasicDBObject) tmpidx).get("Title").toString();
+						ldbo.add(new BasicDBObject("MessageID", userdbo.getString("_id")+" "+id)
+								 .append("Item", ((DBObject) tmpidx).get("mod")));
+						tmpcnt++;
 					}
 					
 					reqdbo.append("AddItemRequestContainer", ldbo);
@@ -162,12 +163,19 @@ public class AddItems extends ApiCall {
 					
 					validatexml(requestxmlfilename);
 					
-					pool18.submit(new ApiCallTask(getSiteID(tmpsite.toString()),
-												  requestxml, "AddItems"));
+					updatemessage(email, "Listing "+(currentnum+1)+"-"+(currentnum+tmpcnt)
+								  + " of "+count+" items to eBay...");
+					currentnum += tmpcnt;
+					
+					Future<String> future = pool18.submit
+						(new ApiCallTask(getSiteID(tmpsite.toString()), requestxml, "AddItems"));
+					future.get(); // wait
 				}
 			}
 		}
 		
+		updatemessage(email, "");
+
 		return "";
 	}
 	
@@ -179,8 +187,6 @@ public class AddItems extends ApiCall {
 		
 		String ack = responsedbo.get("Ack").toString();
 		log("Ack:"+ack);
-		
-		DBCollection coll = db.getCollection("items");
 		
 		String classname = responsedbo.get("AddItemResponseContainer").getClass().toString();
 		
@@ -197,18 +203,23 @@ public class AddItems extends ApiCall {
 		for (Object oitem : dbl) {
 			BasicDBObject item = (BasicDBObject) oitem;
 			
-			String id        = item.getString("CorrelationID");
+			String[] messages = item.getString("CorrelationID").split(" ");
+			String itemcollectionname_id = messages[0];
+			String id = messages[1];
+			
+			DBCollection coll = db.getCollection("items."+itemcollectionname_id);
+			
 			String itemid    = item.getString("ItemID");
 			String starttime = item.getString("StartTime");
 			String endtime   = item.getString("EndTime");
 			
 			BasicDBObject upditem = new BasicDBObject();
-			upditem.put("ext.status", "");
+			upditem.put("status", "");
 			if (itemid != null) {
-				upditem.put("ItemID", itemid);
-				upditem.put("ListingDetails.StartTime", starttime);
-				upditem.put("ListingDetails.EndTime", endtime);
-				upditem.put("SellingStatus.ListingStatus", "Active");
+				upditem.put("org.ItemID", itemid);
+				upditem.put("org.ListingDetails.StartTime", starttime);
+				upditem.put("org.ListingDetails.EndTime", endtime);
+				upditem.put("org.SellingStatus.ListingStatus", "Active");
 			}
 			
 			// todo: aware <SeverityCode>Warning</SeverityCode>
@@ -223,7 +234,7 @@ public class AddItems extends ApiCall {
 					log("Class Error:"+errorclass);
 					continue;
 				}
-				upditem.put("ext.errors", errors);
+				upditem.put("errors", errors);
 			}
 			
 			BasicDBObject query = new BasicDBObject();
@@ -249,11 +260,13 @@ public class AddItems extends ApiCall {
 		dbf.setNamespaceAware(true);
 		DocumentBuilder parser = dbf.newDocumentBuilder();
 		Document document = 
-			parser.parse(new File("/var/www/ebaytool.jp/logs/apicall/AddItems/"+filename));
+			parser.parse(new File(basedir+"/logs/apicall/AddItems/"+filename));
 		
 		SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 		
-		Source schemaFile = new StreamSource(new File("/var/www/ebaytool.jp/data/ebaySvc.xsd.747"));
+		Source schemaFile = new StreamSource
+			(new File(basedir+"/data/ebaySvc.xsd."+configdbo.getString("compatlevel")));
+		
 		Schema schema = factory.newSchema(schemaFile);
 		
 		Validator validator = schema.newValidator();
@@ -266,11 +279,11 @@ public class AddItems extends ApiCall {
 		
 		return;
 	}
-
+	
 	private int getSiteID(String site) throws Exception {
-
+		
 		Integer siteid = null;
-
+		
 		DBObject row = db.getCollection("US.eBayDetails")
 			.findOne(null, new BasicDBObject("SiteDetails", 1));
 		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
@@ -282,19 +295,6 @@ public class AddItems extends ApiCall {
 		}
 		
 		return siteid;
-		
-		/*
-		DBCollection coll = db.getCollection(site+".eBayDetails.SiteDetails");
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("Site", site);
-		
-		BasicDBObject row = (BasicDBObject) coll.findOne(query);
-		
-		int result = Integer.parseInt(row.get("SiteID").toString());
-		
-		return result;
-		*/
 	}
 	
 	private void expandElements(JSONObject item) throws Exception {

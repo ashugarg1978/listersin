@@ -21,12 +21,14 @@ import org.xml.sax.SAXException;
 public class RelistItem extends ApiCall {
 	
 	private String email;
+	private String taskid;
 	
 	public RelistItem() throws Exception {
 	}
 	
-	public RelistItem(String email) throws Exception {
-		this.email = email;
+	public RelistItem(String email, String taskid) throws Exception {
+		this.email  = email;
+		this.taskid = taskid;
 	}
 	
 	public String call() throws Exception {
@@ -35,78 +37,102 @@ public class RelistItem extends ApiCall {
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
+		BasicDBObject userdbo =
+			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
+		String user_id = userdbo.getString("_id");
+		String uuidprefix = user_id.substring(user_id.length()-8);
+		
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
-		query.put("ext.deleted", new BasicDBObject("$exists", 0));
-		query.put("ext.status", "relist");
-		query.put("ItemID", new BasicDBObject("$exists", 1));
+		query.put("deleted",    new BasicDBObject("$exists", 0));
+		query.put("org.ItemID", new BasicDBObject("$exists", 1));
+		query.put("status",     taskid);
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("ext.status", "relisting"));
+		update.put("$set", new BasicDBObject("status", taskid+"_processing"));
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+userdbo.getString("_id"));
 		WriteResult result = coll.update(query, update, false, true);
 		
 		/* re-query */
-		query.put("ext.status", "relisting");
+		query.put("status", taskid+"_processing");
 		DBCursor cur = coll.find(query);
+		Integer count = cur.count();
+		Integer currentnum = 0;
+		updatemessage(email, "Relisting "+count+" items to eBay...");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
+			DBObject mod = (DBObject) item.get("mod");
+			DBObject org = (DBObject) item.get("org");
 			
-			userid = ((BasicDBObject) item.get("ext")).get("UserID").toString();
-			site   = item.get("Site").toString();
+			String uuid = uuidprefix + item.get("_id").toString();
+			uuid = uuid.toUpperCase();
+			mod.put("UUID", uuid);
+			
+			userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
+			site   = mod.get("Site").toString();
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("ErrorLanguage", "en_US");
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("RequesterCredentials",
 						  new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
-			reqdbo.append("MessageID", item.get("_id").toString());
-			reqdbo.append("Item", new BasicDBObject("ItemID", item.get("ItemID").toString()));
+			reqdbo.append("MessageID", userdbo.getString("_id")+" "+item.get("_id").toString());
+			reqdbo.append("Item", new BasicDBObject("ItemID", org.get("ItemID").toString()));
 			
 			String requestxml = convertDBObject2XML(reqdbo, "RelistItem");
-			pool18.submit(new ApiCallTask(getSiteID(site), requestxml, "RelistItem"));
+			
+			updatemessage(email, "Relisting "+(currentnum+1)+" of "+count+" items to eBay...");
+			currentnum++;
+					
+			Future<String> future = pool18.submit
+				(new ApiCallTask(getSiteID(site), requestxml, "RelistItem"));
+			future.get(); // wait
 		}
+		
+		updatemessage(email, "");
 		
 		return "";
 	}
 	
 	public String callback(String responsexml) throws Exception {
 		
-		BasicDBObject item = convertXML2DBObject(responsexml);
+		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		
 		// todo: almost same as AddItems callback function.
-		String id        = item.getString("CorrelationID");
-		String itemid    = item.getString("ItemID");
-		String starttime = item.getString("StartTime");
-		String endtime   = item.getString("EndTime");
+		
+		String[] messages = responsedbo.getString("CorrelationID").split(" ");
+		String itemcollectionname_id = messages[0];
+		String id = messages[1];
+		String itemid    = responsedbo.getString("ItemID");
+		String starttime = responsedbo.getString("StartTime");
+		String endtime   = responsedbo.getString("EndTime");
 		
 		writelog("RelistItem/res."+itemid+".xml", responsexml);
 		
-		String ack = item.get("Ack").toString();
-		log("Ack:"+ack);
+		log("Ack:"+responsedbo.get("Ack").toString());
 		
 		BasicDBObject upditem = new BasicDBObject();
-		upditem.put("ext.status", "");
+		upditem.put("status", "");
 		if (itemid != null) {
-			upditem.put("ItemID", itemid);
-			upditem.put("ListingDetails.StartTime", starttime);
-			upditem.put("ListingDetails.EndTime", endtime);
-			upditem.put("ext.SellingStatus.ListingStatus", "Active");
+			upditem.put("org.ItemID", itemid);
+			upditem.put("org.ListingDetails.StartTime", starttime);
+			upditem.put("org.ListingDetails.EndTime", endtime);
+			upditem.put("org.SellingStatus.ListingStatus", "Active");
 		}
 		
 		// todo: aware <SeverityCode>Warning</SeverityCode>
-		if (item.get("Errors") != null) {
-			String errorclass = item.get("Errors").getClass().toString();
+		if (responsedbo.get("Errors") != null) {
+			String errorclass = responsedbo.get("Errors").getClass().toString();
 			BasicDBList errors = new BasicDBList();
 			if (errorclass.equals("class com.mongodb.BasicDBObject")) {
-				errors.add((BasicDBObject) item.get("Errors"));
+				errors.add((BasicDBObject) responsedbo.get("Errors"));
 			} else if (errorclass.equals("class com.mongodb.BasicDBList")) {
-				errors = (BasicDBList) item.get("Errors");
+				errors = (BasicDBList) responsedbo.get("Errors");
 			} else {
 				log("Class Error:"+errorclass);
 			}
-			upditem.put("ext.errors", errors);
+			upditem.put("errors", errors);
 		}
 		
 		BasicDBObject query = new BasicDBObject();
@@ -115,7 +141,7 @@ public class RelistItem extends ApiCall {
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", upditem);
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+itemcollectionname_id);
 		WriteResult result = coll.update(query, update);
 		
 		return "";
@@ -124,15 +150,18 @@ public class RelistItem extends ApiCall {
 	// todo: move to super class?
 	private int getSiteID(String site) throws Exception {
 
-		DBCollection coll = db.getCollection(site+".eBayDetails.SiteDetails");
+		Integer siteid = null;
 		
-		BasicDBObject query = new BasicDBObject();
-		query.put("Site", site);
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
+			if (site.equals(((BasicDBObject) sitedbo).getString("Site"))) {
+				siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+				break;
+			}
+		}
 		
-		BasicDBObject row = (BasicDBObject) coll.findOne(query);
-		
-		int result = Integer.parseInt(row.get("SiteID").toString());
-		
-		return result;
+		return siteid;
 	}
 }
