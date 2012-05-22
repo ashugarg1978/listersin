@@ -188,19 +188,19 @@ public class PageAction extends BaseAction {
 		BasicDBObject mod = (BasicDBObject) org.copy();
 		
 		String eventname = itemresponse.getString("NotificationEventName");
-		String timestamp = itemresponse.getString("Timestamp").replaceAll("\\.", "_");
+		String xmltimestamp = itemresponse.getString("Timestamp").replaceAll("\\.", "_");
 		
 		String userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
 		String itemid = org.getString("ItemID");
 		
 		// save xml file
 		FileWriter fstream = new FileWriter
-			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+timestamp+".xml");
+			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+xmltimestamp+".xml");
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(notifyxml);
 		out.close();
 		
-		log.debug("notify: "+userid+" "+eventname);
+		log.debug("notify: "+userid+" "+eventname+" "+itemid);
 		
 		// todo: merge to GetItem callback()?
 		
@@ -216,6 +216,13 @@ public class PageAction extends BaseAction {
 		for (Object fieldname : movefields) {
 			movefield(mod, fieldname.toString());
 		}
+		
+		// todo: timezone doesn't work
+		// todo: use GMT for logging?
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", userid);
@@ -244,26 +251,20 @@ public class PageAction extends BaseAction {
 		
 		
 		// todo: are ItemUnsold and ItemClosed same?
-		
 		if (eventname.equals("ItemUnsold")) {
 			
-			/*
-			query.put("ext.UserID", userid);
-			query.put("ItemID",     itemid);
-			query.put("ext.status", new BasicDBObject("$ne", "relist"));
+			query.put("status", new BasicDBObject("$ne", "relist"));
 			
-			BasicDBObject update = new BasicDBObject();
-			update.put("$set", new BasicDBObject("ext.status", "relist"));
+			update = new BasicDBObject();
+			update.put("$set", new BasicDBObject("status", "autorelist_"+timestamp));
 			
 			WriteResult result = coll.update(query, update, false, true);
 			
 			Socket socket = new Socket("localhost", daemonport);
 			PrintWriter sout = new PrintWriter(socket.getOutputStream(), true);
-			//sout.println("RelistItem "+session.get("email"));
-			sout.println("RelistItem fd3s.boost@gmail.com");
+			sout.println("RelistItem "+userdbo.getString("email")+" autorelist_"+timestamp);
 			sout.close();
 			socket.close();
-			*/
 		}
 		
 		return SUCCESS;

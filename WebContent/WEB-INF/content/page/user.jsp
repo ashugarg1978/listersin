@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>listers.in</title>
+<title>ListersIn - Yet another eBay listing tool.</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
@@ -247,7 +247,13 @@
 						 type="hidden" class="remove"/>
 				  <button class="GetProductSearchResults">Search</button>
 				  
-				  <input name="mod.ProductListingDetails.ProductID" type="hidden"/>
+				  <br />
+				  
+				  <input name="mod.ProductListingDetails.ProductID" type="text" size="15"/>
+				  <br />
+				  
+				  <input name="mod.ProductListingDetails.ProductReferenceID" type="text" size="15"/>
+				  <br />
 				  
 				  <br/>
 				  
@@ -289,7 +295,7 @@
 			<tr>
 			  <td><s:text name="title"/></td>
 			  <td>
-				<input name="mod.Title" type="text" size="60"/><br/>
+				<input name="mod.Title" type="text" size="80"/><br/>
 				<input type="checkbox" name="mod.ListingEnhancement" value="BoldTitle"/>
 				Attract buyers' attention by making the title of your listing appear in Bold
 			  </td>

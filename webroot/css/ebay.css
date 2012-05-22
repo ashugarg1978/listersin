@@ -16,6 +16,11 @@ div#container {
   background-color: #f7f7f7;
 }
 
+div#container-white {
+  margin: 0px 0px 0px 0px;
+  background-color: #ffffff;
+}
+
 div#header {
   position: fixed;
   background-color: #f7f7f7;
@@ -44,6 +49,11 @@ div#content {
   background-color: #fff;
 }
 
+div#content960 {
+  width: 960px;
+  margin: 80px auto 20px auto;
+  background-color: #fff;
+}
 
 div#logo {
   float: left;
@@ -188,6 +198,7 @@ table.items tr.row2 > td {
 
 td.Title {
   min-width: 300px;
+  max-width: 400px;
   overflow: hidden;
   /*white-space: nowrap;*/
 }
@@ -667,11 +678,12 @@ input#filtertitle {
   margin-right: 0px;
 }
 
-div#signinbox {
+div#signinbox,
+div#signupbox {
   background-color: whiteSmoke;
   border: 1px solid #e5e5e5;
-  padding:20px;
-  float: left;
+  margin: 20px;
+  padding: 20px;
 }
 
 div#settings {

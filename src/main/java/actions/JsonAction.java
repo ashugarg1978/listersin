@@ -68,17 +68,17 @@ public class JsonAction extends BaseAction {
 			&& parameters.get("password") != null
 			&& parameters.get("password2") != null) {
 			
-			String email = ((String[]) parameters.get("email"))[0];
-			String password = ((String[]) parameters.get("password"))[0];
+			String email     = ((String[]) parameters.get("email"))[0];
+			String password  = ((String[]) parameters.get("password"))[0];
 			String password2 = ((String[]) parameters.get("password2"))[0];
 			
 			if (email.equals("") || password.equals("") || password2.equals("")) {
 				
-				message = "empty value";
+				message = "Please fill forms.";
 				
 			} else if (!password.equals(password2)) {
 				
-				message = "password mismatch";
+				message = "Password mismatch.";
 				
 			} else {
 				
@@ -90,7 +90,7 @@ public class JsonAction extends BaseAction {
 				
 				if (user != null) {
 					
-					message = "already exists";
+					message = "Sorry, this email already exists.";
 					
 				} else {
 					
@@ -133,13 +133,13 @@ public class JsonAction extends BaseAction {
 		InternetAddress fromAddress = null;
 		InternetAddress toAddress = null;
 		
-		fromAddress = new InternetAddress("support@sandbox.ebaytool.jp");
+		fromAddress = new InternetAddress("support@listers.in");
 		toAddress = new InternetAddress(email);
 		
 		simpleMessage.setFrom(fromAddress);
 		simpleMessage.setRecipient(RecipientType.TO, toAddress);
-		simpleMessage.setSubject("user registration");
-		simpleMessage.setText("thank you.");
+		simpleMessage.setSubject("Thank you for signing up for ListersIn!");
+		simpleMessage.setText("Thank you for signing up for ListersIn!");
 		
 		Transport.send(simpleMessage);
 		
@@ -255,11 +255,11 @@ public class JsonAction extends BaseAction {
 				item.put("dfnow", sdf.format(now));
 				item.put("dfend", sdf.format(dfendtime));
 				if (formatter.format(now).equals(formatter.format(dfendtime))) {
-					formatter.applyPattern("h:mm a");
-					//formatter.applyPattern("MM-dd HH:mm");
+					//formatter.applyPattern("h:mm a");
+					formatter.applyPattern("MM-dd HH:mm");
 				} else {
-					formatter.applyPattern("MMM d");
-					//formatter.applyPattern("MM-dd HH:mm");
+					//formatter.applyPattern("MMM d");
+					formatter.applyPattern("MM-dd HH:mm");
 				}
 				item.put("endtime", formatter.format(dfendtime));
 			}
@@ -280,6 +280,7 @@ public class JsonAction extends BaseAction {
 	})
 	public String item() throws Exception {
 		
+		log.debug("/json/item(1)");
 		json = new LinkedHashMap<String,Object>();
 		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
@@ -298,6 +299,8 @@ public class JsonAction extends BaseAction {
 		
 		String site = mod.getString("Site");
 		
+		log.debug("/json/item(2)");
+		
 		/* categorypath */
 		// todo: update old categoryid to current active categoryid
 		Integer categoryid =
@@ -308,16 +311,20 @@ public class JsonAction extends BaseAction {
 		List path = categorypath(site, categoryid);
 		item.put("categorypath", path);
 		
+		
 		/* grandchildren */
 		String[] pathstr = new String[path.size()+1];
 		pathstr[0] = "0";
 		for (int i = 0; i < path.size(); i++) {
 			pathstr[i+1] = path.get(i).toString();
 		}
+		log.debug("/json/item(3)");
 		BasicDBObject children2 = children2(site, pathstr);
+		log.debug("/json/item(4)");
 		
 		LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
 		item.put("categorypath2", path2);
+		
 		
 		/*
 		String categoryname = "";
@@ -355,6 +362,8 @@ public class JsonAction extends BaseAction {
 		/* remove fields */
 		item.removeField("_id");
 		
+		log.debug("/json/item(6)");
+		
 		BasicDBObject ebaydetails =
 			(BasicDBObject) db.getCollection(site+".eBayDetails").findOne();
 		
@@ -366,6 +375,8 @@ public class JsonAction extends BaseAction {
 		json.put("eBayDetails",      ebaydetails);
 		json.put("CategoryFeatures", categoryfeatures);
 		json.put("ThemeGroup",       themegroup(site));
+		
+		log.debug("/json/item(9)");
 		
 		return SUCCESS;
 	}
@@ -403,68 +414,6 @@ public class JsonAction extends BaseAction {
 				((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", st);
 				break;
 			}
-		}
-		
-		/* AttributeSetArray */
-		BasicDBObject attributesetarray = new BasicDBObject();
-		BasicDBObject attributeset = new BasicDBObject();
-		attributeset.put("@attributeSetID", item.getString("vcsid"));
-		
-		BasicDBList attributes = new BasicDBList();
-		String removeattr = "";
-		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
-		boolean attributesetarrayexists = false;
-		for (String key : item.keySet()) {
-			
-			Matcher m = p.matcher(key);
-			//if (m.matches() == false) continue;
-			
-			while (m.find()) {
-				log.debug("save key:"+key+" ("+m.group(3)+")");
-				
-				BasicDBObject attribute = new BasicDBObject();
-				attribute.put("@attributeID", m.group(3));
-				
-				if (m.group(1).equals("")) {
-					if (item.get(key).getClass().toString()
-						.equals("class com.mongodb.BasicDBList")) {
-						BasicDBList values = new BasicDBList();
-						for (Object tmpvalue : (BasicDBList) item.get(key)) {
-							values.add(new BasicDBObject("ValueID", tmpvalue.toString()));
-						}
-						attribute.put("Value", values);
-					} else {
-						attribute.put("Value", new BasicDBObject("ValueID", item.getString(key)));
-					}
-				} else if (m.group(1).equals("_t")) {
-					attribute.put("Value", new BasicDBObject("ValueLiteral", item.getString(key)));
-				}
-				
-				attributes.add(attribute);
-				removeattr += key+"|";
-
-				attributesetarrayexists = true;
-			}
-		}
-		attributeset.put("Attribute", attributes);
-		attributesetarray.put("AttributeSet", attributeset);
-		if (attributesetarrayexists == true) {
-			mod.put("AttributeSetArray", attributesetarray);
-		}
-		
-		/* Delete */
-		item.removeField("ButtonLoad");
-		item.removeField("aus_form_changed");
-		item.removeField("vcsid");
-		
-		String[] removeattrs = removeattr.split("\\|");
-		try {
-			for (String key : removeattrs) {
-				log.debug("remove: "+key);
-				item.removeField(""+key);
-			}
-		} catch (Exception e) {
-			log.debug(e.toString());
 		}
 		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
@@ -768,6 +717,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
+		// todo: disable auto relisting.
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("status", "end_"+timestamp));
 		
@@ -778,6 +728,44 @@ public class JsonAction extends BaseAction {
 		out.println("EndItems "+session.get("email")+" end_"+timestamp);
 		out.close();
 		socket.close();
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/json/findproducts")
+	public String findproducts() throws Exception {
+		
+		String findtype = "";
+		String keyword = "";
+		
+		findtype = ((String[]) parameters.get("findtype"))[0];
+		
+		if (parameters.containsKey("keyword")) {
+			keyword = ((String[]) parameters.get("keyword"))[0];
+		} else {
+			return SUCCESS;
+		}
+		
+		/* FindProducts */
+		Socket socket = new Socket("localhost", daemonport);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println("FindProducts "+findtype+" "+keyword);
+		String result = in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		xmlSerializer.setTypeHintsEnabled(false);
+		net.sf.json.JSON tmpjson = xmlSerializer.read(result);
+		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
+		//BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(result);
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("result", dbo);
 		
 		return SUCCESS;
 	}

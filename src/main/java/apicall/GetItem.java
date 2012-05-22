@@ -36,7 +36,7 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		query.put("userids."+userid, new BasicDBObject("$exists", 1));
-
+		
 		BasicDBObject fields = new BasicDBObject();
 		fields.put("userids."+userid, 1);
 		
@@ -116,12 +116,26 @@ public class GetItem extends ApiCall implements Callable {
 		
 		DBCollection coll = db.getCollection("items."+user_id);
 		
+		/* delete ItemSpecifics added from Product */
+		if (mod.containsField("ItemSpecifics")) {
+			BasicDBObject itemspecifics = (BasicDBObject) mod.get("ItemSpecifics");
+			BasicDBObject iscopy = (BasicDBObject) itemspecifics.copy();
+			BasicDBList namevaluelist = (BasicDBList) iscopy.get("NameValueList");
+			
+			for (int i=namevaluelist.size()-1; i>=0; i--) {
+				BasicDBObject namevalue = (BasicDBObject) namevaluelist.get(i);
+				if (namevalue.getString("Source").equals("Product")) {
+					((BasicDBList) itemspecifics.get("NameValueList")).remove(i);
+				}
+			}
+		}
+		
 		/* delete fields which is not necessary in AddItem families */
 		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
 		for (Object fieldname : movefields) {
 			movefield(mod, fieldname.toString());
 		}
-		
+
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", callbackuserid);
 		query.put("org.ItemID",        callbackitemid);

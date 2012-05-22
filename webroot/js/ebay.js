@@ -3,6 +3,7 @@ var rowsdata = new Array();
 var hasmore  = false;
 var strdiff  = '';
 var timeout  = null;
+var foundproducts = new Array();
 
 /* initialize */
 $(function() {
@@ -51,7 +52,17 @@ function bindevents()
 		$.post('/json/register',
 			   postdata,
 			   function(data) {
-				   $('button#register').parent().append('<pre>'+$.dump(data)+'</pre>');
+				   if (data.json.result == true) {
+					   var divtag = $('<div/>')
+						   .css('color', 'blue')
+						   .html(data.json.message);
+					   $('button#register').parent().append(divtag);
+				   } else {
+					   var divtag = $('<div/>')
+						   .css('color', 'red')
+						   .html(data.json.message);
+					   $('button#register').parent().append(divtag);
+				   }
 			   },
 			   'json');
 		
@@ -97,7 +108,7 @@ function bindevents()
 	$('select.category').live('change', changeCategory);
 	
 	$('div.editbuttons button.edit',   'div.detail').live('click', clickEdit);
-	$('div.editbuttons button.save',   'div.detail').live('click', clickSave);
+	$('div.editbuttons button.save',   'div.detail').live('click', save);
 	$('div.editbuttons button.cancel', 'div.detail').live('click', clickCancel);
 	$('div.editbuttons button.delete', 'div.detail').live('click', clickDelete);
 	$('div.editbuttons button.copy',   'div.detail').live('click', clickCopy);
@@ -259,7 +270,7 @@ function bindevents()
 		$(idform).remove();
     });
     
-	$('select[name=ListingType]').live('change', function() {
+	$('select[name="mod.ListingType"]').live('change', function() {
 		id = $(this).closest('tbody.itemrow').attr('id');
 		updateduration(id);
 	});
@@ -359,64 +370,21 @@ function bindevents()
 			   });
 	});
 	
-	$('button.GetProductSearchResults').live('click', function() {
-		var td = $(this).parent();
-		var postdata = $('input[type=text],input[type=hidden]', td).serialize();
-		$.post('/json/productsearchresults',
-			   postdata,
-			   function(data) {
-				   var families = data.json.result.ProductSearchResult.AttributeSet.ProductFamilies;
-				   $.each(families, function(i, o) {
-					   
-					   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
-					   $(divtag).show();
-					   //$('img', divtag).attr('src', o.ParentProduct['@stockPhotoURL']);
-					   $('div.producttext', divtag).html(o.ParentProduct['@title']);
-					   $('div.productid', divtag).html(o.ParentProduct['@productID']);
-					   $('div.foundproducts', td).append(divtag);
-				   });
-				   $('div.foundproducts', td).slideDown('fast');
-			   },
-			   'json');
-	});
+	$('button.GetProductSearchResults').live('click', findproducts);
 	
 	$('div.foundproducts div.product').live('click', function() {
+		
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var productid = $('div.productid', $(this)).html();
-		var title = $('div.producttext', $(this)).html();
-		$('input[name="ProductListingDetails.ProductID"]', $(this).closest('td')).val(productid);
-		$('input[name=Title]', '#'+id).val(title);
+		var product = foundproducts['R'+productid];
+		
+		$('input[name="mod.ProductListingDetails.ProductID"]', '#'+id).val('');
+		$('input[name="mod.ProductListingDetails.ProductReferenceID"]', '#'+id).val(productid);
+		$('input[name="mod.Title"]', '#'+id).val(product.Title);
+		
 		$(this).closest('div.foundproducts').slideUp('fast');
 		
-		// todo: load frame
-		$.post('/json/productsellingpages',
-			   'productid='+productid+'&attributesetid='
-			   +$('input[name="ProductSearch.CharacteristicSetIDs.ID"]', '#'+id).val(),
-			   function(data) {
-				   var htmlcode = data.json.result;
-				   
-				   $('table.ItemSpecifics', '#'+id).hide();
-				   $('div.ProductSellingPages', '#'+id).html('');
-				   
-				   htmlcode = htmlcode.replace("var formName = 'APIForm';",
-											   "var formName = 'APIForm"+id+"';");
-				   
-				   // todo: replace on server side.
-				   // todo: have to trap all submit code written by eBay.
-				   htmlcode = htmlcode.replace("document.forms[formName].submit();",
-											   "apiformsubmit(formName);");
-				   
-				   htmlcode = htmlcode.replace("pagedoc.submit();",
-											   "apiformsubmit(formName);");
-				   
-				   htmlcode = htmlcode.replace("aus_form.submit();",
-											   "apiformsubmit(formName);");
-				   
-				   $('div.ProductSellingPages', '#'+id).append(htmlcode);
-				   
-				   // todo: check javascript code at last line of htmlcode.
-			   },
-			   'json');
+		return;
 	});
 	
 	$('a#toggledebug').live('click', function() {
@@ -483,6 +451,46 @@ function bindevents()
     //jQuery('div#loading').ajaxStart(function() {jQuery(this).show();});
     //jQuery('div#loading').ajaxStop( function() {jQuery(this).hide();});
 }	
+
+var findproducts = function() {
+	
+	var td = $(this).parent();
+	var keyword = $('input[name="ProductSearch.QueryKeywords"]', td).val();
+	
+	$.post('/json/findproducts',
+		   'findtype=QueryKeywords&keyword='+keyword,
+		   function(data) {
+			   dump(data.json.result);
+			   
+			   $.each(data.json.result.Product, function(i, o) {
+				   
+				   var productids = arrayize(o.ProductID);
+				   
+				   // todo: care Reference, UPC, ISBN, etc...
+				   var productid = productids[0]['#text'];
+				   log(productid);
+				   foundproducts['R'+productid] = o;
+				   
+				   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
+				   $(divtag).show();
+				   $('img',             divtag).attr('src', o.StockPhotoURL);
+				   $('div.producttext', divtag).html(o.Title);
+				   if (o.ItemSpecifics) {
+					   $.each(arrayize(o.ItemSpecifics.NameValueList), function(j, k) {
+						   $('div.producttext', divtag).append('<br/>'+k.Name+':'+k.Value);
+					   });
+				   }
+				   $('div.productid',   divtag).html(productids[0]['#text']);
+				   $('div.foundproducts', td).append(divtag);
+				   
+			   });
+			   $('div.foundproducts', td).slideDown('fast');
+			   
+			   // todo: why dump(foundproducts) shows empty array?
+			   //dump(foundproducts);
+		   },
+		   'json');
+}
 
 function titlesearch_keyupdone(str)
 {
@@ -828,18 +836,20 @@ function setformelements(item)
 	var category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
 	
 	/* Condition */
-	if (category.CategoryFeatures.ConditionEnabled == 'Disabled') {
-		var optiontag = $('<option/>').html('(disabled)');
-		$('select[name="mod.ConditionID"]', '#'+id).children().remove();
-		$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
-	} else {
-		$('select[name="mod.ConditionID"]', '#'+id).html($('<option/>'));
-		var conditions = category.CategoryFeatures.ConditionValues.Condition;
-		for (i in conditions) {
-			var value = conditions[i].ID;
-			var label = conditions[i].DisplayName;
-			var optiontag = $('<option/>').val(value).html(label);
+	if (category.CategoryFeatures) {
+		if (category.CategoryFeatures.ConditionEnabled == 'Disabled') {
+			var optiontag = $('<option/>').html('(disabled)');
+			$('select[name="mod.ConditionID"]', '#'+id).children().remove();
 			$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+		} else {
+			$('select[name="mod.ConditionID"]', '#'+id).html($('<option/>'));
+			var conditions = category.CategoryFeatures.ConditionValues.Condition;
+			for (i in conditions) {
+				var value = conditions[i].ID;
+				var label = conditions[i].DisplayName;
+				var optiontag = $('<option/>').val(value).html(label);
+				$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+			}
 		}
 	}
 	
@@ -859,7 +869,7 @@ function setformelements(item)
 	}
 	
 	/* ItemSpecifics */
-	setItemSpecificsForms(item);
+	setformelements_itemspecifics(item);
 	
 	$('form[name=APIForm]', '#'+id)
 		.attr('id',   'APIForm'+id)
@@ -867,6 +877,10 @@ function setformelements(item)
 	
 	/* ListingDuration */
 	$('select[name="mod.ListingDuration"]', '#'+id).children().remove();
+	if ($('select[name="mod.ListingType"]').val() == 'Chinese') {
+		var optiontag = $('<option/>').val('Days_1').html('1 day');
+		$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
+	}
 	var durationsetid = null;
 	for (i in category.CategoryFeatures.ListingDuration) {
 		if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
@@ -1008,8 +1022,12 @@ function setformelements_shipping(item)
 	
 	var dmsttype = item.ShippingDetails.ShippingType.domestic;
 	var intltype = item.ShippingDetails.ShippingType.international;
-	var packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
-	log(packagetype);
+	
+	var packagetype = '';
+	if (item.mod.ShippingDetails.CalculatedShippingRate) {
+		packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
+		log(packagetype);
+	}
 	
 	// hide and show
 	if (dmsttype == 'NoShipping') {
@@ -1250,7 +1268,7 @@ var clickEdit = function() {
 	return;
 }
 
-var clickSave = function() {
+var save = function() {
 	
 	id = $(this).closest('tbody.itemrow').attr('id');
 	detail = $(this).closest('div.detail');
@@ -1260,58 +1278,44 @@ var clickSave = function() {
 	$('select.remove', detail).remove();
 	
 	// todo: varidation check
-	if ($('select[name="PrimaryCategory.CategoryID"]', detail).val() == '') {
+	if ($('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).val() == '') {
 		alert('category error.');
 		return false;
 	}
 	
-	$.each($('img.PictureDetails_PictureURL', detail), function(i, imgelm) {
+	$.each($('img.PictureDetails_PictureURL', '#'+id), function(i, imgelm) {
 		imgsrc = $(imgelm).attr('src');
 		if (imgsrc == '/img/noimage.jpg') {
-			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).remove();
+			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", '#'+id).remove();
 		} else {
-			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", detail).val(imgsrc);
+			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", '#'+id).val(imgsrc);
 		}
 	});
 	
 	// todo: Why Opera can't include <select> tags?
-	// todo: Don't use numeric keys that causes "NCNames cannot start with...." error.
+	// todo: Don't use numeric keys that causes "NCNames cannot start with...." javascript error.
 	
-	// remove forms
-	_sdsso = 'ShippingDetails.ShippingServiceOptions';
+	// remove empty value forms
+	_dsso = 'ShippingDetails.ShippingServiceOptions';
+	_isso = 'ShippingDetails.InternationalShippingServiceOptions';
 	for (i = 0; i <= 3; i++) {
-		if ($('select[name="'+_sdsso+'.'+i+'.ShippingService"]').val() == '') {
-			$('input[name="'+_sdsso+'.'+i+'.ShippingServicePriority"]').val('');
+		if ($('select[name="'+_dsso+'.'+i+'.ShippingService"]', '#'+id).val() == '') {
+			$('input[name="'+_dsso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
 		}
 	}
-	
-	_sdisso = 'ShippingDetails.InternationalShippingServiceOptions';
 	for (i = 0; i <= 4; i++) {
-		if ($('select[name="'+_sdisso+'.'+i+'.ShippingService"]').val() == '') {
-			$('input[name="'+_sdisso+'.'+i+'.ShippingServicePriority"]').val('');
+		if ($('select[name="'+_isso+'.'+i+'.ShippingService"]', '#'+id).val() == '') {
+			$('input[name="'+_isso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
 		}
 	}
+
+	// todo: remove empty ItemSpecifics
 	
-	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea',
-				 $(this).closest('div.detail')).extractObject();
 	
-	dump(postdata);
-	//$('#debug').append('<pre>'+$.dump(postdata)+'</pre>');
-	
-	/*
-	$.each(postdata.ShippingDetails.ShippingServiceOptions, function(k, v) {
-		if (v.ShippingService == '') {
-			msg('remove sso '+k);
-		} else {
-			msg('do not remove sso '+k);
-		}
-	});
-	*/
-	
+	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+		.extractObject();
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
-	//postdata = encodeURI(postdata);
-	//postdata = escape(postdata);
 	
 	$.post('/json/save',
 		   'id='+id+'&json='+postdata,
@@ -1613,8 +1617,8 @@ function log(str)
 
 function updateduration(id)
 {
-	site = $('select[name=Site]', '#'+id).val();
-	listingtype = $('select[name=ListingType]', '#'+id).val();
+	site = $('select[name="mod.Site"]', '#'+id).val();
+	listingtype = $('select[name="mod.ListingType"]', '#'+id).val();
 	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
 	
 	sel = $('<select/>').attr('name', 'ListingDuration');
@@ -1687,7 +1691,7 @@ function showformvalues(item)
 			
 			var htmlencoded = $('<div/>').text(tmpvalue).html();
 			$(form).replaceWith(htmlencoded);
-
+			
 			if ($(form).attr('name').match(/^mod.PictureDetails.PictureURL./)) {
 				var imgclass = $(form).attr('name')
 					.replace(/^mod.PictureDetails.PictureURL./, 'PD_PURL_');
@@ -1698,7 +1702,7 @@ function showformvalues(item)
 			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
-
+	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
 		var formname = $(form).attr('name');
@@ -1847,8 +1851,10 @@ function fillformvalues(item)
 	return;
 }
 
-function setItemSpecificsForms(item)
+/* ItemSpecifics */
+function setformelements_itemspecifics(item)
 {
+	// todo: not return when undefined. (show empty forms)
 	if (item.mod.ItemSpecifics == undefined) return;
 	
 	var detail = $('div.detail', '#'+item.id);
@@ -1858,125 +1864,121 @@ function setItemSpecificsForms(item)
 	var parentid = item.categorypath[item.categorypath.length-2];
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
-	var recommkey = new Array();
-	var specificskey = new Array();
 	var specifics = item.mod.ItemSpecifics.NameValueList;
 	var recomm = category.CategorySpecifics.NameRecommendation;
 	
+	var specificskey = new Array();
+	for (i in specifics) {
+		specificskey[specifics[i].Name] = i;
+	}
+	
+	var recommkey = new Array();
 	for (i in recomm) {
 		recommkey[recomm[i].Name] = i;
 	}
 	
 	/* Existing specifics */
 	for (i in specifics) {
-		if (specifics[i] == null) continue;
-		
-		var recommref = recomm[recommkey[specifics[i].Name]];
-		specificskey[specifics[i].Name] = i;
-		
-		var trtag = $('<tr />');
-		var tdtag = $('<td />');
-		
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Name');
-		
-		$(tdtag).append(inputtag);
-		$(trtag).append(tdtag);
-		
-		var tdtag = setItemSpecificsFormValue(item, i, recommref, specifics);
-		//$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
-		
-		$(trtag).append(tdtag);
+		var trtag = setformelements_itemspecifics_values(item.id,
+														 i,
+														 recomm[recommkey[specifics[i].Name]],
+														 specifics[i]);
 		$('table.ItemSpecifics', detail).append(trtag);
 	}
 	
-	/* Remaining specifics */
-	/*
+	/* Remaining recommended specifics */
 	var addspidx = specifics.length;
 	for (i in recomm) {
 		if (specificskey[recomm[i].Name] != null) continue;
 		
-		var trtag = $('<tr />');
-		var tdtag = $('<td />');
+		var trtag = setformelements_itemspecifics_values(item.id,
+														 addspidx,
+														 recomm[i],
+														 null);
 		
-		var inputtag = $('<input />')
-			.attr('type', 'hidden')
-			.attr('Name', 'ItemSpecifics.NameValueList.'+addspidx+'.Name')
-			.val(recomm[i].Name);
-		
-		$(tdtag).append(inputtag);
-		$(tdtag).append(recomm[i].Name);
-		$(trtag).append(tdtag);
-		
-		var tdtag = setItemSpecificsFormValue(recomm[i], specifics);
-		
-		$(trtag).append(tdtag);
 		$('table.ItemSpecifics', detail).append(trtag);
 		
 		addspidx++;
 	}
-	*/
-	//$('td.ItemSpecifics', detail).append('<pre>'+$.dump(recomm)+'</pre>');
 	
 	return;
 }
 
-function setItemSpecificsFormValue(item, i, recommref, specifics)
+function setformelements_itemspecifics_values(id, i, recomm, specific)
 {
+	var trtag = $('<tr />');
+
+	/* Name */
+	var tdtag = $('<td />');
+	var inputtag = $('<input />')
+		.attr('type', 'text')
+		.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Name');
+	$(tdtag).append(i);
+	$(tdtag).append(inputtag);
+	if (specific == null) {
+		$(inputtag).val(recomm.Name)
+	}
+	$(trtag).append(tdtag);
+	
+	/* Value */
+	/* SelectionMode: one of FreeText, Prefilled, SelectionOnly */
 	var tdtag = $('<td/>');
 	
-	if (recommref == null) {
+	if (recomm == null) {
+		
+		var inputtag = $('<input/>')
+			.attr('type', 'text')
+			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
+		var tdtag = $('<td/>').append(inputtag);
+		
+		$(trtag).append(tdtag);
+		
+	} else if (recomm.ValidationRules.SelectionMode == 'FreeText'
+			   && recomm.ValidationRules.MaxValues == '1') {
 		
 		var inputtag = $('<input/>')
 			.attr('type', 'text')
 			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
 		$(tdtag).append(inputtag);
 		
-	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
-			   && recommref.ValidationRules.MaxValues == '1') {
-		
-		var inputtag = $('<input/>')
-			.attr('type', 'text')
-			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
-		$(tdtag).append(inputtag);
-		
-		if (recommref.ValueRecommendation != null) {
+		if (recomm.ValueRecommendation != null) {
 			var selecttag = $('<select/>')
 				.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value.selector')
 				.addClass('remove')
 				.append($('<option/>').html('(select from list)'));
 			
-			for (j in recommref.ValueRecommendation) {
-				var optiontag = $('<option/>')
-					.val(recommref.ValueRecommendation[j].Value)
-					.html(recommref.ValueRecommendation[j].Value);
+			var arrvr = arrayize(recomm.ValueRecommendation);
+			for (j in arrvr) {
+				var optiontag = $('<option/>').val(arrvr[j].Value).html(arrvr[j].Value);
 				$(selecttag).append(optiontag);
 			}
 			
 			$(tdtag).append(selecttag);
 		}
 		
-	} else if (recommref.ValidationRules.SelectionMode == 'FreeText'
-			   && recommref.ValidationRules.MaxValues != '1') {
+	} else if (recomm.ValidationRules.SelectionMode == 'FreeText'
+			   && recomm.ValidationRules.MaxValues != '1') {
 		
 		var divtag = $('<div/>');
 		
 		var checkboxidx = 0;
 		
-		for (j in item.mod.ItemSpecifics.NameValueList[i].Value) {
-			var value = item.mod.ItemSpecifics.NameValueList[i].Value[j];
-			
-			var existinrecomm = false;
-			for (k in recommref.ValueRecommendation) {
-				if (recommref.ValueRecommendation[k].Value == value) {
-					existinrecomm = true;
-					break;
+		if (specific != null) {
+			for (j in specific.Value) {
+				var value = specific.Value[j];
+
+				// skip if exists in ValueRecommendation
+				var existinrecomm = false;
+				for (k in recomm.ValueRecommendation) {
+					if (recomm.ValueRecommendation[k].Value == value) {
+						existinrecomm = true;
+						break;
+					}
 				}
-			}
-			if (existinrecomm == false) {
+				if (existinrecomm == true) continue;
 				
-				var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+checkboxidx;
+				// add custom value checkbox
+				var idforlabel = id+'.ItemSpecifics.NameValueList.'+i+'.Value.'+checkboxidx;
 				
 				var checkboxtag = $('<input/>')
 					.attr('id', idforlabel)
@@ -1986,9 +1988,10 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 				
 				var labeltag = $('<label/>')
 					.attr('for', idforlabel)
-					.html(value+'('+checkboxidx+')');
+					.html(value);
 				
 				var divtag2 = $('<div/>');
+				$(divtag2).append(checkboxidx);
 				$(divtag2).append(checkboxtag);
 				$(divtag2).append(labeltag);
 				$(divtag).append(divtag2);
@@ -1997,21 +2000,22 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 			}
 		}
 		
-		for (j in recommref.ValueRecommendation) {
+		for (j in recomm.ValueRecommendation) {
 			
-			var idforlabel = item.id+'.ItemSpecifics.NameValueList.'+i+'.Name.'+checkboxidx;
+			var idforlabel = id+'.ItemSpecifics.NameValueList.'+i+'.Value.'+checkboxidx;
 			
 			var checkboxtag = $('<input/>')
 				.attr('id', idforlabel)
 				.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value')
 				.attr('type', 'checkbox')
-				.val(recommref.ValueRecommendation[j].Value);
+				.val(recomm.ValueRecommendation[j].Value);
 			
 			var labeltag = $('<label/>')
 				.attr('for', idforlabel)
-				.html(recommref.ValueRecommendation[j].Value+'('+checkboxidx+')');
+				.html(recomm.ValueRecommendation[j].Value);
 			
 			var divtag2 = $('<div/>');
+			$(divtag2).append(checkboxidx);
 			$(divtag2).append(checkboxtag);
 			$(divtag2).append(labeltag);
 			$(divtag).append(divtag2);
@@ -2020,14 +2024,42 @@ function setItemSpecificsFormValue(item, i, recommref, specifics)
 		}
 		
 		$(tdtag).append(divtag);
-		//$(tdtag).append('<pre>'+$.dump(specifics[i])+'</pre>');
+		
+	} else if (recomm.ValidationRules.SelectionMode == 'SelectionOnly'
+			   && recomm.ValidationRules.MaxValues == '1') {
+		
+		var selecttag = $('<select/>')
+			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value')
+			.append($('<option/>').val('').html('(select from list)'));
+		
+		for (j in recomm.ValueRecommendation) {
+			var optiontag = $('<option/>')
+				.val(recomm.ValueRecommendation[j].Value)
+				.html(recomm.ValueRecommendation[j].Value);
+			$(selecttag).append(optiontag);
+		}
+		
+		$(tdtag).append(selecttag);
+		
 		
 	} else {
 		
-		$(tdtag).append('<pre>'+$.dump(recommref)+'</pre>');
+		$(tdtag).append('<pre>'+$.dump(recomm)+'</pre>');
 		
 	}
 	
-	return tdtag;
+	// Help URL
+	if (recomm != null) {
+		if (recomm.HelpURL) {
+			var atag = $('<a/>')
+				.attr('href', recomm.HelpURL)
+				.attr('target', '_blank')
+				.html('help');
+			$(tdtag).append(atag);
+		}
+	}
+	
+	$(trtag).append(tdtag);
+	
+	return trtag;
 }
-

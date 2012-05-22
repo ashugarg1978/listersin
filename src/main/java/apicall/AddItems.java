@@ -223,6 +223,7 @@ public class AddItems extends ApiCall {
 			}
 			
 			// todo: aware <SeverityCode>Warning</SeverityCode>
+			// todo: call GetItem immediately
 			if (item.get("Errors") != null) {
 				String errorclass = item.get("Errors").getClass().toString();
 				BasicDBList errors = new BasicDBList();

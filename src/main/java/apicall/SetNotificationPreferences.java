@@ -49,6 +49,7 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 			BasicDBObject ne = new BasicDBObject();
 			ne.put("EventType", event);
 			ne.put("EventEnable", "Enable");
+			//ne.put("EventEnable", "Disable");
 			ane.add(ne);
 		}
 		
