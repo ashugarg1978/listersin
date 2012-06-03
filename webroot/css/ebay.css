@@ -43,6 +43,10 @@ div#toolbar:hover {
   overflow: auto;
 }
 
+div#toolbar button {
+  width: 165px;
+}
+
 div#content {
   float:right;
   margin: 80px 20px 20px 20px;
@@ -55,14 +59,19 @@ div#content960 {
   background-color: #fff;
 }
 
+h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
 div#logo {
   float: left;
-  border: 1px solid #999999;
-  background-color: #dadada;
+  border: 1px solid #cccccc;
+  background-color: #fafafa;
   text-align: center;
-  font-weight: bold;
-  padding: 10px;
-  font-size: 16px;
+  padding: 6px 10px 5px 10px;
   width: 143px;
   margin-right: 20px;
   border-radius: 2px;
@@ -70,13 +79,15 @@ div#logo {
   -webkit-border-radius: 2px;
 }
 
-a#signout {
+div#headderrightbuttons {
   float: right;
+  text-align: right;
   margin-top: 5px;
 }
 
 div#bulkbuttons button,
-div#bulkbuttons input {
+div#bulkbuttons input,
+div.editbuttons button {
   float: left;
 }
 
@@ -151,6 +162,7 @@ tr#filter td {
   padding: 3px 10px 3px 10px;
 }
 
+/*
 table.items th {
   color: #20201e;
   font-size: 13px;
@@ -162,6 +174,7 @@ table.items th a {
   color: #20201e;
   font-weight: bold;
 }
+*/
 
 table.items tr.row1 > td {
   /*white-space: nowrap;*/
@@ -264,8 +277,9 @@ table.detail td {
   padding: 2px;
 }
 
-table.detail td:first-child {
-  text-align: right;
+table.detail th {
+  text-align: left;
+  font-weight: normal;
   white-space: nowrap;
   vertical-align: top;
   color: #666;
@@ -355,8 +369,7 @@ img.PictureDetails_PictureURL {
 }
 
 ul.accounts {
-  margin: 0px;
-  margin-bottom: 0px;
+  margin: 20px 0px 0px 0px;
   padding: 0px;
   list-style-type: none;
 }
@@ -480,6 +493,10 @@ div.tabContainer div.tab {
   display: none;
 }
 
+div.tab {
+  margin-bottom: 20px;
+}
+
 div.tabContainer div.current {
   display: block;
 }
@@ -544,8 +561,6 @@ iframe[name=posttarget] {
 
 input.aslabel {
   border: 0px none;
-  font-weight: bold;
-  text-align: right;
 }
 
 table.checkboxes td,
@@ -686,6 +701,12 @@ div#signupbox {
   padding: 20px;
 }
 
+div#help {
+  display: none;
+  padding: 20px;
+  border: 1px solid #eaeaea;
+}
+
 div#settings {
   display: none;
   padding: 20px;
@@ -718,4 +739,46 @@ div.ShipToLocation div {
 
 a.addsso {
   clear: both;
+}
+
+div.tabtitle {
+  font-size: 1.2em;
+  background-color: #eeeeee;
+  padding: 7px 10px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+td.removeispc {
+  vertical-align: top;
+  line-height: 29px;
+}
+
+td.tab_subtitle {
+  font-weight: bold;
+}
+
+div#help li {
+  margin: 10px;
+}
+
+div#risknotice {
+  color: red;
+  font-weight: bold;
+  border: 1px solid red;
+  padding: 3px;
+  font-size: 0.9em;
+  background-color: yellow;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+label.unchecked {
+  color: #cccccc;
+  text-decoration: line-through;
+}
+
+label:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }

@@ -164,8 +164,18 @@ public class EndItems extends ApiCall {
 		
 		log("Ack: "+responsedbo.get("Ack").toString());
 		
-		// todo: case for one item (not BasicDBList)
-		BasicDBList dbl = (BasicDBList) responsedbo.get("EndItemResponseContainer");
+		String classname = responsedbo.get("EndItemResponseContainer").getClass().toString();
+		
+		BasicDBList dbl = new BasicDBList();
+		if (classname.equals("class com.mongodb.BasicDBObject")) {
+			dbl.add((BasicDBObject) responsedbo.get("EndItemResponseContainer"));
+		} else if (classname.equals("class com.mongodb.BasicDBList")) {
+			dbl = (BasicDBList) responsedbo.get("EndItemResponseContainer");
+		} else {
+			log("EndItem response Class Error:"+classname);
+			return "";
+		}
+		
 		for (Object oitem : dbl) {
 			
 			BasicDBObject item = (BasicDBObject) oitem;

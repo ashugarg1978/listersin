@@ -26,6 +26,6 @@ $BASEDIR/shells/ebaytoold start
 
 # delete old war files
 warfiles=`ls /usr/local/apache-tomcat/webapps/$BASENAME*war | wc -l`
-wardeletecount=`expr $warfiles - 2`
+wardeletecount=`expr $warfiles - 1`
 wardeletefiles=`ls /usr/local/apache-tomcat/webapps/$BASENAME*war | head -n $wardeletecount`
 rm -rf $wardeletefiles

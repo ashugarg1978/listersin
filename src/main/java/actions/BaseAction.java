@@ -3,11 +3,17 @@ package ebaytool.actions;
 import com.mongodb.*;
 import com.opensymphony.xwork2.ActionSupport;
 import java.io.*;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.*;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.sf.json.xml.XMLSerializer;
+
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ParameterAware;
 import org.apache.struts2.interceptor.ServletRequestAware;
@@ -29,10 +35,12 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	
 	protected DB db;
 	protected BasicDBObject user;
+	protected BasicDBObject configdbo;
+	
+	protected int daemonport;
 	protected String basedir;
 	protected String version;
-	protected BasicDBObject configdbo;
-	protected int daemonport;
+	protected String basetimestamp;
 	
 	protected Logger log = Logger.getLogger(this.getClass());
 	
@@ -52,7 +60,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			basedir = basedir.replaceAll("##.+$", "");
 			version = version.replaceAll("^.+##", "");
 			
-			log.debug("basedir: "+basedir+" "+version);
+			log.debug("basedir:"+basedir+" version:"+version);
 			
 			configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 			daemonport = Integer.parseInt(configdbo.getString("daemonport"));
@@ -60,11 +68,18 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			MongoConnect mc = MongoConnect.getInstance(configdbo.getString("database"));
 			db = mc.getDB();
 			
+			// todo: exclude "canceled" user?
 			if (session.get("email") != null) {
 				BasicDBObject query = new BasicDBObject();
 				query.put("email", session.get("email").toString());
 				user = (BasicDBObject) db.getCollection("users").findOne(query);
 			}
+			
+			// timestamp
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Date now = new Date();
+			basetimestamp = sdf.format(now);
 			
 		} catch (Exception e) {
 			

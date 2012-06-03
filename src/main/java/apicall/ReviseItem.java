@@ -57,6 +57,9 @@ public class ReviseItem extends ApiCall {
 		/* re-query */
 		query.put("status", taskid+"_processing");
 		DBCursor cur = coll.find(query);
+		Integer count = cur.count();
+		Integer currentnum = 0;
+		updatemessage(email, "Revising "+count+" items to eBay...");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
@@ -65,6 +68,7 @@ public class ReviseItem extends ApiCall {
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
+			mod.put("ItemID", org.get("ItemID").toString());
 			
 			userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
 			site   = mod.get("Site").toString();
@@ -74,12 +78,35 @@ public class ReviseItem extends ApiCall {
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("RequesterCredentials",
 						  new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
-			reqdbo.append("MessageID", item.get("_id").toString());
-			reqdbo.append("Item", new BasicDBObject("ItemID", org.get("ItemID").toString()));
+			reqdbo.append("MessageID", userdbo.getString("_id")+" "+item.get("_id").toString());
+			reqdbo.append("Item", mod);
 			
-			String requestxml = convertDBObject2XML(reqdbo, "ReviseItem");
-			pool18.submit(new ApiCallTask(getSiteID(site), requestxml, "ReviseItem"));
+			// copy from AddItems
+			String jss = reqdbo.toString();
+					
+			JSONObject jso = JSONObject.fromObject(jss);
+			JSONObject tmpi = ((JSONObject) jso).getJSONObject("Item");
+			expandElements(tmpi);
+			
+			XMLSerializer xmls = new XMLSerializer();
+			xmls.setObjectName("ReviseItemRequest");
+			xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
+			xmls.setTypeHintsEnabled(false);
+					
+			String requestxml = xmls.write(jso);
+					
+			//String requestxml = convertDBObject2XML(reqdbo, "ReviseItem");
+			writelog("ReviseItem/req.xml", requestxml);
+			
+			updatemessage(email, "Revising "+(currentnum+1)+" of "+count+" items to eBay...");
+			currentnum++;
+					
+			Future<String> future = pool18.submit
+				(new ApiCallTask(getSiteID(site), requestxml, "ReviseItem"));
+			future.get(); // wait
 		}
+
+		updatemessage(email, "");
 		
 		return "";
 	}
@@ -87,14 +114,17 @@ public class ReviseItem extends ApiCall {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		writelog("ReviseItem/res.xml", responsexml);
 		
 		// todo: almost same as AddItems callback function.
-		String id        = responsedbo.getString("CorrelationID");
+		
+		String[] messages = responsedbo.getString("CorrelationID").split(" ");
+		String itemcollectionname_id = messages[0];
+		String id = messages[1];
 		String itemid    = responsedbo.getString("ItemID");
 		String starttime = responsedbo.getString("StartTime");
 		String endtime   = responsedbo.getString("EndTime");
 		
-		writelog("ReviseItem/res."+itemid+".xml", responsexml);
 		
 		log("Ack:"+responsedbo.get("Ack").toString());
 		
@@ -118,7 +148,7 @@ public class ReviseItem extends ApiCall {
 			} else {
 				log("Class Error:"+errorclass);
 			}
-			upditem.put("ext.errors", errors);
+			upditem.put("errors", errors);
 		}
 		
 		BasicDBObject query = new BasicDBObject();
@@ -127,7 +157,7 @@ public class ReviseItem extends ApiCall {
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", upditem);
 		
-		DBCollection coll = db.getCollection("items");
+		DBCollection coll = db.getCollection("items."+itemcollectionname_id);
 		WriteResult result = coll.update(query, update);
 		
 		return "";
@@ -149,5 +179,31 @@ public class ReviseItem extends ApiCall {
 		}
 		
 		return siteid;
+	}
+
+	// todo: not copy from AddItems
+	private void expandElements(JSONObject item) throws Exception {
+		
+		for (Object key : item.keySet()) {
+			
+			String classname = item.get(key).getClass().toString();
+			
+			if (classname.equals("class net.sf.json.JSONObject")) {
+				
+				expandElements((JSONObject) item.get(key));
+				
+			} else if (classname.equals("class net.sf.json.JSONArray")) {
+				
+				((JSONArray) item.get(key)).setExpandElements(true);
+				
+				for (Object elm : (JSONArray) item.get(key)) {
+					if (elm.getClass().toString().equals("class net.sf.json.JSONObject")) {
+						expandElements((JSONObject) elm);
+					}
+				}
+			}
+		}
+		
+		return;
 	}
 }

@@ -68,6 +68,7 @@ public class RelistItem extends ApiCall {
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
+			mod.put("ItemID", org.get("ItemID").toString());
 			
 			userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
 			site   = mod.get("Site").toString();
@@ -78,9 +79,24 @@ public class RelistItem extends ApiCall {
 			reqdbo.append("RequesterCredentials",
 						  new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
 			reqdbo.append("MessageID", userdbo.getString("_id")+" "+item.get("_id").toString());
-			reqdbo.append("Item", new BasicDBObject("ItemID", org.get("ItemID").toString()));
+			reqdbo.append("Item", mod);
 			
-			String requestxml = convertDBObject2XML(reqdbo, "RelistItem");
+			// copy from AddItems
+			String jss = reqdbo.toString();
+					
+			JSONObject jso = JSONObject.fromObject(jss);
+			JSONObject tmpi = ((JSONObject) jso).getJSONObject("Item");
+			expandElements(tmpi);
+			
+			XMLSerializer xmls = new XMLSerializer();
+			xmls.setObjectName("RelistItemRequest");
+			xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
+			xmls.setTypeHintsEnabled(false);
+					
+			String requestxml = xmls.write(jso);
+					
+			//String requestxml = convertDBObject2XML(reqdbo, "RelistItem");
+			writelog("RelistItem/req.xml", requestxml);
 			
 			updatemessage(email, "Relisting "+(currentnum+1)+" of "+count+" items to eBay...");
 			currentnum++;
@@ -163,5 +179,31 @@ public class RelistItem extends ApiCall {
 		}
 		
 		return siteid;
+	}
+
+	// todo: not copy from AddItems
+	private void expandElements(JSONObject item) throws Exception {
+		
+		for (Object key : item.keySet()) {
+			
+			String classname = item.get(key).getClass().toString();
+			
+			if (classname.equals("class net.sf.json.JSONObject")) {
+				
+				expandElements((JSONObject) item.get(key));
+				
+			} else if (classname.equals("class net.sf.json.JSONArray")) {
+				
+				((JSONArray) item.get(key)).setExpandElements(true);
+				
+				for (Object elm : (JSONArray) item.get(key)) {
+					if (elm.getClass().toString().equals("class net.sf.json.JSONObject")) {
+						expandElements((JSONObject) elm);
+					}
+				}
+			}
+		}
+		
+		return;
 	}
 }

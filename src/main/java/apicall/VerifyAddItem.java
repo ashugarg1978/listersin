@@ -45,7 +45,7 @@ public class VerifyAddItem extends ApiCall {
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
 		query.put("deleted",    new BasicDBObject("$exists", 0));
-		query.put("org.ItemID", new BasicDBObject("$exists", 0));
+		//query.put("org.ItemID", new BasicDBObject("$exists", 0));
 		query.put("status",     taskid);
 		
 		BasicDBObject update = new BasicDBObject();
@@ -67,7 +67,7 @@ public class VerifyAddItem extends ApiCall {
 			DBObject mod = (DBObject) item.get("mod");
 			DBObject org = (DBObject) item.get("org");
 			
-			String userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
+			String userid = item.get("UserID").toString();
 			String site   = mod.get("Site").toString();
 			
 			String uuid = uuidprefix + item.get("_id").toString();
@@ -110,6 +110,8 @@ public class VerifyAddItem extends ApiCall {
 	}
 	
 	public String callback(String responsexml) throws Exception {
+		
+		writelog("VerifyAddItem/res.xml", responsexml);
 		
 		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		log("Ack:"+responsedbo.get("Ack").toString());

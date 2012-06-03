@@ -4,9 +4,10 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ListersIn - Yet another eBay listing tool.</title>
+<title>ListersIn - eBay listing software</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
+<link rel="shortcut icon" href="/img/favicon.png">
 <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
@@ -22,7 +23,9 @@
   <div id="message"></div>
   
   <div id="header">
-	<div id="logo"><a href="/">ListersIn</a></div>
+	<div id="logo">
+	  <a href="/"><img src="/img/logo.png" /></a>
+	</div>
 	
 	<div id="headerupper">
 	  <div id="headerupper_right">
@@ -51,7 +54,10 @@
 	  
 	  <button id="settingsbutton"><s:text name="settings"/></button>
 	  
-	  <a id="signout" href="/page/logout"><s:text name="signout"/></a>
+	  <div id="headderrightbuttons">
+		<a href="#" id="showhelp">Help</a>
+		<a id="signout" href="/page/logout"><s:text name="signout"/></a>
+	  </div>
 	  
 	  <div style="clear:both;"></div>
 	</div>
@@ -60,9 +66,11 @@
 
 <div id="toolbar">
   
+  <button class="newitem"><s:text name="addnewitem"/></button>
+  
   <ul class="accounts">
 	<li class="allitems"><s:text name="allitems"/></li>
-	<li>
+	<li class="itemstatuses">
 	  <ul class="accountaction">
 		<li class="scheduled"><img src="/icon/02/10/37.png"><s:text name="scheduled"/></li>
 		<li class="active"   ><img src="/icon/04/10/02.png"><s:text name="active"   /></li>
@@ -75,18 +83,22 @@
 	</li>
   </ul>
   
-  <button id="addaccount"><s:text name="addnewaccount"/></button>
-
-  <br/><br/>
-  <a href="#" id="toggledebug">DEBUG</a>
+  <div id="risknotice">
+	** NOTICE **<br/>
+	This app is BETA.<br/>
+	There may be problems.<br/>
+	Please be careful.<br/>
+  </div>
+  
+  <a href="#" id="toggledebug">DEBUG</a><br/>
   <div id="log"></div>
   
-  <input type="hidden" class="filter" name="offset" value="0"/>
-  <input type="hidden" class="filter" name="limit" value="20"/>
-  <input type="hidden" class="filter" name="selling" value="active"/>
-  <input type="hidden" class="filter" name="sort" value="ListingDetails_EndTime"/>
-  <input type="hidden" class="filter" name="allpages" value=""/>
-  <input type="hidden" class="filter" name="UserID"/>
+  <input type="hidden" class="filter" name="offset"   value="0" />
+  <input type="hidden" class="filter" name="limit"    value="20" />
+  <input type="hidden" class="filter" name="selling"  value="active" />
+  <input type="hidden" class="filter" name="sort"     value="ListingDetails_EndTime" />
+  <input type="hidden" class="filter" name="allpages" value="" />
+  <input type="hidden" class="filter" name="UserID" />
   
   <iframe name="posttarget" src="/blank.html"></iframe>
   
@@ -123,7 +135,6 @@
 		</td>
 	  </tr>
 	</tbody>
-	
 	<tbody id="rowloading">
 	  <tr>
 		<td colspan="8" align="center">
@@ -131,14 +142,25 @@
 		</td>
 	  </tr>
 	</tbody>
-	
   </table>
   
   <div id="settings">
 	<table class="detail">
 	  <tbody>
 		<tr>
-		  <td>Language</td>
+		  <th>Email</th>
+		  <td>
+			
+		  </td>
+		</tr>
+		<tr>
+		  <th>Status</th>
+		  <td>
+			
+		  </td>
+		</tr>
+		<tr>
+		  <th>Language</th>
 		  <td>
 			<select name="Language">
 			  <option value="English">English</option>
@@ -146,10 +168,27 @@
 		  </td>
 		</tr>
 		<tr>
-		  <td>TimeZone</td>
+		  <th>Time zone</th>
 		  <td>
 			<select name="TimeZone">
 			</select>
+		  </td>
+		</tr>
+		<tr>
+		  <th>Cancel account</th>
+		  <td>
+			<a href="/page/cancelaccount">Cancel account</a>
+		  </td>
+		</tr>
+		<tr>
+		  <th>eBay accounts</th>
+		  <td>
+			<table id="setting_ebay_accounts">
+			</table>
+			
+			<button class="addebayaccount">
+			  <s:text name="addebayaccount"/>
+			</button>
 		  </td>
 		</tr>
 	  </tbody>
@@ -161,31 +200,50 @@
 	<table class="detail">
 	  <tbody>
 		<tr>
-		  <td>
-			Items
-		  </td>
+		  <th>Items</th>
 		  <td>
 			<button id="import">Import items from eBay</button>
 		  </td>
 		</tr>
 		<tr>
-		  <td>Token</td>
+		  <th>Token</th>
 		  <td>
 			<button>Update token</button>
 		  </td>
 		</tr>
 		<tr>
+		  <th>Account</th>
 		  <td>
-			Account
-		  </td>
-		  <td>
-			<button>Delete from ListersIn</button>
+			<button id="removeaccount">Delete from ListersIn</button>
 		  </td>
 		</tr>
 	  </tbody>
 	</table>	  
   </div>
-  
+
+  <div id="help">
+	
+	How to add your eBay account to ListersIn.<br/>
+	<ol>
+	  <li>
+		Click "<s:text name="addebayaccount"/>" button.
+		<button class="addebayaccount">
+		  <s:text name="addebayaccount"/>
+		</button>
+	  </li>
+	  <li>
+		You will be redirected to eBay sign in page.<br/>
+		Please sign in to eBay with the account which you want to add to ListersIn.<br/>
+	  </li>
+	  <li>
+		Click "I agree" button.<br/>
+	  </li>
+	  <li>
+		You will be back to ListersIn site, and the eBay account will be shown at left side.
+	  </li>
+	</ol>
+	
+  </div>
   
   <div id="debug"></div>
   
@@ -198,44 +256,70 @@
   <div class="detail">
 	
 	<ul class="tabNav">
-	  <li class="current"><s:text name="CategoryAndTitle"/></li>
+	  <li class="current"><s:text name="Setting"/></li>
+	  <li><s:text name="CategoryAndTitle"/></li>
 	  <li><s:text name="Pictures"/></li>
 	  <li><s:text name="Description"/></li>
 	  <li><s:text name="Price"/></li>
 	  <li><s:text name="Payment"/></li>
 	  <li><s:text name="Shipping"/></li>
 	  <li><s:text name="Other"/></li>
-	  <li><s:text name="Setting"/></li>
+	  <li><s:text name="All"/></li>
 	</ul>
 	
 	<div class="editbuttons">
-	  <button class="edit btnleft"><s:text name="edit"/></button
-	  ><button class="copy btncenter"><s:text name="copy"/></button
-	  ><button class="delete btnright"><s:text name="delete"/></button>
-	  
-	  <button class="add btnleft"><s:text name="add"/></button
-	  ><button class="relist btncenter"><s:text name="relist"/></button
-	  ><button class="revise btncenter"><s:text name="revise"/></button
-	  ><button class="end btnright"><s:text name="end"/></button>
-	  
-	  <button class="save btnleft" style="display:none;"><s:text name="save"/></button
-	  ><button class="cancel btncenter" style="display:none;"><s:text name="cancel"/>
-		
+	  <button class="edit"><s:text name="edit"/></button>
+	  <button class="save btnleft" style="display:none;"><s:text name="save"/></button>
+	  <button class="cancel btnright" style="display:none;"><s:text name="cancel"/>
 	</div>
 	
 	<div class="tabContainer">
-
+	  
 	  <div class="tab current">
+		<div class="tabtitle">
+		  Settings for this item
+		</div>
 		<table class="detail">
 		  <tbody>
 			<tr>
-			  <td><s:text name="Category"/></td>
+			  <th><s:text name="UserID"/></th>
+			  <td><select name="UserID"></select></td>
+			</tr>
+			<tr>
+			  <th><s:text name="Site"/></th>
+			  <td><select name="mod.Site"></select></td>
+			</tr>
+			<tr>
+			  <th><s:text name="Currency"/></th>
+			  <td><select name="mod.Currency"></select></td>
+			</tr>
+			<tr>
+			  <th><s:text name="AutoRelist"/></th>
+			  <td>
+				<select name="setting.autorelist">
+				  <option value="off">OFF</option>
+				  <option value="on">ON</option>
+				</select>
+			  </td>
+			</tr>
+		  </tbody>
+		</table>
+	  </div><!-- tab -->
+	  
+	  <div class="tab">
+		<div class="tabtitle">
+		  Categories where your listing will appear
+		</div>
+		<table class="detail">
+		  <tbody>
+			<tr>
+			  <th><s:text name="Category"/></th>
 			  <td>
 				<select class="category" name="mod.PrimaryCategory.CategoryID"></select>
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="ProductDetails"/></td>
+			  <th><s:text name="ProductDetails"/></th>
 			  <td>
 				
 				<div class="productsearchform">
@@ -258,20 +342,29 @@
 				  <br/>
 				  
 				  <input type="checkbox" value="true"
-						 name="mod.ProductListingDetails.IncludePrefilledItemInformation"/>
-				  Include the following product information in your listing
+						 name="mod.ProductListingDetails.IncludePrefilledItemInformation"
+						   id="_id.ProductListingDetails.IncludePrefilledItemInformation" />
+				  <label  for="_id.ProductListingDetails.IncludePrefilledItemInformation">
+					Include the following product information in your listing
+				  </label>
 				  
 				  <br/>
 				  
 				  <input type="checkbox" value="true"
-						 name="mod.ProductListingDetails.IncludeStockPhotoURL"/>
-				  Include Stock Photo
+						 name="mod.ProductListingDetails.IncludeStockPhotoURL"
+						   id="_id.ProductListingDetails.IncludeStockPhotoURL" />
+				  <label  for="_id.ProductListingDetails.IncludeStockPhotoURL">
+					Include Stock Photo
+				  </label>
 				  
 				  <br/>
 				  
 				  <input type="checkbox" value="true"
-						 name="mod.ProductListingDetails.UseStockPhotoURLAsGallery"/>
-				  Use Stock Photo As Gallery
+						 name="mod.ProductListingDetails.UseStockPhotoURLAsGallery"
+						   id="_id.ProductListingDetails.UseStockPhotoURLAsGallery" />
+				  <label  for="_id.ProductListingDetails.UseStockPhotoURLAsGallery">
+					Use Stock Photo As Gallery
+				  </label>
 				  
 				  <br/>
 				  
@@ -289,43 +382,53 @@
 				</div>
 			  </td>
 			</tr>
+		  </tbody>
+		</table>
+		
+		<div class="tabtitle">
+		  Help buyers find your item with a great title
+		</div>
+		<table class="detail">
+		  <tbody>
 			<!--
 				todo: "List multiple variations of this item in one listing"
 			  -->
 			<tr>
-			  <td><s:text name="title"/></td>
+			  <th><s:text name="title"/></th>
 			  <td>
 				<input name="mod.Title" type="text" size="80"/><br/>
-				<input type="checkbox" name="mod.ListingEnhancement" value="BoldTitle"/>
-				Attract buyers' attention by making the title of your listing appear in Bold
+				<input type="checkbox" value="BoldTitle"
+					   name="mod.ListingEnhancement"
+					     id="_id.ListingEnhancement" />
+				<label  for="_id.ListingEnhancement">
+				  Attract buyers' attention by making the title of your listing appear in Bold
+				</label>
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="subtitle"/></td>
+			  <th><s:text name="subtitle"/></th>
 			  <td><input name="mod.SubTitle" type="text" size="60"/></td>
 			</tr>
 			<tr>
-			  <td><s:text name="Condition"/></td>
+			  <th><s:text name="Condition"/></th>
 			  <td><select name="mod.ConditionID"></select></td>
 			</tr>
 			<tr>
-			  <td><s:text name="ItemSpecifics"/></td>
+			  <th><s:text name="ItemSpecifics"/></th>
 			  <td class="ItemSpecifics">
-				<form method="post" id="APIForm" name="APIForm" class="apiform"
-					  onsubmit="apiformsubmit();return false;">
-				  
-				  <div class="ProductSellingPages">
-				  </div>
-				</form>
 				<table class="ItemSpecifics">
 				</table>
+				<a href="#" class="addis">Add Item Specifics</a>
 			  </td>
 			</tr>
 		  </tbody>
 		</table>
 	  </div>
-
+	  
 	  <div class="tab">
+		<div class="tabtitle">
+		  Bring your item to life with pictures
+		</div>
 		<div class="pictures">
 		  
 		  <form method="post" action="/file/upload" target="posttarget"
@@ -364,9 +467,7 @@
 		<table class="detail">
 		  <tbody>
 			<tr>
-			  <td>
-				GalleryType
-			  </td>
+			  <th>GalleryType</th>
 			  <td>
 				<select name="mod.PictureDetails.GalleryType">
 				  <option value=""></option>
@@ -380,6 +481,9 @@
 	  </div>
 	  
 	  <div class="tab">
+		<div class="tabtitle">
+		  Describe the item you're selling
+		</div>
 		<div class="description">
 		  <textarea name="mod.Description" cols="100" rows="10"></textarea>
 		</div>
@@ -392,7 +496,7 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="SelectTheme"/></td>
+			  <th><s:text name="SelectTheme"/></th>
 			  <td>
 				<select name="ListingDesigner.GroupID">
 				  <option value=""></option>
@@ -400,7 +504,7 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="SelectDesign"/></td>
+			  <th><s:text name="SelectDesign"/></th>
 			  <td>
 				<select name="mod.ListingDesigner.ThemeID">
 				  <option value=""></option>
@@ -408,7 +512,7 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="HitCounter"/></td>
+			  <th><s:text name="HitCounter"/></th>
 			  <td>
 				<select name="mod.HitCounter">
 				  <option value=""></option>
@@ -428,46 +532,13 @@
 	  
 	  
 	  <div class="tab">
+		<div class="tabtitle">
+		  Choose how you'd like to sell your item
+		</div>
 		<table class="detail">
 		  <tbody>
 			<tr>
-			  <td><s:text name="StartPrice"/></td>
-			  <td>
-				<input name="mod.StartPrice.@currencyID" type="text" size="3">
-				<input name="mod.StartPrice.#text" type="text" size="10">
-			  </td>
-			</tr>
-			<tr>
-			  <td><s:text name="BestOfferAutoAcceptPrice"/></td>
-			  <td>
-				<input name="mod.ListingDetails.BestOfferAutoAcceptPrice.@currencyID"
-					   type="text" size="3">
-				<input name="mod.ListingDetails.BestOfferAutoAcceptPrice.#text"
-					   type="text" size="10">
-			  </td>
-			</tr>
-			<tr>
-			  <td><s:text name="MinimumBestOfferPrice"/></td>
-			  <td>
-				<input name="mod.ListingDetails.MinimumBestOfferPrice.@currencyID"
-					   type="text" size="3">
-				<input name="mod.ListingDetails.MinimumBestOfferPrice.#text"
-					   type="text" size="10">
-			  </td>
-			</tr>
-			<tr>
-			  <td><s:text name="Quantity"/></td>
-			  <td><input name="mod.Quantity" type="text" size="5"></td>
-			</tr>
-			<tr>
-			  <td><s:text name="LotSize"/></td>
-			  <td>
-				<!-- todo: disable if CategoryArray.Category.LSD is true. -->
-				<input name="mod.LotSize" type="text" size="5">
-			  </td>
-			</tr>
-			<tr>
-			  <td><s:text name="ListingType"/></td>
+			  <th><s:text name="ListingType"/></th>
 			  <td>
 				<select name="mod.ListingType">
 				  <option value="Chinese">Online Auction</option>  
@@ -477,32 +548,107 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="ListingDuration"/></td>
+			  <th><s:text name="StartPrice"/></th>
+			  <td>
+				<input name="mod.StartPrice.@currencyID"
+					   type="text" size="3" class="aslabel">
+				<input name="mod.StartPrice.#text" type="text" size="10">
+			  </td>
+			</tr>
+			<tr>
+			  <th><s:text name="BestOfferAutoAcceptPrice"/></th>
+			  <td>
+				<input name="mod.ListingDetails.BestOfferAutoAcceptPrice.@currencyID"
+					   type="text" size="3" class="aslabel">
+				<input name="mod.ListingDetails.BestOfferAutoAcceptPrice.#text"
+					   type="text" size="10">
+			  </td>
+			</tr>
+			<tr>
+			  <th><s:text name="MinimumBestOfferPrice"/></th>
+			  <td>
+				<input name="mod.ListingDetails.MinimumBestOfferPrice.@currencyID"
+					   type="text" size="3" class="aslabel">
+				<input name="mod.ListingDetails.MinimumBestOfferPrice.#text"
+					   type="text" size="10">
+			  </td>
+			</tr>
+			<tr>
+			  <th><s:text name="Quantity"/></th>
+			  <td><input name="mod.Quantity" type="text" size="5"></td>
+			</tr>
+			<tr>
+			  <th><s:text name="LotSize"/></th>
+			  <td>
+				<!-- todo: disable if CategoryArray.Category.LSD is true. -->
+				<input name="mod.LotSize" type="text" size="5">
+			  </td>
+			</tr>
+			<tr>
+			  <th><s:text name="ListingDuration"/></th>
 			  <td>
 				<select name="mod.ListingDuration"></select>
 				<br/>
-				- Start listing immediately<br/>
-				- Schedule start time ($0.10)
+				<input type="radio" value="0"
+					   name="ScheduleTime.radio"
+					     id="_id.ScheduleTime.radio.0" />
+				<label  for="_id.ScheduleTime.radio.0">
+				  Start listing immediately
+				</label>
+				<br/>
+				<input type="radio" value="1"
+					   name="ScheduleTime.radio"
+					     id="_id.ScheduleTime.radio.1" />
+				<label  for="_id.ScheduleTime.radio.1">
+				  Schedule start time ($0.10)
+				</label>
+				
+				<select name="ScheduleTime.date">
+				  <option value="">-</option>
+				</select>
+				<select name="ScheduleTime.hour">
+				  <option value="12">12</option>
+				  <s:iterator begin="1" end="11">
+					<option value="<s:property />"><s:property /></option>
+				  </s:iterator>
+				</select>
+				<select name="ScheduleTime.minute">
+				  <s:iterator begin="00" end="59">
+					<option value="<s:property />"><s:property /></option>
+				  </s:iterator>
+				</select>
+				<select name="ScheduleTime.ampm">
+				  <option value="AM">AM</option>
+				  <option value="PM">PM</option>
+				</select>
+				PDT
+				
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="PrivateListing"/></td>
+			  <th><s:text name="PrivateListing"/></th>
 			  <td>
-				<input type="checkbox" name="mod.PrivateListing" value="true"/>
-				Allow buyers to remain anonymous to other eBay users
+				<input type="checkbox" value="true"
+					   name="mod.PrivateListing"
+					     id="_id.PrivateListing" />
+				<label  for="_id.PrivateListing">
+				  Allow buyers to remain anonymous to other eBay users
+				</label>
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="BuyItNowPrice"/></td>
+			  <th><s:text name="BuyItNowPrice"/></th>
 			  <td>
-				<input name="mod.BuyItNowPrice.@currencyID" type="text" size="3">
+				<input name="mod.BuyItNowPrice.@currencyID"
+					   type="text" size="3" class="aslabel">
 				<input name="mod.BuyItNowPrice.#text" type="text" size="10">
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="BuyerGuaranteePrice"/></td>
+			  <th><s:text name="BuyerGuaranteePrice"/></th>
 			  <td>
-				<input name="mod.BuyerGuaranteePrice.@currencyID" type="text" size="3">
+				<input name="mod.BuyerGuaranteePrice.@currencyID"
+					   type="text" size="3" class="aslabel">
 				<input name="mod.BuyerGuaranteePrice.#text" type="text" size="10">
 			  </td>
 			</tr>
@@ -511,10 +657,13 @@
 	  </div>
 
 	  <div class="tab">
+		<div class="tabtitle">
+		  Decide how you'd like to be paid
+		</div>
 		<table class="detail">
 		  <tbody>
 			<tr>
-			  <td><s:text name="PaymentMethods"/></td>
+			  <th><s:text name="PaymentMethods"/></th>
 			  <td class="paymentmethod">
 			  </td>
 			</tr>
@@ -524,11 +673,19 @@
 
 
 	  <div class="tab">
+		<div class="tabtitle">
+		  Give buyers shipping details
+		</div>
 		<div class="shipping">
 		  <table class="detail">
 			<tbody>
 			  <tr>
-				<td><s:text name="Shippingtype"/></td>
+				<td colspan="2" class="tab_subtitle">
+				  U.S. shipping
+				</td>
+			  </tr>
+			  <tr>
+				<th><s:text name="Shippingtype"/></th>
 				<td>
 				  <select name="ShippingDetails.ShippingType.domestic">
 					<option value="Flat">Flat: same cost to all buyers</option>
@@ -541,15 +698,19 @@
 			</tbody>
 			<tbody class="shippingmainrows">
 			  <tr class="packagetype">
-				<td><s:text name="Packagetype"/></td>
+				<th><s:text name="Packagetype"/></th>
 				<td>
 				  <select name="mod.<s:text name="_SDCSR"/>.ShippingPackage"></select>
-				  <input name="mod.<s:text name="_SDCSR"/>.ShippingIrregular" type="checkbox">
-				  Irregular package
+				  <input type="checkbox"
+						 name="mod.<s:text name="_SDCSR"/>.ShippingIrregular"
+						   id="_id.<s:text name="_SDCSR"/>.ShippingIrregular" />
+				  <label  for="_id.<s:text name="_SDCSR"/>.ShippingIrregular">
+					Irregular package
+				  </label>
 				</td>
 			  </tr>
 			  <tr class="dimensions">
-				<td><s:text name="Dimensions"/></td>
+				<th><s:text name="Dimensions"/></th>
 				<td class="dimensions">
 				  <input  name="mod.<s:text name="_SDCSR"/>.PackageLength.#text"
 						  type="text" size="3">
@@ -583,7 +744,7 @@
 				</td>
 			  </tr>
 			  <tr class="weight">
-				<td><s:text name="Weight"/></td>
+				<th><s:text name="Weight"/></th>
 				<td class="weight">
 				  <input  name="mod.<s:text name="_SDCSR"/>.WeightMajor.#text"
 						  type="text" size="3">
@@ -607,7 +768,7 @@
 				</td>
 			  </tr>
 			  <tr class="services">
-				<td><s:text name="Services"/></td>
+				<th><s:text name="Services"/></th>
 				<td>
 				  <div class="ShippingService0">
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
@@ -618,36 +779,43 @@
 					
 					<s:text name="Cost"/>
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
-						   type="text" size="5">
+						   type="text" size="3" class="aslabel">
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
 						   type="text" size="5">
 					
-					<input name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
-						   value="true" type="checkbox">Free shipping
-					
+					<input value="true" type="checkbox"
+						   name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
+						     id="_id.<s:text name="_SDSSO"/>.0.FreeShipping" />
+					<label  for="_id.<s:text name="_SDSSO"/>.0.FreeShipping">
+					  Free shipping
+					</label>
 					<a href="#" class="removesso">Remove service</a>
 				  </div>
 				  <a href="#" class="addsso">Offer additional service</a>
 				</td>
 			  </tr>
 			  <tr class="handlingtime">
-				<td><s:text name="Handlingtime"/></td>
+				<th><s:text name="Handlingtime"/></th>
 				<td><select name="mod.DispatchTimeMax"></select></td>
 			  </tr>
 			  <tr>
-				<td><s:text name="Options"/></td>
+				<th><s:text name="Options"/></th>
 				<td>
-				  <input type="checkbox" name="mod.GetItFast" value="true"/>
-				  GetItFast
+				  <input type="checkbox" value="true"
+						 name="mod.GetItFast"
+						   id="_id.GetItFast" />
+				  <label  for="_id.GetItFast">
+					GetItFast
+				  </label>
 				</td>
 			  </tr>
 			  <tr>
-				<td colspan="2" style="text-align:left;">
+				<td colspan="2" class="tab_subtitle">
 				  International shipping
 				</td>
 			  </tr>
 			  <tr>
-				<td><s:text name="Shippingtype"/></td>
+				<th><s:text name="Shippingtype"/></th>
 				<td>
 				  <select name="ShippingDetails.ShippingType.international">
 					<option value="Flat">Flat: same cost to all buyers</option>
@@ -659,7 +827,7 @@
 			</tbody>
 			<tbody class="internationalshippingmainrows">
 			  <tr>
-				<td><s:text name="Services"/></td>
+				<th><s:text name="Services"/></th>
 				<td>
 				  <div class="ShippingService0">
 					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
@@ -670,7 +838,7 @@
 					
 					<s:text name="Cost"/>
 					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
-						   type="text" size="5">
+						   type="text" size="3" class="aslabel">
 					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
 						   type="text" size="5">
 					
@@ -687,13 +855,22 @@
 			</tbody>
 			<tbody>
 			  <tr>
-				<td><s:text name="PostalCode"/></td>
+				<td colspan="2" class="tab_subtitle">
+				  Item location
+				</td>
+			  </tr>
+			  <tr>
+				<th><s:text name="Country"/></th>
+				<td><select name="mod.Country"></select></td>
+			  </tr>
+			  <tr>
+				<th><s:text name="PostalCode"/></th>
 				<td>
 				  <input type="text" name="mod.PostalCode" size="10" />
 				</td>
 			  </tr>
 			  <tr>
-				<td><s:text name="Location"/></td>
+				<th><s:text name="Location"/></th>
 				<td>
 				  <input type="text" name="mod.Location" size="10" />
 				</td>
@@ -704,18 +881,29 @@
 	  </div><!-- tab -->
 
 	  <div class="tab">
+		<div class="tabtitle">
+		  Other things you'd like buyers to know
+		</div>
 		<table class="detail">
 		  <tbody>
 			<tr>
-			  <td><s:text name="BuyerRequirements"/></td>
+			  <th><s:text name="BuyerRequirements"/></th>
 			  <td>
 				<input type="checkbox" value="true"
-					   name="mod.BuyerRequirementDetails.LinkedPayPalAccount">
-				Don't have a PayPal account<br/>
+					   name="mod.BuyerRequirementDetails.LinkedPayPalAccount"
+					     id="_id.BuyerRequirementDetails.LinkedPayPalAccount">
+				<label  for="_id.BuyerRequirementDetails.LinkedPayPalAccount">
+				  Don't have a PayPal account
+				</label>
+				
+				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
-				Have received
+					   name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox"
+					     id="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+				<label  for="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+				  Have received
+				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.Count">
 				  <option value=""></option>
 				  <option value="2">2</option>
@@ -723,22 +911,36 @@
 				  <option value="4">4</option>
 				  <option value="5">5</option>
 				</select>
-				Unpaid item case(s) within
+				<label  for="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+				  Unpaid item case(s) within
+				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.Period">
 				  <option value=""></option>
 				  <option value="Days_30">1</option>
 				  <option value="Days_180">6</option>
 				  <option value="Days_360">12</option>
 				</select>
-				month(s)<br/>
+				<label  for="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+				  month(s)
+				</label>
+				
+				<br/>
 				
 				<input type="checkbox" value="true"
-					   name="mod.BuyerRequirementDetails.ShipToRegistrationCountry">
-				Have a primary shipping address in countries that I don't ship to<br/>
+					   name="mod.BuyerRequirementDetails.ShipToRegistrationCountry"
+					     id="_id.BuyerRequirementDetails.ShipToRegistrationCountry">
+				<label  for="_id.BuyerRequirementDetails.ShipToRegistrationCountry">
+				  Have a primary shipping address in countries that I don't ship to
+				</label>
+				
+				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
-				Have
+					   name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox"
+					     id="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				<label  for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				  Have
+				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumBuyerPolicyViolations.Count">
 				  <option value=""></option>
 				  <option value="4">4</option>
@@ -746,27 +948,41 @@
 				  <option value="6">6</option>
 				  <option value="7">7</option>
 				</select>
-				Policy violation report(s) within
+				<label  for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				  Policy violation report(s) within
+				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumBuyerPolicyViolations.Period">
 				  <option value=""></option>
 				  <option value="Days_30">1</option>
 				  <option value="Days_180">6</option>
 				</select>
-				month(s)<br/>
+				<label  for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				  month(s)
+				</label>
+				
+				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
-				Have a feedback score equal to or lower than
+					   name="mod.BuyerRequirementDetails.MinimumFeedbackScore.checkbox"
+					     id="_id.BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
+				<label  for="_id.BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
+				  Have a feedback score equal to or lower than
+				</label>
 				<select name="mod.BuyerRequirementDetails.MinimumFeedbackScore">
 				  <option value=""></option>
 				  <option value="-1">-1</option>
 				  <option value="-2">-2</option>
 				  <option value="-3">-3</option>
-				</select><br/>
+				</select>
+				
+				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MaximumItemRequirements.checkbox">
-				Have bid on or bought my items within the last 10 days and met my limit of
+					   name="mod.BuyerRequirementDetails.MaximumItemRequirements.checkbox"
+					     id="_id.BuyerRequirementDetails.MaximumItemRequirements.checkbox">
+				<label  for="_id.BuyerRequirementDetails.MaximumItemRequirements.checkbox">
+				  Have bid on or bought my items within the last 10 days and met my limit of
+				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumItemRequirements.MaximumItemCount">
 				  <option value=""></option>
 				  <option value="1">1</option>
@@ -783,25 +999,34 @@
 				  <option value="50">50</option>
 				  <option value="75">75</option>
 				  <option value="100">100</option>
-				</select><br/>
-				&nbsp;&nbsp;&nbsp;
-				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
-				Only apply this block to buyers who have a feedback score equal to or lower than
-				<select name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore">
-				  <option value=""></option>
-				  <option value="5">5</option>
-				  <option value="4">4</option>
-				  <option value="3">3</option>
-				  <option value="2">2</option>
-				  <option value="1">1</option>
-				  <option value="0">0</option>
-				</select><br/>
+				</select>
 				
+				<br/>
+				
+				&nbsp;&nbsp;&nbsp;
+				
+	<input type="checkbox" value="true" class="remove"
+		   name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox"
+		     id="_id.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
+	<label  for="_id.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
+	  Only apply this block to buyers who have a feedback score equal to or lower than
+	</label>
+	<select name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore">
+	  <option value=""></option>
+	  <option value="5">5</option>
+	  <option value="4">4</option>
+	  <option value="3">3</option>
+	  <option value="2">2</option>
+	  <option value="1">1</option>
+	  <option value="0">0</option>
+	</select>
+	
+	<br/>
+	
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="SalesTax"/></td>
+			  <th><s:text name="SalesTax"/></th>
 			  <td>
 				<select name="mod.SalesTax.ShippingIncludedInTax">
 				  <option value=""></option>
@@ -814,7 +1039,7 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="ReturnPolicy"/></td>
+			  <th><s:text name="ReturnPolicy"/></th>
 			  <td>
 				<select name="mod.ReturnPolicy.ReturnsAcceptedOption">
 				  <option value=""></option>
@@ -845,7 +1070,7 @@
 			  </td>
 			</tr>
 			<tr>
-			  <td><s:text name="AdditionalCheckoutInstructions"/></td>
+			  <th><s:text name="AdditionalCheckoutInstructions"/></th>
 			  <td>
 				<textarea name="mod.ShippingDetails.PaymentInstructions"
 						  cols="60" rows="3"></textarea>
@@ -854,29 +1079,6 @@
 		  </tbody>
 		</table>
 	  </div>
-	  
-	  <div class="tab">
-		<table class="detail">
-		  <tbody>
-			<tr>
-			  <td><s:text name="UserID"/></td>
-			  <td><select name="org.Seller.UserID"></select></td>
-			</tr>
-			<tr>
-			  <td><s:text name="Site"/></td>
-			  <td><select name="mod.Site"></select></td>
-			</tr>
-			<tr>
-			  <td><s:text name="Country"/></td>
-			  <td><select name="mod.Country"></select></td>
-			</tr>
-			<tr>
-			  <td><s:text name="Currency"/></td>
-			  <td><select name="mod.Currency"></select></td>
-			</tr>
-		  </tbody>
-		</table>
-	  </div><!-- tab -->
 	  
 	</div>
 
@@ -893,6 +1095,8 @@ var hash;
 hash = ${initjson.hash};
 
 var timezoneids = ${initjson.timezoneids};
+
+var scheduledays = ${initjson.scheduledays};
 
 //var summary;
 //summary = ${initjson.summary};

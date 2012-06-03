@@ -76,7 +76,7 @@ public class AddItems extends ApiCall {
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
 			
-			userid = ((DBObject) org.get("Seller")).get("UserID").toString();
+			userid = item.get("UserID").toString();
 			site   = mod.get("Site").toString();
 			
 			if (!lhm.containsKey(userid)) {
@@ -128,7 +128,9 @@ public class AddItems extends ApiCall {
 						itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
 						String id = ((BasicDBObject) tmpidx).get("_id").toString();
 						
-						ldbo.add(new BasicDBObject("MessageID", userdbo.getString("_id")+" "+id)
+						ldbo.add(new BasicDBObject("MessageID", userdbo.getString("email")
+												   +" "+tmpuserid
+												   +" "+id)
 								 .append("Item", ((DBObject) tmpidx).get("mod")));
 						tmpcnt++;
 					}
@@ -188,6 +190,7 @@ public class AddItems extends ApiCall {
 		String ack = responsedbo.get("Ack").toString();
 		log("Ack:"+ack);
 		
+		// todo: not exist when error is one pattern?
 		String classname = responsedbo.get("AddItemResponseContainer").getClass().toString();
 		
 		BasicDBList dbl = new BasicDBList();
@@ -204,10 +207,14 @@ public class AddItems extends ApiCall {
 			BasicDBObject item = (BasicDBObject) oitem;
 			
 			String[] messages = item.getString("CorrelationID").split(" ");
-			String itemcollectionname_id = messages[0];
-			String id = messages[1];
+			String email  = messages[0];
+			String userid = messages[1];
+			String id     = messages[2];
 			
-			DBCollection coll = db.getCollection("items."+itemcollectionname_id);
+			BasicDBObject userdbo = (BasicDBObject) db.getCollection("users")
+				.findOne(new BasicDBObject("email", email));
+			
+			DBCollection coll = db.getCollection("items."+userdbo.getString("_id"));
 			
 			String itemid    = item.getString("ItemID");
 			String starttime = item.getString("StartTime");
@@ -217,13 +224,13 @@ public class AddItems extends ApiCall {
 			upditem.put("status", "");
 			if (itemid != null) {
 				upditem.put("org.ItemID", itemid);
+				upditem.put("org.Seller.UserID", userid);
 				upditem.put("org.ListingDetails.StartTime", starttime);
 				upditem.put("org.ListingDetails.EndTime", endtime);
 				upditem.put("org.SellingStatus.ListingStatus", "Active");
 			}
 			
 			// todo: aware <SeverityCode>Warning</SeverityCode>
-			// todo: call GetItem immediately
 			if (item.get("Errors") != null) {
 				String errorclass = item.get("Errors").getClass().toString();
 				BasicDBList errors = new BasicDBList();
@@ -245,6 +252,30 @@ public class AddItems extends ApiCall {
 			update.put("$set", upditem);
 			
 			WriteResult result = coll.update(query, update);
+			
+			// todo: call GetItem immediately
+			/* GetItem */
+			if (itemid != null) {
+				
+				BasicDBObject userids = (BasicDBObject) userdbo.get("userids");
+				String token = ((BasicDBObject) userids.get(userid)).getString("eBayAuthToken");
+				
+				BasicDBObject reqdbo = new BasicDBObject();
+				reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+				reqdbo.append("WarningLevel",                 "High");
+				reqdbo.append("DetailLevel",             "ReturnAll");
+				reqdbo.append("IncludeCrossPromotion",        "true");
+				reqdbo.append("IncludeItemCompatibilityList", "true");
+				reqdbo.append("IncludeItemSpecifics",         "true");
+				reqdbo.append("IncludeTaxTable",              "true");
+				reqdbo.append("IncludeWatchCount",            "true");
+				reqdbo.append("ItemID", itemid);
+				
+				String requestxml = convertDBObject2XML(reqdbo, "GetItem");
+				writelog("GetItem/afterAdditems.req.xml", requestxml);
+				
+				pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+			}
 		}
 		
 		return "";

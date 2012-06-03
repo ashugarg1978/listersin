@@ -34,6 +34,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.struts2.convention.annotation.Action;
 import org.apache.struts2.convention.annotation.Actions;
 import org.apache.struts2.convention.annotation.ParentPackage;
@@ -56,13 +57,13 @@ public class JsonAction extends BaseAction {
 		return json;
 	}
 	
-	@Action(value="/json/register")
-	public String register() throws Exception {
+	@Action(value="/json/signup")
+	public String signup() throws Exception {
 		
 		json = new LinkedHashMap<String,Object>();
 		
 		boolean result = false;
-		String message = "registration error";
+		String message = "signup error";
 		
 		if (parameters.get("email") != null
 			&& parameters.get("password") != null
@@ -95,22 +96,31 @@ public class JsonAction extends BaseAction {
 				} else {
 					
 					// todo: password encryption
-					// todo: confirmation mail
-					// todo: onetime security token
-					BasicDBObject field = new BasicDBObject();
-					field.put("email",    email);
-					field.put("password", password);
+					String tmptoken = RandomStringUtils.randomAlphanumeric(20);
 					
-					field.put("language", "English");
-					field.put("timezone", "Etc/GMT+8");
+					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+					Calendar cal = Calendar.getInstance();
+					cal.add(Calendar.MINUTE, 30);
+					String tmptoken_expiration = sdf.format(cal.getTime());
+					
+					BasicDBObject field = new BasicDBObject();
+					field.put("email",          email);
+					field.put("password",       password);
+					field.put("tmptoken",        tmptoken);
+					field.put("tmptoken_expiration", tmptoken_expiration);
+					field.put("status",         "temporary registration");
+					field.put("language",       "English");
+					field.put("timezone",       "Etc/GMT+8");
+					field.put("itemlimit",      "100");
 					
 					db.getCollection("users").insert(field, WriteConcern.SAFE);
 					
-					sendmail(email);
+					sendmail(email, tmptoken);
 					
 					result = true;
 					
-					message = "success";
+					message = "Confirmation mail was sent to "+email+".";
 				}
 			}
 		}
@@ -121,7 +131,7 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	private String sendmail(String email) throws Exception {
+	private String sendmail(String email, String tmptoken) throws Exception {
 		
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "localhost");
@@ -133,13 +143,23 @@ public class JsonAction extends BaseAction {
 		InternetAddress fromAddress = null;
 		InternetAddress toAddress = null;
 		
-		fromAddress = new InternetAddress("support@listers.in");
+		fromAddress = new InternetAddress("support@"+configdbo.getString("hostname"));
 		toAddress = new InternetAddress(email);
 		
 		simpleMessage.setFrom(fromAddress);
 		simpleMessage.setRecipient(RecipientType.TO, toAddress);
 		simpleMessage.setSubject("Thank you for signing up for ListersIn!");
-		simpleMessage.setText("Thank you for signing up for ListersIn!");
+		simpleMessage.setText
+			("Thank you for signing up for ListersIn!\n"
+			 + "\n"
+			 + "Please click following link and complete sign up.\n"
+			 + "\n"
+			 + "http://"+configdbo.getString("hostname")+"/page/signup_confirm?t="+tmptoken+"\n"
+			 + "\n"
+			 + "------------------------------------------\n"
+			 + "ListersIn - eBay listing tool.\n"
+			 + "http://"+configdbo.getString("hostname")+"/\n"
+			 + "------------------------------------------\n");
 		
 		Transport.send(simpleMessage);
 		
@@ -172,6 +192,20 @@ public class JsonAction extends BaseAction {
 		
 		json = new LinkedHashMap<String,Object>();
 		json.put("url", url);
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/json/removeaccount")
+	public String removeaccount() throws Exception {
+		
+		// todo: remove items
+		String userid = parameters.get("userid")[0];
+		log.debug("removeaccount:"+userid);
+		
+		db.getCollection("users").update
+			(new BasicDBObject("email", user.getString("email")),
+			 new BasicDBObject("$unset", new BasicDBObject("userids."+userid, 1)));
 		
 		return SUCCESS;
 	}
@@ -209,18 +243,19 @@ public class JsonAction extends BaseAction {
 		
 		field.put("status",                          1);
 		field.put("errors",                          1);
+		field.put("UserID",                          1);
 		
 		field.put("mod.Title",                       1);
 		field.put("mod.Site",                        1);
-		field.put("mod.PictureDetails.PictureURL",   1);
+		field.put("mod.StartPrice",                  1);
 		field.put("mod.PictureDetails.GalleryURL",   1);
+		field.put("mod.PictureDetails.PictureURL",   1);
 		
 		field.put("org.ItemID",                      1);
 		field.put("org.ListingDetails.EndTime",      1);
 		field.put("org.ListingDetails.ViewItemURL",  1);
-		field.put("org.Seller.UserID",               1);
 		field.put("org.SellingStatus.ListingStatus", 1);
-		field.put("org.StartPrice",                  1);
+		field.put("org.SellingStatus.QuantitySold",  1);
 		field.put("org.TimeLeft",                    1);
 		
 		BasicDBObject sort = new BasicDBObject();
@@ -238,30 +273,37 @@ public class JsonAction extends BaseAction {
 		while (cur.hasNext()) {
 			
 			DBObject item = cur.next();
-			DBObject org = (DBObject) item.get("org");
+			DBObject mod = (DBObject) item.get("mod");
 			
 			String id = item.get("_id").toString();
 			
-			/* price */
-			DBObject sp = (DBObject) org.get("StartPrice");
-			Float startprice = Float.parseFloat(sp.get("#text").toString());
-			item.put("price", sp.get("@currencyID")+" "+startprice.intValue());
-			
-			/* endtime */
-			if (((DBObject) org.get("ListingDetails")).containsField("EndTime")) {
-				formatter.applyPattern("yyyy-MM-dd");
-				String endtime = ((DBObject) org.get("ListingDetails")).get("EndTime").toString();
-				Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
-				item.put("dfnow", sdf.format(now));
-				item.put("dfend", sdf.format(dfendtime));
-				if (formatter.format(now).equals(formatter.format(dfendtime))) {
-					//formatter.applyPattern("h:mm a");
-					formatter.applyPattern("MM-dd HH:mm");
-				} else {
-					//formatter.applyPattern("MMM d");
-					formatter.applyPattern("MM-dd HH:mm");
+			/* StartPrice */
+			if (mod.containsField("StartPrice")) {
+				DBObject sp = (DBObject) mod.get("StartPrice");
+				Float startprice = Float.parseFloat(sp.get("#text").toString());
+				item.put("price", sp.get("@currencyID")+" "+startprice.intValue());
+			}
+			if (item.containsField("org")) {
+				
+				DBObject org = (DBObject) item.get("org");
+				
+				/* endtime */
+				if (((DBObject) org.get("ListingDetails")).containsField("EndTime")) {
+					formatter.applyPattern("yyyy-MM-dd");
+					String endtime =
+						((DBObject) org.get("ListingDetails")).get("EndTime").toString();
+					Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+					item.put("dfnow", sdf.format(now));
+					item.put("dfend", sdf.format(dfendtime));
+					if (formatter.format(now).equals(formatter.format(dfendtime))) {
+						//formatter.applyPattern("h:mm a");
+						formatter.applyPattern("MMM d HH:mm");
+					} else {
+						//formatter.applyPattern("MMM d");
+						formatter.applyPattern("MMM d HH:mm");
+					}
+					item.put("endtime", formatter.format(dfendtime));
 				}
-				item.put("endtime", formatter.format(dfendtime));
 			}
 			
 			item.removeField("_id");
@@ -294,37 +336,41 @@ public class JsonAction extends BaseAction {
 		
 		/* execute query */
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
-		BasicDBObject mod  = (BasicDBObject) item.get("org");
+		BasicDBObject mod  = (BasicDBObject) item.get("mod");
 		item.put("id", item.get("_id").toString());
 		
 		String site = mod.getString("Site");
 		
 		log.debug("/json/item(2)");
 		
-		/* categorypath */
-		// todo: update old categoryid to current active categoryid
-		Integer categoryid =
-			Integer.parseInt(((BasicDBObject) mod.get("PrimaryCategory")).getString("CategoryID"));
-		categoryid = mapcategoryid(site, categoryid);
-		((BasicDBObject) mod.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
+		if (mod.containsField("PrimaryCategory")) {
+			
+			/* categorypath */
+			// todo: update old categoryid to current active categoryid
+			Integer categoryid = Integer.parseInt
+				(((BasicDBObject) mod.get("PrimaryCategory")).getString("CategoryID"));
+			
+			categoryid = mapcategoryid(site, categoryid);
+			((BasicDBObject) mod.get("PrimaryCategory")).put("CategoryID", categoryid.toString());
 		
-		List path = categorypath(site, categoryid);
-		item.put("categorypath", path);
-		
-		
-		/* grandchildren */
-		String[] pathstr = new String[path.size()+1];
-		pathstr[0] = "0";
-		for (int i = 0; i < path.size(); i++) {
-			pathstr[i+1] = path.get(i).toString();
+			List path = categorypath(site, categoryid);
+			item.put("categorypath", path);
+			
+			/* grandchildren */
+			String[] pathstr = new String[path.size()+1];
+			pathstr[0] = "0";
+			for (int i = 0; i < path.size(); i++) {
+				pathstr[i+1] = path.get(i).toString();
+			}
+			log.debug("/json/item(3)");
+			BasicDBObject children2 = children2(site, pathstr);
+			log.debug("/json/item(4)");
+			
+			LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
+			item.put("categorypath2", path2);
+
+			json.put("Categories",       children2.get("Categories"));
 		}
-		log.debug("/json/item(3)");
-		BasicDBObject children2 = children2(site, pathstr);
-		log.debug("/json/item(4)");
-		
-		LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
-		item.put("categorypath2", path2);
-		
 		
 		/*
 		String categoryname = "";
@@ -371,7 +417,6 @@ public class JsonAction extends BaseAction {
 			(BasicDBObject) db.getCollection(site+".CategoryFeatures").findOne();
 		
 		json.put("item",             item);
-		json.put("Categories",       children2.get("Categories"));
 		json.put("eBayDetails",      ebaydetails);
 		json.put("CategoryFeatures", categoryfeatures);
 		json.put("ThemeGroup",       themegroup(site));
@@ -384,72 +429,85 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/save")
 	public String save() throws Exception {
 		
-		// todo: timezone doesn't work
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
 		String id   = ((String[]) parameters.get("id"))[0];
 		String form = ((String[]) parameters.get("json"))[0];
 		log.debug("save: items."+user.getString("_id")+" "+id);
 		log.debug(form);
 		
-		BasicDBObject item = (BasicDBObject) com.mongodb.util.JSON.parse(form);
-		BasicDBObject mod  = (BasicDBObject) item.get("mod");
-		BasicDBObject org  = (BasicDBObject) item.get("org");
-		
-		/* ShippingType */
+		BasicDBObject item            = (BasicDBObject) com.mongodb.util.JSON.parse(form);
+		BasicDBObject mod             = (BasicDBObject) item.get("mod");
+		BasicDBObject org             = (BasicDBObject) item.get("org");
+		BasicDBObject setting         = (BasicDBObject) item.get("setting");
+		BasicDBObject scheduletime    = (BasicDBObject) item.get("ScheduleTime");
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
-		BasicDBObject shippingtype    = (BasicDBObject) shippingdetails.get("ShippingType");
-		LinkedHashMap<String,LinkedHashMap> smap = shippingmap();
-		for (String st : smap.keySet()) {
-			
-			String dmst = ((Map) smap.get(st)).get("domestic").toString();
-			String intl = ((Map) smap.get(st)).get("international").toString();
-			
-			if (shippingtype.getString("domestic").equals(dmst)
-				&& shippingtype.getString("international").equals(intl)) {
-				
-				((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", st);
-				break;
-			}
+		
+		/* ScheduleTime */
+		if (scheduletime.getString("radio").equals("1")) {
+			mod.put("ScheduleTime", scheduletime.getString("date")+"T08:00:00.000Z");
 		}
 		
+		/* ShippingType */
+		BasicDBObject shippingtype = (BasicDBObject) shippingdetails.get("ShippingType");
+		
+		String stype = getShippingType(shippingtype.getString("domestic"),
+									   shippingtype.getString("international"));
+		
+		if (!mod.containsField("ShippingDetails")) {
+			mod.put("ShippingDetails", new BasicDBObject());
+			log.debug("putting ShippingDetails");
+		}
+		((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", stype);
+		log.debug("putting ShippingDetails:"+stype);
+		
+		/* items collection */
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
-		DBCollection colldiff = db.getCollection("itemsdiff");
 		
-		BasicDBObject query = new BasicDBObject();
-		query.put("_id", new ObjectId(id));
-		
-		BasicDBObject before = (BasicDBObject) coll.findOne(query);
-		//BasicDBObject modbefore = (BasicDBObject) before.get("mod");
-		
-		BasicDBObject set = new BasicDBObject();
-		set.put("mod", mod);
-		set.put("org.Seller.UserID", ((BasicDBObject) org.get("Seller")).getString("UserID"));
-		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", set);
-		update.append("$push", new BasicDBObject
-					  ("log", new BasicDBObject(timestamp, "Saved by user")));
-		
-		WriteResult result = coll.update(query, update);
-		
-		/* check diff */
-		colldiff.remove(query);
-		
-		item.put("_id", new ObjectId(id));
-		colldiff.insert(item);
-		
-		BasicDBObject after  = (BasicDBObject) coll.findOne(query);
-		//BasicDBObject after  = (BasicDBObject) colldiff.findOne(query);
-		//BasicDBObject modafter = (BasicDBObject) after.get("mod");
-		
-		/* save before and after file for diff */
-		DiffLogger dl = new DiffLogger();
-		dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
-		//dl.savediff(id, modbefore.toString(), modafter.toString(), basedir+"/logs/diff");
+		if (id.equals("newitem0")) {
+			
+			ObjectId newid = new ObjectId();
+			log.debug("newid:"+newid.toString());
+			parameters.get("id")[0] = newid.toString();
+			
+			BasicDBObject newitem = new BasicDBObject();
+			newitem.put("_id", newid);
+			newitem.put("mod", mod);
+			newitem.put("setting", setting);
+			newitem.put("UserID", item.getString("UserID"));
+			
+			BasicDBList logdbl = new BasicDBList();
+			logdbl.add(new BasicDBObject(basetimestamp, "Created by user"));
+			newitem.put("log", logdbl);
+			
+			WriteResult result = coll.insert(newitem, WriteConcern.SAFE);
+			log.debug("save newitem: "+result.getError());
+			
+		} else {
+			
+			BasicDBObject query = new BasicDBObject();
+			query.put("_id", new ObjectId(id));
+			
+			BasicDBObject before = (BasicDBObject) coll.findOne(query);
+			
+			BasicDBObject set = new BasicDBObject();
+			set.put("mod", mod);
+			set.put("setting", setting);
+			set.put("UserID", item.getString("UserID"));
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("$set", set);
+			update.append("$push", new BasicDBObject
+						  ("log", new BasicDBObject(basetimestamp, "Saved by user")));
+			
+			WriteResult result = coll.update(query, update);
+			log.debug("save result: "+result.getError());
+			
+			BasicDBObject after  = (BasicDBObject) coll.findOne(query);
+			
+			/* save before and after file for diff */
+			DiffLogger dl = new DiffLogger();
+			dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
+			
+		}
 		
 		return "item";
 	}
@@ -468,54 +526,21 @@ public class JsonAction extends BaseAction {
 		
 		Integer d = 0;
 		
+		// todo: sort result
 		ArrayList<DBObject> newdblist = new ArrayList<DBObject>();
-		//DBCursor cur = coll.find(query, field).snapshot();
 		DBCursor cur = coll.find(query).snapshot();
 		while (cur.hasNext()) {
 			BasicDBObject item = (BasicDBObject) cur.next();
-			BasicDBObject org  = (BasicDBObject) item.get("org");
 			
-			log.debug("copy: "+org.getString("ItemID"));
-			
+			// remove fields
 			item.removeField("_id");
-			org.removeField("ItemID");
-			org.removeField("SellingStatus");
+			item.removeField("org");
 			
 			newdblist.add((BasicDBObject) item.copy());
 		}
 		
 		WriteResult res = coll.insert(newdblist, WriteConcern.SAFE);
 		log.debug("result:"+res.toString());
-		
-		if (true) {
-			return SUCCESS;
-		}
-		
-		// todo: sort result
-		//DBCursor cur = coll.find(query, field).snapshot();
-		//json.put("count", cur.count());
-		List<DBObject> dblist = coll.find(query, field).snapshot().toArray();
-		//while (cur.hasNext()) {
-		for (DBObject item : dblist) {
-			//DBObject item = cur.next();
-			String id = item.get("_id").toString();
-			
-			item.removeField("_id");
-			item.removeField("SellingStatus");
-			
-			// todo: add "copied" label
-			//BasicDBList dbl = (BasicDBList) ((BasicDBObject) item.get("ext")).get("labels");
-			//dbl.add("copied");
-
-			if (true) {
-				json.put("item", item);
-				return SUCCESS;
-			}
-			
-			coll.insert(item, WriteConcern.SAFE);
-			d++;
-		}
-		json.put("d", d.toString());
 		
 		return SUCCESS;
 	}
@@ -536,7 +561,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("deleted", 1));
 		update.append("$push", new BasicDBObject
-					  ("log", new BasicDBObject(timestamp, "Deleted by user")));
+					  ("log", new BasicDBObject(basetimestamp, "Deleted by user")));
 		
 		/*
 		WriteResult result = db.getCollection("items."+user.getString("_id"))
@@ -671,6 +696,41 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/revise")
 	public String revise() throws Exception {
 		
+		// todo: timezone doesn't work
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
+		Date now = new Date();
+		String timestamp = sdf.format(now);
+		
+		json = new LinkedHashMap<String,Object>();
+		
+		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
+		for (String id : (String[]) parameters.get("id")) {
+			ids.add(new ObjectId(id));
+		}
+		
+		DBCollection coll = db.getCollection("items."+user.getString("_id"));
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new BasicDBObject("$in", ids));
+		//query.put("status", new BasicDBObject("$ne", "relist")); // todo: re-enable this line
+		
+		Long count = coll.count(query);
+		String message = "Revising "+count+" items...";
+		
+		BasicDBObject update = new BasicDBObject();
+		update.put("$set", new BasicDBObject("status", "reviseitem_"+timestamp));
+		
+		WriteResult result = db.getCollection("items."+user.getString("_id"))
+			.update(query, update, false, true);
+		
+		json.put("result", result);
+		
+		Socket socket = new Socket("localhost", daemonport);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		out.println("ReviseItem "+session.get("email")+" reviseitem_"+timestamp);
+		out.close();
+		socket.close();
 		
 		return SUCCESS;
 	}
@@ -770,193 +830,6 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	/* don't use getxxxxx as method name */
-	@Action(value="/json/productsearchresults")
-	public String productsearchresults() throws Exception {
-		
-		String words = "";
-		String csid  = "";
-
-		if (parameters.containsKey("ProductSearch.QueryKeywords")) {
-			words = ((String[]) parameters.get("ProductSearch.QueryKeywords"))[0];
-		} else {
-			return SUCCESS;
-		}
-		
-		if (parameters.containsKey("ProductSearch.CharacteristicSetIDs.ID")) {
-			csid  = ((String[]) parameters.get("ProductSearch.CharacteristicSetIDs.ID"))[0];
-		} else {
-			return SUCCESS;
-		}
-		
-		/* GetProductSearchResultID */
-		Socket socket = new Socket("localhost", daemonport);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("GetProductSearchResults "+csid+" "+words);
-		String result = in.readLine();
-		
-		out.close();
-		in.close();
-		socket.close();
-		
-		XMLSerializer xmlSerializer = new XMLSerializer(); 
-		xmlSerializer.setTypeHintsEnabled(false);
-		net.sf.json.JSON tmpjson = xmlSerializer.read(result);
-		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
-		
-		json = new LinkedHashMap<String,Object>();
-		json.put("result", dbo);
-		
-		return SUCCESS;
-	}
-
-	@Action(value="/json/productsellingpages")
-	public String productsellingpages() throws Exception {
-		
-		String productid      = ((String[]) parameters.get("productid"))[0];
-		String attributesetid = ((String[]) parameters.get("attributesetid"))[0];
-		
-		Socket socket = new Socket("localhost", daemonport);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("GetProductSellingPages "+productid+" "+attributesetid);
-		String result = in.readLine();
-		
-		out.close();
-		in.close();
-		socket.close();
-		
-		/*
-		Pattern p = Pattern.compile("<script[^>]*>(.*?)</script>");
-		Matcher m = p.matcher(result);
-		while(m.find()) {
-			log.debug(m.group());
-        }
-		*/
-		result = result.replaceAll("_L_I_N_E_F_E_E_D_", "\n");
-		
-		json = new LinkedHashMap<String,Object>();
-		json.put("result", result);
-		
-		return SUCCESS;
-	}
-	
-	@Action(value="/json/parsesellingpage")
-	public String parsesellingpage() throws Exception {
-		
-		String attributesetid = ((String[]) parameters.get("vcsid"))[0];
-		
-		Pattern p = Pattern.compile("^attr(|_t|_d|_required_)([0-9]+)_([0-9]+)(|_m|_d|_y|_c)$");
-			
-		JSONObject attributeset = new JSONObject();
-		attributeset.put("@id", attributesetid);
-		
-		String xml = "<SelectedAttributes>\n";
-		xml += "<AttributeSet id=\""+attributesetid+"\">\n";
-		
-		for (String key : parameters.keySet()) {
-			
-			log.debug("key:"+key);
-			Matcher m = p.matcher(key);
-			//if (m.matches() == false) continue;
-			
-			while (m.find()) {
-				
-				xml += "<Attribute id=\""+m.group(3)+"\">\n";
-				for (String val : (String[]) parameters.get(key)) {
-					if (m.group(1).equals("_t")) {
-						xml += "<Value><Name>"+val+"</Name></Value>\n";
-					} else {
-						xml += "<Value id=\""+val+"\"/>\n";
-					}
-				}
-				xml += "</Attribute>\n";
-			}
-		}
-		
-		xml += "</AttributeSet>\n";
-		xml += "</SelectedAttributes>\n";
-		
-		/*
-		JSONArray attributes = new JSONArray();
-		for (String key : parameters.keySet()) {
-			
-			JSONArray values = new JSONArray();
-			values.setExpandElements(true);
-			for (String val : (String[]) parameters.get(key)) {
-				JSONObject value = new JSONObject();
-				value.put("@id", val);
-				values.add(value);
-			}
-			
-			JSONObject attribute = new JSONObject();
-			attribute.put("Value", values);
-			attributes.add(attribute);
-		}
-		//attributes.setExpandElements(true);
-		attributeset.put("Attribute", attributes);
-		
-		JSONObject selectedattributes = new JSONObject();
-		selectedattributes.put("AttributeSet", attributeset);
-		attributeset.getJSONArray("Attribute").setExpandElements(true);
-		
-		//JSONObject jso = JSONObject.fromObject(attributeset);
-		//jso.getJSONArray("Attribute").setExpandElements(true);
-		
-		XMLSerializer xmls = new XMLSerializer();
-		xmls.setObjectName("SelectedAttributes");
-		xmls.setTypeHintsEnabled(false);
-		String xml = xmls.write(selectedattributes);
-		*/
-		
-		log.debug(xml);
-		
-		// XML to HTML
-		String logpath = basedir+"/logs/apicall";
-		
-		
-		String decoded = "";
-		FileReader fr = new FileReader(logpath+"/GetProductSellingPages/decoded.xml");
-		BufferedReader br = new BufferedReader(fr);
-		String line;
-		while ((line = br.readLine()) != null) {
-			decoded = decoded + "\n" + line;
-		}
-		br.close();
-
-		decoded = decoded.replace("<SelectedAttributes><AttributeSet id='1785'/></SelectedAttributes>", xml);
-		
-		FileWriter fstream = new FileWriter(logpath+"/GetProductSellingPages/decoded_selected.xml");
-		BufferedWriter out = new BufferedWriter(fstream);
-		out.write(decoded);
-		out.close();
-		
-		TransformerFactory factory = TransformerFactory.newInstance();
-		Transformer transformer = factory.newTransformer
-			(new StreamSource(logpath+"/GetAttributesXSL/US.syi_attributes.xsl"));
-		
-		transformer.transform
-			(new StreamSource(logpath+"/GetProductSellingPages/decoded_selected.xml"),
-			 new StreamResult(new FileOutputStream
-							  (logpath+"/GetProductSellingPages/decoded_selected.html")));
-		
-		decoded = "";
-		fr = new FileReader(logpath+"/GetProductSellingPages/decoded_selected.html");
-		br = new BufferedReader(fr);
-		while ((line = br.readLine()) != null) {
-			decoded = decoded + "\n" + line;
-		}
-		br.close();
-		
-		json = new LinkedHashMap<String,Object>();
-		json.put("result", decoded);
-		
-		return SUCCESS;
-	}
-	
 	@Action(value="/json/summary")
 	public String summary() throws Exception {
 		json = summarydata();
@@ -967,8 +840,12 @@ public class JsonAction extends BaseAction {
 	public String settings() throws Exception {
 		
 		BasicDBObject settings = new BasicDBObject();
-		settings.put("language", user.getString("language"));
-		settings.put("timezone", user.getString("timezone"));
+		settings.put("language",   user.getString("language"));
+		settings.put("timezone",   user.getString("timezone"));
+		settings.put("expiration", user.getString("expiration"));
+		settings.put("itemlimit",  user.getString("itemlimit"));
+		settings.put("status",     user.getString("status"));
+		settings.put("email",      user.getString("email"));
 		
 		BasicDBObject userids = (BasicDBObject) ((BasicDBObject) user.get("userids")).copy();
 		// todo: remove tokens etc...
@@ -992,6 +869,11 @@ public class JsonAction extends BaseAction {
 	public LinkedHashMap<String,Object> summarydata() throws Exception {
 		LinkedHashMap<String,Object> summarydata = new LinkedHashMap<String,Object>();
 		
+		if (!user.containsField("userids")) {
+			log.debug("summarydata() no userids.");
+			return summarydata;
+		}
+		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
 		ArrayList<String> userids = new ArrayList<String>();
@@ -1005,7 +887,7 @@ public class JsonAction extends BaseAction {
 		for (String k : selling.keySet()) {
 			BasicDBObject query = new BasicDBObject();
 			query = selling.get(k);
-			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
+			query.put("UserID", new BasicDBObject("$in", userids));
 			
 			Long cnt = coll.count(query);
 			allsummary.put(k, cnt);
@@ -1017,7 +899,7 @@ public class JsonAction extends BaseAction {
 			for (String k : selling.keySet()) {
 				BasicDBObject query = new BasicDBObject();
 				query = selling.get(k);
-				query.put("org.Seller.UserID", u);
+				query.put("UserID", u);
 				
 				Long cnt = coll.count(query);
 				summary.put(k, cnt);
@@ -1027,7 +909,7 @@ public class JsonAction extends BaseAction {
 		
 		return summarydata;
 	}
-
+	
 	private LinkedHashMap<String,BasicDBObject> themegroup(String site) {
 		
 		LinkedHashMap<String,BasicDBObject> rows = new LinkedHashMap<String,BasicDBObject>();
@@ -1122,7 +1004,6 @@ public class JsonAction extends BaseAction {
 		DBCollection coll = db.getCollection(site+".Categories");
 		
 		while (true) {
-			log.debug(categoryid);
 			query.put("CategoryID", categoryid.toString());
 			BasicDBObject row = (BasicDBObject) coll.findOne(query);
 			path.add(0, Integer.parseInt(row.getString("CategoryID")));
@@ -1340,7 +1221,33 @@ public class JsonAction extends BaseAction {
 		return map;
 	}
 	
+	private String getShippingType(String dmst, String intl) {
+		
+		String[][] typemap = {
+			{"Flat",       "Flat",       "Flat"},
+			{"Flat",       "NoShipping", "Flat"},
+			{"Calculated", "Calculated", "Calculated"},
+			{"Flat",       "Calculated", "FlatDomesticCalculatedInternational"},
+			{"Calculated", "Flat",       "CalculatedDomesticFlatInternational"},
+			{"Freight",    "???",        "FreightFlat"}
+		};
+		
+		String shippingtype = "";
+		
+		for (int i=0; i<typemap.length; i++) {
+			log.debug(typemap[i][0]+"-"+typemap[i][1]+" ? "+dmst+"-"+intl);
+			if (typemap[i][0].equals(dmst) && typemap[i][1].equals(intl)) {
+				shippingtype = typemap[i][2];
+				log.debug("matched!");
+				break;
+			}
+		}
+		
+		return shippingtype;
+	}
+	
 	// todo: reverse function?
+	// todo: replace with getShippingType()
 	private LinkedHashMap<String,LinkedHashMap> shippingmap() {
 		
 		LinkedHashMap<String,LinkedHashMap> map = new LinkedHashMap<String,LinkedHashMap>();
@@ -1349,6 +1256,7 @@ public class JsonAction extends BaseAction {
 		LinkedHashMap<String,String>    tmpmap3 = new LinkedHashMap<String,String>();
 		LinkedHashMap<String,String>    tmpmap4 = new LinkedHashMap<String,String>();
 		LinkedHashMap<String,String>    tmpmap5 = new LinkedHashMap<String,String>();
+		LinkedHashMap<String,String>    tmpmap6 = new LinkedHashMap<String,String>();
 		
 		tmpmap1.put("domestic",      "Flat");
 		tmpmap1.put("international", "Flat");
@@ -1370,6 +1278,10 @@ public class JsonAction extends BaseAction {
 		tmpmap5.put("domestic",      "Freight");
 		tmpmap5.put("international", "???");
 		map.put("FreightFlat"                        , tmpmap5);
+		
+		tmpmap6.put("domestic",      "Flat");
+		tmpmap6.put("international", "NoShipping");
+		map.put("Flat"                               , tmpmap6);
 		
 		return map;
 	}
@@ -1438,7 +1350,7 @@ public class JsonAction extends BaseAction {
 	private LinkedHashMap<String,String> shippingtypelabel2(BasicDBObject item) {
 		LinkedHashMap<String,String> label = new LinkedHashMap<String,String>();
 		
-		BasicDBObject mod = (BasicDBObject) item.get("org");
+		BasicDBObject mod = (BasicDBObject) item.get("mod");
 		BasicDBObject sd = (BasicDBObject) mod.get("ShippingDetails");
 		if (sd.containsField("ShippingType")) {
 			String shippingtype = sd.getString("ShippingType");
@@ -1546,11 +1458,10 @@ public class JsonAction extends BaseAction {
 
 	private Integer mapcategoryid(String site, Integer categoryid) {
 		
-		log.debug("map: "+categoryid);
 		DBObject newdbo = db.getCollection(site+".CategoryMappings")
 			.findOne(new BasicDBObject("@oldID", categoryid.toString()));
 		if (newdbo != null) {
-			log.debug("map: "+categoryid+" -> "+newdbo.get("@id").toString());
+			log.debug("mapcategoryid("+site+", "+categoryid+") -> "+newdbo.get("@id").toString());
 			categoryid = Integer.parseInt(newdbo.get("@id").toString());
 		}
 		
@@ -1574,7 +1485,7 @@ public class JsonAction extends BaseAction {
 				ids.add(new ObjectId(id));
 			}
 			query.put("_id", new BasicDBObject("$in", ids));
-			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
+			query.put("UserID", new BasicDBObject("$in", userids));
 			
 		} else {
 			
@@ -1592,14 +1503,14 @@ public class JsonAction extends BaseAction {
 				query = sellingquery.get(selling);
 			
 			// notice: put UserID here, because sellingquery above.
-			query.put("org.Seller.UserID", new BasicDBObject("$in", userids));
+			query.put("UserID", new BasicDBObject("$in", userids));
 			
 			// todo: check the UserID exists in users collection.
 			if (parameters.containsKey("UserID"))
 				userid = ((String[]) parameters.get("UserID"))[0];
 			
 			if (!userid.equals(""))
-				query.put("org.Seller.UserID", userid);
+				query.put("UserID", userid);
 			
 			if (parameters.containsKey("Title"))
 				title = ((String[]) parameters.get("Title"))[0];

@@ -48,12 +48,12 @@ public class GetItem extends ApiCall implements Callable {
 		
 		/* GetItem */
 		query = new BasicDBObject();
-		query.put("ItemID",           new BasicDBObject("$exists", 1));
+		query.put("ItemID",       new BasicDBObject("$exists", 1));
 		query.put("deleted",      new BasicDBObject("$exists", 0));
 		query.put("importstatus", "waiting GetItem");
 		query.put("UserID",       userid);
 		if (itemid != null) {
-			query.put("ItemID",       itemid);
+			query.put("ItemID",   itemid);
 		}
 		
 		BasicDBObject field = new BasicDBObject();
@@ -112,9 +112,8 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject userquery = new BasicDBObject();
 		userquery.put("userids."+callbackuserid, new BasicDBObject("$exists", true));
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-		String user_id = userdbo.getString("_id");
 		
-		DBCollection coll = db.getCollection("items."+user_id);
+		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
 		
 		/* delete ItemSpecifics added from Product */
 		if (mod.containsField("ItemSpecifics")) {
@@ -135,7 +134,7 @@ public class GetItem extends ApiCall implements Callable {
 		for (Object fieldname : movefields) {
 			movefield(mod, fieldname.toString());
 		}
-
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", callbackuserid);
 		query.put("org.ItemID",        callbackitemid);
@@ -143,23 +142,15 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject update = new BasicDBObject();
 		
 		BasicDBObject set = new BasicDBObject();
-		set.append("org", org);
+		set.put("org", org);
+		set.put("mod", mod);
+		set.put("UserID", callbackuserid);
 		
-		BasicDBObject exists = (BasicDBObject) coll.findOne(query);
-		if (exists == null) {
-			set.append("mod", mod);
-			
-			update.append("$push", new BasicDBObject
-						  ("log", new BasicDBObject(timestamp, "GetItem initial import")));
-		} else {
-			
-			update.append("$push", new BasicDBObject
-						  ("log", new BasicDBObject(timestamp, "GetItem update")));
-		}
+		update.put("$set",  set);
+		update.put("$push", new BasicDBObject
+				   ("log", new BasicDBObject(timestamp, "Import from eBay")));
 		
-		update.append("$set",  set);
-		
-		coll.update(query, update, true, false);
+		itemcoll.update(query, update, true, false);
 		
 		return "";
 	}

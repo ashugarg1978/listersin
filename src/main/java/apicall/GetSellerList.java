@@ -43,7 +43,7 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
-		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",7).append("PageNumber",1));
+		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",20).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		dbobject.put("MessageID", email+" "+userid);
 		//dbobject.put("UserID", "testuser_sbmsku");
@@ -147,61 +147,6 @@ public class GetSellerList extends ApiCall {
 		return responsexml;
 	}
 	
-	
-	/* will be called from IndexAction.receivenotify() */
-	public void parsenotifyxml(String notifyxml) throws Exception {
-		
-		JSONObject json = (JSONObject) new XMLSerializer().read(notifyxml);
-		
-		JSONObject item = json
-			.getJSONObject("soapenv:Body")
-			.getJSONObject("GetItemResponse")
-			.getJSONObject("Item");
-		
-		String notificationeventname = json
-			.getJSONObject("soapenv:Body")
-			.getJSONObject("GetItemResponse")
-			.get("NotificationEventName")
-			.toString();
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
-		Date now = new Date();
-		String timestamp = sdf.format(now).toString();
-		
-		writelog("Notification/"+notificationeventname+"."+timestamp+".xml", notifyxml);
-		
-		
-		// todo: event name operation
-
-		String userid = ((JSONObject) item.get("Seller")).get("UserID").toString();
-		
-		DBCollection coll = db.getCollection("items");
-		
-		if (false) {
-			
-			BasicDBObject ext = new BasicDBObject();
-			ext.put("UserID", userid);
-			ext.put("labels", new BasicDBList());
-			
-			/* convert JSON to DBObject */
-			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
-			dbobject.put("ext", ext);
-			
-			BasicDBObject query = new BasicDBObject();
-			query.put("ItemID", dbobject.get("ItemID").toString());
-			
-			BasicDBObject update = new BasicDBObject();
-			update.put("$set", dbobject);
-			
-			/* insert into mongodb */
-			coll.findAndRemove(query);
-			coll.update(query, update, true, true);
-			
-		}
-		
-		return;
-	}
-
 	/**
 	 *
 	 * ref: https://jira.mongodb.org/browse/JAVA-260
