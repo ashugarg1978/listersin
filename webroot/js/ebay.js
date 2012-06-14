@@ -76,6 +76,9 @@ function bindevents()
 	
 	/* Add eBay account */
 	$('button.addebayaccount').live('click', function() {
+        
+        if (checkdemoaccount()) return;
+        
 		$.post('/json/addaccount',
 			   null,
 			   function(data) {
@@ -120,8 +123,14 @@ function bindevents()
 	
 	/* Bulk Buttons */
 	$('div#bulkbuttons button').live('click', function() {
+        
 		if ($(this).attr('id') == 'settingsbutton') return;
-		action = $(this).attr('class').replace(/ .+$/, '');
+        
+		var action = $(this).attr('class').replace(/ .+$/, '');
+        
+        if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
+            if (checkdemoaccount()) return;
+        }
 		
 		if (action == 'checkall') {
 			
@@ -395,6 +404,9 @@ function bindevents()
 	
 	/* Import */
 	$('button#import', 'div#ebayaccountsetting').live('click', function() {
+        
+        if (checkdemoaccount()) return;
+        
 		$.post('/json/import',
 			   'userid='+$('div#ebayaccountsettingtarget').html(),
 			   function(data) {
@@ -404,7 +416,9 @@ function bindevents()
 
 	/* RemoveAccount */
 	$('button#removeaccount', 'div#ebayaccountsetting').live('click', function() {
-		alert('remove');
+        
+        if (checkdemoaccount()) return;
+        
 		$.post('/json/removeaccount',
 			   'userid='+$('div#ebayaccountsettingtarget').html(),
 			   function(data) {
@@ -446,7 +460,7 @@ function bindevents()
 	
 	// Settings button
 	$('button#settingsbutton').live('click', function() {
-
+        
 		$.post('/json/settings',
 			   null,
 			   function(data) {
@@ -576,6 +590,18 @@ function bindevents()
 	});
 	*/
 }	
+
+function checkdemoaccount() {
+    
+    var email = $('#headerupper_right').html().replace(/[\r\n\s\t]/g, '');
+    
+    if (email == 'demo@listers.in') {
+        alert('Sorry, this function is not available for demo account.');
+        return true;
+    }
+    
+    return false;
+}
 
 var changeCurrency = function() {
 	
@@ -799,7 +825,7 @@ function items()
 			 $('#items').append(dom);
 		 });
 		 
-		 if (data.json.message != '') {
+		 if (data.json.message != '' && data.json.message != null) {
 			 $('div#message').html(data.json.message);
 			 timeout = setTimeout('refresh()', 1000);
 		 }
@@ -1717,7 +1743,7 @@ function refresh()
 		 }
 		 
 		 /* timeout */
-		 if (data.json.message != '') {
+		 if (data.json.message != '' && data.json.message != null) {
 			 timeout = setTimeout('refresh()', 1000);
 		 } else if (postdata != '') {
 			 timeout = setTimeout('refresh()', 1000);

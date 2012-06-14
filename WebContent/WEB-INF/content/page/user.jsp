@@ -50,7 +50,7 @@
 	  <button class="end btnright"><s:text name="end"/></button>
 	  
 	  <input id="filtertitle" type="text" class="filter" name="Title" value="" size="20">
-	  <button class="end btnright"><s:text name="search"/></button>
+	  <button class="btnright"><s:text name="search"/></button>
 	  
 	  <button id="settingsbutton"><s:text name="settings"/></button>
 	  

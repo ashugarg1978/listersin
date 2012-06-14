@@ -28,8 +28,10 @@
 		<h1>ListersIn - eBay listing software</h1>
 	  </div>
 	  <ul>
-		<li>This service is a listing software for eBay sellers.</li>
-		<li>This service is BETA version.</li>
+		<li>This software is a listing software for eBay sellers.</li>
+        <li>You can try this software with demo account before you sign up.</li>
+        <li>Demo account is: [Email] demo@listers.in [Password] demo</li>
+		<li>This software is BETA version.</li>
 		<li>Manage multiple ebay accounts.</li>
 		<li>Simple and easy user interface.</li>
 		<li>Currently free plan only.</li>
@@ -93,10 +95,14 @@ new TWTR.Widget({
 		
 		<form method="post" action="/">
 		  <label for="email">Email</label><br />
-		  <input type="text" id="email" name="email" size="40" value=""><br /><br />
+		  <input type="text" id="email" name="email" size="40" value=""><br />
+          Demo account: demo@listers.in<br/>
+          <br />
 		  
 		  <label for="password">Password</label><br />
-		  <input type="password" id="password" name="password" size="40" value=""><br /><br />
+		  <input type="password" id="password" name="password" size="40" value=""><br />
+          Demo account: demo<br/>
+          <br />
 		  
 		  <button>Sign in</button><br /><br />
 		  

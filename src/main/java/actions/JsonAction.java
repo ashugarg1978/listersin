@@ -442,9 +442,11 @@ public class JsonAction extends BaseAction {
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
 		
 		/* ScheduleTime */
+		/*
 		if (scheduletime.getString("radio").equals("1")) {
 			mod.put("ScheduleTime", scheduletime.getString("date")+"T08:00:00.000Z");
 		}
+		*/
 		
 		/* ShippingType */
 		BasicDBObject shippingtype = (BasicDBObject) shippingdetails.get("ShippingType");
@@ -464,6 +466,7 @@ public class JsonAction extends BaseAction {
 		
 		if (id.equals("newitem0")) {
 			
+			/* save new item */
 			ObjectId newid = new ObjectId();
 			log.debug("newid:"+newid.toString());
 			parameters.get("id")[0] = newid.toString();
@@ -483,6 +486,7 @@ public class JsonAction extends BaseAction {
 			
 		} else {
 			
+			/* update existing item */
 			BasicDBObject query = new BasicDBObject();
 			query.put("_id", new ObjectId(id));
 			
