@@ -36,6 +36,7 @@
 		<li>Simple and easy user interface.</li>
 		<li>Currently free plan only.</li>
 		<li><a href="http://forum.listers.in/">Forum about this service is here.</a></li>
+		<li><a href="http://listers.in/blog/">Blog is here.</a></li>
 	  </ul>
 	  
 	  <div id="risknotice">

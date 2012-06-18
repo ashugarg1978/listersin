@@ -77,8 +77,6 @@
 		<li class="sold"     ><img src="/icon/02/10/50.png"><s:text name="sold"     /></li>
 		<li class="unsold"   ><img src="/icon/04/10/10.png"><s:text name="unsold"   /></li>
 		<li class="saved"    ><img src="/icon/04/10/10.png"><s:text name="saved"    /></li>
-		<li class="trash"    ><img src="/icon/04/10/09.png"><s:text name="trash"    /></li>
-		<li class="setting"  ><img src="/icon/01/10/41.png"><s:text name="setting"  /></li>
 	  </ul>
 	</li>
   </ul>
@@ -150,13 +148,25 @@
 		<tr>
 		  <th>Email</th>
 		  <td>
-			
+			<div id="settings-email"></div>
 		  </td>
 		</tr>
 		<tr>
 		  <th>Status</th>
 		  <td>
-			
+			<div id="settings-status"></div>
+		  </td>
+		</tr>
+		<tr>
+		  <th>Expiration</th>
+		  <td>
+			<div id="settings-expiration"></div>
+		  </td>
+		</tr>
+		<tr>
+		  <th>Item limit</th>
+		  <td>
+			<div id="settings-itemlimit"></div>
 		  </td>
 		</tr>
 		<tr>
@@ -195,32 +205,6 @@
 	</table>
   </div>
   
-  <div id="ebayaccountsetting">
-	<div id="ebayaccountsettingtarget"></div>
-	<table class="detail">
-	  <tbody>
-		<tr>
-		  <th>Items</th>
-		  <td>
-			<button id="import">Import items from eBay</button>
-		  </td>
-		</tr>
-		<tr>
-		  <th>Token</th>
-		  <td>
-			<button>Update token</button>
-		  </td>
-		</tr>
-		<tr>
-		  <th>Account</th>
-		  <td>
-			<button id="removeaccount">Delete from ListersIn</button>
-		  </td>
-		</tr>
-	  </tbody>
-	</table>	  
-  </div>
-
   <div id="help">
 	
 	How to add your eBay account to ListersIn.<br/>

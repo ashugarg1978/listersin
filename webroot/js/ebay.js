@@ -131,6 +131,12 @@ function bindevents()
         if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
             if (checkdemoaccount()) return;
         }
+
+        if (action == 'delete') {
+            if (!confirm('Delete checked items?')) {
+                return;
+            }
+        }
 		
 		if (action == 'checkall') {
 			
@@ -165,6 +171,10 @@ function bindevents()
 		$("input[name='id']:checked").each(function() {
 			$(this).css('visibility', 'hidden');
 			$(this).parent().addClass('loading');
+            
+			if (action == 'delete') {
+                $('#'+$(this).val()).remove();
+            }
 		});
 		
 		$.post
@@ -232,28 +242,19 @@ function bindevents()
 			.replace(/^accountaction/, '')
 			.replace(' ', '');
 		
-		if (v == 'setting') {
+		showcontent('table#items');
 			
-			$('div#ebayaccountsettingtarget').html(userid);
-			
-			showcontent('div#ebayaccountsetting');
-			
+		$('input[name=selling]').val(v);
+		$('input[name=offset]').val(0);
+		$('input[name=UserID]').val(userid);
+		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
+			$('input[name=sort]').val('ListingDetails_EndTime DESC');
 		} else {
-		
-			showcontent('table#items');
-			
-			$('input[name=selling]').val(v);
-			$('input[name=offset]').val(0);
-			$('input[name=UserID]').val(userid);
-			if (v == 'unsold' || v == 'sold' || v == 'allitems') {
-				$('input[name=sort]').val('ListingDetails_EndTime DESC');
-			} else {
-				$('input[name=sort]').val('ListingDetails_EndTime');
-			}
-			$('table#items tbody:gt(1)').remove();
-			items();
-			
+			$('input[name=sort]').val('ListingDetails_EndTime');
 		}
+		$('table#items tbody:gt(1)').remove();
+		items();
+		
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
 		
@@ -403,24 +404,28 @@ function bindevents()
 	});
 	
 	/* Import */
-	$('button#import', 'div#ebayaccountsetting').live('click', function() {
+	$('button[class^=sync]', 'div#settings').live('click', function() {
         
         if (checkdemoaccount()) return;
         
+        var userid = $(this).attr('class').replace(/^sync-/, '');
+        
 		$.post('/json/import',
-			   'userid='+$('div#ebayaccountsettingtarget').html(),
+			   'userid='+userid,
 			   function(data) {
 				   
 			   });
 	});
-
+    
 	/* RemoveAccount */
-	$('button#removeaccount', 'div#ebayaccountsetting').live('click', function() {
+	$('button[class^=removeaccount]', 'div#settings').live('click', function() {
         
         if (checkdemoaccount()) return;
         
+        var userid = $(this).attr('class').replace(/^removeaccount-/, '');
+        
 		$.post('/json/removeaccount',
-			   'userid='+$('div#ebayaccountsettingtarget').html(),
+			   'userid='+userid,
 			   function(data) {
 				   
 			   });
@@ -465,19 +470,31 @@ function bindevents()
 			   null,
 			   function(data) {
 				   
+                   $('#settings-email').html(data.json.settings.email);
+                   $('#settings-status').html(data.json.settings.status);
+                   $('#settings-expiration').html(data.json.settings.expiration);
+                   $('#settings-itemlimit').html(data.json.settings.itemlimit);
+                   
 				   $('table#setting_ebay_accounts').empty();
 				   
 				   if (data.json.settings.userids) {
 					   $.each(data.json.settings.userids, function(i, o) {
+                           
 						   var trtag = $('<tr/>');
 						   
 						   $(trtag).append($('<td/>').html(i));
 						   
-						   $(trtag).append($('<button/>').html('Sync items from eBay'));
+						   $(trtag).append($('<button/>')
+                                           .attr('class', 'sync-'+i)
+                                           .html('Sync items from eBay'));
 						   
-						   $(trtag).append($('<button/>').html('Update token'));
+						   $(trtag).append($('<button/>')
+                                           .attr('class', 'updatetoken-'+i)
+                                           .html('Update token'));
 						   
-						   $(trtag).append($('<button/>').html('Delete from ListersIn'));
+						   $(trtag).append($('<button/>')
+                                           .attr('class', 'removeaccount-'+i)
+                                           .html('Delete from ListersIn'));
 						   
 						   $('table#setting_ebay_accounts').append(trtag);
 					   });

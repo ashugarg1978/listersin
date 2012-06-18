@@ -551,27 +551,11 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/delete")
 	public String delete() throws Exception {
-		
-		// todo: timezone doesn't work
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
+        
 		json = new LinkedHashMap<String,Object>();
 		
 		BasicDBObject query = getFilterQuery();
-		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("deleted", 1));
-		update.append("$push", new BasicDBObject
-					  ("log", new BasicDBObject(basetimestamp, "Deleted by user")));
-		
-		/*
-		WriteResult result = db.getCollection("items."+user.getString("_id"))
-			.update(query, update, false, true);
-		json.put("result", result);
-		*/
+        
 		db.getCollection("items."+user.getString("_id")).remove(query);
 		
 		return SUCCESS;
@@ -936,32 +920,23 @@ public class JsonAction extends BaseAction {
 		BasicDBObject sold      = new BasicDBObject();
 		BasicDBObject unsold    = new BasicDBObject();
 		BasicDBObject saved     = new BasicDBObject();
-		BasicDBObject trash     = new BasicDBObject();
 		
 		allitems.put("deleted", new BasicDBObject("$exists", 0));
 		
-		scheduled.put("deleted",    new BasicDBObject("$exists", 0));
 		scheduled.put("org.ItemID", new BasicDBObject("$exists", 0));
 		
-		active.put("deleted",    new BasicDBObject("$exists", 0));
 		active.put("org.ItemID", new BasicDBObject("$exists", 1));
 		active.put("org.SellingStatus.ListingStatus", "Active");
 		
-		sold.put("deleted",    new BasicDBObject("$exists", 0));
 		sold.put("org.ItemID", new BasicDBObject("$exists", 1));
 		sold.put("org.SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
 		
-		unsold.put("deleted",    new BasicDBObject("$exists", 0));
 		unsold.put("org.ItemID", new BasicDBObject("$exists", 1));
 		unsold.put("org.SellingStatus.ListingStatus", "Completed");
 		unsold.put("org.SellingStatus.QuantitySold", "0");
 		
-		saved.put("deleted",    new BasicDBObject("$exists", 0));
 		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
-		
-		trash.put("deleted", new BasicDBObject("$exists", 1));
-		
-		
+        
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
 		selling.put("allitems",  allitems);
 		selling.put("scheduled", scheduled);
@@ -969,8 +944,7 @@ public class JsonAction extends BaseAction {
 		selling.put("sold",      sold);
 		selling.put("unsold",    unsold);
 		selling.put("saved",     saved);
-		selling.put("trash",     trash);
-		
+        
 		return selling;
 	}
 	
