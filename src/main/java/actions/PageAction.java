@@ -1,5 +1,8 @@
 package ebaytool.actions;
 
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.SyndFeedInput;
+import com.sun.syndication.io.XmlReader;
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
 import ebaytool.actions.JsonAction;
@@ -9,6 +12,7 @@ import ebaytool.apicall.GetSessionID;
 import ebaytool.apicall.SetNotificationPreferences;
 import java.io.*;
 import java.net.Socket;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,6 +29,7 @@ import org.apache.struts2.convention.annotation.Results;
 public class PageAction extends BaseAction {
 	
 	protected LinkedHashMap<String, Object> initjson;
+	protected SyndFeed feed;
 	
 	public PageAction() throws Exception {
 	}
@@ -35,6 +40,10 @@ public class PageAction extends BaseAction {
 	
 	public LinkedHashMap<String, Object> getInitjson() {
 		return initjson;
+	}
+	
+	public SyndFeed getFeed() {
+		return feed;
 	}
 	
 	/* todo: session management in useraction json request */
@@ -73,13 +82,20 @@ public class PageAction extends BaseAction {
 				/* TimeZone IDs */
 				BasicDBObject timezoneids = new BasicDBObject();
 				for (String tzid : TimeZone.getAvailableIDs()) {
-					if (tzid.length() <= 2) continue;
-					if (!tzid.substring(0, 3).equals("Etc")) continue;
-					
+					//if (tzid.length() <= 2) continue;
+					//if (!tzid.substring(0, 3).equals("Etc")) continue;
+					if (tzid.length() <= 3) continue;
+                    
 					TimeZone tz = TimeZone.getTimeZone(tzid);
 					timezoneids.put(tzid, tz.getDisplayName());
 				}
-				initjson.put("timezoneids", timezoneids);
+				TreeMap<String,String> sortedids = new TreeMap<String,String>();
+				sortedids.putAll((HashMap) timezoneids);
+
+				BasicDBObject timezoneids2 = new BasicDBObject();
+				timezoneids2.putAll(sortedids);
+				
+				initjson.put("timezoneids", timezoneids2);
 				
 				/* Schedule Days */
 				initjson.put("scheduledays", getScheduleDays());
@@ -103,9 +119,15 @@ public class PageAction extends BaseAction {
 			
 			if (user != null) {
 				session.put("email", user.get("email").toString());
+				log.debug("loggedin: "+user.get("email").toString());
 				return "loggedin";
 			}
 		}
+		
+		/* Read Blog RSS */
+		URL feedUrl = new URL("http://listers.in/blog/feed/");
+		SyndFeedInput input = new SyndFeedInput();
+		feed = input.build(new XmlReader(feedUrl));
 		
 		return SUCCESS;
 	}
@@ -291,12 +313,11 @@ public class PageAction extends BaseAction {
 		query.put("org.Seller.UserID", userid);
 		query.put("org.ItemID",        itemid);
 		
-		BasicDBObject update = new BasicDBObject();
-		
 		BasicDBObject set = new BasicDBObject();
 		set.append("org", org);
 		set.append("mod", mod);
 		
+		BasicDBObject update = new BasicDBObject();
 		update.append("$set",  set);
 		
 		itemcoll.update(query, update, true, false);
@@ -310,8 +331,24 @@ public class PageAction extends BaseAction {
 			if (item.containsField("setting")) {
 				
 				BasicDBObject setting = (BasicDBObject) item.get("setting");
+				BasicDBObject autorelist = (BasicDBObject) setting.get("autorelist");
 				
-				if (setting.getString("autorelist").equals("on")) {
+				log.debug("ItemUnsold autorelist["+autorelist.getString("enabled")+"]");
+				log.debug("ItemUnsold addbestoffer["+autorelist.getString("addbestoffer")+"]");
+				if (autorelist.getString("enabled").equals("on")) {
+					
+					// Add best offer
+					if (autorelist.getString("addbestoffer").equals("true")) {
+						set = new BasicDBObject();
+						set.put("mod.BestOfferDetails.BestOfferEnabled", "true");
+						
+						update = new BasicDBObject();
+						update.put("$set", set);
+						
+						itemcoll.update(query, update, false, false, WriteConcern.SAFE);
+						
+						item = (BasicDBObject) itemcoll.findOne(query);
+					}
 					
 					// todo: append log "relisting..."
 					// todo: taskid => status ? status = relist, taskid = 9999999 ?

@@ -141,6 +141,9 @@ public class VerifyAddItem extends ApiCall {
 			}
 			upditem.put("errors", errors);
 		}
+		if (responsedbo.get("Message") != null) {
+			upditem.put("message", responsedbo.getString("Message"));
+		}
 		
 		WriteResult result = coll.update(new BasicDBObject("_id", new ObjectId(id)),
 										 new BasicDBObject("$set", upditem));

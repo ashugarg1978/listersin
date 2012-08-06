@@ -13,6 +13,7 @@
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
+<script type="text/javascript" src="/js/jquery.sortable.min.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
 </head>
 <body>
@@ -81,10 +82,16 @@
 	</li>
   </ul>
   
+  <div id="filteroption">
+	<a href="#" id="checkduplicateitems">Check duplicate items</a><br/><br/>
+	<a href="http://forum.listers.in/" target="_blank">Forum</a><br/>
+	<a href="http://listers.in/blog/" target="_blank">Blog</a><br/>
+  </div>
+  
   <div id="risknotice">
 	** NOTICE **<br/>
 	This app is BETA.<br/>
-	There may be problems.<br/>
+	There may be bugs.<br/>
 	Please be careful.<br/>
   </div>
   
@@ -95,6 +102,7 @@
   <input type="hidden" class="filter" name="limit"    value="20" />
   <input type="hidden" class="filter" name="selling"  value="active" />
   <input type="hidden" class="filter" name="sort"     value="ListingDetails_EndTime" />
+  <input type="hidden" class="filter" name="option"   value="" />
   <input type="hidden" class="filter" name="allpages" value="" />
   <input type="hidden" class="filter" name="UserID" />
   
@@ -187,7 +195,7 @@
 		<tr>
 		  <th>Cancel account</th>
 		  <td>
-			<a href="/page/cancelaccount">Cancel account</a>
+			<a id="cancelaccountlink" href="/page/cancelaccount">Cancel account</a>
 		  </td>
 		</tr>
 		<tr>
@@ -280,11 +288,28 @@
 			<tr>
 			  <th><s:text name="AutoRelist"/></th>
 			  <td>
-				<select name="setting.autorelist">
+				<select name="setting.autorelist.enabled">
 				  <option value="off">OFF</option>
 				  <option value="on">ON</option>
 				</select>
+				
+				<br/>
+				
+				<input type="checkbox" value="true"
+					   name="setting.autorelist.addbestoffer"
+					     id="_id.setting.autorelist.addbestoffer" />
+				<label  for="_id.setting.autorelist.addbestoffer">
+				  Enable best offer option when auto relist.
+				</label>
+                
+				<br/>
 			  </td>
+			</tr>
+			<tr>
+			  <th><s:text name="Schedule"/></th>
+			  <td>
+                <input type="datetime-local" name="setting.schedule" />
+              </td>
 			</tr>
 		  </tbody>
 		</table>
@@ -311,16 +336,28 @@
 				  <span class="CharacteristicsSetsName"></span>
 				  <input name="ProductSearch.QueryKeywords"
 						 type="text" size="30" class="remove"/>
+				  <button class="GetProductSearchResults">Search</button>
 				  <input name="ProductSearch.CharacteristicSetIDs.ID"
 						 type="hidden" class="remove"/>
-				  <button class="GetProductSearchResults">Search</button>
 				  
 				  <br />
+				  <div style="clear:both;"></div>
 				  
-				  <input name="mod.ProductListingDetails.ProductID" type="text" size="15"/>
-				  <br />
+				  <div class="foundproducts">
+					<div class="producttemplate">
+					  <div class="productimage">
+						<img src=""/>
+					  </div>
+					  <div class="producttext"></div>
+					  <div class="productid"></div>
+					  <div style="clear:both;"></div>
+					</div>
+				  </div>
 				  
-				  <input name="mod.ProductListingDetails.ProductReferenceID" type="text" size="15"/>
+				  <input name="mod.ProductListingDetails.ProductID"
+						 type="text" size="15" placeholder="Product ID" />
+				  <input name="mod.ProductListingDetails.ProductReferenceID"
+						 type="text" size="15" placeholder="Product Reference ID" />
 				  <br />
 				  
 				  <br/>
@@ -351,17 +388,6 @@
 				  </label>
 				  
 				  <br/>
-				  
-				  <div class="foundproducts">
-					<div class="producttemplate">
-					  <div class="productimage">
-						<img src=""/>
-					  </div>
-					  <div class="producttext"></div>
-					  <div class="productid"></div>
-					  <div style="clear:both;"></div>
-					</div>
-				  </div>
 				  
 				</div>
 			  </td>
@@ -415,37 +441,21 @@
 		</div>
 		<div class="pictures">
 		  
-		  <form method="post" action="/file/upload" target="posttarget"
-				enctype="multipart/form-data">
-			<table>
-			  <tr>
-				<s:iterator value="{0,1,2,3,4,5}">
-				  <td>
-					<div class="picdiv">
-					  <img class="PictureDetails_PictureURL PD_PURL_<s:property />"
-						   src="/img/noimage.jpg"/>
-					</div>
-					<input type="file" name="<s:property />"/>
-				  </td>
-				</s:iterator>
-			  </tr>
-			  <tr>
-				<s:iterator value="{6,7,8,9,10,11}">
-				  <td>
-					<div class="picdiv">
-					  <img class="PictureDetails_PictureURL PD_PURL_<s:property />"
-						   src="/img/noimage.jpg"/>
-					</div>
-					<input type="file" name="<s:property />"/>
-				  </td>
-				</s:iterator>
-			  </tr>
-			</table>
+		  <ul class="pictures clearfix">
+			<li class="template">
+			  <div>
+				<img src="/img/noimage.jpg" />
+			  </div>
+			  <a href="#" class="deletepicture">Delete</a>
+			</li>
+		  </ul>
+		  
+		  <form method="post" action="/file/upload"
+				target="posttarget" enctype="multipart/form-data">
+            Add images
+			<input type="file" name="multiplefile" multiple="multiple"/>
 		  </form>
 		  
-		  <s:iterator value="{0,1,2,3,4,5,6,7,8,9,10,11}">
-			<input type="hidden" name="mod.PictureDetails.PictureURL.<s:property />"/>
-		  </s:iterator>
 		</div>
 		
 		<table class="detail">
@@ -540,6 +550,17 @@
 			  </td>
 			</tr>
 			<tr>
+			  <th><s:text name="BestOffer"/></th>
+			  <td>
+				<input type="checkbox" value="true"
+					   name="mod.BestOfferDetails.BestOfferEnabled"
+					     id="_id.BestOfferDetails.BestOfferEnabled" />
+				<label  for="_id.BestOfferDetails.BestOfferEnabled">
+				  Allow buyers to send you their Best Offers for your consideration
+				</label>
+			  </td>
+			</tr>
+			<tr>
 			  <th><s:text name="BestOfferAutoAcceptPrice"/></th>
 			  <td>
 				<input name="mod.ListingDetails.BestOfferAutoAcceptPrice.@currencyID"
@@ -588,22 +609,19 @@
 				</label>
 				
 				<select name="ScheduleTime.date">
-				  <option value="">-</option>
+				  <option value="">Date</option>
 				</select>
 				<select name="ScheduleTime.hour">
-				  <option value="12">12</option>
-				  <s:iterator begin="1" end="11">
+				  <option value="">Hour</option>
+				  <s:iterator begin="0" end="23">
 					<option value="<s:property />"><s:property /></option>
 				  </s:iterator>
 				</select>
 				<select name="ScheduleTime.minute">
+				  <option value="">Minute</option>
 				  <s:iterator begin="00" end="59">
 					<option value="<s:property />"><s:property /></option>
 				  </s:iterator>
-				</select>
-				<select name="ScheduleTime.ampm">
-				  <option value="AM">AM</option>
-				  <option value="PM">PM</option>
 				</select>
 				PDT
 				
@@ -675,7 +693,7 @@
 					<option value="Flat">Flat: same cost to all buyers</option>
 					<option value="Calculated">Calculated: Cost varies by buyer location</option>
 					<option value="Freight">Freight: large items over 150 lbs.</option>
-					<option value="NoShipping">No shipping: Local pickup only</option>
+					<option value="NoShipping" selected="selected">No shipping: Local pickup only</option>
 				  </select>
 				</td>
 			  </tr>
@@ -756,16 +774,15 @@
 				<td>
 				  <div class="ShippingService0">
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
-						   type="text" size="1">
+						   type="text" size="1" value="1" />
 					<select name="mod.<s:text name="_SDSSO"/>.0.ShippingService"
 							class="ShippingService">
 					</select>
 					
-					<s:text name="Cost"/>
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
-						   type="text" size="3" class="aslabel">
+						   type="text" size="3" class="aslabel" />
 					<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
-						   type="text" size="5">
+						   type="text" size="5" placeholder="Cost" />
 					
 					<input value="true" type="checkbox"
 						   name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
@@ -804,7 +821,7 @@
 				  <select name="ShippingDetails.ShippingType.international">
 					<option value="Flat">Flat: same cost to all buyers</option>
 					<option value="Calculated">Calculated: Cost varies by buyer location</option>
-					<option value="NoShipping">No international shipping</option>
+					<option value="NoShipping" selected="selected">No international shipping</option>
 				  </select>
 				</td>
 			  </tr>
@@ -815,7 +832,7 @@
 				<td>
 				  <div class="ShippingService0">
 					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
-						   type="text" size="1">
+						   type="text" size="1" value="1">
 					<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
 							class="ShippingService">
 					</select>

@@ -3,94 +3,177 @@
 <meta charset="UTF-8">
 <script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
 <script language="javascript">
-$(function() {
-	
-	$.post('/json/productsellingpages',
-		   'productid=117211:2:19518:3367630422:391625452:0206a0993ba883db5ea3f2878086d5d7:1:1:1:1417461253&attributesetid=1785',
-		   function(data) {
-			   var htmlcode = data.json.result;
-			   
-			   //var re = /<script(.+?)<\/script>/sg;
-			   /*
-			   var arrcode = htmlcode.split('<'+'/script>');
-			   $('#debug').append(arrcode[0]);
-			   $('#debug').append('<'+'/script>');
-			   $('#debug').append(arrcode[1]);
-			   $('#debug').append('<'+'/script>');
-			   $('#debug').append(arrcode[2]);
-			   $('#debug').append('<'+'/script>');
-			   */
-			   //$('#debug').append(htmlcode);
-			   
-			   /*
-			   var str="<script>alert(aus_no_editing_allowed);";
-			   str+="<";
-			   str+="/script>";
-			   $('#debug').html(str);
-			   
-			   for (i in arrcode) {
-				   var strcode = arrcode[i];
-				   $('#dump').text(strcode);
-			   }
-			   */
-			   
-			   //alert(htmlcode.replace("\n", "==="));
-			   $('#debug').append(htmlcode);
-			   
-			   //msgtest();
-			   
-			   return;
-			   
-		   },
-		   'json');
-	
-	return;
-	
-	
-	// success version
-	/*
-	$('#button').live('click', function() {
-		var str="<script>msg();";
-		str+="<";
-		str+="/script>";
-		
-		$('#debug').append(str);
-	});
-
-	$('#button2').live('click', function() {
-		var str="<script>function msg(){alert('hello');}";
-		str+="<";
-		str+="/script>";
-		
-		$('#debug').append(str);
-	});
-	return;
-	
-	var script = document.createElement('script');
-	script.type = 'text/javascript';
-	
-	$('#debug').append(script);
-	$('#debug script').append('alert("hoge");');
-	$('#debug').append('<br/>');
-	alert($('#debug').html());
-	*/
-	
-	
-});
 </script>
 </head>
 <body>
 
-<div role="checkbox" style="width:11px; height:11px; border:1px solid blue;"></div>
+<div>
+<!--ASW-->
+<!--version 1.0-->
+<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tbody>
+	<tr>
+      <td>
 
-<div id="debug">
+		<script language="JavaScript" type="text/javascript">
+var  itemNumber = window.ebayItemID ? window.ebayItemID : -1;
+
+function  passpara(){
+	return '&id=1422669&itembgcolor=0xFFFFFF&bordercolor=0x000000&storewindowbgcolor=0xf1f1f1&toptextcolor=0xFFFFFF&bottomtextcolor=0xFFFFFF&stripcolor=0x006ab1&auctionclosemessagecolor=0xff0000&emptyboxmessagecolor=0xFFFFFF&buttovercolor=0x660000&buttoutcolor=0x00000AA&searchtitlecolor=0xFFFFFF&searchbuttbgcolor=0xc0c0c0&searchbutttextcolor=0x000000&searchbuttbordercolor=0x000000&itemhighlightcolor=0xfff000&navbuttonactivecolor=0x000006&navbuttonoutlinecolor=0xff9900&navbuttoninactivebgcolor=0x000000&siteid=0&cat=14111&item='  + itemNumber + '&baseurl='+escape(location.href.substring(0,  location.href.lastIndexOf('/') + 1));
+}
+		</script>
+    
+		<script language="JavaScript" type="text/javascript">
+<!-- 
+
+var flashVersion = window.flashVersion ? window.flashVersion : 0;
+if (flashVersion <= 0)
+{
+    var agent = navigator.userAgent.toLowerCase();
+    if (navigator.plugins != null && navigator.plugins.length > 0) 
+    { 
+		var flashPlugin = navigator.plugins['Shockwave Flash']; 
+		if (typeof flashPlugin == 'object') 
+		{
+			/*
+			  need flash version 6 or higher (this code should work with future flash plugins.)
+			*/
+			if (flashPlugin.description.indexOf(' 5.') != -1)
+				flashVersion = 5;  
+			else if (flashPlugin.description.indexOf(' 4.') != -1)
+				flashVersion = 4;  
+			else if (flashPlugin.description.indexOf(' 3.') != -1)
+				flashVersion = 3;  
+			else if (flashPlugin.description.indexOf(' 2.') != -1)
+				flashVersion = 2;  
+			else if (flashPlugin.description.indexOf(' 1.') != -1)
+				flashVersion = 1;  
+			else  if (flashPlugin.description.indexOf(' 6.') != -1)
+				flashVersion = 6;  
+			else  if (flashPlugin.description.indexOf(' 7.') != -1)
+				flashVersion = 7;  
+			else
+				flashVersion = 8;
+		}
+    }
+    else if (agent.indexOf('msie') != -1
+			 && parseInt(navigator.appVersion) >= 4
+			 && agent.indexOf('win')!=-1
+			 && agent.indexOf('16bit')==-1) 
+    {
+		if (window.sqHasFlash || typeof(window.andale_fv) != 'undefined')
+		{
+			if (window.sqHasFlash || andale_fv >= 6)
+			{
+				flashVersion = 6;
+			}
+		}
+		else
+		{
+			document.writeln('<scr' + 'ipt language="VBScript">'); 
+			document.writeln('on error resume next'); 
+			document.writeln('dim obFlash '); 
+			document.writeln('set obFlash = CreateObject("ShockwaveFlash.ShockwaveFlash.7")'); 
+			document.writeln('if IsObject(obFlash) then ');
+			document.writeln('flashVersion = 7 '); 
+			document.writeln('else set obFlash = CreateObject("ShockwaveFlash.ShockwaveFlash.6") end if ');
+			document.writeln('if flashVersion < 7 and IsObject(obFlash) then '); 
+			document.writeln('flashVersion = 6 ');
+			document.writeln('else set obFlash = CreateObject("ShockwaveFlash.ShockwaveFlash.5") end if ');
+			document.writeln('if flashVersion < 6 and IsObject(obFlash) then '); 
+			document.writeln('flashVersion = 5 ');
+			document.writeln('else set obFlash = CreateObject("ShockwaveFlash.ShockwaveFlash.4") end if '); 
+			document.writeln('if flashVersion < 5 and IsObject(obFlash) then ');
+			document.writeln('flashVersion = 4 '); 
+			document.writeln('else set obFlash = CreateObject("ShockwaveFlash.ShockwaveFlash.3") end if ');  
+			document.writeln('if flashVersion < 4 and IsObject(obFlash) then ');  
+			document.writeln('flashVersion = 3 ');  
+			document.writeln('end if '); 
+			document.writeln('</scr' + 'ipt>');
+		}
+	}
+}
+
+if (flashVersion >= 6)
+{
+    document.writeln('<table align="center" valign="top" border="0"  cellspacing="0" cellpadding="0">');document.writeln('<tr><td  width="247"><tr><td align="right"  valign="top">');document.writeln('<OBJECT  classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"  WIDTH="752" HEIGHT="227" id="auctivastorewindow"  ALIGN="middle">');document.writeln('<PARAM NAME=movie  VALUE="http://asw.auctiva.com/StoreWindow_HScroller.swf">');document.writeln('<PARAM  NAME=FlashVars VALUE="'+passpara()+'">');document.writeln('<PARAM  NAME=quality VALUE=high>'); 
+	
+    document.writeln('<PARAM NAME=wmode VALUE=transparent>'); 
+    document.writeln('<PARAM NAME=allowScriptAccess  VALUE=always>');document.writeln('<EMBED  src="http://asw.auctiva.com/StoreWindow_HScroller.swf"  FlashVars="'+passpara()+'"quality=high  ');document.writeln('wmode="opaque" WIDTH="752" HEIGHT="227"  NAME="auctivastorewindow"  ALIGN="middle"');document.writeln('TYPE="application/x-shockwave-flash"');document.writeln('PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">');document.writeln('</EMBED>');
+    document.writeln('</OBJECT>');      
+    document.writeln('</td></tr></table>');
+}
+
+-->
+		</script>
+		<noscript>
+		  <div style="text-align:center">
+			<img  src="http://ti2.auctiva.com/sw/java.gif"  border="0"><br>
+			<table  align="center">
+			  <tr>
+				<td>
+				  <a style="text-decoration:none"  href="http://store.auctiva.com/hal9000dev">
+					<img  src="http://ti2.auctiva.com/sw/browse1.gif"  border="0">
+				  </a>
+				</td>
+				<td height="23px" valign="middle"  align="center">
+				  <font face="arial" size="2">
+					<b><a  href="http://store.auctiva.com/hal9000dev">hal9000dev</a>  Store</b>
+				  </font>
+				</td>
+			  </tr>
+			</table>
+		  </div>
+		</noscript>
+		
+	  </td>
+	</tr>
+  </tbody>
+</table>
+<!--ASW-->
+<br>
+<div align="center">
+  <script language="JavaScript" type="text/javascript">
+	   function  passparaSC(){
+		   return '&baseurl='+escape(location.href.substring(0,  location.href.lastIndexOf('/') + 1)) +  '&sitebaseurl=http://www.auctiva.com&tagNum=1';
+	   }
+  </script>
+  <script language="JavaScript" type="text/javascript">
+	<!-- 
+
+if (flashVersion >= 6)
+{
+    document.writeln('<OBJECT  classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"  codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0"  WIDTH="400" HEIGHT="55" id="aswtagline"  ALIGN="middle">');
+
+	document.writeln('<PARAM NAME=movie  VALUE="http://asw.auctiva.com/swtag.swf">');document.writeln('<PARAM  NAME=FlashVars  VALUE="'+passparaSC()+'">');
+
+	document.writeln('<PARAM NAME=quality  VALUE=high>'); 
+    document.writeln('<PARAM NAME=wmode VALUE=transparent>'); 
+    document.writeln('<PARAM NAME=allowScriptAccess  VALUE=always>');
+	document.writeln('<EMBED wmode="transparent"  src="http://asw.auctiva.com/swtag.swf"  FlashVars="'+passparaSC()+'"quality=high  ');
+	document.writeln('WIDTH="400" HEIGHT="55" NAME="aswtagline"  ALIGN="middle"');
+	document.writeln('TYPE="application/x-shockwave-flash"');
+	document.writeln('PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">');
+	document.writeln('</EMBED>');
+    document.writeln('</OBJECT>');      
+}
+else
+{
+	document.write('<img  src="http://ti2.auctiva.com/web/aswCredit.gif"  border="0"><br><a href="http://www.auctiva.com/?how=scLnk1"  target="_blank"><img  src="http://ti2.auctiva.com/images/sc1line1.gif"  border="0"></a>');
+}
+      //-->
+  </script>
+  <noscript>
+	<img  src="http://ti2.auctiva.com/web/aswCredit.gif"  border="0"><br>
+	<a href="http://www.auctiva.com/?how=scLnk1"  target="_blank">
+	  <img  src="http://ti2.auctiva.com/images/sc1line1.gif"  border="0">
+	</a>
+  </noscript>
 </div>
-
-<a href="#" id="button">CLICK</a>
-<a href="#" id="button2">FUNC</a>
-<div id="func"></div>
-
-<div id="dump"></div>
+   
+This is a <span style="font-weight: bold; color: rgb(255, 0, 16);">TEST</span>  item. <br>
+Please <span style="color: rgb(255, 0, 16);  font-weight: bold;">DO NOT</span> bid.
+</div>
 
 </body>
 </html>

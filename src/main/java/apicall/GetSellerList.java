@@ -43,11 +43,10 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
-		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",20).append("PageNumber",1));
+		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",50).append("PageNumber",1));
 		dbobject.put("Sort", "1");
 		dbobject.put("MessageID", email+" "+userid);
-		//dbobject.put("UserID", "testuser_sbmsku");
-		
+        
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));

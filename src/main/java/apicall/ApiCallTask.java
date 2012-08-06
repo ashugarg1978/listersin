@@ -5,6 +5,9 @@ import ebaytool.apicall.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
 import net.sf.json.xml.XMLSerializer;
@@ -17,15 +20,30 @@ public class ApiCallTask implements Callable {
 	private String resulttype; // todo: get from caller class.
 	private String basedir;
 	private BasicDBObject configdbo;
+	private String basetimestamp;
+    
+	public static DB db;
 	
 	public ApiCallTask(Integer siteid, String requestxml, String callname) throws Exception {
 		this.siteid = siteid;
 		this.requestxml = requestxml;
 		this.callname = callname;
 		this.resulttype = "";
-
+        
 		basedir = System.getProperty("user.dir");
 		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
+        
+        // timestamp
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
+        Date now = new Date();
+        basetimestamp = sdf.format(now);
+        
+		if (db == null) {
+			Mongo m = new Mongo();
+			db = m.getDB(configdbo.getString("database"));
+            System.out.println("ApiCallTask() constructor. db");
+		}
 	}
 	
 	public ApiCallTask(Integer siteid, String requestxml, String callname, String resulttype) throws Exception {
@@ -33,7 +51,7 @@ public class ApiCallTask implements Callable {
 		this.requestxml = requestxml;
 		this.callname   = callname;
 		this.resulttype = resulttype;
-
+        
 		basedir = System.getProperty("user.dir");
 		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 	}
@@ -59,22 +77,12 @@ public class ApiCallTask implements Callable {
 			System.out.println(st.getClassName());
 		}
 		*/
-		
-		/* Sandbox */
+        
 		String apiurl   = configdbo.getString("apiurl");
 		String devname  = configdbo.getString("devname");
 		String appname  = configdbo.getString("appname");
 		String certname = configdbo.getString("certname");
-		
-		/* Production */
-		if (false) {
-			System.out.println("Connecting to ebay *Production* api.");
-			apiurl   = "https://api.ebay.com/ws/api.dll";
-			devname  = "e60361cd-e306-496f-ad7d-ba7b688e2207";
-			appname  = "Yoshihir-dd83-40fd-a943-659c40507758";
-			certname = "8681eef3-fba8-41cf-b2ca-3686152ac1b7";
-		}
-		
+        
         URL url = new URL(apiurl);
         HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
@@ -86,17 +94,37 @@ public class ApiCallTask implements Callable {
 								configdbo.getString("compatlevel"));
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
 		conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
-
+        
 		conn.setRequestProperty("X-EBAY-API-DEV-NAME",  devname);
 		conn.setRequestProperty("X-EBAY-API-APP-NAME",  appname);
 		conn.setRequestProperty("X-EBAY-API-CERT-NAME", certname);
-		
+        
+        /* Increment api call count */
+		DBCollection stats = db.getCollection("stats");
+        BasicDBObject query  = new BasicDBObject("date", basetimestamp);
+        BasicDBObject count  = (BasicDBObject) stats.findOne(query);
+        
+        if (count != null && count.containsField("count")) {
+            if (count.getInt("count") > 4000) {
+                System.out.println("api call count over 4000 skip.");
+                return "";
+            }
+        }
+        
+        BasicDBObject update = new BasicDBObject("$inc", new BasicDBObject("count", 1));
+        stats.update(query, update, true, false);
+        
 		// todo: trap network error.
-		OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
-		osw.write(requestxml);
-		osw.flush();
-		osw.close();
-        conn.connect();
+        try {
+            OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+            osw.write(requestxml);
+            osw.flush();
+            osw.close();
+            conn.connect();
+        } catch (Exception e) {
+            System.out.println("ApiCallTask network error.");
+            return "";
+        }
 		
 		String savedir = basedir+"/logs/apicall/"+callname;
 		String filename = "_tmp."+siteid.toString()+".xml";
@@ -113,7 +141,7 @@ public class ApiCallTask implements Callable {
 				// todo: Should I add linefeed?
 				out.write(line);
 			} else {
-				responsexml = responsexml + line;
+				responsexml = responsexml + line + "\n";
 			}
 		}
 		br.close();

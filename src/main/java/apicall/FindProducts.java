@@ -18,6 +18,34 @@ public class FindProducts extends ApiCall {
 		this.keyword = keyword;
 	}
 	
+	public FindProducts(String findtype, String k1, String k2) throws Exception {
+		this.findtype = findtype;
+		this.keyword = k1+" "+k2;
+	}
+	
+	public FindProducts(String findtype, String k1, String k2, String k3) throws Exception {
+		this.findtype = findtype;
+		this.keyword = k1+" "+k2+" "+k3;
+	}
+	
+	public FindProducts(String findtype, String k1, String k2, String k3,
+						String k4) throws Exception {
+		this.findtype = findtype;
+		this.keyword = k1+" "+k2+" "+k3+" "+k4;
+	}
+	
+	public FindProducts(String findtype, String k1, String k2, String k3,
+						String k4, String k5) throws Exception {
+		this.findtype = findtype;
+		this.keyword = k1+" "+k2+" "+k3+" "+k4+" "+k5;
+	}
+	
+	public FindProducts(String findtype, String k1, String k2, String k3,
+						String k4, String k5, String k6) throws Exception {
+		this.findtype = findtype;
+		this.keyword = k1+" "+k2+" "+k3+" "+k4+" "+k5+" "+k6;
+	}
+	
 	public String call() throws Exception {
 		
 		BasicDBObject reqdbo = new BasicDBObject();

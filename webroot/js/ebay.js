@@ -8,6 +8,12 @@ var foundproducts = new Array();
 /* initialize */
 $(function() {
 	
+	if (typeof(hash) == 'undefined') {
+		resizediv_index();
+		bindevents_index();
+		return;
+	}
+	
 	resizediv();
 	bindevents();
 	summary();
@@ -47,13 +53,13 @@ $(function() {
 	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
 	//setTimeout(autoclick, 3000);
 	
+	$('ul.pictures').sortable();
+	
 	return;
 });
 
-function bindevents()
+function bindevents_index()
 {
-	$(window).resize(resizediv);
-	
 	/* Sign up button */
 	$('div#signupbox button').live('click', function() {
 		var postdata = $('input', $(this).closest('form')).serialize();
@@ -73,6 +79,11 @@ function bindevents()
 		
 		return false;
 	});
+}
+
+function bindevents()
+{
+	$(window).resize(resizediv);
 	
 	/* Add eBay account */
 	$('button.addebayaccount').live('click', function() {
@@ -265,19 +276,28 @@ function bindevents()
     $('input:file').live('change', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
+        var userid = $('select[name=UserID]', '#'+id).val();
+        
 		var idform = $('<input/>').attr('name', 'id').val(id);
 		$(this).closest('form').append(idform);
+        
+		var useridform = $('<input/>').attr('name', 'userid').val(userid);
+		$(this).closest('form').append(useridform);
+        
+		$('ul.pictures', '#'+id).sortable('destroy');
 		
-		var fileindex = $(this).attr('name');
-		var fileindexform = $('<input/>').attr('name', 'fileindex').val(fileindex);
-		$(this).closest('form').append(fileindexform);
+		//var fileindex = $(this).attr('name');
+		//var fileindexform = $('<input/>').attr('name', 'fileindex').val(fileindex);
+		//$(this).closest('form').append(fileindexform);
 		
-		$(this).attr('name', 'uploadfile')
+		//$(this).attr('name', 'uploadfile')
+		$(this).attr('name', 'fileUpload')
 		$(this).closest('form').submit();
 		$(this).closest('form')[0].reset();
 		
-		$(fileindexform).remove();
+		//$(fileindexform).remove();
 		$(idform).remove();
+		$(useridform).remove();
     });
     
 	$('select[name="mod.ListingType"]').live('change', function() {
@@ -287,22 +307,19 @@ function bindevents()
 	
 	$('ul.tabNav li').live('click', function() {
 		var id = $(this).closest('tbody').attr('id');
-		
-		if ($(this).html() == 'All') {
-			$('div.tabContainer', '#'+id).children().show();
-			return false;
-		}
-		
 		var curIdx = $(this).prevAll().length + 1;
 		
 		$(this).parent().children('.current').removeClass('current');
 		$(this).addClass('current');
 		
-		//$('div.tabContainer', '#'+id).children('.current').hide();
-		$('div.tabContainer', '#'+id).children().hide();
-		$('div.tabContainer', '#'+id).children('.current').removeClass('current');
-		$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').show();
-		$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').addClass('current');
+		if ($(this).html() == 'All') {
+			$('div.tabContainer', '#'+id).children().show();
+		} else {
+			$('div.tabContainer', '#'+id).children().hide();
+			$('div.tabContainer', '#'+id).children('.current').removeClass('current');
+			$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').show();
+			$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').addClass('current');
+		}
 		
 		return false;
 	});
@@ -431,6 +448,16 @@ function bindevents()
 			   });
 	});
 	
+	$('#cancelaccountlink').live('click', function() {
+        if (checkdemoaccount()) return false;
+		
+		if (confirm('Cancel account?')) {
+			return true;
+		} else {
+			return false;
+		}
+	});
+	
 	$('button.GetProductSearchResults').live('click', findproducts);
 	
 	$('div.foundproducts div.product').live('click', function() {
@@ -505,9 +532,10 @@ function bindevents()
 			   'json');
 		
 		// setformelements
-		$('select[name=TimeZone]', 'div#settings').empty();
+		$('select[name=TimeZone]', '#settings').empty();
 		$.each(timezoneids, function(k, v) {
-			var optiontag = $('<option/>').val(k).text(v);
+			//var optiontag = $('<option/>').val(k).text(v);
+			var optiontag = $('<option/>').val(k).text(k);
 			$('select[name=TimeZone]', 'div#settings').append(optiontag);
 		});
 		
@@ -517,6 +545,20 @@ function bindevents()
 	$('a#showhelp').live('click', function() {
 		showcontent('div#help');
 	});
+    
+    $('select[name=TimeZone]', '#settings').live('click', function() {
+        
+        var postdata = 'timezone='+encodeURIComponent($(this).val());
+        
+        $.post('/json/settings',
+               postdata,
+               function (data) {
+                   
+               },
+               'json');
+        
+        return;
+    });
 	
 	// Theme select
 	$('select[name="ListingDesigner.GroupID"]').live('change', function() {
@@ -555,7 +597,13 @@ function bindevents()
 		$('#items').append(dom);
 		
 		detail = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+		
 		$('tr.row2 td', '#'+id).html(detail);
+		
+		$('div.tabContainer', '#'+id).children().show();
+		
+		// todo: compare to CKEditor
+		$('textarea[name="mod.Description"]', '#'+id).wysiwyg();
 		
 		showbuttons(dom, 'save,cancel');
 		
@@ -579,6 +627,8 @@ function bindevents()
 			 item_modifing.id = id;
 			 item_modifing.categorypath = [];
 			 //item_modifing.mod.Quantity = 1;
+
+			 dump(item_modifing);
 			 
 			 setformelements(item_modifing);
 			 
@@ -597,6 +647,25 @@ function bindevents()
 	});
 	
 	$('select[name="mod.Currency"]').live('change', changeCurrency);
+	
+	$('#checkduplicateitems').live('click', function() {
+		
+		$('input[name=UserID]').val('');
+		$('input[name=selling]').val('allitems');
+		$('input[name=offset]').val(0);
+		$('input[name=option]').val('checkduplicateitems');
+		$('table#items tbody:gt(1)').remove();
+		items();
+		
+		return false;
+	});
+	
+	// Delete Picture
+	$('a.deletepicture').live('click', function() {
+		$(this).closest('li').remove();
+		return false;
+	});
+	
 	
 	/*
     jQuery('div#message').ajaxStart(function() {
@@ -639,6 +708,7 @@ var findproducts = function() {
 		   function(data) {
 			   dump(data.json.result);
 			   
+			   $('div.producttemplate', td).nextAll().remove();
 			   $.each(data.json.result.Product, function(i, o) {
 				   
 				   var productids = arrayize(o.ProductID);
@@ -769,6 +839,11 @@ function summary()
 	var ulorg = $('ul.accounts').clone();
 	
 	$.getJSON('/json/summary', function(data) {
+
+		if (!data.json.alluserids) {
+			showcontent('div#help');
+			return;
+		}
 		
 		$('ul.accounts > li.allitems').append(' (<span>'+data.json.alluserids.allitems+'</span>)');
 		$.each(data.json.alluserids, function(k, v) {
@@ -826,6 +901,8 @@ function items()
 			 return;
 		 }
 		 $('tbody#rowloading').hide();
+		 
+		 dump(data.json);
 		 
 		 var offset = parseInt($('input.filter[name=offset]').val());
 		 var limit  = parseInt($('input.filter[name=limit]' ).val());
@@ -943,7 +1020,9 @@ function getrow(idx, row)
 			}
 		});
 	}
-	
+	if (row.message) {
+		$('td.Title', dom).append(row.message);
+	}
 	if (row.org) {
 		if (row.org.SellingStatus.QuantitySold > 0) {
 			var soldtag = $('<div/>')
@@ -956,11 +1035,11 @@ function getrow(idx, row)
 		}
 	}
 	
-	/*
-	if (row['schedule']) {
-		$('td.ListingDetails_EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row['schedule']);
+    if (row.scheduled) {
+	    if (row.scheduled) {
+		    $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
+        }
 	}
-	*/
 	
 	return dom;
 }
@@ -1062,10 +1141,12 @@ function setformelements(item)
 	}
 	var durationsetid = null;
 	if (item.mod.PrimaryCategory) {
-		for (i in category.CategoryFeatures.ListingDuration) {
-			if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
-				durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
-				break;
+		if (category.CategoryFeatures) {
+			for (i in category.CategoryFeatures.ListingDuration) {
+				if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
+					durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
+					break;
+				}
 			}
 		}
 	}
@@ -1118,7 +1199,7 @@ function setformelements(item)
 		
 		var labeltag = $('<label/>')
 			.attr('for', idforlabel)
-			.html(o+'('+i+')');
+			.html(o);
 		
 		var divtag2 = $('<div/>');
 		$(divtag2).append(checkboxtag);
@@ -1177,8 +1258,12 @@ function setformelements(item)
 		});
 	}	
 
-	/* checkbox and label */
+	/* checkbox,radio and label */
 	$('input[type=checkbox][id^=_id]', '#'+id).each(function (i, o) {
+		var newid = $(o).attr('id').replace(/^_id/, id);
+		$(o).attr('id', newid);
+	});
+	$('input[type=radio][id^=_id]', '#'+id).each(function (i, o) {
 		var newid = $(o).attr('id').replace(/^_id/, id);
 		$(o).attr('id', newid);
 	});
@@ -1208,8 +1293,12 @@ function setformelements_shipping(item)
 	// hide and show
 	if (dmsttype == 'NoShipping') {
 		$('tbody.shippingmainrows', '#'+id).hide();
-		$('tbody.internationalshippingmainrows', '#'+id).hide();
 		// todo: remove 2>=
+		
+		// also set NoShipping to international.
+		$('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val('NoShipping');
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+		
 		return;
 	} else {
 		$('tbody.shippingmainrows', '#'+id).show();
@@ -1329,6 +1418,11 @@ function addsso(elm)
 	var id = $(elm).closest('tbody.itemrow').attr('id');
 	var sscopy = $(divs[0]).clone();
 	
+	if (tmpname == 'ShippingServiceOptions') {
+		$('input[name$="FreeShipping"]', sscopy).remove();
+		$('label[for$="FreeShipping"]', sscopy).remove();
+	}
+	
 	var ssidx = divs.length;
 	$(sscopy).attr('class', 'ShippingService'+ssidx);
 	$.each($('select, input[type=text]', sscopy), function(j, o) {
@@ -1359,6 +1453,11 @@ function addsso(elm)
 	}
 	
 	return false;
+}
+
+function resizediv_index()
+{
+	$('#header').width($('#container-white').width()-40);
 }
 
 function resizediv()
@@ -1449,8 +1548,8 @@ var clickEdit = function() {
 
 var save = function() {
 	
-	id = $(this).closest('tbody.itemrow').attr('id');
-	detail = $(this).closest('div.detail');
+	var id     = $(this).closest('tbody.itemrow').attr('id');
+	var detail = $(this).closest('div.detail');
 	
 	// temp remove
 	$('input.remove',  detail).remove();
@@ -1464,21 +1563,26 @@ var save = function() {
 	}
 	*/
 	
-	$.each($('img.PictureDetails_PictureURL', '#'+id), function(i, imgelm) {
-		imgsrc = $(imgelm).attr('src');
-		if (imgsrc == '/img/noimage.jpg') {
-			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", '#'+id).remove();
-		} else {
-			$("input[name='PictureDetails[PictureURL]["+(i+1)+"]']", '#'+id).val(imgsrc);
-		}
+	// PictureURL
+	$.each($('ul.pictures li', '#'+id), function (i, li) {
+		if ($(li).attr('class') == 'template') return;
+		
+		var src = $('img', li).attr('src');
+		
+		var input = $('<input />')
+			.attr('type', 'hidden')
+			.attr('name', 'mod.PictureDetails.PictureURL')
+			.val(src);
+		
+		$('div.pictures', '#'+id).append(input);
 	});
 	
 	// todo: Why Opera can't include <select> tags?
 	// todo: Don't use numeric keys that causes "NCNames cannot start with...." javascript error.
 	
 	// remove empty value forms
-	_dsso = 'ShippingDetails.ShippingServiceOptions';
-	_isso = 'ShippingDetails.InternationalShippingServiceOptions';
+	var _dsso = 'mod.ShippingDetails.ShippingServiceOptions';
+	var _isso = 'mod.ShippingDetails.InternationalShippingServiceOption';
 	for (i = 0; i <= 3; i++) {
 		if ($('select[name="'+_dsso+'.'+i+'.ShippingService"]', '#'+id).val() == '') {
 			$('input[name="'+_dsso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
@@ -1512,8 +1616,7 @@ var save = function() {
 	});
 	
 	
-	postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
-		.extractObject();
+	var postdata = $('input[type=text], input:checked, input[type=hidden], input[type=datetime-local], select, textarea', '#'+id).extractObject();
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
 	
@@ -1573,7 +1676,8 @@ var clickCopy = function() {
 
 
 var changeSite = function() {
-	var id = $(this).closest('tbody.itemrow').attr('id');
+    
+	var id   = $(this).closest('tbody.itemrow').attr('id');
 	var site = $(this).val();
 	
 	$.getJSON
@@ -1611,7 +1715,7 @@ var clickTitle = function() {
 		return false;
 	}
 	
-	detail = $('div.detail', 'div#detailtemplate').clone();
+	var detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
 	$('tr.row2 td', '#'+id).html(detail);
 	$('div.detail', '#'+id).toggle();
@@ -1653,11 +1757,13 @@ var clickTitle = function() {
 
 function getcategorypulldown(site, categoryid)
 {
-	sel = $('<select class="category"/>');
-	opt = $('<option/>').val('').text('');
+	var sel = $('<select class="category"/>');
+	var opt = $('<option/>').val('').text('');
 	sel.append(opt);
+    
 	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
-		str = hash[site]['category']['name'][childid];
+        
+		var str = hash[site]['category']['name'][childid];
 		str += '('+childid+')';
 		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
 		opt = $('<option/>').val(childid).html('old|'+str);
@@ -1669,7 +1775,7 @@ function getcategorypulldown(site, categoryid)
 
 function getcategorypulldowns(site, path)
 {
-	wrapper = $('<div/>');
+	var wrapper = $('<div/>');
 	
 	for (i in path) {
 		
@@ -1803,7 +1909,7 @@ function filter()
 
 function showbuttons(detail, buttons)
 {
-	buttons = 'button.'+buttons.replace(/,/g, ',button.');
+	var buttons = 'button.'+buttons.replace(/,/g, ',button.');
 	
 	ulbtn = $('div.editbuttons', detail);
 	$('div.editbuttons button', detail).hide();
@@ -1828,7 +1934,8 @@ function msg(o)
 
 function dump(o)
 {
-	$('div#debug').html('<pre>'+$.dump(o)+'</pre>');
+	var htmlencoded = $('<div/>').text($.dump(o)).html();
+	$('div#debug').html('<pre>'+htmlencoded+'</pre>');
 }
 
 function log(str)
@@ -1838,13 +1945,13 @@ function log(str)
 
 function updateduration(id)
 {
-	site = $('select[name="mod.Site"]', '#'+id).val();
-	listingtype = $('select[name="mod.ListingType"]', '#'+id).val();
-	tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
+	var site = $('select[name="mod.Site"]', '#'+id).val();
+	var listingtype = $('select[name="mod.ListingType"]', '#'+id).val();
+	var tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
 	
-	sel = $('<select/>').attr('name', 'ListingDuration');
+	var sel = $('<select/>').attr('name', 'ListingDuration');
 	$.each(rowsdata[id]['categoryfeatures']['ListingDuration'][listingtype], function(k, v) {
-		opt = $('<option/>').val(k).text(v);
+		var opt = $('<option/>').val(k).text(v);
 		sel.append(opt);
 	});
 	$('select[name=ListingDuration]', '#'+id).replaceWith(sel);
@@ -1861,6 +1968,7 @@ function getListingDurationLabel(str)
 	} else if (str.match(/^Days_([\d]+)$/)) {
 		str = str.replace(/^Days_([\d]+)$/, "$1 Days");
 	}
+    
 	return str;
 }
 
@@ -1878,7 +1986,7 @@ function arrayize(object)
 
 function showformvalues(item)
 {
-	if (item.mod.PictureDetails) {
+	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
 		item.mod.PictureDetails.PictureURL
 			= arrayize(item.mod.PictureDetails.PictureURL);
 	}
@@ -1890,7 +1998,7 @@ function showformvalues(item)
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('input[type=text]', detail), function(i, form) {
+	$.each($('input[type=text],input[type=datetime-local]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
@@ -1901,16 +2009,29 @@ function showformvalues(item)
 			var htmlencoded = $('<div/>').text(tmpvalue).html();
 			$(form).replaceWith(htmlencoded);
 			
+			/*
 			if ($(form).attr('name').match(/^mod.PictureDetails.PictureURL./)) {
 				var imgclass = $(form).attr('name')
 					.replace(/^mod.PictureDetails.PictureURL./, 'PD_PURL_');
 				$('img.'+imgclass, detail).attr('src', tmpvalue);
 			}
+			*/
 		} catch (err) {
 			$(form).replaceWith('');
 			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
 		}
 	});
+	
+	/* Description (before replacing textarea)*/
+	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
+	var iframe = $('<iframe/>').attr('class', 'description').attr('src', '/blank.html');
+	iframe.load(function() {
+		$(this).get(0).contentWindow.document.write(item.mod.Description);
+		
+		var iframeheight = $(this).contents().find('body').height() + 16
+		$(this).css('height', iframeheight+'px');
+	});
+	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
 	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
@@ -1960,47 +2081,40 @@ function showformvalues(item)
 			if (typeof(tmpvalue) == 'object') {
 				for (i in tmpvalue) {
 					if (tmpvalue[i] == $(form).val()) {
-						$(form).replaceWith('[o]');
+						$(form).replaceWith('<img src="/icon/03/10/02.png"/>');
 					}
 				}
 			} else {
 				if (tmpvalue == $(form).val()) {
-					$(form).replaceWith('[o]');
+					$(form).replaceWith('<img src="/icon/03/10/02.png"/>');
 				}
 			}
 			
 		} catch (err) {
 			var idforlabel = $(form).attr('id');
-			$(form).replaceWith('[X]');
+			$(form).replaceWith('<img src="/icon/03/10/04.png"/>');
 			$('label[for="'+idforlabel+'"]').addClass('unchecked');
 		}
 	});
 	$.each($('input[type=checkbox]', detail), function(i, form) {
 		var idforlabel = $(form).attr('id');
-		$(form).replaceWith('[x]');
+		$(form).replaceWith('<img src="/icon/03/10/04.png"/>');
 		$('label[for="'+idforlabel+'"]').addClass('unchecked');
 	});
+	
 	/* PictureDetails */
-	if (item.mod.PictureDetails) {
-		$.each($('img.PictureDetails_PictureURL', detail), function(i, imgtag) {
-			if (item.mod.PictureDetails.PictureURL[i]) {
-				$(this).attr('src', item.mod.PictureDetails.PictureURL[i]);
-			}
-		});
-	}
 	$('input[type=file]', detail).remove();
 	
-	/* Description */
-	iframe = $('<iframe/>')
-		.attr('class', 'description')
-		.attr('src', 'about:blank');
-	
-	iframe.load(function() {
-		$(this).contents().find('body').append(item.mod.Description);
-		var iframeheight = $(this).contents().find('body').height() + 16
-		$(this).css('height', iframeheight+'px');
-	});
-	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	$('ul.pictures li:gt(0)', detail).remove();
+	if (item.mod.PictureDetails) {
+		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
+			var lidiv = $('ul.pictures li.template', detail).clone();
+			$(lidiv).removeClass('template');
+			$('img', lidiv).attr('src', url);
+			$('ul.pictures', detail).append(lidiv);
+		});
+		//$('ul.pictures', detail).sortable();
+	}
 	
 	/* hide links */
 	$('a.addis', detail).remove();
@@ -2021,20 +2135,13 @@ function fillformvalues(item)
 	}
 	
 	// input, text, textarea
-	$.each($('input[type=text], input[type=hidden], select, textarea', '#'+id), function(i, form) {
+	$.each($('input[type=text], input[type=hidden], input[type=datetime-local], select, textarea', '#'+id), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
 		try {
 			eval("var tmpvalue = item"+formname);
 			$(form).val(tmpvalue);
-			
-			if ($(form).attr('name').match(/^PictureDetails.PictureURL./)) {
-				var imgclass = $(form).attr('name')
-					.replace(/^PictureDetails.PictureURL./, 'PD_PURL_');
-				$('img.'+imgclass, '#'+id).attr('src', tmpvalue);
-			}
-			
 		} catch (err) {
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}
@@ -2077,6 +2184,23 @@ function fillformvalues(item)
 		$(o).hide();
 		$(o).after($(o).val());
 	});
+	
+	// Pictures (duplicate code with showformvalues().)
+	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
+		item.mod.PictureDetails.PictureURL
+			= arrayize(item.mod.PictureDetails.PictureURL);
+		
+		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
+			log(url);
+			var lidiv = $('ul.pictures li:first', '#'+id).clone();
+			$(lidiv).removeClass('template');
+			$('img', lidiv).attr('src', url);
+			$('ul.pictures', '#'+id).append(lidiv);
+		});
+		$('ul.pictures', '#'+id).sortable({
+			items: ':not(.template)'
+		});
+	}
 	
 	return;
 }
@@ -2308,4 +2432,20 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 	$(trtag).append(tdtag);
 	
 	return trtag;
+}
+
+function addimage(id, files) {
+	
+	$.each(files, function(i, url) {
+		var li = $('ul.pictures li.template', '#'+id).clone();
+		$(li).removeClass('template');
+		$('img', li).attr('src', url);
+		$('ul.pictures', '#'+id).append(li);
+	});
+	
+	$('ul.pictures', '#'+id).sortable({
+		items: ':not(.template)'
+	});
+	
+	return;
 }

@@ -80,6 +80,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date now = new Date();
 			basetimestamp = sdf.format(now);
+			log.debug("basetimestamp:"+basetimestamp);
 			
 		} catch (Exception e) {
 			

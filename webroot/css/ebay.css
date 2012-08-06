@@ -59,6 +59,20 @@ div#content960 {
   background-color: #fff;
 }
 
+div#screenshot,
+div#feed {
+  margin: 20px;
+}
+
+div#feed li {
+  margin-bottom: 10px;
+}
+
+div#screenshot img {
+  width: 920px;
+  border: 1px solid #aaaaaa;
+}
+
 h1 {
   font-size: 1.5em;
   font-weight: bold;
@@ -66,7 +80,7 @@ h1 {
   margin: 0 0 0 0;
 }
 
-div#logo {
+#logo {
   float: left;
   border: 1px solid #cccccc;
   background-color: #fafafa;
@@ -79,7 +93,11 @@ div#logo {
   -webkit-border-radius: 2px;
 }
 
-div#headderrightbuttons {
+#logo img {
+  border: 0px none;
+}
+
+#headderrightbuttons {
   float: right;
   text-align: right;
   margin-top: 5px;
@@ -130,9 +148,9 @@ table.items {
   border-spacing: 0px;
   border-collapse: collapse;
   
-  border-top: 1px solid #eaeaea;
-  border-left: 1px solid #eaeaea;
-  border-right: 1px solid #eaeaea;
+  border-top: 1px solid #dddddd;
+  border-left: 1px solid #dddddd;
+  border-right: 1px solid #dddddd;
 }
 
 table.items tr.row1:hover {
@@ -141,11 +159,11 @@ table.items tr.row1:hover {
 }
 
 table.items tr.row2 {
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #dddddd;
 }
 
 tbody#rowloading {
-  border-bottom: 1px solid #eaeaea;
+  border-bottom: 1px solid #dddddd;
 }
 
 table.itemsheader tr#filter {
@@ -279,7 +297,7 @@ table.detail td {
 
 table.detail th {
   text-align: left;
-  font-weight: normal;
+  font-weight: bold;
   white-space: nowrap;
   vertical-align: top;
   color: #666;
@@ -466,7 +484,7 @@ ul.tabNav li {
   padding: 0px 7px;
   /*border: 1px solid #eeeeee;*/
   color: #666;
-  text-shadow: #eee 0px 1px 0px;
+  /*text-shadow: #eee 0px 1px 0px;*/
   /*
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -479,14 +497,15 @@ ul.tabNav li:hover {
 }
 
 ul.tabNav li.current {
-  background-color: #eaeaea;
+  background-color: #666;
+  color: #fff;
 }
 
 div.tabContainer {
   clear: both;
   margin-bottom: 20px;
   padding: 10px;
-  border: 1px solid #eaeaea;
+  border: 1px solid #666666;
 }
 
 div.tabContainer div.tab {
@@ -556,7 +575,7 @@ div#debug {
 }
 
 iframe[name=posttarget] {
-  display: none;
+  /*display: none;*/
 }
 
 input.aslabel {
@@ -576,7 +595,7 @@ div.foundproducts {
   position: absolute;
   display: none;
   background-color: #fff;
-  border: 2px solid #666666;
+  border: 1px solid #666666;
 }
 
 div.product {
@@ -625,9 +644,6 @@ input {
   height: 21px;
 }
 
-div.pictures input[type=file] {
-  width: 100px;
-}
 
 
 
@@ -669,6 +685,21 @@ button.btnright {
   border-bottom-left-radius: 0px;
   margin-left: 0px;
   margin-right: 15px;
+}
+
+input[name="ProductSearch.QueryKeywords"] {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  margin-right: 0px;
+  float: left;
+}
+
+button.GetProductSearchResults {
+  border-left: 0px none;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  margin-left: 0px;
+  float: left;
 }
 
 select {
@@ -727,7 +758,8 @@ div.ShippingService4 {
   clear: both;
 }
 
-
+tbody.shippingmainrows,
+tbody.internationalshippingmainrows,
 div.ShippingService0 a.removesso,
 div.InternationalShippingService0 a.removesso {
   display: none;
@@ -742,9 +774,10 @@ a.addsso {
 }
 
 div.tabtitle {
-  font-size: 1.2em;
-  background-color: #eeeeee;
-  padding: 7px 10px;
+  font-size: 1.1em;
+  color: #fff;
+  background-color: #666;
+  padding: 5px 10px;
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -782,3 +815,69 @@ label:hover {
   text-decoration: underline;
   cursor: pointer;
 }
+
+#filteroption {
+  margin: 20px 0;
+}
+
+td.paymentmethod img {
+  margin-right: 5px;
+}
+
+
+/* picture sortable list */
+ul.pictures {
+  list-style: none;
+  padding: 0;
+}
+
+ul.pictures li {
+  width: 100px;
+  height: 120px;
+  float: left;
+  margin: 5px;
+  padding: 5px;
+  border: 1px solid #CCC;
+  text-align: center;
+}
+
+ul.pictures li.template {
+  display: none;
+}
+
+ul.pictures div {
+  display: table-cell;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+ul.pictures li.sortable-placeholder {
+	border: 1px dashed #CCC;
+	background: none;
+}
+
+ul.pictures a.deletepicture {
+  color: #999;
+  font-size: 0.8em;
+}
+
+ul.pictures img {
+  max-height: 100px;
+  max-width: 100px;
+}
+
+/* clearfix */
+.clearfix:after {
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden;
+}
+.clearfix {display: inline-block;}
+/* Hides from IE-mac */
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */

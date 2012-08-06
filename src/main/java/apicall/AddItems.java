@@ -109,6 +109,10 @@ public class AddItems extends ApiCall {
 			for (Object tmpsite : lhmuserid.keySet()) {
 				LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
 				
+				String parentmessageid = "";
+				parentmessageid = userdbo.getString("email");
+				parentmessageid += " " + tmpuserid;
+				
 				/* each chunk (5 items)*/
 				for (Object tmpchunk : lhmsite.keySet()) {
 					List litems = (List) lhmsite.get(tmpchunk);
@@ -132,9 +136,12 @@ public class AddItems extends ApiCall {
 												   +" "+tmpuserid
 												   +" "+id)
 								 .append("Item", ((DBObject) tmpidx).get("mod")));
+						
+						parentmessageid += " " + id;
+					
 						tmpcnt++;
 					}
-					
+					reqdbo.append("MessageID", parentmessageid);
 					reqdbo.append("AddItemRequestContainer", ldbo);
 					
 					/* each item */
@@ -147,6 +154,8 @@ public class AddItems extends ApiCall {
 						expandElements(tmpi);
 					}			
 					jso.getJSONArray("AddItemRequestContainer").setExpandElements(true);
+					
+					writelog("AddItems/jso.txt", jso.toString());
 					
 					XMLSerializer xmls = new XMLSerializer();
 					xmls.setObjectName("AddItemsRequest");
@@ -190,7 +199,7 @@ public class AddItems extends ApiCall {
 		String ack = responsedbo.get("Ack").toString();
 		log("Ack:"+ack);
 		
-		// todo: not exist when error is one pattern?
+		// todo: not exist when error is one?
 		String classname = responsedbo.get("AddItemResponseContainer").getClass().toString();
 		
 		BasicDBList dbl = new BasicDBList();
