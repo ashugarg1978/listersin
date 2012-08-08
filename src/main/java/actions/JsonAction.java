@@ -119,7 +119,7 @@ public class JsonAction extends BaseAction {
 					
 					result = true;
 					
-					message = "Confirmation mail was sent to "+email+".";
+					message = email;
 				}
 			}
 		}

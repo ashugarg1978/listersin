@@ -39,34 +39,41 @@
   <div id="content960">
 	
 	<div style="margin:20px; float:left;">
-	  <div>
+	  <div style="margin-bottom:10px;">
 		<h1>ListersIn - eBay listing software</h1>
 	  </div>
-	  <ul>
-		<li>This software is a listing software for eBay sellers.</li>
-        <li>You can try this software with demo account before you sign up.</li>
-        <li>Demo account is: [Email] demo@listers.in [Password] demo</li>
-		<li>Manage multiple ebay accounts.</li>
+      
+      <h2>Features</h2>
+	  <ul class="features">
+		<li>Manage multiple eBay accounts.</li>
+		<li>Upload 12 pictures for one item to eBay server at once.</li>
 		<li>Simple and easy user interface.</li>
-		<li><a href="http://forum.listers.in/">Forum about this service is here.</a></li>
-		<li><a href="http://listers.in/blog/">Blog is here.</a></li>
-	  </ul>
+		<li>Find duplicate items by title.</li>
+        <li>FREE.</li>
+ 	  </ul>
 	  
-	  <div id="risknotice">
-		** IMPORTANT NOTICE **
-		<ul>
-		  <li>This listing tool is under development.</li>
-		  <li>Please be careful about using this seller software.</li>
-		  <li>There still may be some bugs, so please list to "Test Auction" category before you create actual listings.</li>
-		  <li>If you're interested, please try this software and leave your comment <a href="http://forum.listers.in/">here</a> :)</li>
-		</ul>
-	  </div>
+      <h2>Notice</h2>
+	  <ul class="notice">
+		<li>This listing tool is under development. There still may be some bugs.</li>
+		<li>Please be careful about using this seller software.</li>
+		<li>Please list to "Test Auction" category before you create actual listings.</li>
+      </ul>
+
+      <h2>Feedback</h2>
+	  <ul class="feedback">
+		<li>We would like to hear from you!</li>
+		<li>
+          Please post your comments and suggestions to the 
+          <a href="http://forum.listers.in/" target="_blank">forum</a>.
+        </li>
+		<li>Or send an email to admin [at] listers.in.</li>
+      </ul>
 	  
 	  <!--
 	  todo: signup tutorial
 	  -->
 
-
+<br/><br/>
 <script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
 <script>
 new TWTR.Widget({
@@ -117,7 +124,7 @@ new TWTR.Widget({
           Demo account: demo<br/>
           <br />
 		  
-		  <button>Sign in</button><br /><br />
+		  <button>Sign in</button>
 		  
 		  <a href="#">Forgot password ?</a>
 		</form>
@@ -129,6 +136,7 @@ new TWTR.Widget({
 		<div style="margin-bottom:10px; font-weight:bold;">
 		  Sign up
 		</div>
+		<div id="signupmessage"></div>
 		
 		<form method="post" action="/json/register">
 		  Email<br />
@@ -150,12 +158,12 @@ new TWTR.Widget({
 	<div style="clear:both;"></div>
 	
 	<div id="screenshot">
-	  Screenshot
+	  <h2>Screenshot</h2>
 	  <img src="/img/screenshot.png" alt="Screen shot of ListersIn" />
 	</div>
 	
 	<div id="feed">
-	  Blog
+	  <h2>Blog</h2>
 	  <ul>
 		<s:iterator value="feed.entries">
 		  <li>

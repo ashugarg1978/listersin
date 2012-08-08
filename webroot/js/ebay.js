@@ -68,11 +68,13 @@ function bindevents_index()
 			   postdata,
 			   function(data) {
 				   if (data.json.result == true) {
-					   var divtag = $('<div/>').css('color', 'blue').html(data.json.message);
-					   $('div#signupbox').append(divtag);
+					   $('#signupmessage')
+						   .css('color', 'blue')
+						   .html('Confirmation mail was sent to<br/>'+data.json.message+'!');
 				   } else {
-					   var divtag = $('<div/>').css('color', 'red').html(data.json.message);
-					   $('div#signupbox').append(divtag);
+					   $('#signupmessage')
+						   .css('color', 'red')
+						   .html(data.json.message);
 				   }
 			   },
 			   'json');
