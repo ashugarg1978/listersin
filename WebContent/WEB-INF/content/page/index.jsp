@@ -69,40 +69,27 @@
 		<li>Or send an email to admin [at] listers.in.</li>
       </ul>
 	  
+	  <h2>Screenshot</h2>
+	  <a href="/img/screenshot.png" target="_blank">
+		<img id="screenshot" src="/img/screenshot.png" />
+	  </a>
+	  <div>
+		<a href="/img/screenshot.png" target="_blank">Click to enlarge</a>
+	  </div>
+	  <h2>Blog</h2>
+	  <ul class="blog">
+		<s:iterator value="feed.entries">
+		  <li>
+			<a href="${link}">${title}</a> ${publishedDate}
+			<p>${description.value}</p>
+		  </li>
+		</s:iterator>
+	  </ul>
+	  
 	  <!--
 	  todo: signup tutorial
 	  -->
 
-<br/><br/>
-<script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
-<script>
-new TWTR.Widget({
-  version: 2,
-  type: 'profile',
-  rpp: 4,
-  interval: 30000,
-  width: 400,
-  height: 200,
-  theme: {
-    shell: {
-      background: '#666666',
-      color: '#ffffff'
-    },
-    tweets: {
-      background: '#ffffff',
-      color: '#333333',
-      links: '#009900'
-    }
-  },
-  features: {
-    scrollbar: true,
-    loop: false,
-    live: false,
-    behavior: 'all'
-  }
-}).render().setUser('ListersIn').start();
-</script>
-	  
 	</div>
 	
 	<div style="float:right;">
@@ -152,27 +139,43 @@ new TWTR.Widget({
 		</form>
 		
 	  </div>
+
+	  <div id="twitter">
+	  
+		<script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
+		<script>
+  	    new TWTR.Widget({
+  	      version: 2,
+  	      type: 'profile',
+  	      rpp: 4,
+  	      interval: 30000,
+  	      width: 362,
+  	      height: 200,
+  	      theme: {
+  	        shell: {
+  	          background: '#666666',
+  	          color: '#ffffff'
+  	        },
+  	        tweets: {
+  	          background: '#ffffff',
+  	          color: '#333333',
+  	          links: '#009900'
+  	        }
+  	      },
+  	      features: {
+  	        scrollbar: true,
+  	        loop: false,
+  	        live: false,
+  	        behavior: 'all'
+  	      }
+  	    }).render().setUser('ListersIn').start();
+		</script>
+		
+	  </div>
 	  
 	</div>	  
 	
 	<div style="clear:both;"></div>
-	
-	<div id="screenshot">
-	  <h2>Screenshot</h2>
-	  <img src="/img/screenshot.png" alt="Screen shot of ListersIn" />
-	</div>
-	
-	<div id="feed">
-	  <h2>Blog</h2>
-	  <ul>
-		<s:iterator value="feed.entries">
-		  <li>
-			<a href="${link}">${title}</a> ${publishedDate}<br/>
-			<div>${description.value}</div>
-		  </li>
-		</s:iterator>
-	  </ul>
-	</div>
 	
   </div>
   
