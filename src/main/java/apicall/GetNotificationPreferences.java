@@ -13,14 +13,14 @@ public class GetNotificationPreferences extends ApiCall implements Callable {
 	
 	public GetNotificationPreferences() throws Exception {
 	}
-	
-	public GetNotificationPreferences(String email, String userid) throws Exception {
-		this.email  = email;
-		this.userid = userid;
+    
+	public GetNotificationPreferences(String[] args) throws Exception {
+		this.email  = args[0];
+		this.userid = args[1];
 	}
 	
 	public String call() throws Exception {
-		
+        
 		/* get token from db */
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
@@ -55,6 +55,7 @@ public class GetNotificationPreferences extends ApiCall implements Callable {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+        
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
 		userid = messages[1];

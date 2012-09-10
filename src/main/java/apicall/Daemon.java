@@ -56,104 +56,53 @@ public class Daemon {
 			Socket socket = serversocket.accept();
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            
+            String callclass = in.readLine();
+			if (callclass.equals("shutdown")) break;
 			
-			String message = "";
+            ArrayList<String> als = new ArrayList<String>();
+            
+            String line = "";
+            while ((line = in.readLine()) != null) {
+                if (line.equals("")) break;
+                als.add(line.replace("\\n", "\n"));
+            }
+            
+            String[] messages = new String[als.size()];
+            messages = (String[]) als.toArray(messages);
 			
-			message = in.readLine();
-			
-			if (message.equals("shutdown")) break;
-			
-			System.out.println(sdf.format(new Date()).toString()+" "+message);
-			
-			String[] arrmsg = message.split(" ");
-			
-			Callable task = null;
-			Class apiclass = Class.forName("ebaytool.apicall."+arrmsg[0]);
-			
+            System.out.println(sdf.format(new Date()).toString()
+							   +" "+callclass+" ("+als.size()+" args)");
+            for (String tmpstr : messages) {
+                System.out.println(sdf.format(new Date()).toString()+" - "+tmpstr);
+            }
+            
 			try {
 				
-				if (arrmsg.length == 7) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class,
-															   String.class,
-															   String.class,
-															   String.class,
-															   String.class,
-															   String.class);
-					
-					task = (Callable) cnst.newInstance(arrmsg[1],
-													   arrmsg[2],
-													   arrmsg[3],
-													   arrmsg[4],
-													   arrmsg[5],
-													   arrmsg[6]);
-					
-				} else if (arrmsg.length == 6) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class,
-															   String.class,
-															   String.class,
-															   String.class,
-															   String.class);
-					
-					task = (Callable) cnst.newInstance(arrmsg[1],
-													   arrmsg[2],
-													   arrmsg[3],
-													   arrmsg[4],
-													   arrmsg[5]);
-					
-				} else if (arrmsg.length == 5) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class,
-															   String.class,
-															   String.class,
-															   String.class);
-					
-					task = (Callable) cnst.newInstance(arrmsg[1],
-													   arrmsg[2],
-													   arrmsg[3],
-													   arrmsg[4]);
-					
-				} else if (arrmsg.length == 4) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class,
-															   String.class,
-															   String.class);
-					
-					task = (Callable) cnst.newInstance(arrmsg[1],
-													   arrmsg[2],
-													   arrmsg[3]);
-					
-				} else if (arrmsg.length == 3) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class,
-															   String.class);
-					
-					task = (Callable) cnst.newInstance(arrmsg[1],
-													   arrmsg[2]);
-					
-				} else if (arrmsg.length == 2) {
-					
-					Constructor cnst = apiclass.getConstructor(String.class);
-					task = (Callable) cnst.newInstance(arrmsg[1]);
-					
-				} else {
-					
+                // ref: http://stackoverflow.com/questions/5142821/illegalargumentexception-wrong-number-of-arguments-in-java-constructor-newinsta
+                // ref: http://stackoverflow.com/questions/5760569/problem-with-constructing-class-using-reflection-and-array-arguments
+                
+				Callable task = null;
+				Class apiclass = Class.forName("ebaytool.apicall."+callclass);
+				
+				if (als.size() == 0) {
 					Constructor cnst = apiclass.getConstructor();
 					task = (Callable) cnst.newInstance();
-					
+				} else {
+					Constructor cnst = apiclass.getConstructor(String[].class);
+					task = (Callable) cnst.newInstance(new Object[] {messages});
 				}
-				
+                
 				Future<String> f = pool.submit(task);
 				String result = "";
 				
 				result = f.get();
 				out.println(result);
-				
+                
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+            
 			out.close();
 			in.close();
 			socket.close();
@@ -175,7 +124,7 @@ public class Daemon {
 		
 		Socket socket = new Socket("localhost", port);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("shutdown");
+		out.println("shutdown\n\n");
 		out.close();
 		socket.close();
 		

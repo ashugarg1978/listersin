@@ -21,47 +21,55 @@ public class ApiCallTask implements Callable {
 	private String basedir;
 	private BasicDBObject configdbo;
 	private String basetimestamp;
-    
+  private String userid;
+  
 	public static DB db;
-	
-	public ApiCallTask(Integer siteid, String requestxml, String callname) throws Exception {
-		this.siteid = siteid;
-		this.requestxml = requestxml;
-		this.callname = callname;
-		this.resulttype = "";
-        
-		basedir = System.getProperty("user.dir");
-		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
-        
-        // timestamp
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        sdf.setTimeZone(TimeZone.getTimeZone("PST"));
-        Date now = new Date();
-        basetimestamp = sdf.format(now);
-        
-		if (db == null) {
-			Mongo m = new Mongo();
-			db = m.getDB(configdbo.getString("database"));
-            System.out.println("ApiCallTask() constructor. db");
-		}
-	}
-	
-	public ApiCallTask(Integer siteid, String requestxml, String callname, String resulttype) throws Exception {
+  
+	public ApiCallTask(String userid, Integer siteid, String requestxml,
+                     String callname, String resulttype) throws Exception {
+    
+    this.userid     = userid;
 		this.siteid     = siteid;
 		this.requestxml = requestxml;
 		this.callname   = callname;
 		this.resulttype = resulttype;
-        
+    
 		basedir = System.getProperty("user.dir");
 		configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
+    
+    // timestamp
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setTimeZone(TimeZone.getTimeZone("PST"));
+    Date now = new Date();
+    basetimestamp = sdf.format(now);
+    
+		if (db == null) {
+			Mongo m = new Mongo();
+			db = m.getDB(configdbo.getString("database"));
+      System.out.println("ApiCallTask() constructor. db");
+		}
+	}
+  
+	public ApiCallTask(String userid, Integer siteid, String requestxml,
+                     String callname) throws Exception {
+    this(userid, siteid, requestxml, callname, "");
+  }
+  
+	public ApiCallTask(Integer siteid, String requestxml,
+                     String callname, String resulttype) throws Exception {
+    this("", siteid, requestxml, callname, resulttype);
+  }
+  
+	public ApiCallTask(Integer siteid, String requestxml, String callname) throws Exception {
+    this("", siteid, requestxml, callname, "");
 	}
 	
 	public String call() throws Exception {
-		
+    
 		/* make log directory for each call */
 		boolean exists = (new File(basedir+"/logs/apicall/"+callname)).exists();
 		if (exists) {
-			
+      
 		} else {
 			new File(basedir+"/logs/apicall/"+callname).mkdir();
 		}
@@ -83,15 +91,15 @@ public class ApiCallTask implements Callable {
 		String appname  = configdbo.getString("appname");
 		String certname = configdbo.getString("certname");
         
-        URL url = new URL(apiurl);
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+    URL url = new URL(apiurl);
+    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
-        conn.setRequestMethod("POST");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
+    conn.setRequestMethod("POST");
+    conn.setDoInput(true);
+    conn.setDoOutput(true);
 		conn.setRequestProperty("Content-Type", "text/xml");
 		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL",
-								configdbo.getString("compatlevel"));
+                            configdbo.getString("compatlevel"));
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
 		conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
         
@@ -99,32 +107,42 @@ public class ApiCallTask implements Callable {
 		conn.setRequestProperty("X-EBAY-API-APP-NAME",  appname);
 		conn.setRequestProperty("X-EBAY-API-CERT-NAME", certname);
         
-        /* Increment api call count */
+    /* Increment api call count */
 		DBCollection stats = db.getCollection("stats");
-        BasicDBObject query  = new BasicDBObject("date", basetimestamp);
-        BasicDBObject count  = (BasicDBObject) stats.findOne(query);
-        
-        if (count != null && count.containsField("count")) {
-            if (count.getInt("count") > 4000) {
-                System.out.println("api call count over 4000 skip.");
-                return "";
-            }
-        }
-        
-        BasicDBObject update = new BasicDBObject("$inc", new BasicDBObject("count", 1));
-        stats.update(query, update, true, false);
-        
+    BasicDBObject query = new BasicDBObject("date", basetimestamp);
+    BasicDBObject count = (BasicDBObject) stats.findOne(query);
+    
+    if (count != null && count.containsField("count")) {
+      if (count.getInt("count") > 4000 && !callname.equals("GetApiAccessRules")) {
+        System.out.println("api call count over 4000 skip.");
+        return "";
+      }
+      if (count.containsField(userid) && count.getInt(userid) > 400) {
+        System.out.println("api call count for "+userid+" over 400 skip.");
+        return "";
+      }
+    }
+    
+    BasicDBObject inc = new BasicDBObject();
+    inc.put("count", 1);
+    if (!userid.equals("")) {
+      inc.put(userid, 1);
+    }
+    
+    BasicDBObject update = new BasicDBObject("$inc", inc);
+    stats.update(query, update, true, false);
+    
 		// todo: trap network error.
-        try {
-            OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
-            osw.write(requestxml);
-            osw.flush();
-            osw.close();
-            conn.connect();
-        } catch (Exception e) {
-            System.out.println("ApiCallTask network error.");
-            return "";
-        }
+    try {
+      OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
+      osw.write(requestxml);
+      osw.flush();
+      osw.close();
+      conn.connect();
+    } catch (Exception e) {
+      System.out.println("ApiCallTask network error.");
+      return "";
+    }
 		
 		String savedir = basedir+"/logs/apicall/"+callname;
 		String filename = "_tmp."+siteid.toString()+".xml";
@@ -132,7 +150,7 @@ public class ApiCallTask implements Callable {
 		BufferedWriter out = new BufferedWriter(fstream);
 		
 		/* handle http response */
-        InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
+    InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		String responsexml = "";

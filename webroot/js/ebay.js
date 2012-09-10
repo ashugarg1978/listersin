@@ -62,22 +62,24 @@ function bindevents_index()
 {
 	/* Sign up button */
 	$('div#signupbox button').live('click', function() {
+    
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
 		$.post('/json/signup',
-			   postdata,
-			   function(data) {
-				   if (data.json.result == true) {
-					   $('#signupmessage')
-						   .css('color', 'blue')
-						   .html('Confirmation mail was sent to<br/>'+data.json.message+'!');
-				   } else {
-					   $('#signupmessage')
-						   .css('color', 'red')
-						   .html(data.json.message);
-				   }
-			   },
-			   'json');
+			     postdata,
+			     function(data) {
+				     if (data.json.result == true) {
+					     $('#signupmessage')
+						     .css('color', 'blue')
+						     .html('Confirmation mail was sent to<br/>'+data.json.message+'!');
+               // todo: please also check spam folder.
+				     } else {
+					     $('#signupmessage')
+						     .css('color', 'red')
+						     .html(data.json.message);
+				     }
+			     },
+			     'json');
 		
 		return false;
 	});
@@ -89,21 +91,31 @@ function bindevents()
 	
 	/* Add eBay account */
 	$('button.addebayaccount').live('click', function() {
-        
-        if (checkdemoaccount()) return;
-        
+    
+    if (checkdemoaccount()) return;
+		
+		var loadingtext = $('<span/>')
+			.css('color', '#f00')
+			.css('margin-left', '10px')
+			.html('<img src="/img/indicator.gif"/> please wait, redirecting to ebay site...');
+		$(this).after(loadingtext);
+    
 		$.post('/json/addaccount',
-			   null,
-			   function(data) {
-				   window.location.href = data.json.url;
-			   },
-			   'json');
+			     null,
+			     function(data) {
+				     window.location.href = data.json.url;
+			     },
+			     'json');
 	});
 	
 	$(window).scroll(function() {
 		if (hasmore == false) return;
 		
 		if ($(window).scrollTop() + $(window).height() == $('body').height()) {
+			
+			// Don't auto paging when editing a new item.
+			if ($('#newitem0').length) return; 
+			
 			$('div#loading').show();
 			
 			var offset = parseInt($('input.filter[name=offset]').val());
@@ -140,16 +152,16 @@ function bindevents()
 		if ($(this).attr('id') == 'settingsbutton') return;
         
 		var action = $(this).attr('class').replace(/ .+$/, '');
-        
-        if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
-            if (checkdemoaccount()) return;
-        }
-
-        if (action == 'delete') {
-            if (!confirm('Delete checked items?')) {
-                return;
-            }
-        }
+    
+    if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
+      if (checkdemoaccount()) return;
+    }
+    
+    if (action == 'delete') {
+      if (!confirm('Delete checked items?')) {
+        return;
+      }
+    }
 		
 		if (action == 'checkall') {
 			
@@ -186,8 +198,8 @@ function bindevents()
 			$(this).parent().addClass('loading');
             
 			if (action == 'delete') {
-                $('#'+$(this).val()).remove();
-            }
+        $('#'+$(this).val()).remove();
+      }
 		});
 		
 		$.post
@@ -220,7 +232,7 @@ function bindevents()
 			return;
 		}
 		
-		showcontent('table#items');
+		showcontent('#items');
 		
 		if ($(this).attr('class') == 'allitems'
 			&& $('ul', $(this).next()).css('display') == 'block') {
@@ -255,7 +267,7 @@ function bindevents()
 			.replace(/^accountaction/, '')
 			.replace(' ', '');
 		
-		showcontent('table#items');
+		showcontent('#items');
 			
 		$('input[name=selling]').val(v);
 		$('input[name=offset]').val(0);
@@ -275,17 +287,17 @@ function bindevents()
 	});
 	
 	/* Picture */
-    $('input:file').live('change', function() {
+  $('input:file').live('change', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
-        var userid = $('select[name=UserID]', '#'+id).val();
-        
+    var userid = $('select[name=UserID]', '#'+id).val();
+    
 		var idform = $('<input/>').attr('name', 'id').val(id);
 		$(this).closest('form').append(idform);
-        
+    
 		var useridform = $('<input/>').attr('name', 'userid').val(userid);
 		$(this).closest('form').append(useridform);
-        
+    
 		$('ul.pictures', '#'+id).sortable('destroy');
 		
 		//var fileindex = $(this).attr('name');
@@ -300,10 +312,10 @@ function bindevents()
 		//$(fileindexform).remove();
 		$(idform).remove();
 		$(useridform).remove();
-    });
-    
+  });
+  
 	$('select[name="mod.ListingType"]').live('change', function() {
-		id = $(this).closest('tbody.itemrow').attr('id');
+		var id = $(this).closest('tbody.itemrow').attr('id');
 		updateduration(id);
 	});
 	
@@ -323,6 +335,8 @@ function bindevents()
 			$('div.tabContainer', '#'+id).children('div:nth-child('+curIdx+')').addClass('current');
 		}
 		
+    _gaq.push(['_trackEvent', 'Item', $(this).html()]);
+    
 		return false;
 	});
 	
@@ -424,36 +438,37 @@ function bindevents()
 	
 	/* Import */
 	$('button[class^=sync]', 'div#settings').live('click', function() {
-        
-        if (checkdemoaccount()) return;
-        
-        var userid = $(this).attr('class').replace(/^sync-/, '');
-        
-		$.post('/json/import',
-			   'userid='+userid,
-			   function(data) {
-				   
-			   });
-	});
     
+    if (checkdemoaccount()) return;
+    
+    var userid = $(this).attr('class').replace(/^sync-/, '');
+    // todo: importing message
+    
+		$.post('/json/import',
+			     'userid='+userid,
+			     function(data) {
+				     
+			     });
+	});
+  
 	/* RemoveAccount */
 	$('button[class^=removeaccount]', 'div#settings').live('click', function() {
-        
-        if (checkdemoaccount()) return;
-        
-        var userid = $(this).attr('class').replace(/^removeaccount-/, '');
-        
+    
+    if (checkdemoaccount()) return;
+    
+    var userid = $(this).attr('class').replace(/^removeaccount-/, '');
+    
 		$.post('/json/removeaccount',
-			   'userid='+userid,
-			   function(data) {
-				   
-			   });
+			     'userid='+userid,
+			     function(data) {
+				     
+			     });
 	});
 	
 	$('#cancelaccountlink').live('click', function() {
-        if (checkdemoaccount()) return false;
+    if (checkdemoaccount()) return false;
 		
-		if (confirm('Cancel account?')) {
+		if (confirm('Cancel your account?')) {
 			return true;
 		} else {
 			return false;
@@ -479,7 +494,7 @@ function bindevents()
 	
 	$('a#toggledebug').live('click', function() {
 		if ($('div#debug').css('display') == 'none') {
-			showcontent('div#debug');
+			showcontent('#debug');
 		} else {
 			$('div#debug').hide();
 			$('table#items').show();
@@ -494,72 +509,73 @@ function bindevents()
 	
 	// Settings button
 	$('button#settingsbutton').live('click', function() {
-        
-		$.post('/json/settings',
-			   null,
-			   function(data) {
-				   
-                   $('#settings-email').html(data.json.settings.email);
-                   $('#settings-status').html(data.json.settings.status);
-                   $('#settings-expiration').html(data.json.settings.expiration);
-                   $('#settings-itemlimit').html(data.json.settings.itemlimit);
-                   
-				   $('table#setting_ebay_accounts').empty();
-				   
-				   if (data.json.settings.userids) {
-					   $.each(data.json.settings.userids, function(i, o) {
-                           
-						   var trtag = $('<tr/>');
-						   
-						   $(trtag).append($('<td/>').html(i));
-						   
-						   $(trtag).append($('<button/>')
-                                           .attr('class', 'sync-'+i)
-                                           .html('Sync items from eBay'));
-						   
-						   $(trtag).append($('<button/>')
-                                           .attr('class', 'updatetoken-'+i)
-                                           .html('Update token'));
-						   
-						   $(trtag).append($('<button/>')
-                                           .attr('class', 'removeaccount-'+i)
-                                           .html('Delete from ListersIn'));
-						   
-						   $('table#setting_ebay_accounts').append(trtag);
-					   });
-				   }
-				   
-				   dump(data.json.settings);
-			   },
-			   'json');
-		
+    
 		// setformelements
 		$('select[name=TimeZone]', '#settings').empty();
 		$.each(timezoneids, function(k, v) {
 			//var optiontag = $('<option/>').val(k).text(v);
 			var optiontag = $('<option/>').val(k).text(k);
-			$('select[name=TimeZone]', 'div#settings').append(optiontag);
+			$('select[name=TimeZone]', '#settings').append(optiontag);
 		});
 		
-		showcontent('div#settings');
+		$.post('/json/settings',
+			     null,
+			     function(data) {
+				   
+             $('#settings-email').html(data.json.settings.email);
+             $('#settings-status').html(data.json.settings.status);
+             $('#settings-expiration').html(data.json.settings.expiration);
+             $('#settings-itemlimit').html(data.json.settings.itemlimit);
+				     $('select[name=TimeZone]', '#settings').val(data.json.settings.timezone);
+             
+				     $('table#setting_ebay_accounts').empty();
+				   
+				     if (data.json.settings.userids) {
+					     $.each(data.json.settings.userids, function(i, o) {
+                 
+						     var trtag = $('<tr/>');
+						     
+						     $(trtag).append($('<td/>').html(i));
+						     
+						     $(trtag).append($('<button/>')
+                                 .attr('class', 'sync-'+i)
+                                 .html('Sync items from eBay'));
+						     
+						     $(trtag).append($('<button/>')
+                                 .attr('class', 'updatetoken-'+i)
+                                 .html('Update token'));
+						     
+						     $(trtag).append($('<button/>')
+                                 .attr('class', 'removeaccount-'+i)
+                                 .html('Delete from ListersIn'));
+						     
+						     $('table#setting_ebay_accounts').append(trtag);
+					     });
+				     }
+				     
+				     dump(data.json.settings);
+			     },
+			     'json');
+		
+		showcontent('#settings');
 	});
 	
 	$('a#showhelp').live('click', function() {
-		showcontent('div#help');
+		showcontent('#help');
 	});
     
     $('select[name=TimeZone]', '#settings').live('click', function() {
-        
-        var postdata = 'timezone='+encodeURIComponent($(this).val());
-        
-        $.post('/json/settings',
-               postdata,
-               function (data) {
-                   
-               },
-               'json');
-        
-        return;
+      
+      var postdata = 'timezone='+encodeURIComponent($(this).val());
+      
+      $.post('/json/settings',
+             postdata,
+             function (data) {
+               
+             },
+             'json');
+      
+      return;
     });
 	
 	// Theme select
@@ -588,7 +604,7 @@ function bindevents()
 	// Add New Item
 	$('button.newitem').live('click', function() {
 		
-		showcontent('table#items');
+		showcontent('#items');
 		
 		var id = 'newitem0';
 		
@@ -598,7 +614,7 @@ function bindevents()
 		$('#items tbody:gt(1)').remove();
 		$('#items').append(dom);
 		
-		detail = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+		var detail = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 		
 		$('tr.row2 td', '#'+id).html(detail);
 		
@@ -625,11 +641,11 @@ function bindevents()
 			 var item_modifing =
 				 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
 				 .extractObject();
-			 
+
 			 item_modifing.id = id;
 			 item_modifing.categorypath = [];
 			 //item_modifing.mod.Quantity = 1;
-
+			 
 			 dump(item_modifing);
 			 
 			 setformelements(item_modifing);
@@ -644,6 +660,8 @@ function bindevents()
 			 
 			 return;
 		 });
+		
+		_gaq.push(['_trackEvent', 'Left', 'AddNewItem']);
 		
 		return false;
 	});
@@ -667,28 +685,85 @@ function bindevents()
 		$(this).closest('li').remove();
 		return false;
 	});
+  
+	// Send a message to buyer
+  $('div.buyer-sendmessage button').live('click', function() {
+    
+		var id = $(this).closest('tbody.itemrow').attr('id');
+    var selleruserid = rowsdata[id].org.Seller.UserID;
+    var itemid = rowsdata[id].org.ItemID;
+    var message = $('textarea', $(this).parent()).val();
+    var buyeruserid = $('div.buyer-userid', $(this).parent().parent()).text();
+    
+    var postdata = 'id='+id;
+    postdata += '&userid='+selleruserid;
+    postdata += '&itemid='+itemid;
+    postdata += '&buyer='+buyeruserid;
+    postdata += '&body='+encodeURIComponent(message);
+    
+    $.post('/json/sendmessage',
+           postdata,
+           function (data) {
+             
+           },
+           'json');
+  });
 	
-	
+	/* AddMemberMessageRTQ */
+  $('div.question-block button').live('click', function() {
+		
+		var id     = $(this).closest('tbody.itemrow').attr('id');
+    var userid = rowsdata[id].org.Seller.UserID;
+    var itemid = rowsdata[id].org.ItemID;
+		var parent = $('li.question-parent', $(this).parent()).text();
+    var body   = $('textarea', $(this).parent()).val();
+    
+		if (body == '') {
+			alert('Please input answer text.');
+			return false;
+		}
+		if (!confirm('Send this answer?')) {
+			return false;
+		}
+		
+		$(this).after('<img src="/img/indicator.gif"/> sending message...');
+		
+        var postdata = 'id='+id;
+        postdata += '&userid='+userid;
+        postdata += '&itemid='+itemid;
+        postdata += '&parent='+parent;
+        postdata += '&body='+encodeURIComponent(body);
+        
+        $.post('/json/addmembermessagertq',
+               postdata,
+               function (data) {
+				   var item = data.json.item;
+				   rowsdata[id] = item;
+				   showmembermessages(id);
+               },
+              'json');
+    });
+    
 	/*
     jQuery('div#message').ajaxStart(function() {
 		$(this).html('Loading');
-	});
+	  });
     jQuery('div#message').ajaxStop(function() {
 		$(this).html('');
-	});
+	  });
 	*/
 }	
 
 function checkdemoaccount() {
     
-    var email = $('#headerupper_right').html().replace(/[\r\n\s\t]/g, '');
-    
-    if (email == 'demo@listers.in') {
-        alert('Sorry, this function is not available for demo account.');
-        return true;
-    }
-    
-    return false;
+  var email = $('#headerupper_right').html().replace(/[\r\n\s\t]/g, '');
+  
+  if (email == 'demo@listers.in') {
+    alert('Sorry, this function is not available for demo account.');
+    return true;
+  }
+  
+  return false;
 }
 
 var changeCurrency = function() {
@@ -702,43 +777,53 @@ var changeCurrency = function() {
 
 var findproducts = function() {
 	
+	$('div.foundproducts', td).hide();
+	$('div.producttemplate', td).nextAll().remove();
+  
 	var td = $(this).parent();
 	var keyword = $('input[name="ProductSearch.QueryKeywords"]', td).val();
+  if (keyword == '') {
+    $('div.productsearchmessage', td).html('Please input keyword.');
+    return;
+  }
+  
+  $('div.productsearchmessage', td).html('<img src="/img/indicator.gif"/> Searching...');
 	
 	$.post('/json/findproducts',
-		   'findtype=QueryKeywords&keyword='+keyword,
-		   function(data) {
-			   dump(data.json.result);
-			   
-			   $('div.producttemplate', td).nextAll().remove();
-			   $.each(data.json.result.Product, function(i, o) {
-				   
-				   var productids = arrayize(o.ProductID);
-				   
-				   // todo: care Reference, UPC, ISBN, etc...
-				   var productid = productids[0]['#text'];
-				   log(productid);
-				   foundproducts['R'+productid] = o;
-				   
-				   var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
-				   $(divtag).show();
-				   $('img',             divtag).attr('src', o.StockPhotoURL);
-				   $('div.producttext', divtag).html(o.Title);
-				   if (o.ItemSpecifics) {
-					   $.each(arrayize(o.ItemSpecifics.NameValueList), function(j, k) {
-						   $('div.producttext', divtag).append('<br/>'+k.Name+':'+k.Value);
-					   });
-				   }
-				   $('div.productid',   divtag).html(productids[0]['#text']);
-				   $('div.foundproducts', td).append(divtag);
-				   
-			   });
-			   $('div.foundproducts', td).slideDown('fast');
-			   
-			   // todo: why dump(foundproducts) shows empty array?
-			   //dump(foundproducts);
-		   },
-		   'json');
+		     'findtype=QueryKeywords&keyword=' + encodeURIComponent(keyword),
+		     function(data) {
+           
+           if (data.json.result.Ack == 'Failure') {
+             $('div.productsearchmessage', td).html('No product found for "'+keyword+'".');
+             return;
+           }
+			     
+			     $.each(data.json.result.Product, function(i, o) {
+				     
+				     var productids = arrayize(o.ProductID);
+				     
+				     // todo: care Reference, UPC, ISBN, etc...
+				     var productid = productids[0]['#text'];
+             
+				     foundproducts['R'+productid] = o;
+				     
+				     var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
+				     $(divtag).show();
+				     $('img',             divtag).attr('src', o.StockPhotoURL);
+				     $('div.producttext', divtag).html(o.Title);
+				     if (o.ItemSpecifics) {
+					     $.each(arrayize(o.ItemSpecifics.NameValueList), function(j, k) {
+						     $('div.producttext', divtag).append('<br/>'+k.Name+':'+k.Value);
+					     });
+				     }
+				     $('div.productid',   divtag).html(productids[0]['#text']);
+				     $('div.foundproducts', td).append(divtag);
+				     
+			     });
+			     $('div.foundproducts', td).slideDown('fast');
+           $('div.productsearchmessage', td).empty();
+		     },
+		     'json');
 }
 
 function titlesearch_keyupdone(str)
@@ -787,6 +872,7 @@ function autoclick()
  * http://stackoverflow.com/questions/2552836/convert-an-html-form-field-to-a-json-object-with-inner-objects 
  */
 $.fn.extractObject = function() {
+	
 	var accum = {};
 	
 	function add(accum, namev, value) {
@@ -843,7 +929,7 @@ function summary()
 	$.getJSON('/json/summary', function(data) {
 
 		if (!data.json.alluserids) {
-			showcontent('div#help');
+			showcontent('#help');
 			return;
 		}
 		
@@ -880,7 +966,7 @@ function summary()
 		
 		var licount = $('ul.accounts > li').length;
 		if (licount == 2) {
-			showcontent('div#help');
+			showcontent('#help');
 		}
 		
 		return;
@@ -934,14 +1020,14 @@ function getrow(idx, row)
 {
 	var id = idx;
 	var dom = $('#rowtemplate').clone().attr('id', id);
-
+    
 	if (row.mod == null) {
 		$('td.Title', dom).html('ERROR!!! MOD DOES NOT EXISTS.');
 		return dom;
 	}
 	
 	$('td.Title', dom).html(row.mod.Title);
-	
+    
 	if (row.org) {
 		$('a.ItemID', dom)
 			.attr('href', row.org.ListingDetails.ViewItemURL)
@@ -1028,19 +1114,22 @@ function getrow(idx, row)
 	if (row.org) {
 		if (row.org.SellingStatus.QuantitySold > 0) {
 			var soldtag = $('<div/>')
-				.css('float', 'right')
-				.css('position', 'absolute')
-				.css('background-color', 'yellow')
-				.css('color', 'red')
+        .addClass('soldlabel')
 				.html(row.org.SellingStatus.QuantitySold+' sold!');
-			$('a.Title', dom).parent().prepend(soldtag);
+			$('td.Title', dom).append(soldtag);
+		}
+		if (row.org.ListingDetails.HasUnansweredQuestions == 'true') {
+			var huqtag = $('<div/>')
+        .addClass('questionlabel')
+				.html('Unanswered Question');
+			$('td.Title', dom).append(huqtag);
 		}
 	}
 	
-    if (row.scheduled) {
-	    if (row.scheduled) {
-		    $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
-        }
+  if (row.scheduled) {
+	  if (row.scheduled) {
+		  $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
+    }
 	}
 	
 	return dom;
@@ -1111,7 +1200,7 @@ function setformelements(item)
 	
 	var category;
 	if (item.mod.PrimaryCategory) {
-		category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
+		var category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
 		
 		/* Condition */
 		if (category.CategoryFeatures) {
@@ -1334,9 +1423,10 @@ function setformelements_shipping(item)
 	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
 		if (o.ValidForSellingFlow != 'true') return;
 		
+		var arrservicetype = arrayize(o.ServiceType)
+		
 		if (parseInt(o.ShippingServiceID) < 50000) {
-			if ($.inArray(dmsttype, o.ServiceType) >= 0 || o.ServiceType == dmsttype) {
-				
+			if ($.inArray(dmsttype, arrservicetype) >= 0) {
 				if (dmsttype == 'Calculated') {
 					var packages = arrayize(o.ShippingServicePackageDetails);
 					
@@ -1353,7 +1443,7 @@ function setformelements_shipping(item)
 				
 			}
 		} else {
-			if ($.inArray(intltype, o.ServiceType) >= 0 || o.ServiceType == intltype) {
+			if ($.inArray(intltype, arrservicetype) >= 0) {
 				$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
 					.append($('<option/>').val(o.ShippingService).html(o.Description));
 			}
@@ -1623,28 +1713,28 @@ var save = function() {
 	postdata = encodeURIComponent(postdata);
 	
 	$.post('/json/save',
-		   'id='+id+'&json='+postdata,
-		   function(data) {
-			   var item = data.json.item;
-			   rowsdata[id] = item;
-			   dump(data.json);
-			   
-			   var site = item.mod.Site;
-			   
-			   hash[site] = new Object;
-			   hash[site].eBayDetails         = data.json.eBayDetails;
-			   hash[site].Categories          = data.json.Categories;
-			   hash[site].CategoryFeatures    = data.json.CategoryFeatures;
-			   hash[site].ThemeGroup          = data.json.ThemeGroup;
-			   hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
-			   
-			   setformelements(data.json.item);
-			   showformvalues(item);
-			   showbuttons(detail, 'edit,copy,delete');
-			   $('div.productsearchform', '#'+id).remove();
-			   
-		   },
-		   'json');
+		     'id='+id+'&json='+postdata,
+		     function(data) {
+			     var item = data.json.item;
+			     rowsdata[id] = item;
+			     dump(data.json);
+			     
+			     var site = item.mod.Site;
+			     
+			     hash[site] = new Object;
+			     hash[site].eBayDetails         = data.json.eBayDetails;
+			     hash[site].Categories          = data.json.Categories;
+			     hash[site].CategoryFeatures    = data.json.CategoryFeatures;
+			     hash[site].ThemeGroup          = data.json.ThemeGroup;
+			     hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+			     
+			     setformelements(data.json.item);
+			     showformvalues(item);
+			     showbuttons(detail, 'edit,copy,delete');
+			     $('div.productsearchform', '#'+id).remove();
+			     
+		     },
+		     'json');
 	
 	return false;
 }
@@ -1764,7 +1854,7 @@ function getcategorypulldown(site, categoryid)
 	sel.append(opt);
     
 	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
-        
+    
 		var str = hash[site]['category']['name'][childid];
 		str += '('+childid+')';
 		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
@@ -1913,7 +2003,7 @@ function showbuttons(detail, buttons)
 {
 	var buttons = 'button.'+buttons.replace(/,/g, ',button.');
 	
-	ulbtn = $('div.editbuttons', detail);
+	var ulbtn = $('div.editbuttons', detail);
 	$('div.editbuttons button', detail).hide();
 	$(buttons, ulbtn).show();
 	
@@ -1922,8 +2012,8 @@ function showbuttons(detail, buttons)
 
 function showcontent(contentid)
 {
-	$('table#items').hide();
-	$('div#content > div').hide();
+	$('#items').hide();
+	$('#content > div').hide();
 	$(contentid).show();
 	
 	return;
@@ -1976,6 +2066,8 @@ function getListingDurationLabel(str)
 
 function arrayize(object)
 {
+  var result = null;
+  
 	if ($.isArray(object)) {
 		result = object;
 	} else {
@@ -1992,9 +2084,14 @@ function showformvalues(item)
 		item.mod.PictureDetails.PictureURL
 			= arrayize(item.mod.PictureDetails.PictureURL);
 	}
+	
 	if (item.mod.ShippingDetails.ShippingServiceOptions) {
 		item.mod.ShippingDetails.ShippingServiceOptions
 			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+	}
+
+	if (item.mod.ItemSpecifics) {
+		item.mod.ItemSpecifics.NameValueList = arrayize(item.mod.ItemSpecifics.NameValueList);
 	}
 	
 	var detail = $('div.detail', '#'+item.id);
@@ -2036,7 +2133,7 @@ function showformvalues(item)
 	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
 	
 	/* textarea */
-	$.each($('textarea', detail), function(i, form) {
+	$.each($('textarea[name~=mod]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		try {
@@ -2119,10 +2216,64 @@ function showformvalues(item)
 	}
 	
 	/* hide links */
-	$('a.addis', detail).remove();
+	$('a.addis',      detail).remove();
 	$('a.removeispc', detail).remove();
-	$('a.addsso', detail).remove();
-	$('a.removesso', detail).remove();
+	$('a.addsso',     detail).remove();
+	$('a.removesso',  detail).remove();
+	
+	showmembermessages(item.id);
+	
+	/* buyers information if exists */
+	/*
+	if (item.transactions) {
+		$.each(item.transactions, function(i, o) {
+            
+			var divtag = $('div.buyer-template', detail).clone();
+            
+			$(divtag).removeClass('buyer-template').css('display', 'block');
+			
+			$('div.buyer-userid', divtag).append(o.Buyer.UserID);
+			$('div.buyer-information', divtag).append('Quantity:'+o.QuantityPurchased);
+			
+			$('div.buyer-template', detail).parent().append(divtag);
+		});
+	}
+	*/
+	
+	return;
+}
+
+function showmembermessages(id)
+{
+	var item = rowsdata[id];
+  
+	$('div.question-template', '#'+id).nextAll().remove();
+	
+  if (item.membermessages) {
+    $.each(item.membermessages, function(i, o) {
+      
+			var divtag = $('div.question-template', '#'+id).clone();
+			$(divtag).removeClass('question-template').css('display', 'block');
+      
+			$('li.question-status', divtag).append(o.MessageStatus);
+      if (o.MessageStatus == 'Unanswered') {
+			  $('li.question-status', divtag)
+          .css('font-weight', 'bold')
+          .css('color', '#f00');
+      } else if (o.MessageStatus == 'Answered') {
+			  $('li.question-status', divtag)
+          .css('font-weight', 'bold')
+          .css('color', '#090');
+      }
+      
+			$('li.question-date',   divtag).append(o.creationdate_l);
+			$('li.question-sender', divtag).append(o.Question.SenderID);
+			$('li.question-parent', divtag).append(o.Question.MessageID);
+			$('div.question-body',  divtag).append(o.Question.Body.replace(/\n/g, '<br/>'));
+      
+			$('div.question-template', '#'+id).parent().append(divtag);
+    });
+  }
 	
 	return;
 }
@@ -2136,8 +2287,12 @@ function fillformvalues(item)
 			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
 	}
 	
+	if (item.mod.ItemSpecifics) {
+		item.mod.ItemSpecifics.NameValueList = arrayize(item.mod.ItemSpecifics.NameValueList);
+	}
+	
 	// input, text, textarea
-	$.each($('input[type=text], input[type=hidden], input[type=datetime-local], select, textarea', '#'+id), function(i, form) {
+	$.each($('input[type=text], input[type=hidden], input[type=datetime-local], select, textarea[name^=mod]', '#'+id), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
@@ -2220,7 +2375,7 @@ function setformelements_itemspecifics(item)
 	var parentid = item.categorypath[item.categorypath.length-2];
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
-	var specifics = item.mod.ItemSpecifics.NameValueList;
+	var specifics = arrayize(item.mod.ItemSpecifics.NameValueList);
 	var recomm = category.CategorySpecifics.NameRecommendation;
 	
 	var specificskey = new Array();

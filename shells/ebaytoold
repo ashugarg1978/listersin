@@ -9,6 +9,8 @@
 BASEDIR="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )"
 BASENAME=${BASEDIR/*\//}
 
+cd $BASEDIR
+
 CPBASE=$BASEDIR/build/WEB-INF
 
 PATH=/usr/local/jdk/bin:$PATH

@@ -4,12 +4,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ListersIn - eBay listing software</title>
+<title>ListersIn - eBay Listing Software</title>
 
 <meta name="description" content="ListersIn is an eBay listing software. Simple, easy and Gmail like user interface. Try free demo account before sign up!">
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="shortcut icon" href="/img/favicon.png">
-<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.8.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
 <script type="text/javascript">
@@ -40,7 +40,7 @@
 	
 	<div style="margin:20px; float:left;">
 	  <div style="margin-bottom:10px;">
-		<h1>ListersIn - eBay listing software</h1>
+		<h1>ListersIn - eBay Listing Software</h1>
 	  </div>
       
       <h2>Features</h2>

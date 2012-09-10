@@ -2,10 +2,11 @@ package ebaytool.actions;
  
 import com.mongodb.*;
 import com.opensymphony.xwork2.ActionSupport;
+
 import java.io.*;
+import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.*;
 
 import javax.servlet.ServletContext;
@@ -14,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.xml.XMLSerializer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ParameterAware;
 import org.apache.struts2.interceptor.ServletRequestAware;
@@ -136,5 +138,35 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 		br.close();
 		
 		return data;
+	}
+
+	public String writesocket(String[] args) throws Exception {
+		
+		Socket socket = new Socket("localhost", daemonport);
+		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println(StringUtils.join(args, "\n")+"\n\n");
+		
+		String result = in.readLine();
+		
+		out.close();
+		in.close();
+		socket.close();
+		
+		return result;
+	}
+    
+	public String writesocket_async(String[] args) throws Exception {
+		
+		Socket socket = new Socket("localhost", daemonport);
+		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+		
+		out.println(StringUtils.join(args, "\n")+"\n\n");
+		
+		out.close();
+		socket.close();
+        
+		return "";
 	}
 }

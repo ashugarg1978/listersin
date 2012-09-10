@@ -14,11 +14,11 @@ public class UploadSiteHostedPictures extends ApiCall implements Callable {
     
 	public UploadSiteHostedPictures() throws Exception {
 	}
-    
-	public UploadSiteHostedPictures(String email, String userid, String exturl) throws Exception {
-        this.email  = email;
-        this.userid = userid;
-        this.exturl = exturl;
+	
+	public UploadSiteHostedPictures(String[] args) throws Exception {
+        email  = args[0];
+        userid = args[1];
+        exturl = args[2];
 	}
     
 	public String call() throws Exception {

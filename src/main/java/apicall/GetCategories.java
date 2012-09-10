@@ -22,11 +22,11 @@ public class GetCategories extends ApiCall {
 			log(site);
 			
 			BasicDBObject reqdbo = new BasicDBObject();
-			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
-			reqdbo.append("WarningLevel",   "High");
-			reqdbo.append("DetailLevel",    "ReturnAll");
-			reqdbo.append("CategorySiteID", siteid.toString());
-			reqdbo.append("MessageID",      site);
+			reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
+			reqdbo.put("WarningLevel",   "High");
+			reqdbo.put("DetailLevel",    "ReturnAll");
+			reqdbo.put("CategorySiteID", siteid.toString());
+			reqdbo.put("MessageID",      site);
 			
 			String requestxml = convertDBObject2XML(reqdbo, "GetCategories");
 			Future<String> future =

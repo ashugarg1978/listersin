@@ -5,13 +5,8 @@ import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
-import ebaytool.actions.JsonAction;
-import ebaytool.apicall.FetchToken;
-import ebaytool.apicall.GetSellerList;
-import ebaytool.apicall.GetSessionID;
-import ebaytool.apicall.SetNotificationPreferences;
+//import ebaytool.actions.JsonAction;
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -204,48 +199,39 @@ public class PageAction extends BaseAction {
 		String sessionid = user.get("sessionid").toString();
 		
 		/* FetchToken */
-		Socket socket = new Socket("localhost", daemonport);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("FetchToken "+email+" "+sessionid+" "+username);
-		in.readLine(); // wait
-		
-		out.close();
-		in.close();
-		socket.close();
-		
+        String[] args = {"FetchToken", email, sessionid, username};
+        String result = writesocket(args); // wait
+        
 		/* SetNotificationPreferences */
-		socket = new Socket("localhost", daemonport);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("SetNotificationPreferences "+email+" "+username);
-		//in.readLine(); // don't wait
-		
-		out.close();
-		in.close();
-		socket.close();
-		
+        args = new String[]{"SetNotificationPreferences", email, username};
+        writesocket_async(args); // not wait
+        
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 1);
 		String end   = formatter.format(cal.getTime());
-		cal.add(Calendar.DATE, -119);
+		cal.add(Calendar.DATE, -29); // max 119
 		String start = formatter.format(cal.getTime());
-		
+        
+        // todo: don't wait following api call.
+        
 		/* GetSellerList */
-		socket = new Socket("localhost", daemonport);
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		out = new PrintWriter(socket.getOutputStream(), true);
+        args = new String[]{"GetSellerList", email, username,
+							"Start", start, end};
+        writesocket_async(args); // not wait
+        
+		cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 0);
+		end   = formatter.format(cal.getTime());
+		cal.add(Calendar.DATE, -30);
+		start = formatter.format(cal.getTime());
 		
-		out.println("GetSellerList "+email+" "+username+" Start "+start+" "+end);
-		//in.readLine(); // don't wait
-		
-		out.close();
-		in.close();
-		socket.close();
-		
+		/* GetMemberMessages */
+        args = new String[]{"GetMemberMessages", email, username,
+							start+"T00:00:00.000Z",
+							end+"T00:00:00.000Z"};
+        writesocket_async(args); // not wait
+        
 		return SUCCESS;
 	}
 	
@@ -257,8 +243,20 @@ public class PageAction extends BaseAction {
 		String line = "";
 		BufferedReader br = request.getReader();
 		while ((line = br.readLine()) != null) {
-			notifyxml += line + "\n";
+			if (line.indexOf("<soapenv:") >= 0
+				|| line.indexOf("</soapenv:") >= 0
+				|| line.indexOf("<ebl:") >= 0
+				|| line.indexOf("</ebl:") >= 0) {
+			} else {
+				notifyxml += line + "\n";
+			}
 		}
+		
+		// save xml file
+		FileWriter fstream0 = new FileWriter(basedir+"/logs/apicall/notification/res.xml");
+		BufferedWriter out0 = new BufferedWriter(fstream0);
+		out0.write(notifyxml);
+		out0.close();
 		
 		// convert XML to JSON
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
@@ -266,67 +264,54 @@ public class PageAction extends BaseAction {
 		net.sf.json.JSON notifyjson = xmlSerializer.read(notifyxml);
 		BasicDBObject dbobject = (BasicDBObject) com.mongodb.util.JSON.parse(notifyjson.toString());
 		
-		BasicDBObject soapenvbody = (BasicDBObject) dbobject.get("soapenv:Body");
-		BasicDBObject itemresponse = (BasicDBObject) soapenvbody.get("GetItemResponse");
-		BasicDBObject item = new BasicDBObject();
-		BasicDBObject org = (BasicDBObject) itemresponse.get("Item");
-		BasicDBObject mod = (BasicDBObject) org.copy();
-		
-		String eventname = itemresponse.getString("NotificationEventName");
-		String xmltimestamp = itemresponse.getString("Timestamp").replaceAll("\\.", "_");
-		
-		String userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
-		String itemid = org.getString("ItemID");
+		String eventname = dbobject.getString("NotificationEventName");
+		String userid = dbobject.getString("RecipientUserID");
+		log.debug("notify: "+userid+" "+eventname);
 		
 		// save xml file
 		FileWriter fstream = new FileWriter
-			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+xmltimestamp+".xml");
+			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+basetimestamp+".xml");
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(notifyxml);
 		out.close();
 		
-		log.debug("notify: "+userid+" "+eventname+" "+itemid);
+		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne
+			(new BasicDBObject("userids."+userid, new BasicDBObject("$exists", true)));
 		
-		// todo: merge to GetItem callback()?
+		String itemid = "";
 		
-		// get user info
-		BasicDBObject userquery = new BasicDBObject();
-		userquery.put("userids."+userid, new BasicDBObject("$exists", 1));
-		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-		
-		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
-		
-		/* delete fields which is not necessary in AddItem families */
-		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
-		for (Object fieldname : movefields) {
-			movefield(mod, fieldname.toString());
+		if (eventname.equals("AskSellerQuestion")) {
+			
+			BasicDBObject mm   = (BasicDBObject) dbobject.get("MemberMessage");
+			BasicDBObject mme  = (BasicDBObject) mm.get("MemberMessageExchange");
+			BasicDBObject item = (BasicDBObject) mme.get("Item");
+			itemid = item.getString("ItemID");
+			
+			/* GetMemberMessage */
+			String[] args = {"GetMemberMessages", userdbo.getString("email"), userid, itemid};
+			String result = writesocket(args);
+			
+		} else if (eventname.indexOf("Item") == 0) {
+			
+			BasicDBObject item = (BasicDBObject) dbobject.get("Item");
+			itemid = item.getString("ItemID");
+            
+			/* GetItem */
+            String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
+            String result = writesocket(args);
+            
 		}
-		
-		// todo: timezone doesn't work
-		// todo: use GMT for logging?
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
-		BasicDBObject query = new BasicDBObject();
-		query.put("org.Seller.UserID", userid);
-		query.put("org.ItemID",        itemid);
-		
-		BasicDBObject set = new BasicDBObject();
-		set.append("org", org);
-		set.append("mod", mod);
-		
-		BasicDBObject update = new BasicDBObject();
-		update.append("$set",  set);
-		
-		itemcoll.update(query, update, true, false);
-		
-		// replace item with latest data.
-		item = (BasicDBObject) itemcoll.findOne(query);
 		
 		// todo: are ItemUnsold and ItemClosed same?
 		if (eventname.equals("ItemUnsold")) {
+			
+			DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
+			
+			BasicDBObject query = new BasicDBObject();
+			query.put("UserID", userid);
+			query.put("org.ItemID", itemid);
+			
+			BasicDBObject item = (BasicDBObject) itemcoll.findOne(query);
 			
 			if (item.containsField("setting")) {
 				
@@ -339,10 +324,10 @@ public class PageAction extends BaseAction {
 					
 					// Add best offer
 					if (autorelist.getString("addbestoffer").equals("true")) {
-						set = new BasicDBObject();
+						BasicDBObject set = new BasicDBObject();
 						set.put("mod.BestOfferDetails.BestOfferEnabled", "true");
 						
-						update = new BasicDBObject();
+						BasicDBObject update = new BasicDBObject();
 						update.put("$set", set);
 						
 						itemcoll.update(query, update, false, false, WriteConcern.SAFE);
@@ -352,56 +337,23 @@ public class PageAction extends BaseAction {
 					
 					// todo: append log "relisting..."
 					// todo: taskid => status ? status = relist, taskid = 9999999 ?
-					String taskid = "autorelist_"+timestamp+"_"+itemid;
+					String taskid = "autorelist_"+basetimestamp+"_"+itemid;
 					
-					update = new BasicDBObject();
+					BasicDBObject update = new BasicDBObject();
 					update.put("$set", new BasicDBObject("status", taskid));
 					
-					WriteResult result = itemcoll.update(query, update, false, true);
+					WriteResult writeresult = itemcoll.update(query, update, false, true);
 					
-					Socket socket = new Socket("localhost", daemonport);
-					PrintWriter sout = new PrintWriter(socket.getOutputStream(), true);
-					sout.println("RelistItem "+userdbo.getString("email")+" "+taskid);
-					sout.close();
-					socket.close();
+                    String[] args = {"RelistItem", userdbo.getString("email"), taskid};
+                    String result = writesocket(args);
+                    
 				}
 			}
 		}
 		
 		return SUCCESS;
 	}
-	
-	/**
-	 * todo: duplicate in GetItem
-	 * ref: https://jira.mongodb.org/browse/JAVA-260
-	 */
-	private void movefield(DBObject dbo, String field) throws Exception {
-		
-		String[] path = field.split("\\.", 2);
-		
-		if (!dbo.containsField(path[0])) return;
-		
-		String classname = dbo.get(path[0]).getClass().toString();
-		
-		/* leaf */
-		if (path.length == 1) {
-			dbo.removeField(path[0]);
-			return;
-		}
-		
-		/* not leaf */
-		if (classname.equals("class com.mongodb.BasicDBList")) {
-			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
-			for (int i = 0; i < orgdbl.size(); i++) {
-				movefield((DBObject) orgdbl.get(i), path[1]);
-			}
-		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-			movefield((DBObject) dbo.get(path[0]), path[1]);
-		}
-		
-		return;
-	}
-	
+    
 	private BasicDBObject getScheduleDays() {
 		
 		BasicDBObject days = new BasicDBObject();

@@ -26,9 +26,9 @@ public class RelistItem extends ApiCall {
 	public RelistItem() throws Exception {
 	}
 	
-	public RelistItem(String email, String taskid) throws Exception {
-		this.email  = email;
-		this.taskid = taskid;
+	public RelistItem(String[] args) throws Exception {
+		this.email  = args[0];
+		this.taskid = args[1];
 	}
 	
 	public String call() throws Exception {
@@ -102,7 +102,7 @@ public class RelistItem extends ApiCall {
 			currentnum++;
 					
 			Future<String> future = pool18.submit
-				(new ApiCallTask(getSiteID(site), requestxml, "RelistItem"));
+				(new ApiCallTask(userid, getSiteID(site), requestxml, "RelistItem"));
 			future.get(); // wait
 		}
 		

@@ -104,14 +104,14 @@ public class JsonAction extends BaseAction {
 					String tmptoken_expiration = sdf.format(cal.getTime());
 					
 					BasicDBObject field = new BasicDBObject();
-					field.put("email",          email);
-					field.put("password",       password);
-					field.put("tmptoken",        tmptoken);
+					field.put("email",     email);
+					field.put("password",  password);
+					field.put("tmptoken",  tmptoken);
 					field.put("tmptoken_expiration", tmptoken_expiration);
-					field.put("status",         "temporary registration");
-					field.put("language",       "English");
-					field.put("timezone",       "PST8PDT");
-					field.put("itemlimit",      "100");
+					field.put("status",    "temporary registration");
+					field.put("language",  "English");
+					field.put("timezone",  "PST8PDT");
+					field.put("itemlimit", "100");
 					
 					db.getCollection("users").insert(field, WriteConcern.SAFE);
 					
@@ -156,7 +156,7 @@ public class JsonAction extends BaseAction {
 			 + "http://"+configdbo.getString("hostname")+"/page/signup_confirm?t="+tmptoken+"\n"
 			 + "\n"
 			 + "------------------------------------------\n"
-			 + "ListersIn - eBay listing tool.\n"
+			 + "ListersIn - eBay Listing Software\n"
 			 + "http://"+configdbo.getString("hostname")+"/\n"
 			 + "------------------------------------------\n");
 		
@@ -171,18 +171,9 @@ public class JsonAction extends BaseAction {
 	public String addaccount() throws Exception {
 		
 		/* GetSessionID */
-		Socket socket = new Socket("localhost", daemonport);
-		
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("GetSessionID "+session.get("email").toString());
-		String sessionid = in.readLine();
-		
-		out.close();
-		in.close();
-		socket.close();
-		
+        String[] args = {"GetSessionID", session.get("email").toString()};
+        String sessionid = writesocket(args);
+        
 		/* return JSON */
 		String url = configdbo.getString("signinurl")
 			+ "?SignIn"
@@ -254,6 +245,7 @@ public class JsonAction extends BaseAction {
 		
 		field.put("org.ItemID",                      1);
 		field.put("org.ListingDetails.EndTime",      1);
+		field.put("org.ListingDetails.HasUnansweredQuestions",  1);
 		field.put("org.ListingDetails.ViewItemURL",  1);
 		field.put("org.SellingStatus.ListingStatus", 1);
 		field.put("org.SellingStatus.QuantitySold",  1);
@@ -300,7 +292,7 @@ public class JsonAction extends BaseAction {
 			sort.put("org.ListingDetails.EndTime", 1);
 		}
 		
-        Calendar calendar = Calendar.getInstance();
+    Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		log.debug(user.getString("timezone"));
 		SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
@@ -326,25 +318,25 @@ public class JsonAction extends BaseAction {
 				//item.put("price", sp.get("@currencyID")+" "+startprice.intValue());
 				item.put("price", sp.get("@currencyID")+" "+sp.get("#text").toString());
 			}
-
-            /* scheduled time */
-            if (item.containsField("setting")) {
+      
+      /* scheduled time */
+      if (item.containsField("setting")) {
 				if (((DBObject) item.get("setting")).containsField("schedule")) {
-                    
-                    String schedule = ((BasicDBObject) item.get("setting")).getString("schedule");
-                    
+          
+          String schedule = ((BasicDBObject) item.get("setting")).getString("schedule");
+          
 					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
-                    
+          sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+          
 					Date scheduletime = sdf.parse(schedule);
-                    
+          
 					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
-                    sdf.applyPattern("MMM d HH:mm");
-                    
+          sdf.applyPattern("MMM d HH:mm");
+          
 					item.put("scheduled", sdf.format(scheduletime));
-                }
-            }
-            
+        }
+      }
+      
 			if (item.containsField("org")) {
 				
 				DBObject org = (DBObject) item.get("org");
@@ -390,7 +382,8 @@ public class JsonAction extends BaseAction {
 	
 	@Actions({
 		@Action(value="/json/item"),
-		@Action(value="/json/save-item")
+		@Action(value="/json/save-item"),
+		@Action(value="/json/addmembermessagertq-item")
 	})
 	public String item() throws Exception {
 		
@@ -476,7 +469,28 @@ public class JsonAction extends BaseAction {
 				log.debug("themeid["+themeid+"] groupid["+groupid+"]");
 			}
 		}
-		
+
+    /* adjust timezone of membermessages */
+    if (item.containsField("membermessages")) {
+      BasicDBObject membermessages = (BasicDBObject) item.get("membermessages");
+      
+      for (Object tmpkey : membermessages.keySet()) {
+        BasicDBObject membermessage = (BasicDBObject) membermessages.get(tmpkey);
+        
+        String creationdate = membermessage.getString("CreationDate");
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setLenient(false);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        
+        Date creationdate_l = sdf.parse(creationdate.replace("T", " ").replace(".000Z", ""));
+        
+        sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+        
+        membermessage.put("creationdate_l", sdf.format(creationdate_l));
+      }
+    }
+    
 		/* remove fields */
 		item.removeField("_id");
 		
@@ -676,7 +690,10 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("AddItems "+session.get("email")+" add_"+timestamp);
+		out.println("AddItems\n"
+                    + session.get("email") + "\n"
+                    + "add_"+timestamp + "\n"
+                    + "\n");
 		out.close();
 		socket.close();
 		
@@ -713,7 +730,10 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("RelistItem "+session.get("email")+" relist_"+timestamp);
+		out.println("RelistItem\n"
+                    + session.get("email") + "\n"
+                    + "relist_"+timestamp + "\n"
+                    + "\n");
 		out.close();
 		socket.close();
 		
@@ -755,7 +775,10 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("VerifyAddItem "+session.get("email")+" verifyadditem_"+timestamp);
+		out.println("VerifyAddItem\n"
+                    + session.get("email") + "\n"
+                    + "verifyadditem_"+timestamp + "\n"
+                    + "\n");
 		out.close();
 		socket.close();
 		
@@ -797,7 +820,10 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("ReviseItem "+session.get("email")+" reviseitem_"+timestamp);
+		out.println("ReviseItem\n"
+                    + session.get("email") + "\n"
+                    + "reviseitem_"+timestamp + "\n"
+                    + "\n");
 		out.close();
 		socket.close();
 		
@@ -814,15 +840,24 @@ public class JsonAction extends BaseAction {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 1);
 		String end   = formatter.format(cal.getTime());
-		cal.add(Calendar.DATE, -119);
+		cal.add(Calendar.DATE, -29); // max 119
 		String start = formatter.format(cal.getTime());
 		
 		/* GetSellerList */
-		Socket socket = new Socket("localhost", daemonport);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("GetSellerList "+email+" "+userid+" Start "+start+" "+end);
-		out.close();
-		socket.close();
+        String[] args = {"GetSellerList", email, userid, "Start", start, end};
+        writesocket_async(args);
+        
+		cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 0);
+		end   = formatter.format(cal.getTime());
+		cal.add(Calendar.DATE, -30);
+		start = formatter.format(cal.getTime());
+		
+		/* GetMemberMessages */
+        args = new String[]{"GetMemberMessages", email, userid,
+							start+"T00:00:00.000Z",
+							end+"T00:00:00.000Z"};
+        writesocket_async(args); // not wait
 		
 		return SUCCESS;
 	}
@@ -854,7 +889,10 @@ public class JsonAction extends BaseAction {
 		
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("EndItems "+session.get("email")+" end_"+timestamp);
+		out.println("EndItems\n"
+                    + session.get("email") + "\n"
+                    + "end_"+timestamp + "\n"
+                    + "\n");
 		out.close();
 		socket.close();
 		
@@ -879,8 +917,11 @@ public class JsonAction extends BaseAction {
 		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		
-		out.println("FindProducts "+findtype+" "+keyword);
+        
+		out.println("FindProducts\n"
+                    + findtype + "\n"
+                    + keyword + "\n"
+                    + "\n");
 		String result = in.readLine();
 		
 		out.close();
@@ -1009,6 +1050,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject active    = new BasicDBObject();
 		BasicDBObject sold      = new BasicDBObject();
 		BasicDBObject unsold    = new BasicDBObject();
+		BasicDBObject unanswered = new BasicDBObject();
 		BasicDBObject saved     = new BasicDBObject();
         
 		scheduled.put("org.ItemID", new BasicDBObject("$exists", 0));
@@ -1024,6 +1066,9 @@ public class JsonAction extends BaseAction {
 		unsold.put("org.SellingStatus.ListingStatus", "Completed");
 		unsold.put("org.SellingStatus.QuantitySold", "0");
 		
+		unanswered.put("org.ItemID", new BasicDBObject("$exists", 1));
+		unanswered.put("org.ListingDetails.HasUnansweredQuestions", "true");
+		
 		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
 		saved.put("setting.schedule", new BasicDBObject("$exists", 0));
         
@@ -1033,6 +1078,7 @@ public class JsonAction extends BaseAction {
 		selling.put("active",    active);
 		selling.put("sold",      sold);
 		selling.put("unsold",    unsold);
+		selling.put("unanswered", unanswered);
 		selling.put("saved",     saved);
         
 		return selling;
@@ -1167,6 +1213,52 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
+    @Action(value="/json/sendmessage")
+    public String sendmessage() throws Exception {
+		
+		/*
+        for (String key : parameters.keySet()) {
+            String[] vals = parameters.get(key);
+            log.debug(key+":"+vals[0]);
+        }
+		
+		String[] args = {
+			"AddMemberMessageAAQToPartner",
+			session.get("email").toString,
+			((String[]) parameters.get("userid"))[0],
+			((String[]) parameters.get("itemid"))[0],
+			((String[]) parameters.get("buyer"))[0],
+			((String[]) parameters.get("body"))[0]
+		};
+		
+		String result = writesocket(args);
+        */
+		
+        return SUCCESS;
+    }
+
+    @Action(value="/json/addmembermessagertq")
+    public String addmembermessagertq() throws Exception {
+
+		String email  = session.get("email").toString();
+		String userid = ((String[]) parameters.get("userid"))[0];
+		String itemid = ((String[]) parameters.get("itemid"))[0];
+		String parent = ((String[]) parameters.get("parent"))[0];
+		String body   = ((String[]) parameters.get("body"))[0].replace("\n", "\\n");
+		
+		/* AddMemberMessageRTQ */
+		String[] args = {"AddMemberMessageRTQ", email, userid, itemid, parent, body};
+		String result = writesocket(args);
+		
+		/* GetMemberMessage */
+		if (result.equals("Success")) {
+			args = new String[]{"GetMemberMessages", email, userid, itemid};
+			result = writesocket(args);
+		}
+		
+		return "item";
+    }    
+    
 	private BasicDBObject children2(String site, String[] path) {
 		
 		BasicDBObject result = new BasicDBObject();

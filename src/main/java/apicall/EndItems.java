@@ -30,9 +30,9 @@ public class EndItems extends ApiCall {
 	public EndItems() throws Exception {
 	}
 	
-	public EndItems(String email, String taskid) throws Exception {
-		this.email  = email;
-		this.taskid = taskid;
+	public EndItems(String[] args) throws Exception {
+		this.email  = args[0];
+		this.taskid = args[1];
 	}
 	
 	public String call() throws Exception {
@@ -145,7 +145,7 @@ public class EndItems extends ApiCall {
 					currentnum += tmpcnt;
 					
 					Future<String> future = pool18.submit
-						(new ApiCallTask(0, requestxml, "EndItems"));
+						(new ApiCallTask(tmpuserid, 0, requestxml, "EndItems"));
 					future.get(); // wait
 				}
 			}

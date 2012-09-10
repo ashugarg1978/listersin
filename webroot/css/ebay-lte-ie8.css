@@ -1,0 +1,5 @@
+button,
+submit,
+input[type=submit] {
+  min-width: 44px;
+}

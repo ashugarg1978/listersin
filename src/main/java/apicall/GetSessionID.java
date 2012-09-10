@@ -9,12 +9,12 @@ import javax.net.ssl.HttpsURLConnection;
 public class GetSessionID extends ApiCall {
 	
 	private String email;
-	
+    
 	public GetSessionID() throws Exception {
-	}
-	
-	public GetSessionID(String email) throws Exception {
-		this.email  = email;
+    }
+    
+	public GetSessionID(String[] args) throws Exception {
+		this.email = args[0];
 	}
 	
 	public String call() throws Exception {

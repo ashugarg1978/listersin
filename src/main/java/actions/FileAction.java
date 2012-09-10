@@ -41,25 +41,15 @@ public class FileAction extends BaseAction {
 			File savefile = new File(savedir + "/" + tmpname);
             FileUtils.copyFile(file, savefile);
 			
-            /* UploadSiteHostedPictures */
-            Socket socket = new Socket("localhost", daemonport);
-            
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-            
             String url = "http://" + configdbo.getString("hostname") + "/itemimage/" + tmpname;
-            
-            out.println("UploadSiteHostedPictures"
-                        + " " + session.get("email").toString()
-                        + " " + userid
-                        + " " + url);
-            
-            String epsurl = in.readLine();
-            
-            out.close();
-            in.close();
-            socket.close();
-            
+			
+			String[] args = {"UploadSiteHostedPictures", 
+							 session.get("email").toString(),
+							 userid,
+							 url};
+			
+			String epsurl = writesocket(args);
+			
 			savedfilename.add(i, epsurl);
             
 			i++;

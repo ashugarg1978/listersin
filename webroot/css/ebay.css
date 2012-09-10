@@ -240,13 +240,13 @@ td.Title {
   /*white-space: nowrap;*/
 }
 
-div.titlewrap > div.labelwrap {
+div.labelwrap {
   position: absolute;
   right: 0px;
   top: 0px;
   height: 11px;
 }
-div.titlewrap > div.labelwrap > div.label {
+div.labelwrap div.label {
   float: right;
   color: #009900;
   background-color: #aaeeaa;
@@ -256,6 +256,29 @@ div.titlewrap > div.labelwrap > div.label {
   margin-left: 2px;
   padding: 1px 2px;
 }
+
+div.soldlabel {
+  float: right;
+  color: #090;
+  background-color: #cfc;
+  border: 1px solid #6a6;
+  font-size: 9px;
+  border-radius: 3px;
+  margin-left: 2px;
+  padding: 2px 3px;
+}
+
+div.questionlabel {
+  float: right;
+  color: #900;
+  background-color: #fcc;
+  border: 1px solid #a66;
+  font-size: 9px;
+  border-radius: 3px;
+  margin-left: 2px;
+  padding: 2px 3px;
+}
+
 
 table.items td.eimo {
   color: white;
@@ -917,6 +940,61 @@ ul.blog li {
 ul.blog li p {
   margin-top: 5px;
 }
+
+div.buyer-template {
+  display: none;
+}
+
+div.buyer-information {
+  float: left;
+  min-width: 200px;
+  margin-bottom: 10px;
+}
+
+div.buyer-sendmessage {
+  float: left;
+}
+
+div.buyer-sendmessage button {
+  display: block;
+}
+
+/* Messages */
+div.question-template {
+  display: none;
+}
+
+div.question-block {
+  border: 1px solid #aaa;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+ul.question-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.question-ul li {
+  float: left;
+  margin-right: 10px;
+}
+
+li.question-parent {
+  display: none;
+}
+
+div.question-body {
+  background-color: #eaeaea;
+  padding: 5px;
+}
+
+div.question-block textarea {
+  width: 400px;
+  height: 100px;
+}
+
 
 /* clearfix */
 .clearfix:after {

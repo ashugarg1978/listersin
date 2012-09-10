@@ -22,14 +22,12 @@ public class GetSellerList extends ApiCall {
 	public GetSellerList() throws Exception {
 	}
 	
-	public GetSellerList(String email, String userid,
-						 String daterange, String datestart, String dateend) throws Exception {
-		
-		this.email     = email;
-		this.userid    = userid;
-		this.daterange = daterange;
-		this.datestart = datestart;
-		this.dateend   = dateend;
+	public GetSellerList(String[] args) throws Exception {
+		this.email     = args[0];
+		this.userid    = args[1];
+		this.daterange = args[2];
+		this.datestart = args[3];
+		this.dateend   = args[4];
 	}
 	
 	public String call() throws Exception {
@@ -49,7 +47,8 @@ public class GetSellerList extends ApiCall {
         
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
-		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+		Future<String> future =
+            pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetSellerList"));
 		String responsexml = future.get();
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
@@ -62,7 +61,7 @@ public class GetSellerList extends ApiCall {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
 			requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 			
-			future = pool18.submit(new ApiCallTask(0, requestxml, "GetSellerList"));
+			future = pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetSellerList"));
 			future.get();
 		}
 		
@@ -111,9 +110,7 @@ public class GetSellerList extends ApiCall {
 			+ ((BasicDBObject) resdbo.get("PaginationResult")).getString("TotalNumberOfEntries")
 			+ " items.";
 		updatemessage(email, message);
-		
-		DBCollection coll = db.getCollection("items");
-		
+        
 		JSONArray jsonarr = new JSONArray();
 		if (itemcount == 1) {
 			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
@@ -127,85 +124,14 @@ public class GetSellerList extends ApiCall {
 			String itemid = dbobject.get("ItemID").toString();
 			
 			/* GetItem */
-			// todo: Should I replace with GetMultipleItems? -> doesn't return needed info.
-			BasicDBObject reqdbo = new BasicDBObject();
-			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-			reqdbo.append("WarningLevel",                 "High");
-			reqdbo.append("DetailLevel",             "ReturnAll");
-			reqdbo.append("IncludeCrossPromotion",        "true");
-			reqdbo.append("IncludeItemCompatibilityList", "true");
-			reqdbo.append("IncludeItemSpecifics",         "true");
-			reqdbo.append("IncludeTaxTable",              "true");
-			reqdbo.append("IncludeWatchCount",            "true");
-			reqdbo.append("ItemID", itemid);
+			String[] args = {email, userid, itemid, "waitcallback"};
+			GetItem getitem = new GetItem(args);
+			getitem.call();
 			
-			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
-			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
+			// Don't use GetMultipleItems which doesn't return needed info.
 		}
 		
 		return responsexml;
 	}
 	
-	/**
-	 *
-	 * ref: https://jira.mongodb.org/browse/JAVA-260
-	 */
-	private void movefield(DBObject dbo, DBObject ext, String field) {
-		
-		String[] path = field.split("\\.", 2);
-		
-		if (!dbo.containsField(path[0])) {
-			log(path[0]+" : NOT EXISTS.");
-			return;
-		}
-		
-		String classname = dbo.get(path[0]).getClass().toString();
-		
-		/* leaf */
-		if (path.length == 1) {
-			ext.put(path[0], dbo.get(path[0]));
-			dbo.removeField(path[0]);
-			return;
-		}
-		
-		/* not leaf */
-		log(path[0]+" : "+classname+" ("+path[1]+")");
-		
-		if (classname.equals("class com.mongodb.BasicDBList")) {
-			
-			if (!ext.containsField(path[0])) {
-				ext.put(path[0], new BasicDBList());
-			}
-			
-			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
-			BasicDBList extdbl = (BasicDBList) ext.get(path[0]);
-			
-			for (int i = 0; i < orgdbl.size(); i++) {
-				if (extdbl.size() < (i+1)) {
-					extdbl.add(new BasicDBObject());
-				}
-				
-				movefield((DBObject) orgdbl.get(i),
-						  (DBObject) extdbl.get(i),
-						  path[1]);
-			}
-			
-		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
-			
-			if (!ext.containsField(path[0])) {
-				ext.put(path[0], new BasicDBObject());
-			}
-			
-			movefield((DBObject) dbo.get(path[0]),
-					  (DBObject) ext.get(path[0]),
-					  path[1]);
-			
-		} else {
-			
-			log("movefield ERROR "+classname);
-			
-		}
-		
-		return;
-	}
 }

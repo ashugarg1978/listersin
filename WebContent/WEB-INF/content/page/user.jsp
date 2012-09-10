@@ -4,17 +4,33 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ListersIn - eBay listing software</title>
+<title>ListersIn - eBay Listing Software</title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
+<!--[if lte IE 8]>
+<link rel="stylesheet" type="text/css" href="/css/ebay-lte-ie8.css" />
+<![endif]-->
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <link rel="shortcut icon" href="/img/favicon.png">
-<script type="text/javascript" src="/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.8.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/jquery.sortable.min.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-32099440-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </head>
 <body>
 
@@ -77,6 +93,7 @@
 		<li class="active"   ><img src="/icon/04/10/02.png"><s:text name="active"   /></li>
 		<li class="sold"     ><img src="/icon/02/10/50.png"><s:text name="sold"     /></li>
 		<li class="unsold"   ><img src="/icon/04/10/10.png"><s:text name="unsold"   /></li>
+		<li class="unanswered"><img src="/icon/04/10/10.png"><s:text name="unanswered" /></li>
 		<li class="saved"    ><img src="/icon/04/10/10.png"><s:text name="saved"    /></li>
 	  </ul>
 	</li>
@@ -122,7 +139,6 @@
 		  <img class="status" src="/icon/04/10/10.png"/>
 		</td>
 		<td class="Title">
-		  <div class="labelwrap"></div>
 		</td>
 		<td class="UserID"></td>
 		<td>
@@ -215,7 +231,10 @@
   
   <div id="help">
 	
-	How to add your eBay account to ListersIn.<br/>
+	If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
+	<br/>
+	
+	<span style="font-weight:bold;">How to add your eBay account to ListersIn.</span><br/>
 	<ol>
 	  <li>
 		Click "<s:text name="addebayaccount"/>" button.
@@ -235,6 +254,9 @@
 	  </li>
 	</ol>
 	
+	If you have any problems, please send an email to
+	<a href="mailto:admin@listers.in">admin@listers.in</a> :)<br/>
+	Or please post your comment to <a href="http://forum.listers.in/" target="_blank">this forum</a>.(You can post without forum account)<br/>
   </div>
   
   <div id="debug"></div>
@@ -256,13 +278,14 @@
 	  <li><s:text name="Payment"/></li>
 	  <li><s:text name="Shipping"/></li>
 	  <li><s:text name="Other"/></li>
+	  <li><s:text name="Messages"/></li>
 	  <li><s:text name="All"/></li>
 	</ul>
 	
 	<div class="editbuttons">
 	  <button class="edit"><s:text name="edit"/></button>
 	  <button class="save btnleft" style="display:none;"><s:text name="save"/></button>
-	  <button class="cancel btnright" style="display:none;"><s:text name="cancel"/>
+	  <button class="cancel btnright" style="display:none;"><s:text name="cancel"/></button>
 	</div>
 	
 	<div class="tabContainer">
@@ -337,6 +360,7 @@
 				  <input name="ProductSearch.QueryKeywords"
 						 type="text" size="30" class="remove"/>
 				  <button class="GetProductSearchResults">Search</button>
+				  <div class="productsearchmessage"></div>
 				  <input name="ProductSearch.CharacteristicSetIDs.ID"
 						 type="hidden" class="remove"/>
 				  
@@ -1079,12 +1103,40 @@
 			</tr>
 		  </tbody>
 		</table>
-	  </div>
+	  </div><!-- tab -->
+	  
+	  <div class="tab">
+		<div class="tabtitle">
+		  Messages
+		</div>
+        
+        <div class="question-block question-template clearfix">
+          <ul class="question-ul clearfix">
+            <li class="question-status"></li>
+            <li class="question-date"></li>
+            <li class="question-sender"></li>
+            <li class="question-parent"></li>
+          </ul>
+          <div class="question-body"></div>
+          <textarea></textarea>
+		  <button>Respond</button>
+        </div>
+        
+		<div class="buyer-template clearfix">
+          <div class="buyer-userid"></div>
+		  <div class="buyer-information"></div>
+		  <div class="buyer-sendmessage">
+			<textarea></textarea>
+			<button>Send message</button>
+		  </div>
+		</div>
+        
+	  </div><!-- tab -->
 	  
 	</div>
-
+	
   </div>
-
+  
 </div>
 
 <div style="clear:both;"></div>

@@ -28,9 +28,9 @@ public class VerifyAddItem extends ApiCall {
 	public VerifyAddItem() throws Exception {
 	}
 	
-	public VerifyAddItem(String email, String taskid) throws Exception {
-		this.email = email;
-		this.taskid = taskid;
+	public VerifyAddItem(String[] args) throws Exception {
+		this.email  = args[0];
+		this.taskid = args[1];
 	}
 	
 	public String call() throws Exception {
@@ -100,7 +100,7 @@ public class VerifyAddItem extends ApiCall {
 			currentnum++;
 			
 			Future<String> future = pool18.submit
-				(new ApiCallTask(getSiteID(site), requestxml, "VerifyAddItem"));
+				(new ApiCallTask(userid, getSiteID(site), requestxml, "VerifyAddItem"));
 			future.get(); // wait
 		}
 		

@@ -13,12 +13,12 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	
 	public SetNotificationPreferences() throws Exception {
 	}
-	
-	public SetNotificationPreferences(String email, String userid) throws Exception {
-		this.email  = email;
-		this.userid = userid;
+    
+	public SetNotificationPreferences(String[] args) throws Exception {
+		email  = args[0];
+		userid = args[1];
 	}
-	
+    
 	public String call() throws Exception {
 		
 		/* get token from db */
@@ -38,13 +38,14 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		/* SetNotificationPreferences */
 		ArrayList<BasicDBObject> ane = new ArrayList<BasicDBObject>();
 		
-		String events[] = {"ItemListed",
+		String[] events = {"ItemListed",
 						   "EndOfAuction",
 						   "ItemClosed",
 						   "ItemExtended",
 						   "ItemRevised",
 						   "ItemSold",
-						   "ItemUnsold"};
+						   "ItemUnsold",
+						   "AskSellerQuestion"};
 		for (String event : events) {
 			BasicDBObject ne = new BasicDBObject();
 			ne.put("EventType", event);
@@ -72,11 +73,9 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 		xmls.setNamespace(null, "urn:ebay:apis:eBLBaseComponents");
 		xmls.setTypeHintsEnabled(false);
 		String requestxml = xmls.write(jso);
-		
-		writelog("SetNotificationPreferences/"+userid+".req.xml", requestxml);
-		
+        
 		Future<String> future =
-			pool18.submit(new ApiCallTask(0, requestxml, "SetNotificationPreferences"));
+			pool18.submit(new ApiCallTask(userid, 0, requestxml, "SetNotificationPreferences"));
 		future.get();
 		
 		return "";
@@ -84,7 +83,13 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		writelog("SetNotificationPreferences/"+userid+".res.xml", responsexml);
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+        
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
+		email  = messages[0];
+		userid = messages[1];
+        
+		writelog("SetNotificationPreferences/"+userid+".xml", responsexml);
 		
 		return "";
 	}

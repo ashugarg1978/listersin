@@ -26,9 +26,9 @@ public class ReviseItem extends ApiCall {
 	public ReviseItem() throws Exception {
 	}
 	
-	public ReviseItem(String email, String taskid) throws Exception {
-		this.email  = email;
-		this.taskid = taskid;
+	public ReviseItem(String[] args) throws Exception {
+		this.email  = args[0];
+		this.taskid = args[1];
 	}
 	
 	public String call() throws Exception {
@@ -102,7 +102,7 @@ public class ReviseItem extends ApiCall {
 			currentnum++;
 					
 			Future<String> future = pool18.submit
-				(new ApiCallTask(getSiteID(site), requestxml, "ReviseItem"));
+				(new ApiCallTask(userid, getSiteID(site), requestxml, "ReviseItem"));
 			future.get(); // wait
 		}
 

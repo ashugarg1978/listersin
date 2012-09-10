@@ -11,8 +11,8 @@ public class GeteBayDetails extends ApiCall {
 	}
 	
 	public String call() throws Exception {
-		
-		String  site   = "US";
+        
+		String  site = "US";
 		Integer siteid = 0;
 		
 		BasicDBObject reqdbo = new BasicDBObject();
@@ -26,7 +26,7 @@ public class GeteBayDetails extends ApiCall {
 		String responsexml = future.get();
 		
 		DBObject row = db.getCollection("US.eBayDetails")
-			.findOne(null, new BasicDBObject("SiteDetails", 1));
+            .findOne(null, new BasicDBObject("SiteDetails", 1));
 		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
 		for (Object sitedbo : sitedetails) {
 			
@@ -36,8 +36,8 @@ public class GeteBayDetails extends ApiCall {
 			if (site.equals("US")) continue;
 			
 			reqdbo.put("MessageID", site);
-			
-			requestxml  = convertDBObject2XML(reqdbo, "GeteBayDetails");
+            
+			requestxml = convertDBObject2XML(reqdbo, "GeteBayDetails");
 			pool18.submit(new ApiCallTask(siteid, requestxml, "GeteBayDetails"));
 		}
 		

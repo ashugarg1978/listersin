@@ -15,116 +15,89 @@ public class GetItem extends ApiCall implements Callable {
 	private String email;
 	private String userid;
 	private String itemid;
+	private String waitcallback;
 	
 	public GetItem() throws Exception {
 	}
 	
-	public GetItem(String email, String userid) throws Exception {
-		this.email  = email;
-		this.userid = userid;
+	public GetItem(String[] args) throws Exception {
+		this.email  = args[0];
+		this.userid = args[1];
+		this.itemid = args[2];
+		if (args.length == 4) {
+			this.waitcallback = args[3];
+		}
 	}
-	
-	public GetItem(String email, String userid, String itemid) throws Exception {
-		this.email  = email;
-		this.userid = userid;
-		this.itemid = itemid;
-	}
-	
+    
 	public String call() throws Exception {
 		
-		/* get token from db */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+		String token = gettoken(email, userid);
 		
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
+		BasicDBObject reqdbo = new BasicDBObject();
+		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+		reqdbo.append("WarningLevel",                 "High");
+		reqdbo.append("DetailLevel",             "ReturnAll");
+		reqdbo.append("IncludeCrossPromotion",        "true");
+		reqdbo.append("IncludeItemCompatibilityList", "true");
+		reqdbo.append("IncludeItemSpecifics",         "true");
+		reqdbo.append("IncludeTaxTable",              "true");
+		reqdbo.append("IncludeWatchCount",            "true");
+		reqdbo.append("ItemID",                       itemid);
 		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
+		String requestxml = convertDBObject2XML(reqdbo, "GetItem");
+        
+		Future<String> future = pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetItem"));
 		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
-		
-		/* GetItem */
-		query = new BasicDBObject();
-		query.put("ItemID",       new BasicDBObject("$exists", 1));
-		query.put("deleted",      new BasicDBObject("$exists", 0));
-		query.put("importstatus", "waiting GetItem");
-		query.put("UserID",       userid);
-		if (itemid != null) {
-			query.put("ItemID",   itemid);
+		if (this.waitcallback == "waitcallback") {
+			future.get();
 		}
-		
-		BasicDBObject field = new BasicDBObject();
-		field.put("ItemID", 1);
-		
-		DBCursor cur = db.getCollection("items").find(query, field);
-		Integer cnt = cur.count();
-		while (cur.hasNext()) {
-			DBObject row = cur.next();
-			
-			String itemid  = row.get("ItemID").toString();
-			log("GetItem "+userid+" "+itemid);
-			
-			BasicDBObject reqdbo = new BasicDBObject();
-			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-			reqdbo.append("WarningLevel",                 "High");
-			reqdbo.append("DetailLevel",             "ReturnAll");
-			reqdbo.append("IncludeCrossPromotion",        "true");
-			reqdbo.append("IncludeItemCompatibilityList", "true");
-			reqdbo.append("IncludeItemSpecifics",         "true");
-			reqdbo.append("IncludeTaxTable",              "true");
-			reqdbo.append("IncludeWatchCount",            "true");
-			reqdbo.append("ItemID", itemid);
-			
-			String requestxml = convertDBObject2XML(reqdbo, "GetItem");
-			
-			pool18.submit(new ApiCallTask(0, requestxml, "GetItem"));
-		}
-		
-		// todo: check mixing other user's items
-		log("item count "+cnt);
-		/*
-		for (int i = 1; i <= cnt; i++) {
-			log("parse response "+i);
-			String responsexml = ecs18.take().get();
-			callback(responsexml);
-		}
-		*/
 		
 		return "";
 	}
 	
 	public String callback(String responsexml) throws Exception {
 		
-		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
-		BasicDBObject org = (BasicDBObject) responsedbo.get("Item");
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		BasicDBObject org = (BasicDBObject) resdbo.get("Item");
 		BasicDBObject mod = (BasicDBObject) org.copy();
 		
-		String callbackuserid = ((BasicDBObject) org.get("Seller")).getString("UserID");
-		String callbackitemid = org.getString("ItemID");
-		String timestamp = responsedbo.getString("Timestamp").replaceAll("\\.", "_");
+		String userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
+		String itemid = org.getString("ItemID");
+		String timestamp = resdbo.getString("Timestamp").replaceAll("\\.", "_");
 		
-		writelog("GetItem/"+callbackuserid+"."+callbackitemid+".xml", responsexml);
+		writelog("GetItem/"+userid+"."+itemid+".xml", responsexml);
 		
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();
-		userquery.put("userids."+callbackuserid, new BasicDBObject("$exists", true));
+		userquery.put("userids."+userid, new BasicDBObject("$exists", true));
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-		
+        
+        String email = userdbo.getString("email");
+		String token = gettoken(email, userid);
+        
 		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
 		
 		/* delete ItemSpecifics added from Product */
 		if (mod.containsField("ItemSpecifics")) {
 			BasicDBObject itemspecifics = (BasicDBObject) mod.get("ItemSpecifics");
 			BasicDBObject iscopy = (BasicDBObject) itemspecifics.copy();
-			BasicDBList namevaluelist = (BasicDBList) iscopy.get("NameValueList");
+			
+			String classname = iscopy.get("NameValueList").getClass().toString();
+			BasicDBList namevaluelist = new BasicDBList();
+			if (classname.equals("class com.mongodb.BasicDBObject")) {
+				namevaluelist.add((BasicDBObject) iscopy.get("NameValueList"));
+			} else if (classname.equals("class com.mongodb.BasicDBList")) {
+				namevaluelist = (BasicDBList) iscopy.get("NameValueList");
+			} else {
+				log("Class Error:"+classname);
+			}
 			
 			for (int i=namevaluelist.size()-1; i>=0; i--) {
 				BasicDBObject namevalue = (BasicDBObject) namevaluelist.get(i);
-				if (namevalue.getString("Source").equals("Product")) {
-					((BasicDBList) itemspecifics.get("NameValueList")).remove(i);
+				if (namevalue.containsField("Source")) {
+					if (namevalue.getString("Source").equals("Product")) {
+						((BasicDBList) itemspecifics.get("NameValueList")).remove(i);
+					}
 				}
 			}
 		}
@@ -136,15 +109,15 @@ public class GetItem extends ApiCall implements Callable {
 		}
 		
 		BasicDBObject query = new BasicDBObject();
-		query.put("org.Seller.UserID", callbackuserid);
-		query.put("org.ItemID",        callbackitemid);
+		query.put("org.Seller.UserID", userid);
+		query.put("org.ItemID",        itemid);
 		
 		BasicDBObject update = new BasicDBObject();
 		
 		BasicDBObject set = new BasicDBObject();
 		set.put("org", org);
 		set.put("mod", mod);
-		set.put("UserID", callbackuserid);
+		set.put("UserID", userid);
 		
 		update.put("$set",  set);
 		update.put("$push", new BasicDBObject

@@ -18,11 +18,11 @@ public class FetchToken extends ApiCall {
 	
 	public FetchToken() throws Exception {
 	}
-	
-	public FetchToken(String email, String sessionid, String username) throws Exception {
-		this.email = email;
-		this.sessionid = sessionid;
-		this.username = username;
+    
+	public FetchToken(String[] args) throws Exception {
+		this.email     = args[0];
+		this.sessionid = args[1];
+		this.username  = args[2];
 	}
 	
 	public String call() throws Exception {
@@ -44,6 +44,7 @@ public class FetchToken extends ApiCall {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+        
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email    = messages[0];
 		username = messages[1];

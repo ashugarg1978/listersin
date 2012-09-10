@@ -5,6 +5,8 @@ VERSION=`date +%Y%m%d_%H%M%S`
 BASEDIR="$( dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )"
 BASENAME=${BASEDIR/*\//}
 
+cd $BASEDIR
+
 echo "basedir [$BASEDIR]"
 echo "basename [$BASENAME]"
 
