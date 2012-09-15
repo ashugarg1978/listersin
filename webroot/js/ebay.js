@@ -656,8 +656,6 @@ function bindevents()
 			 $('input[name="mod.StartPrice.#text"]', '#'+id).val('0.99');
 			 $('input[name="mod.Quantity"]',         '#'+id).val('1');
 			 
-			 //$('select[name="ShippingDetails.ShippingType.domestic"]', detail).val('NoShipping');
-			 
 			 return;
 		 });
 		
@@ -728,22 +726,22 @@ function bindevents()
 		
 		$(this).after('<img src="/img/indicator.gif"/> sending message...');
 		
-        var postdata = 'id='+id;
-        postdata += '&userid='+userid;
-        postdata += '&itemid='+itemid;
-        postdata += '&parent='+parent;
-        postdata += '&body='+encodeURIComponent(body);
-        
-        $.post('/json/addmembermessagertq',
-               postdata,
-               function (data) {
-				   var item = data.json.item;
-				   rowsdata[id] = item;
-				   showmembermessages(id);
-               },
-              'json');
-    });
+    var postdata = 'id='+id;
+    postdata += '&userid='+userid;
+    postdata += '&itemid='+itemid;
+    postdata += '&parent='+parent;
+    postdata += '&body='+encodeURIComponent(body);
     
+    $.post('/json/addmembermessagertq',
+           postdata,
+           function (data) {
+						 var item = data.json.item;
+						 rowsdata[id] = item;
+						 showmembermessages(id);
+           },
+           'json');
+  });
+  
 	/*
     jQuery('div#message').ajaxStart(function() {
 		$(this).html('Loading');
@@ -1187,6 +1185,11 @@ function setformelements(item)
 	
 	if (item.categorypath) {
 		
+	} else {
+		item.categorypath = [];
+	}
+	if (item.categorypath) {
+		
 		var tmppath = item.categorypath.slice(0); // just copy?
 		tmppath.unshift(0);
 		
@@ -1259,10 +1262,12 @@ function setformelements(item)
 	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).empty();
 	var optiontag = $('<option/>').val('').html('');
 	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).append(optiontag);
-	$.each(hash[site].eBayDetails.ShippingPackageDetails, function(i, o) {
-		var optiontag = $('<option/>').val(o.ShippingPackage).html(o.Description);
-		$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).append(optiontag);
-	});
+	if (hash[site].eBayDetails.ShippingPackageDetails) {
+		$.each(hash[site].eBayDetails.ShippingPackageDetails, function(i, o) {
+			var optiontag = $('<option/>').val(o.ShippingPackage).html(o.Description);
+			$('select[name="mod.'+_sdcsr+'.ShippingPackage"]', '#'+id).append(optiontag);
+		});
+	}
 	
 	/* ShippingService */
 	setformelements_shipping(item);
@@ -1368,39 +1373,41 @@ function setformelements(item)
 
 function setformelements_shipping(item)
 {
+	if (item.ShippingDetails == undefined) {
+		return;
+	}
+	
 	var id = item.id;
 	var site = item.mod.Site;
 	
 	var dmsttype = item.ShippingDetails.ShippingType.domestic;
 	var intltype = item.ShippingDetails.ShippingType.international;
 	
+	var _dsso = 'ShippingDetails.ShippingServiceOptions';
+	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
+	
 	var packagetype = '';
 	if (item.mod.ShippingDetails) {
 		if (item.mod.ShippingDetails.CalculatedShippingRate) {
 			packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
-			log(packagetype);
 		}
 	}
-	// hide and show
-	if (dmsttype == 'NoShipping') {
+	
+	
+	/* Domestic */
+	if (dmsttype == '' || dmsttype == undefined) {
 		$('tbody.shippingmainrows', '#'+id).hide();
 		// todo: remove 2>=
 		
 		// also set NoShipping to international.
-		$('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val('NoShipping');
+		$('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val('');
 		$('tbody.internationalshippingmainrows', '#'+id).hide();
 		
 		return;
-	} else {
-		$('tbody.shippingmainrows', '#'+id).show();
-		$('tbody.internationalshippingmainrows', '#'+id).show();
 	}
-	if (intltype == 'NoShipping') {
-		$('tbody.internationalshippingmainrows', '#'+id).hide();
-		// todo: remove 2>=
-	} else {
-		$('tbody.internationalshippingmainrows', '#'+id).show();
-	}
+	
+	$('tbody.shippingmainrows', '#'+id).show();
+	$('tbody.internationalshippingmainrows', '#'+id).show();
 	
 	if (dmsttype == 'Calculated') {
 		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).show();
@@ -1408,8 +1415,15 @@ function setformelements_shipping(item)
 		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).hide();
 	}
 	
-	var _dsso = 'ShippingDetails.ShippingServiceOptions';
-	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
+	/* International */
+	log(intltype);
+	if (intltype == '' || intltype == undefined) {
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+		// todo: remove 2>=
+	} else {
+		$('tbody.internationalshippingmainrows', '#'+id).show();
+	}
+	
 	
 	// set <option> tags
 	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id).empty();
@@ -1426,6 +1440,8 @@ function setformelements_shipping(item)
 		var arrservicetype = arrayize(o.ServiceType)
 		
 		if (parseInt(o.ShippingServiceID) < 50000) {
+
+			// Domestic
 			if ($.inArray(dmsttype, arrservicetype) >= 0) {
 				if (dmsttype == 'Calculated') {
 					var packages = arrayize(o.ShippingServicePackageDetails);
@@ -1440,13 +1456,22 @@ function setformelements_shipping(item)
 					$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
 						.append($('<option/>').val(o.ShippingService).html(o.Description));
 				}
-				
+			} else if (dmsttype == 'Freight') {
+				if (o.ShippingService == 'FreightShipping' || o.ShippingService == 'Freight') {
+					log(o.ShippingService);
+					$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+						.append($('<option/>').val(o.ShippingService).html(o.Description));
+				}
 			}
+			
 		} else {
+
+			// International
 			if ($.inArray(intltype, arrservicetype) >= 0) {
 				$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
 					.append($('<option/>').val(o.ShippingService).html(o.Description));
 			}
+			
 		}
 	});
 	
@@ -1476,18 +1501,25 @@ function setformelements_shipping(item)
 	// todo: don't copy when already 2, 3, ... is shown.
 	var div0s = $('div.ShippingService0', '#'+id);
 	if (item.mod.ShippingDetails) {
-		if ($.isArray(item.mod.ShippingDetails.ShippingServiceOptions)) {
+		
+		if ($.isArray(item.mod.ShippingDetails.ShippingServiceOptions)
+				&& item.mod.ShippingDetails.ShippingServiceOptions.length > 1) {
+			
 			$.each(item.mod.ShippingDetails.ShippingServiceOptions, function(k, v) {
 				if (v.ShippingServicePriority == 1) return;
 				addsso($('a.addsso:first', '#'+id).get());
 			});
 		}
-		if ($.isArray(item.mod.ShippingDetails.InternationalShippingServiceOption)) {
+		
+		if ($.isArray(item.mod.ShippingDetails.InternationalShippingServiceOption)
+				&& item.mod.ShippingDetails.InternationalShippingServiceOption.length > 1) {
+			
 			$.each(item.mod.ShippingDetails.InternationalShippingServiceOption, function(k, v) {
 				if (v.ShippingServicePriority == 1) return;
 				addsso($('a.addsso:last', '#'+id).get());
 			});
 		}
+		
 	}
 	
 	return;
@@ -1648,12 +1680,7 @@ var save = function() {
 	$('select.remove', detail).remove();
 	
 	// todo: varidation check
-	/*
-	if ($('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).val() == '') {
-		alert('category error.');
-		return false;
-	}
-	*/
+	//if (!checkformvalues(id)) return false;
 	
 	// PictureURL
 	$.each($('ul.pictures li', '#'+id), function (i, li) {
@@ -1678,10 +1705,14 @@ var save = function() {
 	for (i = 0; i <= 3; i++) {
 		if ($('select[name="'+_dsso+'.'+i+'.ShippingService"]', '#'+id).val() == '') {
 			$('input[name="'+_dsso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
+		} else if ($('select[name="'+_dsso+'.'+i+'.ShippingService"]', '#'+id).val() == null) {
+			$('input[name="'+_dsso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
 		}
 	}
 	for (i = 0; i <= 4; i++) {
 		if ($('select[name="'+_isso+'.'+i+'.ShippingService"]', '#'+id).val() == '') {
+			$('input[name="'+_isso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
+		} else if ($('select[name="'+_isso+'.'+i+'.ShippingService"]', '#'+id).val() == null) {
 			$('input[name="'+_isso+'.'+i+'.ShippingServicePriority"]', '#'+id).val('');
 		}
 	}
@@ -1707,7 +1738,6 @@ var save = function() {
 		if (fvalue == '') $(o).remove();
 	});
 	
-	
 	var postdata = $('input[type=text], input:checked, input[type=hidden], input[type=datetime-local], select, textarea', '#'+id).extractObject();
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
@@ -1716,9 +1746,12 @@ var save = function() {
 		     'id='+id+'&json='+postdata,
 		     function(data) {
 			     var item = data.json.item;
-			     rowsdata[id] = item;
-			     dump(data.json);
-			     
+					 if (id == 'newitem0') {
+						 id = item.id
+						 $('#newitem0').attr('id', id);
+					 }
+					 rowsdata[id] = item;
+					 
 			     var site = item.mod.Site;
 			     
 			     hash[site] = new Object;
@@ -1728,7 +1761,7 @@ var save = function() {
 			     hash[site].ThemeGroup          = data.json.ThemeGroup;
 			     hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
 			     
-			     setformelements(data.json.item);
+			     setformelements(item);
 			     showformvalues(item);
 			     showbuttons(detail, 'edit,copy,delete');
 			     $('div.productsearchform', '#'+id).remove();
@@ -1738,6 +1771,17 @@ var save = function() {
 	
 	return false;
 }
+
+function checkformvalues(id) {
+
+	if ($('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).val() == '') {
+		alert('category error');
+		return false;
+	}
+	
+	return true;
+}
+
 
 var clickCancel = function() {
 	
@@ -2085,13 +2129,16 @@ function showformvalues(item)
 			= arrayize(item.mod.PictureDetails.PictureURL);
 	}
 	
-	if (item.mod.ShippingDetails.ShippingServiceOptions) {
-		item.mod.ShippingDetails.ShippingServiceOptions
-			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+	if (item.mod.ShippingDetails) {
+		if (item.mod.ShippingDetails.ShippingServiceOptions) {
+			item.mod.ShippingDetails.ShippingServiceOptions
+				= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+		}
 	}
-
+	
 	if (item.mod.ItemSpecifics) {
-		item.mod.ItemSpecifics.NameValueList = arrayize(item.mod.ItemSpecifics.NameValueList);
+		item.mod.ItemSpecifics.NameValueList
+			= arrayize(item.mod.ItemSpecifics.NameValueList);
 	}
 	
 	var detail = $('div.detail', '#'+item.id);
@@ -2150,7 +2197,6 @@ function showformvalues(item)
 		}
 	});
 	
-	
 	/* select */
 	$.each($('select', detail), function(i, form) {
 		var formname = $(form).attr('name');
@@ -2168,7 +2214,7 @@ function showformvalues(item)
 			//$(detail).before('ERR: '+formname+' '+err+'<br />');
 		}
 	});
-
+	
 	/* checkbox */
 	$.each($('input[type=checkbox]', detail), function(i, form) {
 		var formname = $(form).attr('name');
@@ -2282,9 +2328,11 @@ function fillformvalues(item)
 {
 	var id = item.id
 	
-	if (item.mod.ShippingDetails.ShippingServiceOptions) {
-		item.mod.ShippingDetails.ShippingServiceOptions
-			= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+	if (item.mod.ShippingDetails) {
+		if (item.mod.ShippingDetails.ShippingServiceOptions) {
+			item.mod.ShippingDetails.ShippingServiceOptions
+				= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
+		}
 	}
 	
 	if (item.mod.ItemSpecifics) {
@@ -2348,7 +2396,6 @@ function fillformvalues(item)
 			= arrayize(item.mod.PictureDetails.PictureURL);
 		
 		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
-			log(url);
 			var lidiv = $('ul.pictures li:first', '#'+id).clone();
 			$(lidiv).removeClass('template');
 			$('img', lidiv).attr('src', url);
@@ -2376,7 +2423,7 @@ function setformelements_itemspecifics(item)
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
 	var specifics = arrayize(item.mod.ItemSpecifics.NameValueList);
-	var recomm = category.CategorySpecifics.NameRecommendation;
+	var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
 	
 	var specificskey = new Array();
 	for (i in specifics) {

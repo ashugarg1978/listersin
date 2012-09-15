@@ -434,7 +434,15 @@ public class JsonAction extends BaseAction {
 			LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
 			item.put("categorypath2", path2);
 
-			json.put("Categories",       children2.get("Categories"));
+			json.put("Categories", children2.get("Categories"));
+			
+		} else {
+			
+			/* grandchildren */
+			String[] pathstr = {"0"};
+			BasicDBObject children2 = children2(site, pathstr);
+			json.put("Categories", children2.get("Categories"));
+			
 		}
 		
 		/*
@@ -447,7 +455,9 @@ public class JsonAction extends BaseAction {
 		*/
 		
 		/* shipping */
-		item.put("ShippingDetails", new BasicDBObject("ShippingType", shippingtypelabel2(item)));
+		if (mod.containsField("ShippingDetails")) {
+			item.put("ShippingDetails", new BasicDBObject("ShippingType", shippingtypelabel2(item)));
+		}
 		
 		/* ListingDesigner */
 		json.put("DescriptionTemplate", "");
@@ -528,33 +538,35 @@ public class JsonAction extends BaseAction {
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
         
 		/* schedule */
-        if (setting.containsField("schedule")) {
-            String schedule = setting.getString("schedule").replace("T", " ");
-            if (schedule.length() == 16) {
-                schedule += ":00";
-            }
-            
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setLenient(false);
-            sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
-            Date scheduledate = sdf.parse(schedule);
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            
-            setting.put("schedule", sdf.format(scheduledate));
-        }
-        
-		/* ShippingType */
-		BasicDBObject shippingtype = (BasicDBObject) shippingdetails.get("ShippingType");
-		
-		String stype = getShippingType(shippingtype.getString("domestic"),
-									   shippingtype.getString("international"));
-		
-		if (!mod.containsField("ShippingDetails")) {
-			mod.put("ShippingDetails", new BasicDBObject());
-			log.debug("putting ShippingDetails");
+		if (setting.containsField("schedule")) {
+			String schedule = setting.getString("schedule").replace("T", " ");
+			if (schedule.length() == 16) {
+				schedule += ":00";
+			}
+      
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			sdf.setLenient(false);
+			sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+			Date scheduledate = sdf.parse(schedule);
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+      
+			setting.put("schedule", sdf.format(scheduledate));
 		}
-		((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", stype);
-		log.debug("putting ShippingDetails:"+stype);
+    
+		/* ShippingType */
+		if (item.containsField("ShippingDetails")) {
+			BasicDBObject shippingtype = (BasicDBObject) shippingdetails.get("ShippingType");
+			
+			String stype = getShippingType(shippingtype.getString("domestic"),
+																		 shippingtype.getString("international"));
+			
+			if (!mod.containsField("ShippingDetails")) {
+				mod.put("ShippingDetails", new BasicDBObject());
+				log.debug("putting ShippingDetails");
+			}
+			((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", stype);
+			log.debug("putting ShippingDetails:"+stype);
+		}
 		
 		/* items collection */
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
@@ -578,6 +590,10 @@ public class JsonAction extends BaseAction {
 			
 			WriteResult result = coll.insert(newitem, WriteConcern.SAFE);
 			log.debug("save newitem: "+result.getError());
+			
+			/* save before and after file for diff */
+			DiffLogger dl = new DiffLogger();
+			dl.savediff("newitem0", newitem.toString(), newitem.toString(), basedir+"/logs/diff");
 			
 		} else {
 			
@@ -1530,14 +1546,14 @@ public class JsonAction extends BaseAction {
 				label.put("international", "Flat");
 			} else if (shippingtype.equals("FreightFlat")) {
 				label.put("domestic",      "Freight");
-				label.put("international", "(?)");
+				label.put("international", "");
 			}
 			if (!sd.containsField("InternationalShippingServiceOption")) {
-				label.put("international", "NoShipping");
+				label.put("international", "");
 			}
 		} else {
-			label.put("domestic",      "NoShipping");
-			label.put("international", "NoShipping");
+			label.put("domestic",      "");
+			label.put("international", "");
 		}
 		
 		return label;

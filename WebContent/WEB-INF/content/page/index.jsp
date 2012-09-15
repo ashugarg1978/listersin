@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ListersIn - eBay Listing Software</title>
+<title>ListersIn - <s:text name="eBayListingSoftware"/></title>
 
 <meta name="description" content="ListersIn is an eBay listing software. Simple, easy and Gmail like user interface. Try free demo account before sign up!">
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
@@ -31,114 +31,114 @@
 <div id="container-white">
   
   <div id="header">
-	<div id="logo">
-	  <a href="/"><img src="/img/logo.png" alt="ListersIn" /></a>
-	</div>
+	  <div id="logo">
+	    <a href="/"><img src="/img/logo.png" alt="ListersIn" /></a>
+	  </div>
   </div>
   
   <div id="content960">
-	
-	<div style="margin:20px; float:left;">
-	  <div style="margin-bottom:10px;">
-		<h1>ListersIn - eBay Listing Software</h1>
-	  </div>
+	  
+	  <div style="margin:20px; float:left;">
+	    <div style="margin-bottom:10px;">
+		    <h1>ListersIn - <s:text name="eBayListingSoftware"/></h1>
+	    </div>
       
       <h2>Features</h2>
-	  <ul class="features">
-		<li>Manage multiple eBay accounts.</li>
-		<li>Upload 12 pictures for one item to eBay server at once.</li>
-		<li>Simple and easy user interface.</li>
-		<li>Find duplicate items by title.</li>
+	    <ul class="features">
+		    <li>Manage multiple eBay accounts.</li>
+		    <li>Upload 12 pictures for one item to eBay server at once.</li>
+		    <li>Simple and easy user interface.</li>
+		    <li>Find duplicate items by title.</li>
         <li>FREE.</li>
- 	  </ul>
-	  
+ 	    </ul>
+	    
       <h2>Notice</h2>
-	  <ul class="notice">
-		<li>This listing tool is under development. There still may be some bugs.</li>
-		<li>Please be careful about using this seller software.</li>
-		<li>Please list to "Test Auction" category before you create actual listings.</li>
+	    <ul class="notice">
+		    <li>This listing tool is under development. There still may be some bugs.</li>
+		    <li>Please be careful about using this seller software.</li>
+		    <li>Please list to "Test Auction" category before you create actual listings.</li>
       </ul>
-
+      
       <h2>Feedback</h2>
-	  <ul class="feedback">
-		<li>We would like to hear from you!</li>
-		<li>
+	    <ul class="feedback">
+		    <li>We would like to hear from you!</li>
+		    <li>
           Please post your comments and suggestions to the 
           <a href="http://forum.listers.in/" target="_blank">forum</a>.
         </li>
-		<li>Or send an email to admin [at] listers.in.</li>
+		    <li>Or send an email to admin [at] listers.in.</li>
       </ul>
-	  
-	  <h2>Screenshot</h2>
-	  <a href="/img/screenshot.png" target="_blank">
-		<img id="screenshot" src="/img/screenshot.png" />
-	  </a>
-	  <div>
-		<a href="/img/screenshot.png" target="_blank">Click to enlarge</a>
+	    
+	    <h2>Screenshot</h2>
+	    <a href="/img/screenshot.png" target="_blank">
+		    <img id="screenshot" src="/img/screenshot.png" />
+	    </a>
+	    <div>
+		    <a href="/img/screenshot.png" target="_blank">Click to enlarge</a>
+	    </div>
+	    <h2>Blog</h2>
+	    <ul class="blog">
+		    <s:iterator value="feed.entries">
+		      <li>
+			      <a href="${link}">${title}</a> ${publishedDate}
+			      <p>${description.value}</p>
+		      </li>
+		    </s:iterator>
+	    </ul>
+	    
+	    <!--
+	        todo: signup tutorial
+	      -->
+      
 	  </div>
-	  <h2>Blog</h2>
-	  <ul class="blog">
-		<s:iterator value="feed.entries">
-		  <li>
-			<a href="${link}">${title}</a> ${publishedDate}
-			<p>${description.value}</p>
-		  </li>
-		</s:iterator>
-	  </ul>
 	  
-	  <!--
-	  todo: signup tutorial
-	  -->
-
-	</div>
-	
-	<div style="float:right;">
-	  
-	  <div id="signinbox">
-		
-		<div style="margin-bottom:10px; font-weight:bold;">
-		  Sign in
-		</div>
-		
-		<form method="post" action="/">
-		  <label for="email">Email</label><br />
-		  <input type="text" id="email" name="email" size="40" value=""><br />
-          Demo account: demo@listers.in<br/>
+	  <div style="float:right;">
+	    
+	    <div id="signinbox">
+		    
+		    <div style="margin-bottom:10px; font-weight:bold;">
+          <s:text name="SignIn"/>
+		    </div>
+		    
+		    <form method="post" action="/">
+		      <label for="email"><s:text name="Email"/></label><br />
+		      <input type="text" id="email" name="email" size="40" value=""><br />
+          <s:text name="DemoAccount"/>: demo@listers.in<br/>
           <br />
-		  
-		  <label for="password">Password</label><br />
-		  <input type="password" id="password" name="password" size="40" value=""><br />
-          Demo account: demo<br/>
+		      
+		      <label for="password"><s:text name="Password"/></label><br />
+		      <input type="password" id="password" name="password" size="40" value=""><br />
+          <s:text name="DemoAccount"/>: demo<br/>
           <br />
-		  
-		  <button>Sign in</button>
-		  
-		  <a href="#">Forgot password ?</a>
-		</form>
-		
-	  </div>
-	  
-	  <div id="signupbox">
-		
-		<div style="margin-bottom:10px; font-weight:bold;">
-		  Sign up
-		</div>
-		<div id="signupmessage"></div>
-		
-		<form method="post" action="/json/register">
-		  Email<br />
-		  <input type="text" name="email" size="40"><br /><br />
-		  
-		  Password<br />
-		  <input type="text" name="password" size="40"><br /><br />
-		  
-		  Confirm password<br />
-		  <input type="text" name="password2" size="40"><br /><br />
-		  
-		  <button>Sign up</button>
-		</form>
-		
-	  </div>
+		      
+		      <button><s:text name="SignIn"/></button>
+		      
+		      <a href="#">Forgot password ?</a>
+		    </form>
+		    
+	    </div>
+	    
+	    <div id="signupbox">
+		    
+		    <div style="margin-bottom:10px; font-weight:bold;">
+          <s:text name="SignUp"/>
+		    </div>
+		    <div id="signupmessage"></div>
+		    
+		    <form method="post" action="/json/register">
+		      <s:text name="Email"/><br />
+		      <input type="text" name="email" size="40"><br /><br />
+		      
+		      <s:text name="Password"/><br />
+		      <input type="text" name="password" size="40"><br /><br />
+		      
+		      <s:text name="ConfirmPassword"/><br />
+		      <input type="text" name="password2" size="40"><br /><br />
+		      
+		      <button><s:text name="SignUp"/></button>
+		    </form>
+		    
+	    </div>
 
 	  <div id="twitter">
 	  

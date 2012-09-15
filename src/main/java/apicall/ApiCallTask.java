@@ -44,7 +44,7 @@ public class ApiCallTask implements Callable {
     basetimestamp = sdf.format(now);
     
 		if (db == null) {
-			Mongo m = new Mongo();
+			Mongo m = new Mongo(configdbo.getString("mongohost"));
 			db = m.getDB(configdbo.getString("database"));
       System.out.println("ApiCallTask() constructor. db");
 		}

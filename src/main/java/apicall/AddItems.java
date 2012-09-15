@@ -198,7 +198,12 @@ public class AddItems extends ApiCall {
     
     String ack = responsedbo.get("Ack").toString();
     log("Ack:"+ack);
-    
+		
+		if (!responsedbo.containsField("AddItemResponseContainer")) {
+			log("AddItemResponseContainer not exists");
+			return "";
+		}
+		
     // todo: not exist when error is one?
     String classname = responsedbo.get("AddItemResponseContainer").getClass().toString();
     

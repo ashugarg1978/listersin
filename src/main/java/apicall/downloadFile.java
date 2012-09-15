@@ -38,43 +38,95 @@ public class downloadFile extends ApiCall {
 			int count;
 			byte data[] = new byte[4096];
 			
-            FileOutputStream fos = new FileOutputStream(savedir+"/"+site+".xml");
-            BufferedOutputStream dest = new BufferedOutputStream(fos, 4096);
-            while ((count = zis.read(data, 0, 4096)) != -1) {
+			FileOutputStream fos = new FileOutputStream(savedir+"/"+site+".xml");
+			BufferedOutputStream dest = new BufferedOutputStream(fos, 4096);
+			while ((count = zis.read(data, 0, 4096)) != -1) {
 				dest.write(data, 0, count);
-            }
-            dest.flush();
-            dest.close();
+			}
+			dest.flush();
+			dest.close();
 		}
 		zis.close();
-		
-		XMLSerializer xmlSerializer = new XMLSerializer(); 
-		
-		File file = new File(savedir+"/"+site+".xml");
-		
-		net.sf.json.JSON json = xmlSerializer.readFromFile(file);
-		
-		BasicDBObject resdbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
-		
+    
 		DBCollection coll = db.getCollection(site+".CategorySpecifics");
 		if (db.collectionExists(site+".CategorySpecifics")) {
 			coll.drop();
 		}
-		coll.insert((List<DBObject>) resdbo.get("Recommendations"));
+    
+    /* Import to MongoDB */
+    log("importing: " + site);
+		FileInputStream fis = new FileInputStream(savedir+"/"+site+".xml");
+		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 		
-		return "";
-	}
-	
-	private static String readFileAsString(String filePath) throws java.io.IOException{
-		byte[] buffer = new byte[(int) new File(filePath).length()];
-		BufferedInputStream f = null;
-		try {
-			f = new BufferedInputStream(new FileInputStream(filePath));
-			f.read(buffer);
-		} finally {
-			if (f != null) try { f.close(); } catch (IOException ignored) { }
+    StringBuilder sb = new StringBuilder();
+    BasicDBObject dbo = new BasicDBObject();
+    int nodecount = 0;
+    int chunkcount = 0;
+		String xml = "";
+		String line;
+		while ((line = br.readLine()) != null) {
+			if (line.indexOf("<Recommendations>") > 0) {
+        nodecount++;
+        chunkcount++;
+        sb.append(line);
+        break;
+      }
+    }
+		while ((line = br.readLine()) != null) {
+      
+			if (line.indexOf("<Recommendations>") > 0) {
+        nodecount++;
+        chunkcount++;
+			}
+      
+      sb.append(line);
+      
+			if (line.indexOf("</Recommendations>") > 0) {
+        
+        if (chunkcount < 100) continue;
+        
+        xml = sb.toString();
+        
+        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+          + "<Root xmlns=\"urn:ebay:apis:eBLBaseComponents\">"
+          + xml
+          + "</Root>";
+        
+				XMLSerializer xs = new XMLSerializer(); 
+				net.sf.json.JSON json = xs.read(xml);
+        
+				dbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+        WriteResult result = coll.insert((List<DBObject>) dbo.get("Recommendations"));
+        //System.out.println(result.getError());
+				
+        chunkcount = 0;
+        sb = new StringBuilder();
+			}
+      
 		}
-		return new String(buffer);
+    if (chunkcount > 0) {
+      
+      xml = sb.toString();
+      xml = xml.replaceAll("</GetCategorySpecificsResponse>", "");
+      
+      xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        + "<Root xmlns=\"urn:ebay:apis:eBLBaseComponents\">"
+        + xml
+        + "</Root>";
+      
+      System.out.println("nodecount:"+nodecount+" chunkcount:"+chunkcount);
+      
+      XMLSerializer xs = new XMLSerializer(); 
+      net.sf.json.JSON json = xs.read(xml);
+      dbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+      if (chunkcount == 1) {
+        coll.insert((BasicDBObject) dbo.get("Recommendations"));
+      } else {
+        coll.insert((List<DBObject>) dbo.get("Recommendations"));
+      }
+    }
+    
+		return "";
 	}
 	
 }

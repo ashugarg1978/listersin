@@ -29,11 +29,11 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 														 ServletResponseAware,
 														 ParameterAware {
 	
-    protected ServletContext context = null;
-    protected Map<String, Object> session = null;
-    protected Map<String, String[]> parameters = null;
-    protected HttpServletRequest request = null;
-    protected HttpServletResponse response = null;
+	protected ServletContext context = null;
+	protected Map<String, Object> session = null;
+	protected Map<String, String[]> parameters = null;
+	protected HttpServletRequest request = null;
+	protected HttpServletResponse response = null;
 	
 	protected DB db;
 	protected BasicDBObject user;
@@ -67,7 +67,8 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 			daemonport = Integer.parseInt(configdbo.getString("daemonport"));
 			
-			MongoConnect mc = MongoConnect.getInstance(configdbo.getString("database"));
+			MongoConnect mc = MongoConnect.getInstance(configdbo.getString("mongohost"),
+																								 configdbo.getString("database"));
 			db = mc.getDB();
 			
 			// todo: exclude "canceled" user?

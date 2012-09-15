@@ -57,31 +57,31 @@ public class Daemon {
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             
-            String callclass = in.readLine();
+      String callclass = in.readLine();
 			if (callclass.equals("shutdown")) break;
 			
-            ArrayList<String> als = new ArrayList<String>();
-            
-            String line = "";
-            while ((line = in.readLine()) != null) {
-                if (line.equals("")) break;
-                als.add(line.replace("\\n", "\n"));
-            }
-            
-            String[] messages = new String[als.size()];
-            messages = (String[]) als.toArray(messages);
+      ArrayList<String> als = new ArrayList<String>();
+      
+      String line = "";
+      while ((line = in.readLine()) != null) {
+        if (line.equals("")) break;
+        als.add(line.replace("\\n", "\n"));
+      }
+      
+      String[] messages = new String[als.size()];
+      messages = (String[]) als.toArray(messages);
 			
-            System.out.println(sdf.format(new Date()).toString()
-							   +" "+callclass+" ("+als.size()+" args)");
-            for (String tmpstr : messages) {
-                System.out.println(sdf.format(new Date()).toString()+" - "+tmpstr);
-            }
-            
+      System.out.println(sdf.format(new Date()).toString()
+                         +" "+callclass+" ("+als.size()+" args)");
+      for (String tmpstr : messages) {
+        System.out.println(sdf.format(new Date()).toString()+" - "+tmpstr);
+      }
+      
 			try {
-				
-                // ref: http://stackoverflow.com/questions/5142821/illegalargumentexception-wrong-number-of-arguments-in-java-constructor-newinsta
-                // ref: http://stackoverflow.com/questions/5760569/problem-with-constructing-class-using-reflection-and-array-arguments
-                
+        
+        // ref: http://stackoverflow.com/questions/5142821/illegalargumentexception-wrong-number-of-arguments-in-java-constructor-newinsta
+        // ref: http://stackoverflow.com/questions/5760569/problem-with-constructing-class-using-reflection-and-array-arguments
+        
 				Callable task = null;
 				Class apiclass = Class.forName("ebaytool.apicall."+callclass);
 				
@@ -121,7 +121,7 @@ public class Daemon {
 	}
 	
 	public void stop() throws Exception {
-		
+    
 		Socket socket = new Socket("localhost", port);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("shutdown\n\n");
@@ -131,10 +131,10 @@ public class Daemon {
 		return;
 	}
 	
-    public static void main(String[] args) {
-		
+  public static void main(String[] args) {
+    
 		try {
-			
+      
 			Daemon daemon = new Daemon();
 			String action = args[0];
 			

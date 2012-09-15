@@ -33,7 +33,7 @@ public class ApiCall implements Callable {
 		admintoken = configdbo.getString("admintoken");
 		
 		if (db == null) {
-			Mongo m = new Mongo();
+			Mongo m = new Mongo(configdbo.getString("mongohost"));
 			db = m.getDB(configdbo.getString("database"));
 			log("ApiCall() constructor. db");
 		}

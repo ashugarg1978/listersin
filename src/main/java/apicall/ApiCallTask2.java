@@ -43,12 +43,12 @@ public class ApiCallTask2 implements Callable {
 		
 		if (siteid == 100) siteid = 0;
 		
-        URL url = new URL(configdbo.getString("apiftsurl"));
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+    URL url = new URL(configdbo.getString("apiftsurl"));
+    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 		
-        conn.setRequestMethod("POST");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
+    conn.setRequestMethod("POST");
+    conn.setDoInput(true);
+    conn.setDoOutput(true);
 		conn.setRequestProperty("Content-Type", "text/xml");
 		
 		conn.setRequestProperty("X-EBAY-SOA-OPERATION-NAME", "downloadFile");
@@ -59,7 +59,7 @@ public class ApiCallTask2 implements Callable {
 		osw.write(requestxml);
 		osw.flush();
 		osw.close();
-        conn.connect();
+    conn.connect();
 		
 		/* save response */
 		File file = new File(basedir+"/logs/apicall/downloadFile/"+site+".raw");
