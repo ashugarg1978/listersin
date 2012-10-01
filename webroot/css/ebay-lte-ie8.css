@@ -3,3 +3,22 @@ submit,
 input[type=submit] {
   min-width: 44px;
 }
+
+/*
+ul.accountaction li {
+  margin: 0px;
+  padding: 1px 8px;
+  line-height: 27px;
+  font-size: 11px;
+  color: #666;
+  text-shadow: #eee 0px 1px 0px;
+}
+
+ul.accountaction li:hover {
+  cursor: pointer;
+  background-color: rgba(208, 208, 208, .85);
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+}
+*/

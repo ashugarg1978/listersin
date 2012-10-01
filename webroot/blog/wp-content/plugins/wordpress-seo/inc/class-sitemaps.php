@@ -15,7 +15,7 @@ class WPSEO_Sitemaps {
 	private $stylesheet = '';
 
 	/**
-	 * Flag to indicate if this is an invalid or empty sitemap.
+	 * 	Flag to indicate if this is an invalid or empty sitemap.
 	 */
 	private $bad_sitemap = false;
 
@@ -541,7 +541,7 @@ class WPSEO_Sitemaps {
 		$output .= "\t\t<priority>" . str_replace( ',', '.', $url['pri'] ) . "</priority>\n";
 		if ( isset( $url['images'] ) && count( $url['images'] ) > 0 ) {
 			foreach ( $url['images'] as $img ) {
-				if ( !isset( $img['sc'] ) || empty( $img['src'] ) )
+				if ( !isset( $img['src'] ) || empty( $img['src'] ) )
 					continue;
 				$output .= "\t\t<image:image>\n";
 				$output .= "\t\t\t<image:loc>" . esc_html( $img['src'] ) . "</image:loc>\n";

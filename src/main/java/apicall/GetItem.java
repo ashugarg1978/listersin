@@ -72,13 +72,14 @@ public class GetItem extends ApiCall implements Callable {
 		userquery.put("userids."+userid, new BasicDBObject("$exists", true));
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
         
-        String email = userdbo.getString("email");
+    String email = userdbo.getString("email");
 		String token = gettoken(email, userid);
         
 		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
 		
 		/* delete ItemSpecifics added from Product */
 		if (mod.containsField("ItemSpecifics")) {
+      
 			BasicDBObject itemspecifics = (BasicDBObject) mod.get("ItemSpecifics");
 			BasicDBObject iscopy = (BasicDBObject) itemspecifics.copy();
 			
@@ -107,11 +108,16 @@ public class GetItem extends ApiCall implements Callable {
 		for (Object fieldname : movefields) {
 			movefield(mod, fieldname.toString());
 		}
-		
+    
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", userid);
-		query.put("org.ItemID",        itemid);
-		
+    query.put("org.ItemID", itemid);
+    /*
+    if (org.containsField("RelistParentID")) {
+      query.put("org.ItemID", org.getString("RelistParentID"));
+    }
+    */
+    
 		BasicDBObject update = new BasicDBObject();
 		
 		BasicDBObject set = new BasicDBObject();
@@ -119,10 +125,9 @@ public class GetItem extends ApiCall implements Callable {
 		set.put("mod", mod);
 		set.put("UserID", userid);
 		
-		update.put("$set",  set);
-		update.put("$push", new BasicDBObject
-				   ("log", new BasicDBObject(timestamp, "Import from eBay")));
-		
+		update.put("$set", set);
+		update.put("$push", new BasicDBObject("log", new BasicDBObject(timestamp, "Import from eBay")));
+    
 		itemcoll.update(query, update, true, false);
 		
 		return "";

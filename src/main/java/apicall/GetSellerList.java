@@ -42,9 +42,9 @@ public class GetSellerList extends ApiCall {
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",50).append("PageNumber",1));
-		dbobject.put("Sort", "1");
+		dbobject.put("Sort", "2");
 		dbobject.put("MessageID", email+" "+userid);
-        
+    
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
 		Future<String> future =
@@ -110,7 +110,7 @@ public class GetSellerList extends ApiCall {
 			+ ((BasicDBObject) resdbo.get("PaginationResult")).getString("TotalNumberOfEntries")
 			+ " items.";
 		updatemessage(email, message);
-        
+    
 		JSONArray jsonarr = new JSONArray();
 		if (itemcount == 1) {
 			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));

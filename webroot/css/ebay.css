@@ -257,6 +257,17 @@ div.labelwrap div.label {
   padding: 1px 2px;
 }
 
+div.normallabel {
+  float: right;
+  color: #990;
+  background-color: #ffc;
+  border: 1px solid #aa6;
+  font-size: 9px;
+  border-radius: 3px;
+  margin-left: 2px;
+  padding: 2px 3px;
+}
+
 div.soldlabel {
   float: right;
   color: #090;
@@ -568,7 +579,12 @@ span.error {
   color: red;
   font-size: 8pt;
   padding-left: 15px;
-  /*font-weight: bold;*/
+}
+span.warning {
+  background: url('/icon/01/10/50.png') no-repeat left center;
+  color: #aaa;
+  font-size: 8pt;
+  padding-left: 15px;
 }
 span.status {
   color: orange;
@@ -860,12 +876,14 @@ td.paymentmethod img {
 
 
 /* picture sortable list */
-ul.pictures {
+ul.pictures,
+ul.variationpictures {
   list-style: none;
   padding: 0;
 }
 
-ul.pictures li {
+ul.pictures li,
+ul.variationpictures li {
   width: 100px;
   height: 120px;
   float: left;
@@ -875,11 +893,13 @@ ul.pictures li {
   text-align: center;
 }
 
-ul.pictures li.template {
+ul.pictures li.template,
+ul.variationpictures li.template {
   display: none;
 }
 
-ul.pictures div {
+ul.pictures div,
+ul.variationpictures div {
   display: table-cell;
   width: 100px;
   height: 100px;
@@ -887,17 +907,20 @@ ul.pictures div {
   vertical-align: middle;
 }
 
-ul.pictures li.sortable-placeholder {
+ul.pictures li.sortable-placeholder,
+ul.variationpictures li.sortable-placeholder {
 	border: 1px dashed #CCC;
 	background: none;
 }
 
-ul.pictures a.deletepicture {
+ul.pictures a.deletepicture,
+ul.variationpictures a.deletepicture {
   color: #999;
   font-size: 0.8em;
 }
 
-ul.pictures img {
+ul.pictures img,
+ul.variationpictures img {
   max-height: 100px;
   max-width: 100px;
 }

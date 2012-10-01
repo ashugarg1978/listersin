@@ -100,7 +100,7 @@ public class JsonAction extends BaseAction {
 					SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 					Calendar cal = Calendar.getInstance();
-					cal.add(Calendar.MINUTE, 30);
+					cal.add(Calendar.HOUR, 24);
 					String tmptoken_expiration = sdf.format(cal.getTime());
 					
 					BasicDBObject field = new BasicDBObject();
@@ -112,7 +112,8 @@ public class JsonAction extends BaseAction {
 					field.put("language",  "English");
 					field.put("timezone",  "PST8PDT");
 					field.put("itemlimit", "100");
-					
+					field.put("created",   basetimestamp);
+          
 					db.getCollection("users").insert(field, WriteConcern.SAFE);
 					
 					sendmail(email, tmptoken);
@@ -455,10 +456,12 @@ public class JsonAction extends BaseAction {
 		*/
 		
 		/* shipping */
+    /*
 		if (mod.containsField("ShippingDetails")) {
 			item.put("ShippingDetails", new BasicDBObject("ShippingType", shippingtypelabel2(item)));
 		}
-		
+		*/
+    
 		/* ListingDesigner */
 		json.put("DescriptionTemplate", "");
 		if (mod.containsField("ListingDesigner")) {
@@ -554,6 +557,8 @@ public class JsonAction extends BaseAction {
 		}
     
 		/* ShippingType */
+    // todo: check through here
+    /*
 		if (item.containsField("ShippingDetails")) {
 			BasicDBObject shippingtype = (BasicDBObject) shippingdetails.get("ShippingType");
 			
@@ -567,7 +572,8 @@ public class JsonAction extends BaseAction {
 			((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", stype);
 			log.debug("putting ShippingDetails:"+stype);
 		}
-		
+		*/
+    
 		/* items collection */
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
@@ -1301,6 +1307,7 @@ public class JsonAction extends BaseAction {
 			if (dboft != null) {
 				for (Object o : dboft.keySet()) {
 					features.put(o.toString(), dboft.get(o.toString()));
+					log.debug("overwrite:" + categoryid + ":" + o.toString()+":"+dboft.get(o.toString()));
 				}
 			}
 			
@@ -1399,6 +1406,7 @@ public class JsonAction extends BaseAction {
 		return map;
 	}
 	
+  /*
 	private String getShippingType(String dmst, String intl) {
 		
 		String[][] typemap = {
@@ -1423,7 +1431,8 @@ public class JsonAction extends BaseAction {
 		
 		return shippingtype;
 	}
-	
+	*/
+  
 	// todo: reverse function?
 	// todo: replace with getShippingType()
 	private LinkedHashMap<String,LinkedHashMap> shippingmap() {

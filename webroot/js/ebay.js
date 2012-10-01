@@ -71,8 +71,10 @@ function bindevents_index()
 				     if (data.json.result == true) {
 					     $('#signupmessage')
 						     .css('color', 'blue')
-						     .html('Confirmation mail was sent to<br/>'+data.json.message+'!');
-               // todo: please also check spam folder.
+						     .html('Confirmation mail was sent to<br/>'
+                       + data.json.message+'!<br/>'
+                       + 'If you can\'t find the email,<br/>'
+                       + 'Please also check spam folder.');
 				     } else {
 					     $('#signupmessage')
 						     .css('color', 'red')
@@ -300,18 +302,14 @@ function bindevents()
     
 		$('ul.pictures', '#'+id).sortable('destroy');
 		
-		//var fileindex = $(this).attr('name');
-		//var fileindexform = $('<input/>').attr('name', 'fileindex').val(fileindex);
-		//$(this).closest('form').append(fileindexform);
-		
-		//$(this).attr('name', 'uploadfile')
 		$(this).attr('name', 'fileUpload')
 		$(this).closest('form').submit();
 		$(this).closest('form')[0].reset();
 		
-		//$(fileindexform).remove();
 		$(idform).remove();
 		$(useridform).remove();
+    
+    return;
   });
   
 	$('select[name="mod.ListingType"]').live('change', function() {
@@ -347,23 +345,27 @@ function bindevents()
 		return false;
 	});
 	
-	/* ShippingType */
-	$('select[name="ShippingDetails.ShippingType.domestic"]').live('change', function() {
+	/* ShippingType.domestic */
+	$('select[name="mod.ShippingDetails.ShippingType.domestic"]').live('change', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var item_modifing =
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
 			.extractObject();
 		item_modifing.id = id;
-		setformelements_shipping(item_modifing);
+		setformelements_shipping_domestic(item_modifing);
+    
 		return;
 	});
-	$('select[name="ShippingDetails.ShippingType.international"]').live('change', function() {
+  
+  /* ShippingType.international */
+	$('select[name="mod.ShippingDetails.ShippingType.international"]').live('change', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var item_modifing =
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
 			.extractObject();
 		item_modifing.id = id;
-		setformelements_shipping(item_modifing);
+		setformelements_shipping_international(item_modifing);
+    
 		return;
 	});
 
@@ -375,19 +377,39 @@ function bindevents()
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
 			.extractObject();
 		item_modifing.id = id;
-		setformelements_shipping(item_modifing);
+		setformelements_shipping_domestic(item_modifing);
+    
 		return;
 	});
 	
 	/* Offer additional service */
 	$('a.addsso').live('click', function() {
-		addsso(this);
-		$.each($('input[name$=Priority]', $(this).parent()), function(i, o) {
-			if ($(o).val() == '') $(o).val(i+1);
-		});
+		
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var tdclass = $(this).closest('td').attr('class');
+		
+		addsso(id, tdclass);
+		
 		return false;
 	});
 
+	/* Remove service */
+	$('a.removesso').live('click', function() {
+		
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var tdclass = $(this).closest('td').attr('class');
+		
+		var pdiv = $(this).parent().parent();
+		
+		$(this).parent().remove();
+		
+		renumbersso(id, tdclass);
+		
+		$('a.addsso', $(pdiv)).show();
+		
+		return false;
+	});
+	
 	/* Add ItemSpecifics */
 	$('a.addis').live('click', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
@@ -414,28 +436,6 @@ function bindevents()
 		return false;
 	});
 	
-	/* Remove service */
-	$('a.removesso').live('click', function() {
-		var pdiv = $(this).parent().parent();
-		
-		$(this).parent().remove();
-		$('a.addsso', $(pdiv)).show();
-		
-		$.each($('div[class^=ShippingService]', pdiv), function(k, v) {
-			if (k == 0) return;
-			
-			$(v).attr('class', 'ShippingService'+k);
-			$('input[name$=ShippingServicePriority]', v).val(k+1);
-			
-			$.each($('select, input', v), function(j, o) {
-				var orgname = $(o).attr('name');
-				$(o).attr('name', orgname.replace(/\.[0-9]\./, '.'+k+'.'));
-			});
-		});
-		
-		return false;
-	});
-	
 	/* Import */
 	$('button[class^=sync]', 'div#settings').live('click', function() {
     
@@ -449,6 +449,8 @@ function bindevents()
 			     function(data) {
 				     
 			     });
+    
+    return;
 	});
   
 	/* RemoveAccount */
@@ -463,6 +465,8 @@ function bindevents()
 			     function(data) {
 				     
 			     });
+    
+    return;
 	});
 	
 	$('#cancelaccountlink').live('click', function() {
@@ -491,6 +495,11 @@ function bindevents()
 		
 		return;
 	});
+
+  $('div.foundproducts div.close button').live('click', function() {
+		$(this).closest('div.foundproducts').slideUp('fast');
+		return;
+  });
 	
 	$('a#toggledebug').live('click', function() {
 		if ($('div#debug').css('display') == 'none') {
@@ -563,20 +572,20 @@ function bindevents()
 	$('a#showhelp').live('click', function() {
 		showcontent('#help');
 	});
+  
+  $('select[name=TimeZone]', '#settings').live('click', function() {
     
-    $('select[name=TimeZone]', '#settings').live('click', function() {
-      
-      var postdata = 'timezone='+encodeURIComponent($(this).val());
-      
-      $.post('/json/settings',
-             postdata,
-             function (data) {
-               
-             },
-             'json');
-      
-      return;
-    });
+    var postdata = 'timezone='+encodeURIComponent($(this).val());
+    
+    $.post('/json/settings',
+           postdata,
+           function (data) {
+             
+           },
+           'json');
+    
+    return;
+  });
 	
 	// Theme select
 	$('select[name="ListingDesigner.GroupID"]').live('change', function() {
@@ -641,10 +650,9 @@ function bindevents()
 			 var item_modifing =
 				 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
 				 .extractObject();
-
+       
 			 item_modifing.id = id;
 			 item_modifing.categorypath = [];
-			 //item_modifing.mod.Quantity = 1;
 			 
 			 dump(item_modifing);
 			 
@@ -655,6 +663,7 @@ function bindevents()
 			 $('input[name$="@currencyID"]',         '#'+id).val(tmpcurval);
 			 $('input[name="mod.StartPrice.#text"]', '#'+id).val('0.99');
 			 $('input[name="mod.Quantity"]',         '#'+id).val('1');
+			 $('select[name="mod.Country"]',         '#'+id).val('US');
 			 
 			 return;
 		 });
@@ -925,7 +934,7 @@ function summary()
 	var ulorg = $('ul.accounts').clone();
 	
 	$.getJSON('/json/summary', function(data) {
-
+		
 		if (!data.json.alluserids) {
 			showcontent('#help');
 			return;
@@ -1099,9 +1108,12 @@ function getrow(idx, row)
 		$.each(row.errors, function(k, v) {
 			if (v != '') {
 				$('td.Title', dom).append('<br/>');
-				var spantag = $('<span/>')
-					.addClass('error')
-					.text(v.LongMessage);
+				var spantag = $('<span/>').text(v.LongMessage);
+				if (v.SeverityCode == 'Warning') {
+					$(spantag).addClass('warning');
+				} else {
+					$(spantag).addClass('error');
+				}
 				$('td.Title', dom).append(spantag);
 			}
 		});
@@ -1129,6 +1141,26 @@ function getrow(idx, row)
 		  $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
     }
 	}
+
+  if (row.setting) {
+    
+    // Auto Relist Label
+    if (row.setting.autorelist) {
+      if (row.setting.autorelist.enabled == 'on') {
+		    if (row.setting.autorelist.addbestoffer) {
+	        var label = $('<div/>')
+            .addClass('normallabel')
+				    .html('Auto Relist With Best Offer');
+        } else {
+	        var label = $('<div/>')
+            .addClass('normallabel')
+				    .html('Auto Relist');
+        }
+			  $('td.Title', dom).append(label);
+      }
+    }
+    
+  }
 	
 	return dom;
 }
@@ -1179,7 +1211,6 @@ function setformelements(item)
 	//var tmpcurval = $('select[name="mod.Currency"]', '#'+id).val();
 	//$('input[name$="@currencyID"]', '#'+id).val(tmpcurval);
 	
-	
 	/* Categories */
 	var tmppc = hash[site].Categories;
 	
@@ -1222,7 +1253,14 @@ function setformelements(item)
 				}
 			}
 		}
+
+		/* BestOffer */
+		//log('BestOffer:'+category.CategoryFeatures.BestOfferEnabled);
+		
 	}
+
+	/* Variations */
+	setformelements_variations(item);
 	
 	/* ItemSpecifics */
 	setformelements_itemspecifics(item);
@@ -1327,10 +1365,13 @@ function setformelements(item)
 		var optiontag = $('<option/>').val('').text('');
 		$('select[name="mod.ReturnPolicy.'+rpname+'Option"]', '#'+id).empty();
 		$('select[name="mod.ReturnPolicy.'+rpname+'Option"]', '#'+id).append(optiontag);
-		$.each(hash[site].eBayDetails.ReturnPolicyDetails[rpname], function(i, o) {
-			var optiontag = $('<option/>').val(o[rpname+'Option']).text(o.Description);
-			$('select[name="mod.ReturnPolicy.'+rpname+'Option"]', '#'+id).append(optiontag);
-		});
+		
+		if (hash[site].eBayDetails.ReturnPolicyDetails[rpname]) {
+			$.each(hash[site].eBayDetails.ReturnPolicyDetails[rpname], function(i, o) {
+				var optiontag = $('<option/>').val(o[rpname+'Option']).text(o.Description);
+				$('select[name="mod.ReturnPolicy.'+rpname+'Option"]', '#'+id).append(optiontag);
+			});
+		}
 	}
 	
 	/* ThemeGroup */
@@ -1353,7 +1394,7 @@ function setformelements(item)
 			$('select[name="mod.ListingDesigner.ThemeID"]', '#'+id).append(optiontag);
 		});
 	}	
-
+	
 	/* checkbox,radio and label */
 	$('input[type=checkbox][id^=_id]', '#'+id).each(function (i, o) {
 		var newid = $(o).attr('id').replace(/^_id/, id);
@@ -1371,43 +1412,165 @@ function setformelements(item)
 	return;
 }
 
-function setformelements_shipping(item)
+function setformelements_variations(item)
 {
-	if (item.ShippingDetails == undefined) {
+	if (item.mod.Variations == null) {
 		return;
 	}
 	
+	/* VariationSpecificsSet */
+	var vss = item.mod.Variations.VariationSpecificsSet;
+	vss.NameValueList = arrayize(vss.NameValueList);
+	
+	$('table.VariationSpecificsSet', '#'+item.id).empty();
+	$.each(vss.NameValueList, function(i, o) {
+		
+		var trtag = $('<tr />');
+		
+		var thtag = $('<th />');
+		var inputtag = $('<input />')
+			.attr('type', 'text')
+			.attr('size', '10')
+			.attr('name', 'mod.Variations.VariationSpecificsSet.NameValueList.'+i+'.Name');
+		$(thtag).append(inputtag);
+		$(trtag).append(thtag);
+		
+		var tdtag = $('<td />');
+		$.each(o.Value, function(j, val) {
+			
+			var inputtag = $('<input />')
+				.attr('type', 'text')
+				.attr('size', '10')
+				.attr('name', 'mod.Variations.VariationSpecificsSet.NameValueList.'+i+'.Value.'+j);
+			
+			$(tdtag).append(inputtag);
+			$(tdtag).append('<br/>');
+		});
+		$(trtag).append(tdtag);
+		
+		$('table.VariationSpecificsSet', '#'+item.id).append(trtag);
+
+		var optiontag = $('<option />').val(o.Name).text(o.Name);
+		$('select[name="mod.Variations.Pictures.VariationSpecificName"]', '#'+item.id)
+			.append(optiontag);
+	});
+	
+	/* Variation */
+	$.each(item.mod.Variations.Variation, function(i, variation) {
+		
+		var trtag = $('<tr />');
+		
+		var tdtag = $('<td />');
+		var inputtag = $('<input />').attr('type', 'text')
+			.attr('name', 'mod.Variations.Variation.'+i+'.SKU');
+		$(tdtag).append(inputtag);
+		$(trtag).append(tdtag);
+		
+		variation.VariationSpecifics.NameValueList
+			= arrayize(variation.VariationSpecifics.NameValueList);
+		$.each(variation.VariationSpecifics.NameValueList, function(j, o) {
+			var tdtag = $('<td />');
+			
+			var inputtag = $('<input />').attr('type', 'hidden')
+			.attr('name', 'mod.Variations.Variation.'+i+'.VariationSpecifics.NameValueList.'+j+'.Name');
+			$(tdtag).append(inputtag);
+			
+			var inputtag = $('<input />')
+				.attr('type', 'text')
+				.attr('size', '6')
+			.attr('name', 'mod.Variations.Variation.'+i+'.VariationSpecifics.NameValueList.'+j+'.Value');
+			$(tdtag).append(inputtag);
+			
+			$(trtag).append(tdtag);
+		});
+		
+		var tdtag = $('<td />');
+		var inputtag = $('<input />')
+			.attr('type', 'text')
+			.attr('size', '3')
+			.attr('name', 'mod.Variations.Variation.'+i+'.Quantity');
+		$(tdtag).append(inputtag);
+		$(tdtag).append('items');
+		$(trtag).append(tdtag);
+		
+		var tdtag = $('<td />');
+		var inputtag = $('<input />')
+			.attr('type', 'text')
+			.attr('size', '3')
+			.attr('name', 'mod.Variations.Variation.'+i+'.StartPrice.@currencyID');
+		$(tdtag).append(inputtag);
+		$(trtag).append(tdtag);
+		
+		var tdtag = $('<td />');
+		var inputtag = $('<input />')
+			.attr('type', 'text')
+			.attr('size', '5')
+			.attr('name', 'mod.Variations.Variation.'+i+'.StartPrice.#text');
+		$(tdtag).append(inputtag);
+		$(trtag).append(tdtag);
+		
+		$('table.Variations', '#'+item.id).append(trtag);
+	});
+	
+  /* VariationPictures */
+	var _vpvsps = 'Variations.Pictures.VariationSpecificPictureSet';
+  $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
+    if (i == 0) return;
+    
+    var div = $('div.VariationPictures0', '#'+item.id).clone();
+    $(div).attr('class', 'VariationPictures'+i);
+	  $('ul.variationpictures li:gt(0)', div).remove();
+		$('input', div).attr('name', 'mod.'+_vpvsps+'.'+i+'.VariationSpecificValue');
+    $('td.VariationSpecificPictureSet', '#'+item.id).append(div);
+    
+    // don't show images here. show in showformvalues / fillformvalues
+  });
+  
+  
+	return;
+}
+
+function setformelements_shipping(item)
+{
+  setformelements_shipping_domestic(item);
+  setformelements_shipping_international(item);
+}
+
+function setformelements_shipping_domestic(item)
+{
 	var id = item.id;
 	var site = item.mod.Site;
 	
-	var dmsttype = item.ShippingDetails.ShippingType.domestic;
-	var intltype = item.ShippingDetails.ShippingType.international;
-	
-	var _dsso = 'ShippingDetails.ShippingServiceOptions';
-	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
-	
-	var packagetype = '';
-	if (item.mod.ShippingDetails) {
-		if (item.mod.ShippingDetails.CalculatedShippingRate) {
-			packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
-		}
-	}
-	
-	
-	/* Domestic */
-	if (dmsttype == '' || dmsttype == undefined) {
-		$('tbody.shippingmainrows', '#'+id).hide();
+  // No shipping
+	if (item.mod.ShippingDetails == undefined
+      || item.mod.ShippingDetails.ShippingType == undefined
+      || item.mod.ShippingDetails.ShippingType.domestic == undefined
+      || item.mod.ShippingDetails.ShippingType.domestic == '') {
+    
 		// todo: remove 2>=
-		
-		// also set NoShipping to international.
-		$('select[name="ShippingDetails.ShippingType.international"]', '#'+id).val('');
+		$('select[name="mod.ShippingDetails.ShippingType.domestic"]', '#'+id).val('');
+		$('tbody.shippingmainrows', '#'+id).hide();
+    
+		$('select[name="mod.ShippingDetails.ShippingType.international"]', '#'+id).val('');
 		$('tbody.internationalshippingmainrows', '#'+id).hide();
 		
 		return;
-	}
-	
+  }
+
+  if (item.mod.ShippingDetails.ShippingType.domestic == 'FreightFlat') {
+		$('select[name="mod.ShippingDetails.ShippingType.international"]', '#'+id).val('');
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+  }
+  
 	$('tbody.shippingmainrows', '#'+id).show();
-	$('tbody.internationalshippingmainrows', '#'+id).show();
+	renumbersso(id, 'shippingservices');
+	
+	var _dsso = 'ShippingDetails.ShippingServiceOptions';
+	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
+	var dmsttype = item.mod.ShippingDetails.ShippingType.domestic;
+  
+  // todo: With Opera: pulldown keeps open when run here.
+  //return;
 	
 	if (dmsttype == 'Calculated') {
 		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).show();
@@ -1415,64 +1578,49 @@ function setformelements_shipping(item)
 		$('tr.packagetype, tr.dimensions, tr.weight', '#'+id).hide();
 	}
 	
-	/* International */
-	log(intltype);
-	if (intltype == '' || intltype == undefined) {
-		$('tbody.internationalshippingmainrows', '#'+id).hide();
-		// todo: remove 2>=
-	} else {
-		$('tbody.internationalshippingmainrows', '#'+id).show();
+	var packagetype = '';
+	if (item.mod.ShippingDetails.CalculatedShippingRate) {
+		packagetype = item.mod.ShippingDetails.CalculatedShippingRate.ShippingPackage;
 	}
 	
-	
 	// set <option> tags
+  // todo: don't set option tags here, set when site is changed.
 	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id).empty();
 	$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
 		.append($('<option/>').val('').text('(not selected)'));
 	
-	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id).empty();
-	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
-		.append($('<option/>').val('').text('(not selected)'));
-	
 	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
+		
+		if (dmsttype == 'FreightFlat') {
+			if (o.ShippingService == 'FreightShipping' || o.ShippingService == 'Freight') {
+				$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+					.append($('<option/>').val(o.ShippingService).html(o.Description));
+			}
+    }
+		
 		if (o.ValidForSellingFlow != 'true') return;
+		if (parseInt(o.ShippingServiceID) >= 50000) return;
 		
 		var arrservicetype = arrayize(o.ServiceType)
 		
-		if (parseInt(o.ShippingServiceID) < 50000) {
-
-			// Domestic
-			if ($.inArray(dmsttype, arrservicetype) >= 0) {
-				if (dmsttype == 'Calculated') {
-					var packages = arrayize(o.ShippingServicePackageDetails);
-					
-					for (i in packages) {
-						if (packages[i].Name == packagetype) {
-							$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
-								.append($('<option/>').val(o.ShippingService).html(o.Description));
-						}
+		if ($.inArray(dmsttype, arrservicetype) >= 0) {
+      
+			if (dmsttype == 'Calculated') {
+				var packages = arrayize(o.ShippingServicePackageDetails);
+				
+				for (i in packages) {
+					if (packages[i].Name == packagetype) {
+						$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
+							.append($('<option/>').val(o.ShippingService).html(o.Description));
 					}
-				} else {
-					$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
-						.append($('<option/>').val(o.ShippingService).html(o.Description));
 				}
-			} else if (dmsttype == 'Freight') {
-				if (o.ShippingService == 'FreightShipping' || o.ShippingService == 'Freight') {
-					log(o.ShippingService);
-					$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
-						.append($('<option/>').val(o.ShippingService).html(o.Description));
-				}
-			}
-			
-		} else {
-
-			// International
-			if ($.inArray(intltype, arrservicetype) >= 0) {
-				$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
+			} else {
+				$('select[name="mod.'+_dsso+'.0.ShippingService"]', '#'+id)
 					.append($('<option/>').val(o.ShippingService).html(o.Description));
 			}
-			
+      
 		}
+		
 	});
 	
 	// ShippingLocation
@@ -1499,84 +1647,139 @@ function setformelements_shipping(item)
 	
 	// copy 2,3,4,...
 	// todo: don't copy when already 2, 3, ... is shown.
-	var div0s = $('div.ShippingService0', '#'+id);
-	if (item.mod.ShippingDetails) {
+	if ($.isArray(item.mod.ShippingDetails.ShippingServiceOptions)
+			&& item.mod.ShippingDetails.ShippingServiceOptions.length > 1) {
 		
-		if ($.isArray(item.mod.ShippingDetails.ShippingServiceOptions)
-				&& item.mod.ShippingDetails.ShippingServiceOptions.length > 1) {
-			
-			$.each(item.mod.ShippingDetails.ShippingServiceOptions, function(k, v) {
-				if (v.ShippingServicePriority == 1) return;
-				addsso($('a.addsso:first', '#'+id).get());
-			});
-		}
-		
-		if ($.isArray(item.mod.ShippingDetails.InternationalShippingServiceOption)
-				&& item.mod.ShippingDetails.InternationalShippingServiceOption.length > 1) {
-			
-			$.each(item.mod.ShippingDetails.InternationalShippingServiceOption, function(k, v) {
-				if (v.ShippingServicePriority == 1) return;
-				addsso($('a.addsso:last', '#'+id).get());
-			});
-		}
-		
+		$.each(item.mod.ShippingDetails.ShippingServiceOptions, function(k, v) {
+			if (v.ShippingServicePriority == 1) return;
+			addsso(id, 'shippingservices');
+		});
 	}
 	
 	return;
 }
 
-function addsso(elm)
+function setformelements_shipping_international(item)
 {
-	var divs = $('div[class^=ShippingService]', $(elm).parent());
+	var id = item.id;
+	var site = item.mod.Site;
+  
+  // No shipping
+	if (item.mod.ShippingDetails == undefined
+      || item.mod.ShippingDetails.ShippingType == undefined
+      || item.mod.ShippingDetails.ShippingType.international == undefined
+      || item.mod.ShippingDetails.ShippingType.international == ''
+      || item.mod.ShippingDetails.ShippingType.domestic == 'FreightFlat') {
+    
+		// todo: remove 2>=
+		$('select[name="mod.ShippingDetails.ShippingType.international"]', '#'+id).val('');
+		$('tbody.internationalshippingmainrows', '#'+id).hide();
+		
+		return;
+  }
+  
+	$('tbody.internationalshippingmainrows', '#'+id).show();
+	renumbersso(id, 'internationalshippingservices');
+  
+	var _isso = 'ShippingDetails.InternationalShippingServiceOption';
+  var intltype = item.mod.ShippingDetails.ShippingType.international;
+  
+	// Set <option> tags
+	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id).empty();
+	$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
+		.append($('<option/>').val('').text('(not selected)'));
+  
+	$.each(hash[site].eBayDetails.ShippingServiceDetails, function(i, o) {
+		if (o.ValidForSellingFlow != 'true') return;
+		if (parseInt(o.ShippingServiceID) < 50000) return;
+		
+		var arrservicetype = arrayize(o.ServiceType)
+		
+		if ($.inArray(intltype, arrservicetype) >= 0) {
+			$('select[name="mod.'+_isso+'.0.ShippingService"]', '#'+id)
+				.append($('<option/>').val(o.ShippingService).html(o.Description));
+		}
+	});
+  
+	if ($.isArray(item.mod.ShippingDetails.InternationalShippingServiceOption)
+			&& item.mod.ShippingDetails.InternationalShippingServiceOption.length > 1) {
+		
+		$.each(item.mod.ShippingDetails.InternationalShippingServiceOption, function(k, v) {
+			if (v.ShippingServicePriority == 1) return;
+			addsso(id, 'internationalshippingserviceoptions');
+		});
+	}
+  
+  return;
+}
+
+
+function addsso(id, classname)
+{
+	var pdiv = $('#' + id + ' td.' + classname);
 	
-	var tmpname = $('input:first', divs[0]).attr('name')
-		.replace(/^mod\.ShippingDetails\./, '')
-		.replace(/\..+$/, '');
+	var divs = $('div[class^=ShippingService]', pdiv);
 	
-	if (tmpname == 'ShippingServiceOptions') {
+	if (classname == 'shippingservices') {
 		if (divs.length >= 4) return;
-	} else if (tmpname == 'InternationalShippingServiceOption') {
+	} else if (classname == 'internationalshippingservices') {
 		if (divs.length >= 5) return;
 	}
 	
-	var id = $(elm).closest('tbody.itemrow').attr('id');
 	var sscopy = $(divs[0]).clone();
+  
+  $('select,input', sscopy).val('');
 	
-	if (tmpname == 'ShippingServiceOptions') {
+	if (classname == 'shippingservices') {
 		$('input[name$="FreeShipping"]', sscopy).remove();
 		$('label[for$="FreeShipping"]', sscopy).remove();
 	}
 	
-	var ssidx = divs.length;
-	$(sscopy).attr('class', 'ShippingService'+ssidx);
-	$.each($('select, input[type=text]', sscopy), function(j, o) {
-		var orgname = $(o).attr('name');
-		$(o).val('').attr('name', orgname.replace('.0.', '.'+ssidx+'.'));
-	});
-	$.each($('input[type=checkbox]', sscopy), function(j, o) {
-		var orgname = $(o).attr('name');
-		$(o).removeAttr('checked').attr('name', orgname.replace('.0.', '.'+ssidx+'.'));
-		if (orgname.match(/ShipToLocation/)) {
-			var orgid = $(o).attr('id');
-			$(o).attr('id', orgid.replace('.0.', '.'+ssidx+'.'));
-		}
-	});
-	$.each($('label[for*=ShipToLocation]', sscopy), function(j, o) {
-		var orgfor = $(o).attr('for');
-		$(o).attr('for', orgfor.replace('.0.', '.'+ssidx+'.'));
-	});
-	//alert(ssidx);
-	//$('input[name^=Priority]', sscopy).val(ssidx+1);
+	$('div[class^=ShippingService]:last', pdiv).after(sscopy);
 	
-	$(elm).before(sscopy);
+	renumbersso(id, classname);
 	
-	if (tmpname == 'ShippingServiceOptions') {
-		if (divs.length >= 3) $(elm).hide();
-	} else if (tmpname == 'InternationalShippingServiceOption') {
-		if (divs.length >= 4) $(elm).hide();
+	// Hide "Offer additional service" link.
+	if (classname == 'shippingservices' && divs.length >= 3) {
+		$('a.addsso', pdiv).hide();
+	} else if (classname == 'internationalshippingservices' && divs.length >= 4) {
+		$('a.addsso', pdiv).hide();
 	}
 	
 	return false;
+}
+
+function renumbersso(id, classname)
+{
+	var pdiv = $('#' + id + ' td.' + classname);
+	
+	$.each($('div[class^=ShippingService]', pdiv), function(i, div) {
+		
+		$(div).attr('class', 'ShippingService' + i);
+		
+		// todo: different number for Freight?
+		$('input[name$=ShippingServicePriority]', div).val(i+1);
+		
+		$.each($('select, input', div), function(j, o) {
+			var orgname = $(o).attr('name');
+			$(o).attr('name', orgname.replace(/\.[0-9]\./, '.' + i + '.'));
+		});
+    
+		if (classname == 'shippingservices') return;
+		
+		$.each($('input[type=checkbox]', div), function(j, o) {
+			var orgid = $(o).attr('id');
+			$(o).attr('id', orgid.replace(/\.[0-9]\./, '.' + i + '.'));
+		});
+		
+		$.each($('label', div), function(j, o) {
+			var orgid = $(o).attr('for');
+			$(o).attr('for', orgid.replace(/\.[0-9]\./, '.' + i + '.'));
+		});
+		
+	});
+	
+	return;
 }
 
 function resizediv_index()
@@ -1642,13 +1845,13 @@ var changeCategory = function() {
 
 var clickEdit = function() {
 	
-	id = $(this).closest('tbody.itemrow').attr('id');
-	item = rowsdata[id];
-	dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
+	var id = $(this).closest('tbody.itemrow').attr('id');
+	var item = rowsdata[id];
+	var dom = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
 	
 	/* preserve selected tab */
-	tab = $('ul.tabNav > li.current', 'tbody#'+id);
-	tabnum = tab.prevAll().length + 1;
+	var tab = $('ul.tabNav > li.current', 'tbody#'+id);
+	var tabnum = tab.prevAll().length + 1;
 	$('.tabNav',       dom).children('.current').removeClass('current');
 	$('.tabContainer', dom).children('.current').hide();
 	$('.tabContainer', dom).children('.current').removeClass('current');
@@ -1682,7 +1885,7 @@ var save = function() {
 	// todo: varidation check
 	//if (!checkformvalues(id)) return false;
 	
-	// PictureURL
+	/* PictureURL */
 	$.each($('ul.pictures li', '#'+id), function (i, li) {
 		if ($(li).attr('class') == 'template') return;
 		
@@ -1694,6 +1897,22 @@ var save = function() {
 			.val(src);
 		
 		$('div.pictures', '#'+id).append(input);
+	});
+
+	/* VariationPictures */
+	$.each($('div[class^=VariationPictures]'), function(i, div) {
+		$.each($('ul.variationpictures li', div), function(j, li) {
+			if ($(li).attr('class') == 'template') return;
+			
+			var src = $('img', li).attr('src');
+			
+			var input = $('<input />')
+				.attr('type', 'hidden')
+				.attr('name', 'mod.Variations.Pictures.VariationSpecificPictureSet.'+i+'.PictureURL')
+				.val(src);
+			
+			$(div).append(input);
+		});
 	});
 	
 	// todo: Why Opera can't include <select> tags?
@@ -1737,8 +1956,41 @@ var save = function() {
 		var fvalue = $('input[name="'+fname.replace(/Name$/, 'Value')+'"]', '#'+id).val();
 		if (fvalue == '') $(o).remove();
 	});
-	
+  
 	var postdata = $('input[type=text], input:checked, input[type=hidden], input[type=datetime-local], select, textarea', '#'+id).extractObject();
+  
+  // merge shippingtype domestic and international
+  var dmsttype = '';
+  var intltype = '';
+  if (postdata.mod.ShippingDetails) {
+    
+    dmsttype = postdata.mod.ShippingDetails.ShippingType.domestic;
+    
+    if (postdata.mod.ShippingDetails.ShippingType.international) {
+      
+      intltype = postdata.mod.ShippingDetails.ShippingType.international;
+      
+      if (dmsttype == 'FreightFlat') {
+        
+        postdata.mod.ShippingDetails.ShippingType = dmsttype;
+        
+      } else if (dmsttype == intltype) {
+        
+        postdata.mod.ShippingDetails.ShippingType = dmsttype;
+        
+      } else if (dmsttype != intltype) {
+        
+        postdata.mod.ShippingDetails.ShippingType =
+          dmsttype + 'Domestic' + intltype + 'International';
+      }
+      
+    } else {
+      
+      postdata.mod.ShippingDetails.ShippingType = dmsttype;
+      
+    }
+  }
+  
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
 	
@@ -1746,10 +1998,14 @@ var save = function() {
 		     'id='+id+'&json='+postdata,
 		     function(data) {
 			     var item = data.json.item;
+           
+           item = extract_shippingtype(item);
+           
 					 if (id == 'newitem0') {
 						 id = item.id
 						 $('#newitem0').attr('id', id);
 					 }
+           
 					 rowsdata[id] = item;
 					 
 			     var site = item.mod.Site;
@@ -1812,7 +2068,7 @@ var clickCopy = function() {
 
 
 var changeSite = function() {
-    
+  
 	var id   = $(this).closest('tbody.itemrow').attr('id');
 	var site = $(this).val();
 	
@@ -1865,8 +2121,12 @@ var clickTitle = function() {
 	 'id='+id,
 	 function(data) {
 		 var item = data.json.item;
+     
+     item = extract_shippingtype(item);
+     
+		 dump(item);
+     
 		 rowsdata[id] = item;
-		 dump(data.json.item);
 		 
 		 var site = item.mod.Site;
 		 
@@ -2134,6 +2394,10 @@ function showformvalues(item)
 			item.mod.ShippingDetails.ShippingServiceOptions
 				= arrayize(item.mod.ShippingDetails.ShippingServiceOptions);
 		}
+		if (item.mod.ShippingDetails.InternationalShippingServiceOption) {
+			item.mod.ShippingDetails.InternationalShippingServiceOption
+				= arrayize(item.mod.ShippingDetails.InternationalShippingServiceOption);
+		}
 	}
 	
 	if (item.mod.ItemSpecifics) {
@@ -2260,6 +2524,22 @@ function showformvalues(item)
 		});
 		//$('ul.pictures', detail).sortable();
 	}
+
+  /* Variations.Pictures */
+  if (item.mod.Variations) {
+    $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
+      
+			o.PictureURL = arrayize(o.PictureURL);
+      $.each(o.PictureURL, function(j, url) {
+			  var lidiv = $('div.VariationPictures'+i+' li.template', detail).clone();
+			  $(lidiv).removeClass('template');
+			  $('img', lidiv).attr('src', url);
+			  $('div.VariationPictures'+i+' ul.variationpictures', detail).append(lidiv);
+      });
+      
+    });
+  }
+  
 	
 	/* hide links */
 	$('a.addis',      detail).remove();
@@ -2384,13 +2664,13 @@ function fillformvalues(item)
 		}
 	});
 	
-	// ItemSpecifics Name
+	/* ItemSpecifics Name */
 	$('th input[name^="mod.ItemSpecifics.NameValueList"]', '#'+id).each(function(i, o) {
 		$(o).hide();
 		$(o).after($(o).val());
 	});
 	
-	// Pictures (duplicate code with showformvalues().)
+	/* Pictures (duplicate code with showformvalues().) */
 	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
 		item.mod.PictureDetails.PictureURL
 			= arrayize(item.mod.PictureDetails.PictureURL);
@@ -2405,6 +2685,24 @@ function fillformvalues(item)
 			items: ':not(.template)'
 		});
 	}
+  
+  /* VariationPictures */
+  if (item.mod.Variations) {
+    $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
+      
+			o.PictureURL = arrayize(o.PictureURL);
+      $.each(o.PictureURL, function(j, url) {
+			  var lidiv = $('div.VariationPictures'+i+' li.template', '#'+id).clone();
+			  $(lidiv).removeClass('template');
+			  $('img', lidiv).attr('src', url);
+			  $('div.VariationPictures'+i+' ul.variationpictures', '#'+id).append(lidiv);
+      });
+      
+    });
+		$('ul.variationpictures', '#'+id).sortable({
+			items: ':not(.template)'
+		});
+  }
 	
 	return;
 }
@@ -2440,9 +2738,9 @@ function setformelements_itemspecifics(item)
 	for (i in specifics) {
 		if (specifics[i] == null) continue;
 		var trtag = setformelements_itemspecifics_values(item.id,
-														 i,
-														 recomm[recommkey[specifics[i].Name]],
-														 specifics[i]);
+																										 i,
+																										 recomm[recommkey[specifics[i].Name]],
+																										 specifics[i]);
 		$('table.ItemSpecifics', detail).append(trtag);
 	}
 	
@@ -2652,4 +2950,38 @@ function addimage(id, files) {
 	});
 	
 	return;
+}
+
+function extract_shippingtype(item)
+{
+  if (item.mod.ShippingDetails == undefined) return item;
+  
+	var shippingtype = item.mod.ShippingDetails.ShippingType;
+  
+  var dmsttype = '';
+  var intltype = '';
+  
+	if (shippingtype == 'Flat') {
+		dmsttype = 'Flat';
+		intltype = 'Flat';
+	} else if (shippingtype == 'FlatDomesticCalculatedInternational') {
+		dmsttype = 'Flat';
+		intltype = 'Calculated';
+	} else if (shippingtype == 'Calculated') {
+		dmsttype = 'Calculated';
+		intltype = 'Calculated';
+	} else if (shippingtype == 'CalculatedDomesticFlatInternational') {
+		dmsttype = 'Calculated';
+		intltype = 'Flat';
+	} else if (shippingtype == 'FreightFlat') {
+		dmsttype = 'FreightFlat';
+		intltype = '';
+	}
+	if (item.mod.ShippingDetails.InternationalShippingServiceOption == undefined) {
+		intltype = '';
+	}
+  
+  item.mod.ShippingDetails.ShippingType = {'domestic': dmsttype, 'international': intltype};
+  
+  return item;
 }

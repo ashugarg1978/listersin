@@ -47,6 +47,8 @@ public class PageAction extends BaseAction {
 		                                  @Result(name="loggedin",type="redirect",location="/page/index")})
 	public String execute() throws Exception {
 		
+		log.debug("locale:" + request.getLocale().toString());
+		
 		DBCollection coll = db.getCollection("users");
 		
 		BasicDBObject query = new BasicDBObject();
@@ -142,9 +144,10 @@ public class PageAction extends BaseAction {
 		BasicDBObject tempuser = (BasicDBObject) db.getCollection("users").findOne(query);
 		if (tempuser != null) {
 			log.debug("temporary user found:"+tempuser.getString("email"));
-			
+      
 			// 30 days expiration
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+      sdf.setLenient(false);
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DATE, 30);

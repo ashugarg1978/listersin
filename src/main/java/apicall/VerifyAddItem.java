@@ -95,8 +95,8 @@ public class VerifyAddItem extends ApiCall {
 			String requestxml = xmls.write(jso);
 			
 			writelog("VerifyAddItem/VAI.req.xml", requestxml);
-			
-			updatemessage(email, "Verifying "+(currentnum+1)+" of "+count+" items to eBay...");
+      
+			updatemessage(email, "Verifying "+(currentnum+1)+" of "+count+" items...");
 			currentnum++;
 			
 			Future<String> future = pool18.submit

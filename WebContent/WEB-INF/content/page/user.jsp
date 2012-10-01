@@ -7,11 +7,11 @@
 <title>ListersIn - <s:text name="eBayListingSoftware"/></title>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <!--[if lte IE 8]>
-<link rel="stylesheet" type="text/css" href="/css/ebay-lte-ie8.css" />
+<link rel="stylesheet" type="text/css" href="/css/ebay-lte-ie8.css"/>
 <![endif]-->
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <link rel="shortcut icon" href="/img/favicon.png">
-<script type="text/javascript" src="/js/jquery-1.8.1.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
@@ -100,6 +100,11 @@
 	    <a href="#" id="checkduplicateitems">Check duplicate items</a><br/><br/>
 	    <a href="http://forum.listers.in/" target="_blank"><s:text name="Forum"/></a><br/>
 	    <a href="http://listers.in/blog/" target="_blank"><s:text name="Blog"/></a><br/>
+			
+      <a href="/?request_locale=en">English</a>
+			| <a href="/?request_locale=ja">日本語</a>
+			| <a href="/?request_locale=de">Deutsch</a>
+			<br/>
     </div>
     
     <div id="risknotice">
@@ -109,16 +114,14 @@
 	    Please be careful.<br/>
     </div>
     
-    <a href="/?request_locale=en">English</a> / <a href="/?request_locale=ja">日本語</a><br/>
-    
     <br/>
     
     <a href="#" id="toggledebug">DEBUG</a><br/>
     <div id="log"></div>
     
-    <input type="hidden" class="filter" name="offset"   value="0" />
-    <input type="hidden" class="filter" name="limit"    value="20" />
-    <input type="hidden" class="filter" name="selling"  value="active" />
+    <input type="hidden" class="filter" name="offset"   value="0"/>
+    <input type="hidden" class="filter" name="limit"    value="20"/>
+    <input type="hidden" class="filter" name="selling"  value="active"/>
     <input type="hidden" class="filter" name="sort"     value="ListingDetails_EndTime"/>
     <input type="hidden" class="filter" name="option"   value=""/>
     <input type="hidden" class="filter" name="allpages" value=""/>
@@ -134,7 +137,7 @@
 	    <tbody id="rowtemplate" class="itemrow">
 	      <tr class="row1">
 		      <td>
-		        <input type="checkbox" name="id">
+		        <input type="checkbox" name="id"/>
 		      </td>
 		      <td>
 		        <img class="status" src="/icon/04/10/10.png"/>
@@ -193,14 +196,6 @@
 		        </td>
 		      </tr>
 		      <tr>
-		        <th>Language</th>
-		        <td>
-			        <select name="Language">
-			          <option value="English">English</option>
-			        </select>
-		        </td>
-		      </tr>
-		      <tr>
 		        <th>Time zone</th>
 		        <td>
 			        <select name="TimeZone">
@@ -230,34 +225,70 @@
     
     <div id="help">
 	    
-	    If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
-	    <br/>
-	    
-	    <span style="font-weight:bold;">How to add your eBay account to ListersIn.</span><br/>
-	    <ol>
-	      <li>
-		      Click "<s:text name="AddeBayAccount"/>" button.
-		      <button class="addebayaccount">
-		        <s:text name="AddeBayAccount"/>
-		      </button>
-	      </li>
-	      <li>
-		      You will be redirected to eBay sign in page.<br/>
-		      Please sign in to eBay with the account which you want to add to ListersIn.<br/>
-	      </li>
-	      <li>
-		      Click "I agree" button.<br/>
-	      </li>
-	      <li>
-		      You will be back to ListersIn site, and the eBay account will be shown at left side.
-	      </li>
-	    </ol>
-	    
-	    If you have any problems, please send an email to
-	    <a href="mailto:admin@listers.in">admin@listers.in</a> :)<br/>
-	    Or please post your comment to
-      <a href="http://forum.listers.in/" target="_blank">this forum</a>.
-      (You can post without forum account)<br/>
+      <s:if test="#request.locale.language=='ja'">
+        まだListersInにeBayアカウントを追加されていない場合は、以下の説明をお読みください。<br/>
+        <br/>
+        
+	      <span style="font-weight:bold;">eBayアカウントの追加方法</span><br/>
+	      <ol>
+	        <li>
+		        「<s:text name="AddeBayAccount"/>」ボタンをクリックしてください。
+		        <button class="addebayaccount">
+		          <s:text name="AddeBayAccount"/>
+		        </button>
+	        </li>
+	        <li>
+            eBayのログイン画面にジャンプしますので、
+            ListersInに追加したいeBayアカウントでログインしてください。<br />
+	        </li>
+	        <li>
+		        「I agree」ボタンをクリックしてください。<br/>
+	        </li>
+	        <li>
+            自動的にListersInの画面に戻ります。<br />
+            ListersInの画面の左側に、追加したeBayアカウントが表示されます。<br/>
+	        </li>
+	      </ol>
+	      
+        何かご不明な点がございましたら、
+	      <a href="mailto:support@listers.in">support@listers.in</a>
+        までメールでご質問ください。<br/>
+        
+        または
+        <a href="http://forum.listers.in/" target="_blank">このフォーラム</a>
+        にコメントを投稿してください。(フォーラムにログインしなくても匿名で投稿できます)<br/>
+      </s:if>
+      
+      <s:else>
+	      If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
+        <br/>
+        
+	      <span style="font-weight:bold;">How to add your eBay account to ListersIn.</span><br/>
+	      <ol>
+	        <li>
+		        Click &quot;<s:text name="AddeBayAccount"/>&quot; button.
+		        <button class="addebayaccount">
+		          <s:text name="AddeBayAccount"/>
+		        </button>
+	        </li>
+	        <li>
+		        You will be redirected to eBay sign in page.<br/>
+		        Please sign in to eBay with the account which you want to add to ListersIn.<br/>
+	        </li>
+	        <li>
+		        Click &quot;I agree&quot; button.<br/>
+	        </li>
+	        <li>
+		        You will be back to ListersIn site, and the eBay account will be shown at left side.
+	        </li>
+	      </ol>
+	      
+	      If you have any problems, please send an email to
+	      <a href="mailto:support@listers.in">support@listers.in</a> :)<br/>
+	      Or please post your comment to
+        <a href="http://forum.listers.in/" target="_blank">this forum</a>.
+        (You can post without forum account)<br/>
+      </s:else>
       
     </div><!-- #help -->
     
@@ -339,7 +370,15 @@
 	  
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Categories where your listing will appear
+				<s:if test="#request.locale.language=='ja'">
+					出品するカテゴリ
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Kategorien, in denen Ihr Angebot erscheint
+				</s:elseif>
+				<s:else>
+					Categories where your listing will appear
+				</s:else>
 		  </div>
 		  <table class="detail">
 		    <tbody>
@@ -361,10 +400,13 @@
 				        <div class="productsearchmessage"></div>
 				        <input name="ProductSearch.CharacteristicSetIDs.ID" type="hidden" class="remove"/>
 				        
-				        <br />
+				        <br/>
 				        <div style="clear:both;"></div>
 				        
 				        <div class="foundproducts">
+                  <div class="close">
+                    <button>Close</button>
+                  </div>
 					        <div class="producttemplate">
 					          <div class="productimage">
 						          <img src=""/>
@@ -384,8 +426,8 @@
 				        
 				        <input type="checkbox" value="true"
 						           name="mod.ProductListingDetails.IncludePrefilledItemInformation"
-						            id="_id.ProductListingDetails.IncludePrefilledItemInformation"/>
-				        <label for="_id.ProductListingDetails.IncludePrefilledItemInformation">
+						             id="_id.ProductListingDetails.IncludePrefilledItemInformation"/>
+				        <label  for="_id.ProductListingDetails.IncludePrefilledItemInformation">
 					        Include the following product information in your listing
 				        </label>
 				        
@@ -393,8 +435,8 @@
 				        
 				        <input type="checkbox" value="true"
 						           name="mod.ProductListingDetails.IncludeStockPhotoURL"
-						            id="_id.ProductListingDetails.IncludeStockPhotoURL"/>
-				        <label for="_id.ProductListingDetails.IncludeStockPhotoURL">
+						             id="_id.ProductListingDetails.IncludeStockPhotoURL"/>
+				        <label  for="_id.ProductListingDetails.IncludeStockPhotoURL">
 					        Include Stock Photo
 				        </label>
 				        
@@ -402,8 +444,8 @@
 				        
 				        <input type="checkbox" value="true"
 						           name="mod.ProductListingDetails.UseStockPhotoURLAsGallery"
-						            id="_id.ProductListingDetails.UseStockPhotoURLAsGallery"/>
-				        <label for="_id.ProductListingDetails.UseStockPhotoURLAsGallery">
+						             id="_id.ProductListingDetails.UseStockPhotoURLAsGallery"/>
+				        <label  for="_id.ProductListingDetails.UseStockPhotoURLAsGallery">
 					        Use Stock Photo As Gallery
 				        </label>
 				        
@@ -414,13 +456,72 @@
 		  </table><!-- .detail -->
 		  
 		  <div class="tabtitle">
-		    Help buyers find your item with a great title
+				<s:if test="#request.locale.language=='ja'">
+					この商品を複数のバリエーションで出品する
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					List multiple variations of this item in one listing
+				</s:elseif>
+				<s:else>
+					List multiple variations of this item in one listing
+				</s:else>
 		  </div>
 		  <table class="detail">
 		    <tbody>
-			    <!--
-				      todo: "List multiple variations of this item in one listing"
-			      -->
+			    <tr>
+			      <th><s:text name="VariationSpecificsSet"/></th>
+			      <td>
+							<table class="VariationSpecificsSet">
+							</table>
+			      </td>
+			    </tr>
+			    <tr>
+			      <th><s:text name="Variations"/></th>
+			      <td>
+							<table class="Variations">
+							</table>
+			      </td>
+			    </tr>
+			    <tr>
+			      <th><s:text name="VariationSpecificPictureSet"/></th>
+			      <td class="VariationSpecificPictureSet">
+							
+							<select name="mod.Variations.Pictures.VariationSpecificName">
+								<option value="">(not selected)</option>
+							</select>
+							
+							<div class="VariationPictures0">
+								<input type="text" name="mod.<s:text name="_VPVSPS"/>.0.VariationSpecificValue" />
+								<ul class="variationpictures clearfix">
+									<li class="template">
+										<div>
+											<img src="/img/noimage.jpg"/>
+										</div>
+										<a href="#" class="deletepicture"><a:text name="Delete"/></a>
+									</li>
+								</ul>
+							</div>
+								
+			      </td>
+			    </tr>
+		    </tbody>
+		  </table><!-- .detail -->
+			
+			
+			
+		  <div class="tabtitle">
+				<s:if test="#request.locale.language=='ja'">
+					タイトルと商品の仕様
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Verfassen Sie eine aussagekräftige Artikelbezeichnung
+				</s:elseif>
+				<s:else>
+					Help buyers find your item with a great title
+				</s:else>
+		  </div>
+		  <table class="detail">
+		    <tbody>
 			    <tr>
 			      <th><s:text name="Title"/></th>
 			      <td>
@@ -455,7 +556,15 @@
 	  
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Bring your item to life with pictures
+				<s:if test="#request.locale.language=='ja'">
+					商品に関連する写真
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Gestalten Sie Ihr Angebot mit Bildern noch attraktiver.
+				</s:elseif>
+				<s:else>
+					Bring your item to life with pictures
+				</s:else>
 		  </div>
 		  <div class="pictures">
 		    
@@ -494,7 +603,15 @@
 	  
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Describe the item you're selling
+				<s:if test="#request.locale.language=='ja'">
+					商品の詳しい説明
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Beschreiben Sie den Artikel, den Sie verkaufen möchten.
+				</s:elseif>
+				<s:else>
+					Describe the item you're selling
+				</s:else>
 		  </div>
 		  <div class="description">
 		    <textarea name="mod.Description" cols="100" rows="10"></textarea>
@@ -544,7 +661,15 @@
 	  
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Choose how you'd like to sell your item
+				<s:if test="#request.locale.language=='ja'">
+					オークションの期間や価格などの設定
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Wählen Sie aus, wie Sie Ihren Artikel verkaufen möchten
+				</s:elseif>
+				<s:else>
+					Choose how you'd like to sell your item
+				</s:else>
 		  </div>
 		  <table class="detail">
 		    <tbody>
@@ -676,7 +801,15 @@
     
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Decide how you'd like to be paid
+				<s:if test="#request.locale.language=='ja'">
+					支払い方法
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Entscheiden Sie, welche Zahlungsmethoden Sie akzeptieren
+				</s:elseif>
+				<s:else>
+					Decide how you'd like to be paid
+				</s:else>
 		  </div>
 		  <table class="detail">
 		    <tbody>
@@ -691,23 +824,39 @@
     
 	  <div class="tab">
 		  <div class="tabtitle">
-		    Give buyers shipping details
+				<s:if test="#request.locale.language=='ja'">
+					発送方法
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Teilen Sie Ihren Käufern die Versandinformationen mit.
+				</s:elseif>
+				<s:else>
+					Give buyers shipping details
+				</s:else>
 		  </div>
 		  <div class="shipping">
 		    <table class="detail">
 			    <tbody>
 			      <tr>
 				      <td colspan="2" class="tab_subtitle">
-				        U.S. shipping
+								<s:if test="#request.locale.language=='ja'">
+									国内発送
+								</s:if>
+								<s:elseif test="#request.locale.language=='de'">
+									Versand im Inland
+								</s:elseif>
+								<s:else>
+									Domestic shipping
+								</s:else>
 				      </td>
 			      </tr>
 			      <tr>
 				      <th><s:text name="ShippingType"/></th>
 				      <td>
-				        <select name="ShippingDetails.ShippingType.domestic">
+				        <select name="mod.ShippingDetails.ShippingType.domestic">
 					        <option value="Flat">Flat: same cost to all buyers</option>
 					        <option value="Calculated">Calculated: Cost varies by buyer location</option>
-					        <option value="Freight">Freight: large items over 150 lbs.</option>
+					        <option value="FreightFlat">Freight: large items over 150 lbs.</option>
 					        <option value="" selected="selected">No shipping: Local pickup only</option>
 				        </select>
 				      </td>
@@ -720,8 +869,8 @@
 				        <select name="mod.<s:text name="_SDCSR"/>.ShippingPackage"></select>
 				        <input type="checkbox"
 						           name="mod.<s:text name="_SDCSR"/>.ShippingIrregular"
-						            id="_id.<s:text name="_SDCSR"/>.ShippingIrregular"/>
-				        <label for="_id.<s:text name="_SDCSR"/>.ShippingIrregular">
+						             id="_id.<s:text name="_SDCSR"/>.ShippingIrregular"/>
+				        <label  for="_id.<s:text name="_SDCSR"/>.ShippingIrregular">
 					        Irregular package
 				        </label>
 				      </td>
@@ -784,112 +933,122 @@
 				  </select>
 				</td>
 			  </tr>
-			  <tr class="services">
-				<th><s:text name="Services"/></th>
-				<td>
-				  <div class="ShippingService0">
-						<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
-									 type="text" size="1"/>
-						<select name="mod.<s:text name="_SDSSO"/>.0.ShippingService"
-										class="ShippingService">
-						</select>
+			  <tr>
+					<th><s:text name="Services"/></th>
+					<td class="shippingservices">
 						
-						<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
-									 type="text" size="3" class="aslabel"/>
-						<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
-									 type="text" size="5" placeholder="Cost"/>
+						<div class="ShippingService0">
+							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
+										 type="text" size="1"/>
+							<select name="mod.<s:text name="_SDSSO"/>.0.ShippingService"
+											class="ShippingService"></select>
+							
+							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
+										 type="text" size="3" class="aslabel"/>
+							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
+										 type="text" size="5" placeholder="Cost"/>
+							
+							<input value="true" type="checkbox"
+										 name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
+									     id="_id.<s:text name="_SDSSO"/>.0.FreeShipping"/>
+							<label  for="_id.<s:text name="_SDSSO"/>.0.FreeShipping">
+								Free shipping
+							</label>
+							<a href="#" class="removesso">Remove service</a>
+						</div>
 						
-						<input value="true" type="checkbox"
-									 name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
-									  id="_id.<s:text name="_SDSSO"/>.0.FreeShipping"/>
-						<label for="_id.<s:text name="_SDSSO"/>.0.FreeShipping">
-							Free shipping
-						</label>
-					<a href="#" class="removesso">Remove service</a>
-				  </div>
-				  <a href="#" class="addsso">Offer additional service</a>
-				</td>
+						<a href="#" class="addsso">Offer additional service</a>
+						
+					</td>
 			  </tr>
 			  <tr class="handlingtime">
-				<th><s:text name="HandlingTime"/></th>
-				<td><select name="mod.DispatchTimeMax"></select></td>
+				  <th><s:text name="HandlingTime"/></th>
+				  <td><select name="mod.DispatchTimeMax"></select></td>
 			  </tr>
 			  <tr>
 				<th><s:text name="Options"/></th>
 				<td>
-				  <input type="checkbox" value="true"
-						 name="mod.GetItFast"
-						   id="_id.GetItFast"/>
-				  <label  for="_id.GetItFast">
-					GetItFast
+				  <input type="checkbox" value="true" name="mod.GetItFast" id="_id.GetItFast"/>
+				  <label for="_id.GetItFast">
+					  GetItFast
 				  </label>
 				</td>
 			  </tr>
 			  <tr>
-				<td colspan="2" class="tab_subtitle">
-				  International shipping
-				</td>
+				  <td colspan="2" class="tab_subtitle">
+						<s:if test="#request.locale.language=='ja'">
+							海外発送
+						</s:if>
+						<s:elseif test="#request.locale.language=='de'">
+							Internationaler Versand
+						</s:elseif>
+						<s:else>
+							International shipping
+						</s:else>
+				  </td>
 			  </tr>
 			  <tr>
-				<th><s:text name="ShippingType"/></th>
-				<td>
-				  <select name="ShippingDetails.ShippingType.international">
-						<option value="Flat">Flat: same cost to all buyers</option>
-						<option value="Calculated">Calculated: Cost varies by buyer location</option>
-						<option value="" selected="selected">No international shipping</option>
-				  </select>
-				</td>
+				  <th><s:text name="ShippingType"/></th>
+				  <td>
+				    <select name="mod.ShippingDetails.ShippingType.international">
+						  <option value="Flat">Flat: same cost to all buyers</option>
+						  <option value="Calculated">Calculated: Cost varies by buyer location</option>
+						  <option value="" selected="selected">No international shipping</option>
+				    </select>
+				  </td>
 			  </tr>
 			</tbody>
 			<tbody class="internationalshippingmainrows">
 			  <tr>
-				<th><s:text name="Services"/></th>
-				<td>
-				  <div class="ShippingService0">
-						<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
-									 type="text" size="1">
-						<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
-										class="ShippingService">
-						</select>
+					<th><s:text name="Services"/></th>
+					<td class="internationalshippingservices">
 						
-					<s:text name="Cost"/>
-					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
-						   type="text" size="3" class="aslabel">
-					<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
-						   type="text" size="5">
-					
-					<a href="#" class="removesso">Remove service</a>
-					<br />
-
-					<s:text name="ShipTo"/>
-					<div class="ShipToLocation"></div>
-					
-				  </div>
-				  <a href="#" class="addsso">Offer additional service</a>
-				</td>
+						<div class="ShippingService0">
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
+										 type="text" size="1">
+							<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
+											class="ShippingService"></select>
+							
+							<s:text name="Cost"/>
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
+										 type="text" size="3" class="aslabel">
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
+										 type="text" size="5">
+							
+							<a href="#" class="removesso">Remove service</a>
+							<br />
+							
+							<s:text name="ShipTo"/>
+							<div class="ShipToLocation"></div>
+							
+						</div>
+						
+						<a href="#" class="addsso">Offer additional service</a>
+						
+					</td>
 			  </tr>
 			</tbody>
 			<tbody>
 			  <tr>
-				<td colspan="2" class="tab_subtitle">
-				  Item location
-				</td>
+				  <td colspan="2" class="tab_subtitle">
+				    Item location
+				  </td>
 			  </tr>
 			  <tr>
-				<th><s:text name="Country"/></th>
-				<td><select name="mod.Country"></select></td>
+				  <th><s:text name="Country"/></th>
+				  <td><select name="mod.Country"></select></td>
 			  </tr>
 			  <tr>
-				<th><s:text name="PostalCode"/></th>
-				<td>
-				  <input type="text" name="mod.PostalCode" size="10"/>
-				</td>
+				  <th><s:text name="PostalCode"/></th>
+				  <td>
+				    <input type="text" name="mod.PostalCode" size="10"/>
+				  </td>
 			  </tr>
 			  <tr>
-				<th><s:text name="Location"/></th>
-				<td>
-				  <input type="text" name="mod.Location" size="10"/>
-				</td>
+				  <th><s:text name="Location"/></th>
+				  <td>
+				    <input type="text" name="mod.Location" size="10"/>
+				  </td>
 			  </tr>
 			</tbody>
 		  </table>
@@ -897,9 +1056,17 @@
 	  </div><!-- tab -->
 
 	  <div class="tab">
-		<div class="tabtitle">
-		  Other things you'd like buyers to know
-		</div>
+			<div class="tabtitle">
+				<s:if test="#request.locale.language=='ja'">
+					その他の情報
+				</s:if>
+				<s:elseif test="#request.locale.language=='de'">
+					Weitere Informationen für Ihre Käufer
+				</s:elseif>
+				<s:else>
+					Other things you'd like buyers to know
+				</s:else>
+			</div>
 		<table class="detail">
 		  <tbody>
 			<tr>
@@ -907,16 +1074,16 @@
 			  <td>
 				<input type="checkbox" value="true"
 					     name="mod.BuyerRequirementDetails.LinkedPayPalAccount"
-					      id="_id.BuyerRequirementDetails.LinkedPayPalAccount">
-				<label for="_id.BuyerRequirementDetails.LinkedPayPalAccount">
+					       id="_id.BuyerRequirementDetails.LinkedPayPalAccount">
+				<label  for="_id.BuyerRequirementDetails.LinkedPayPalAccount">
 				  Don't have a PayPal account
 				</label>
 				
 				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox"
-					     id="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
+					     name="mod.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox"
+					       id="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
 				<label  for="_id.BuyerRequirementDetails.MaximumUnpaidItemStrikesInfo.checkbox">
 				  Have received
 				</label>
@@ -944,7 +1111,7 @@
 				
 				<input type="checkbox" value="true"
 					     name="mod.BuyerRequirementDetails.ShipToRegistrationCountry"
-					      id="_id.BuyerRequirementDetails.ShipToRegistrationCountry">
+					      id="_id.BuyerRequirementDetails.ShipToRegistrationCountry"/>
 				<label for="_id.BuyerRequirementDetails.ShipToRegistrationCountry">
 				  Have a primary shipping address in countries that I don't ship to
 				</label>
@@ -953,7 +1120,7 @@
 				
 				<input type="checkbox" value="true" class="remove"
 					     name="BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox"
-					      id="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+					      id="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox"/>
 				<label for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
 				  Have
 				</label>
@@ -964,7 +1131,7 @@
 				  <option value="6">6</option>
 				  <option value="7">7</option>
 				</select>
-				<label  for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				<label for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
 				  Policy violation report(s) within
 				</label>
 				<select name="mod.BuyerRequirementDetails.MaximumBuyerPolicyViolations.Period">
@@ -972,15 +1139,15 @@
 				  <option value="Days_30">1</option>
 				  <option value="Days_180">6</option>
 				</select>
-				<label  for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
+				<label for="_id.BuyerRequirementDetails.MaximumBuyerPolicyViolations.checkbox">
 				  month(s)
 				</label>
 				
 				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MinimumFeedbackScore.checkbox"
-					     id="_id.BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
+					     name="mod.BuyerRequirementDetails.MinimumFeedbackScore.checkbox"
+					       id="_id.BuyerRequirementDetails.MinimumFeedbackScore.checkbox" />
 				<label  for="_id.BuyerRequirementDetails.MinimumFeedbackScore.checkbox">
 				  Have a feedback score equal to or lower than
 				</label>
@@ -994,8 +1161,8 @@
 				<br/>
 				
 				<input type="checkbox" value="true" class="remove"
-					   name="mod.BuyerRequirementDetails.MaximumItemRequirements.checkbox"
-					     id="_id.BuyerRequirementDetails.MaximumItemRequirements.checkbox">
+					     name="mod.BuyerRequirementDetails.MaximumItemRequirements.checkbox"
+					       id="_id.BuyerRequirementDetails.MaximumItemRequirements.checkbox"/>
 				<label  for="_id.BuyerRequirementDetails.MaximumItemRequirements.checkbox">
 				  Have bid on or bought my items within the last 10 days and met my limit of
 				</label>
@@ -1022,8 +1189,8 @@
 				&nbsp;&nbsp;&nbsp;
 				
 	<input type="checkbox" value="true" class="remove"
-		   name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox"
-		     id="_id.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
+		     name="mod.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox"
+		       id="_id.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox"/>
 	<label  for="_id.BuyerRequirementDetails.MaximumItemRequirements.MinimumFeedbackScore.checkbox">
 	  Only apply this block to buyers who have a feedback score equal to or lower than
 	</label>
@@ -1121,15 +1288,15 @@
     
 	  </div><!-- tab -->
 	  
-	</div>
+	</div><!-- tabContainer -->
 	
-  </div>
+</div><!-- detail -->
   
-</div>
+</div><!-- detailtemplate -->
 
 <div style="clear:both;"></div>
 
-</div>
+</div><!-- #container -->
 
 <script>
 var hash;
