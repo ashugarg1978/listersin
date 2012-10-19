@@ -15,11 +15,13 @@
     <tbody>
 	    <s:iterator var="user" value="users">
 		    <tr id="${_id}">
-          <td>${email}</td>
+          <td>
+						<a href="/admin/signin?email=${email}" target="usersignin">${email}</a>
+					</td>
           <td>${status}</td>
           <td>${created_local}</td>
           <td>
-            <a href="#">delete</a>
+            <a class="delete" href="#">delete</a>
           </td>
           <td>
 	          <s:iterator var="userid" value="#user.userids">

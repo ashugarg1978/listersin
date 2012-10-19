@@ -47,7 +47,17 @@ public class PageAction extends BaseAction {
 		                                  @Result(name="loggedin",type="redirect",location="/page/index")})
 	public String execute() throws Exception {
 		
-		log.debug("locale:" + request.getLocale().toString());
+		/*
+		for (String s : session.keySet()) {
+			log.debug(s + ":" + session.get(s).toString());
+		}
+		*/
+		
+		String locale = request.getLocale().toString();
+		if (session.containsKey("WW_TRANS_I18N_LOCALE")) {
+			locale = session.get("WW_TRANS_I18N_LOCALE").toString();
+		}
+		log.debug("locale: " + request.getLocale().toString() + " -> " + locale);
 		
 		DBCollection coll = db.getCollection("users");
 		
@@ -122,7 +132,14 @@ public class PageAction extends BaseAction {
 		}
 		
 		/* Read Blog RSS */
-		URL feedUrl = new URL("http://listers.in/blog/feed/");
+		String rssurl;
+		if (locale.equals("ja") || locale.equals("ja_JP")) {
+			rssurl = "http://feedblog.ameba.jp/rss/ameblo/listersin/rss20.xml";
+		} else {
+			rssurl = "http://listers.in/blog/feed/";
+		}
+		log.debug(rssurl);
+		URL feedUrl = new URL(rssurl);
 		SyndFeedInput input = new SyndFeedInput();
 		feed = input.build(new XmlReader(feedUrl));
 		
@@ -134,7 +151,7 @@ public class PageAction extends BaseAction {
 	public String signup_confirm() {
 		
 		// todo: also check ip address.
-		String tmptoken  = ((String[]) parameters.get("t"))[0];
+		String tmptoken = ((String[]) parameters.get("t"))[0];
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("status", "temporary registration");
@@ -165,6 +182,25 @@ public class PageAction extends BaseAction {
 			return "signup_complete";
 		}
 		
+		return SUCCESS;
+	}
+
+	@Action(value="/page/reset_password", results={@Result(name="success",location="resetpassword.jsp")})
+	public String reset_password() {
+		
+		// todo: also check ip address.
+		String tmptoken = ((String[]) parameters.get("t"))[0];
+    
+		BasicDBObject query = new BasicDBObject();
+		query.put("status", "free trial");
+		query.put("tmptoken", tmptoken);
+		query.put("tmptoken_expiration", new BasicDBObject("$gt", basetimestamp));
+    
+		user = (BasicDBObject) db.getCollection("users").findOne(query);
+		if (user == null) {
+      
+    }
+    
 		return SUCCESS;
 	}
 	
@@ -202,12 +238,12 @@ public class PageAction extends BaseAction {
 		String sessionid = user.get("sessionid").toString();
 		
 		/* FetchToken */
-        String[] args = {"FetchToken", email, sessionid, username};
-        String result = writesocket(args); // wait
+    String[] args = {"FetchToken", email, sessionid, username};
+    String result = writesocket(args); // wait
         
 		/* SetNotificationPreferences */
-        args = new String[]{"SetNotificationPreferences", email, username};
-        writesocket_async(args); // not wait
+    args = new String[]{"SetNotificationPreferences", email, username};
+    writesocket_async(args); // not wait
         
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar cal = Calendar.getInstance();
@@ -216,13 +252,12 @@ public class PageAction extends BaseAction {
 		cal.add(Calendar.DATE, -29); // max 119
 		String start = formatter.format(cal.getTime());
         
-        // todo: don't wait following api call.
-        
+    // todo: don't wait following api call.
+    
 		/* GetSellerList */
-        args = new String[]{"GetSellerList", email, username,
-							"Start", start, end};
-        writesocket_async(args); // not wait
-        
+    args = new String[]{"GetSellerList", email, username, "Start", start, end};
+    writesocket_async(args); // not wait
+    
 		cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 0);
 		end   = formatter.format(cal.getTime());
@@ -230,11 +265,11 @@ public class PageAction extends BaseAction {
 		start = formatter.format(cal.getTime());
 		
 		/* GetMemberMessages */
-        args = new String[]{"GetMemberMessages", email, username,
-							start+"T00:00:00.000Z",
-							end+"T00:00:00.000Z"};
-        writesocket_async(args); // not wait
-        
+    args = new String[]{"GetMemberMessages", email, username,
+                        start+"T00:00:00.000Z",
+                        end+"T00:00:00.000Z"};
+    writesocket_async(args); // not wait
+    
 		return SUCCESS;
 	}
 	

@@ -97,25 +97,29 @@
     </ul>
     
     <div id="filteroption">
-	    <a href="#" id="checkduplicateitems">Check duplicate items</a><br/><br/>
-	    <a href="http://forum.listers.in/" target="_blank"><s:text name="Forum"/></a><br/>
-	    <a href="http://listers.in/blog/" target="_blank"><s:text name="Blog"/></a><br/>
+			
+	    <a href="#" id="checkduplicateitems">Check duplicate items</a>
+			
+			<br/>
+			<br/>
+			
+	    <a href="http://forum.listers.in/" target="_blank"><s:text name="Forum"/></a>
+	    | <a href="http://listers.in/blog/" target="_blank"><s:text name="Blog"/></a>
+			
+			<br/>
+			<br/>
 			
       <a href="/?request_locale=en">English</a>
 			| <a href="/?request_locale=ja">日本語</a>
 			| <a href="/?request_locale=de">Deutsch</a>
+			
 			<br/>
-    </div>
-    
-    <div id="risknotice">
-	    ** NOTICE **<br/>
-	    This app is BETA.<br/>
-	    There may be bugs.<br/>
-	    Please be careful.<br/>
+			
     </div>
     
     <br/>
     
+    <a href="#" id="calletsy">Etsy</a><br/>
     <a href="#" id="toggledebug">DEBUG</a><br/>
     <div id="log"></div>
     
@@ -219,6 +223,23 @@
 			        </button>
 		        </td>
 		      </tr>
+		      <tr>
+		        <th>Etsy accounts</th>
+		        <td>
+			        <table id="setting_etsy_accounts">
+			        </table>
+			        
+			        <button class="addetsyaccount">
+			          <s:text name="AddEtsyAccount"/>
+			        </button>
+              
+              <input type="text" id="etsy_verification_code" size="10" />
+			        <button class="send-etsy-verification-code">
+			          <s:text name="Send"/>
+			        </button>
+              
+		        </td>
+		      </tr>
 	      </tbody>
 	    </table>
     </div><!-- #settings -->
@@ -263,7 +284,10 @@
 	      If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
         <br/>
         
-	      <span style="font-weight:bold;">How to add your eBay account to ListersIn.</span><br/>
+	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+					<img src="/icon/01/16/44.png"/>
+					How to import your existing items from eBay to ListersIn
+				</div>
 	      <ol>
 	        <li>
 		        Click &quot;<s:text name="AddeBayAccount"/>&quot; button.
@@ -281,8 +305,55 @@
 	        <li>
 		        You will be back to ListersIn site, and the eBay account will be shown at left side.
 	        </li>
+	        <li>
+						Your existing items will be imported from eBay automatically.
+	        </li>
 	      </ol>
+				
+	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+					<img src="/icon/01/16/44.png"/>
+					How to prepare a new item and list to eBay
+				</div>
+				<ol>
+					<li>
+						Click &quot;Add New Item&quot; button on left navigation.
+						(below the ListersIn logo)
+					</li>
+					<li>
+						Fill out the item forms with information which you want to sell on eBay.
+					</li>
+					<li>
+						Click &quot;Save&quot; button to save the item data to ListersIn.
+					</li>
+					<li>
+						You can see the saved items by clicking &quot;Saved&quot; on left navigation.
+					</li>
+					<li>
+						Check the item which you want to list to eBay.
+						(Checkbox at left of each item's title)
+					</li>
+					<li>
+						Click &quot;List&quot; button on top of the page.
+					</li>
+				</ol>
 	      
+	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+					<img src="/icon/01/16/44.png"/>
+					How to relist an unsold item again
+				</div>
+				<ol>
+					<li>
+						Click &quot;Unsold&quot; on left navigation.
+					</li>
+					<li>
+						Check the item which you want to relist to eBay again.
+						(Checkbox at left of each item's title)
+					</li>
+					<li>
+						Click &quot;Relist&quot; button on top of the page.
+					</li>
+				</ol>
+				
 	      If you have any problems, please send an email to
 	      <a href="mailto:support@listers.in">support@listers.in</a> :)<br/>
 	      Or please post your comment to
@@ -500,8 +571,14 @@
 										<a href="#" class="deletepicture"><a:text name="Delete"/></a>
 									</li>
 								</ul>
+                
+		            <form method="post" action="/file/upload"
+				              target="posttarget" enctype="multipart/form-data">
+                  Add images
+			            <input type="file" name="multiplefile" multiple="multiple"/>
+		            </form>
 							</div>
-								
+							
 			      </td>
 			    </tr>
 		    </tbody>
@@ -679,6 +756,7 @@
 				      <select name="mod.ListingType">
 				        <option value="Chinese">Online Auction</option>  
 				        <option value="FixedPriceItem">Fixed Price</option>
+				        <option value="StoresFixedPrice">Stores Fixed Price</option>
 				        <option value="LeadGeneration">Classified Ad</option>
 				      </select>
 			      </td>

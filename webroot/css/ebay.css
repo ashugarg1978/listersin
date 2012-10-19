@@ -1032,3 +1032,8 @@ div.question-block textarea {
 * html .clearfix {height: 1%;}
 .clearfix {display: block;}
 /* End hide from IE-mac */
+
+#forgotpassworddiv {
+  display: none;
+  margin-top: 10px;
+}

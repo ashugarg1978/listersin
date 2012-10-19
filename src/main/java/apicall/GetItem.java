@@ -42,7 +42,8 @@ public class GetItem extends ApiCall implements Callable {
 		reqdbo.append("IncludeItemSpecifics",         "true");
 		reqdbo.append("IncludeTaxTable",              "true");
 		reqdbo.append("IncludeWatchCount",            "true");
-		reqdbo.append("ItemID",                       itemid);
+		reqdbo.append("ItemID",                         itemid);
+		reqdbo.append("MessageID", email+" "+userid+" "+itemid);
 		
 		String requestxml = convertDBObject2XML(reqdbo, "GetItem");
         
@@ -61,18 +62,24 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject org = (BasicDBObject) resdbo.get("Item");
 		BasicDBObject mod = (BasicDBObject) org.copy();
 		
-		String userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
-		String itemid = org.getString("ItemID");
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
+		email  = messages[0];
+		//userid = messages[1];
+		//itemid = messages[2];
+		
+		userid = ((BasicDBObject) org.get("Seller")).getString("UserID");
+		itemid = org.getString("ItemID");
 		String timestamp = resdbo.getString("Timestamp").replaceAll("\\.", "_");
 		
 		writelog("GetItem/"+userid+"."+itemid+".xml", responsexml);
 		
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();
+		userquery.put("email", email);
 		userquery.put("userids."+userid, new BasicDBObject("$exists", true));
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-        
-    String email = userdbo.getString("email");
+		
+    //email = userdbo.getString("email");
 		String token = gettoken(email, userid);
         
 		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));

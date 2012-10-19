@@ -51,6 +51,8 @@
 		    <h1>ListersIn - <s:text name="eBayListingSoftware"/></h1>
 	    </div>
       
+			<img src="/img/topimage.jpg" width="500" />
+			
       <h2><s:text name="Features"/></h2>
 	    <ul class="features">
         <s:if test="#request.locale.language=='ja'">
@@ -119,8 +121,14 @@
 	    <ul class="blog">
 		    <s:iterator value="feed.entries">
 		      <li>
-			      <a href="${link}">${title}</a> ${publishedDate}
-			      <p>${description.value}</p>
+			      <a href="${link}">${title}</a>
+						<div style="text-align:right; color:#aaa;">${publishedDate}</div>
+						<s:if test="#request.locale.language=='ja'">
+							<p>${description.value.replaceAll("<[^>]+>", "")}・・・</p>
+						</s:if>
+						<s:else>
+							<p>${description.value}</p>
+						</s:else>
 		      </li>
 		    </s:iterator>
 	    </ul>
@@ -152,19 +160,30 @@
 		      
 		      <button><s:text name="SignIn"/></button>
 		      
-		      <a href="#">Forgot password ?</a>
+		      <a id="forgotpasswordlink" href="#">Forgot password ?</a>
 		    </form>
+				
+				<div id="forgotpassworddiv">
+					<div id="forgotpasswordmessage"></div>
+					<form method="post" action="">
+						Please input your email address and click button.<br />
+						<input type="text" id="fpemail" name="fpemail" size="40" value=""><br />
+						<br />
+						<button><s:text name="SendPasswordResetMail"/></button>
+					</form>
+				</div>
 		    
 	    </div>
-	    
+
 	    <div id="signupbox">
 		    
 		    <div style="margin-bottom:10px; font-weight:bold;">
           <s:text name="SignUp"/>
+					&nbsp;<span style="color:#088253;">FREE!</span>
 		    </div>
 		    <div id="signupmessage"></div>
 		    
-		    <form method="post" action="/json/register">
+		    <form method="post" action="">
 		      <s:text name="Email"/><br />
 		      <input type="text" name="email" size="40"><br /><br />
 		      
@@ -198,7 +217,7 @@
   	        tweets: {
   	          background: '#ffffff',
   	          color: '#333333',
-  	          links: '#009900'
+  	          links: '#088253'
   	        }
   	      },
   	      features: {

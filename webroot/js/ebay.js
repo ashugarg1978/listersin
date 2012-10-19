@@ -9,8 +9,16 @@ var foundproducts = new Array();
 $(function() {
 	
 	if (typeof(hash) == 'undefined') {
+    
 		resizediv_index();
 		bindevents_index();
+    
+	  if (!location.href.match(/sandbox/)) {
+      
+	  } else {
+      $('img[src="/img/topimage.jpg"]').hide();
+    }
+    
 		return;
 	}
 	
@@ -55,6 +63,11 @@ $(function() {
 	
 	$('ul.pictures').sortable();
 	
+	if (!location.href.match(/sandbox/)) {
+		$('#calletsy').remove();
+		$('#setting_etsy_accounts').closest('tr').remove();
+  }
+	
 	return;
 });
 
@@ -85,6 +98,61 @@ function bindevents_index()
 		
 		return false;
 	});
+	
+	/* Forgot password */
+	$('#forgotpasswordlink').live('click', function() {
+		$('#forgotpassworddiv').slideDown();
+		return false;
+	});
+
+	$('#forgotpassworddiv button').live('click', function() {
+		
+		var postdata = $('input', $(this).closest('form')).serialize();
+		
+		$.post('/json/forgotpassword',
+					 postdata,
+					 function(data) {
+				     if (data.json.result == true) {
+					     $('#forgotpasswordmessage')
+						     .css('color', 'blue')
+						     .html('Password reset mail was sent to<br/>'
+                       + data.json.message+'!<br/>'
+                       + 'If you can\'t find the email,<br/>'
+                       + 'Please also check spam folder.');
+				     } else {
+					     $('#forgotpasswordmessage')
+						     .css('color', 'red')
+						     .html(data.json.message);
+				     }
+					 },
+					 'json');
+		
+		return false;
+	});
+
+	/* Reset password button */
+	$('#resetpassworddiv button').live('click', function() {
+    
+		var postdata = $('input', $(this).closest('form')).serialize();
+		
+		$.post('/json/resetpassword',
+			     postdata,
+			     function(data) {
+				     if (data.json.result == true) {
+					     $('#resetpasswordmessage')
+						     .css('color', 'blue')
+						     .html('Your password was changed.<br/>'
+                       + 'Please sign in with new password.');
+				     } else {
+					     $('#resetpasswordmessage')
+						     .css('color', 'red')
+						     .html(data.json.message);
+				     }
+			     },
+			     'json');
+		
+		return false;
+	});
 }
 
 function bindevents()
@@ -99,7 +167,7 @@ function bindevents()
 		var loadingtext = $('<span/>')
 			.css('color', '#f00')
 			.css('margin-left', '10px')
-			.html('<img src="/img/indicator.gif"/> please wait, redirecting to ebay site...');
+			.html('<img src="/img/indicator.gif"/> please wait, redirecting to eBay site...');
 		$(this).after(loadingtext);
     
 		$.post('/json/addaccount',
@@ -109,6 +177,36 @@ function bindevents()
 			     },
 			     'json');
 	});
+	
+	/* Add Etsy account */
+	$('button.addetsyaccount').live('click', function() {
+    
+    if (checkdemoaccount()) return;
+		
+		var loadingtext = $('<span/>')
+			.css('color', '#f00')
+			.css('margin-left', '10px')
+			.html('<img src="/img/indicator.gif"/> please wait, redirecting to Etsy site...');
+		$(this).after(loadingtext);
+    
+		$.post('/etsy/addaccount',
+			     null,
+			     function(data) {
+				     window.location.href = data.json.url;
+			     },
+			     'json');
+	});
+  
+  $('button.send-etsy-verification-code').live('click', function() {
+    
+    var postdata = 'verification_code=' + $('#etsy_verification_code').val();
+    $.post('/etsy/accesstoken',
+           postdata,
+           function(data) {
+             
+           },
+           'json');
+  });
 	
 	$(window).scroll(function() {
 		if (hasmore == false) return;
@@ -293,12 +391,17 @@ function bindevents()
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
     var userid = $('select[name=UserID]', '#'+id).val();
+    var divclass = $(this).closest('div').attr('class');
+    log(divclass);
     
 		var idform = $('<input/>').attr('name', 'id').val(id);
 		$(this).closest('form').append(idform);
     
 		var useridform = $('<input/>').attr('name', 'userid').val(userid);
 		$(this).closest('form').append(useridform);
+    
+		var divclassform = $('<input/>').attr('name', 'divclass').val(divclass);
+		$(this).closest('form').append(divclassform);
     
 		$('ul.pictures', '#'+id).sortable('destroy');
 		
@@ -308,6 +411,7 @@ function bindevents()
 		
 		$(idform).remove();
 		$(useridform).remove();
+		$(divclassform).remove();
     
     return;
   });
@@ -749,6 +853,62 @@ function bindevents()
 						 showmembermessages(id);
            },
            'json');
+  });
+  
+  $('#calletsy').live('click', function() {
+    
+    var postdata = '';
+    
+    //postdata += '&uri=/payments/templates';
+    //postdata += '&zip=1910042';
+    
+    //postdata = 'method=GET&uri=/countries';
+    
+    //postdata = 'method=GET&uri=/taxonomy/categories';
+    //postdata = 'method=GET&uri=/shops/6100611';
+    //postdata = 'method=GET&uri=/shops/6100611/shipping/profiles&shop_id=6100611';
+    
+    postdata  = 'method=GET&uri=/shipping/profiles/184';
+    
+    postdata  = 'method=POST&uri=/listings';
+    postdata += '&quantity=1';
+    postdata += '&title=createviaapi';
+    postdata += '&description=testitem';
+    postdata += '&price=10.0';
+    postdata += '&shipping_profile_id=184';
+    postdata += '&category_id=69150353';
+    postdata += '&who_made=i_did';
+    postdata += '&is_supply=false';
+    postdata += '&when_made=2010_2012';
+    postdata += '&payment_template_id=92';
+    
+    postdata  = 'method=POST&uri=/shipping/templates';
+    postdata += '&title=ShippingTemplateA1';
+    postdata += '&origin_country_id=131';
+    postdata += '&destination_country_id=131';
+    postdata += '&primary_cost=10.0';
+    postdata += '&secondary_cost=15.0';
+    
+    postdata  = 'method=GET&uri=/users/__SELF__';
+		
+    postdata  = 'method=POST&uri=/shipping/profiles';
+    postdata += '&name=ShippingProfileJPN4';
+    postdata += '&origin_country_id=131';
+    postdata += '&processing_min=1';
+    postdata += '&processing_max=3';
+    
+    postdata  = 'method=GET&uri=/listings/111849386';
+		
+    postdata  = 'method=GET&uri=/shipping/profiles/115060096';
+		
+    $.post('/etsy/call',
+           postdata,
+           function(data) {
+             
+           },
+           'json');
+    
+    return false;
   });
   
 	/*
@@ -2936,16 +3096,16 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 	return trtag;
 }
 
-function addimage(id, files) {
-	
+function addimage(id, divclass, files) {
+  
 	$.each(files, function(i, url) {
 		var li = $('ul.pictures li.template', '#'+id).clone();
 		$(li).removeClass('template');
 		$('img', li).attr('src', url);
-		$('ul.pictures', '#'+id).append(li);
+		$('div.'+divclass+' ul', '#'+id).append(li);
 	});
 	
-	$('ul.pictures', '#'+id).sortable({
+	$('div.'+divclass+' ul', '#'+id).sortable({
 		items: ':not(.template)'
 	});
 	

@@ -1,6 +1,6 @@
 $(function() {
-
-  $('a').bind('click', function() {
+  
+  $('a.delete').bind('click', function() {
     
     if (!confirm('delete?')) return false;
     
@@ -15,5 +15,5 @@ $(function() {
     
     return false;
   });
-
+  
 });

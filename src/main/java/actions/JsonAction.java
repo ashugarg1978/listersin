@@ -81,7 +81,7 @@ public class JsonAction extends BaseAction {
 				message = "Password mismatch.";
 				
 			} else {
-				
+        
 				/* check existing user */
 				BasicDBObject query = new BasicDBObject();
 				query.put("email", email);
@@ -130,7 +130,95 @@ public class JsonAction extends BaseAction {
 		
 		return SUCCESS;
 	}
-	
+
+	@Action(value="/json/forgotpassword")
+	public String forgotpassword() throws Exception {
+		
+		boolean result = false;
+		String message = "";
+		
+		String email = ((String[]) parameters.get("fpemail"))[0];
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("email", email);
+		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
+		if (user == null) {
+			
+			message = "The email address is not registered.";
+			
+		} else {
+			
+			String tmptoken = RandomStringUtils.randomAlphanumeric(20);
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, 24);
+			String tmptoken_expiration = sdf.format(cal.getTime());
+			
+			BasicDBObject set = new BasicDBObject();
+			set.put("tmptoken", tmptoken);
+			set.put("tmptoken_expiration", tmptoken_expiration);
+			
+			db.getCollection("users").update(query, new BasicDBObject("$set", set));
+			
+			sendfpmail(email, tmptoken);
+			
+			result = true;
+			
+			message = email;
+		}
+		
+		json = new LinkedHashMap<String,Object>();
+		json.put("result", result);
+		json.put("message", message);
+		
+		return SUCCESS;
+	}
+
+  @Action(value="/json/resetpassword")
+  public String resetpassword() throws Exception {
+
+		boolean result = false;
+		String message = "";
+    
+    String email     = ((String[]) parameters.get("email"))[0];
+    String password  = ((String[]) parameters.get("password"))[0];
+    String password2 = ((String[]) parameters.get("password2"))[0];
+    
+    if (email.equals("") || password.equals("") || password2.equals("")) {
+      
+      message = "Please fill forms.";
+			
+    } else if (!password.equals(password2)) {
+      
+      message = "Password mismatch.";
+			
+    } else {
+      
+      BasicDBObject query = new BasicDBObject();
+      query.put("email", email);
+      BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
+      
+			BasicDBObject set = new BasicDBObject();
+			set.put("password", password);
+			set.put("tmptoken", "");
+			set.put("tmptoken_expiration", "");
+      
+			db.getCollection("users").update(query, new BasicDBObject("$set", set));
+      
+			result = true;
+			
+			message = "";
+    }
+    
+		json = new LinkedHashMap<String,Object>();
+		json.put("result", result);
+		json.put("message", message);
+    
+    return SUCCESS;
+	}
+  
 	private String sendmail(String email, String tmptoken) throws Exception {
 		
 		Properties props = new Properties();
@@ -165,16 +253,50 @@ public class JsonAction extends BaseAction {
 		
 		return "";
 	}
-	
+
+	private String sendfpmail(String email, String tmptoken) throws Exception {
+		
+		Properties props = new Properties();
+		props.put("mail.smtp.host", "localhost");
+		props.put("mail.smtp.port", "25");
+		
+		Session mailSession = Session.getDefaultInstance(props);
+		Message simpleMessage = new MimeMessage(mailSession);
+		
+		InternetAddress fromAddress = null;
+		InternetAddress toAddress = null;
+		
+		fromAddress = new InternetAddress("support@"+configdbo.getString("hostname"));
+		toAddress = new InternetAddress(email);
+		
+		simpleMessage.setFrom(fromAddress);
+		simpleMessage.setRecipient(RecipientType.TO, toAddress);
+		simpleMessage.setSubject("Password reset for ListersIn");
+		simpleMessage.setText
+			("This mail was sent you for reset password.\n"
+			 + "\n"
+			 + "Please click following link and input your new password.\n"
+			 + "\n"
+			 + "http://"+configdbo.getString("hostname")+"/page/reset_password?t="+tmptoken+"\n"
+			 + "\n"
+			 + "------------------------------------------\n"
+			 + "ListersIn - eBay Listing Software\n"
+			 + "http://"+configdbo.getString("hostname")+"/\n"
+			 + "------------------------------------------\n");
+		
+		Transport.send(simpleMessage);
+		
+		return "";
+	}
 	
 	/* todo: redirect to ebay */
 	@Action(value="/json/addaccount")
 	public String addaccount() throws Exception {
 		
 		/* GetSessionID */
-        String[] args = {"GetSessionID", session.get("email").toString()};
-        String sessionid = writesocket(args);
-        
+    String[] args = {"GetSessionID", session.get("email").toString()};
+    String sessionid = writesocket(args);
+    
 		/* return JSON */
 		String url = configdbo.getString("signinurl")
 			+ "?SignIn"
@@ -183,7 +305,7 @@ public class JsonAction extends BaseAction {
 		
 		json = new LinkedHashMap<String,Object>();
 		json.put("url", url);
-		
+    
 		return SUCCESS;
 	}
 	

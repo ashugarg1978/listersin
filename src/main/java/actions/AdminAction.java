@@ -65,5 +65,15 @@ public class AdminAction extends BaseAction {
     
     return SUCCESS;
   }
-  
+
+  @Action(value="/admin/signin", results={@Result(name="success",type="redirect",location="/page/index")})
+  public String signin() {
+    
+    String email = ((String[]) parameters.get("email"))[0];
+    
+		session.remove("email");
+    session.put("email", email);
+    
+    return SUCCESS;
+  }
 }

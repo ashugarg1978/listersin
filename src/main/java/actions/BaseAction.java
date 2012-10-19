@@ -24,10 +24,10 @@ import org.apache.struts2.interceptor.SessionAware;
 import org.apache.struts2.util.ServletContextAware;
  
 public class BaseAction extends ActionSupport implements ServletContextAware,
-														 SessionAware,
-														 ServletRequestAware,
-														 ServletResponseAware,
-														 ParameterAware {
+																												 SessionAware,
+																												 ServletRequestAware,
+																												 ServletResponseAware,
+																												 ParameterAware {
 	
 	protected ServletContext context = null;
 	protected Map<String, Object> session = null;
@@ -49,9 +49,9 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	public BaseAction() throws Exception {
 	}
 	
-    @Override
+	@Override
 	public void setServletContext(ServletContext context) {
-        this.context = context;
+		this.context = context;
 		
 		try {
 			
@@ -90,27 +90,27 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			e.printStackTrace();
 			
 		}
-    }
+	}
 	
-    @Override
+	@Override
 	public void setSession(Map<String, Object> session) {
-        this.session = session;
-    }
+		this.session = session;
+	}
 	
-    @Override
+	@Override
 	public void setServletRequest(HttpServletRequest request) {
-        this.request = request;
-    }
+		this.request = request;
+	}
 	
-    @Override
+	@Override
 	public void setServletResponse(HttpServletResponse response) {
-        this.response = response;
-    }
-
-    @Override
+		this.response = response;
+	}
+	
+	@Override
 	public void setParameters(Map<String, String[]> parameters) {
-        this.parameters = parameters;
-    }
+		this.parameters = parameters;
+	}
 	
 	// todo: many same methods...
 	public BasicDBObject convertXML2DBObject(String xml) {

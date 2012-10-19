@@ -26,11 +26,13 @@ public class FileAction extends BaseAction {
   @Action(value="/file/upload", results={@Result(name="success",location="uploaded.jsp")})
 	public String upload() throws Exception {
     
-		String savedir = basedir + "/webroot/itemimage";
-    String user_id = user.getString("_id");
-		String id     = ((String[]) parameters.get("id"))[0];
-		String userid = ((String[]) parameters.get("userid"))[0];
-		
+		String savedir  = basedir + "/webroot/itemimage";
+    String user_id  = user.getString("_id");
+		String id       = ((String[]) parameters.get("id"))[0];
+		String userid   = ((String[]) parameters.get("userid"))[0];
+		String divclass = ((String[]) parameters.get("divclass"))[0];
+    log.debug("divclass:"+divclass);
+    
 		int i = 0;
     for (File file: fileUpload) {
       
