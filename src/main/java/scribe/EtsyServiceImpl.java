@@ -39,21 +39,21 @@ public class EtsyServiceImpl extends OAuth10aServiceImpl {
 		if(config.hasScope()){
 			requestTokenEndpoint = requestTokenEndpoint + "?scope=" + config.getScope();
 		}
-		
-	    OAuthRequest request = new OAuthRequest(api.getRequestTokenVerb(), requestTokenEndpoint);
-
-	    config.log("setting oauth_callback to " + config.getCallback());
-	    request.addOAuthParameter(OAuthConstants.CALLBACK, config.getCallback());
-	    addOAuthParams(request, OAuthConstants.EMPTY_TOKEN);
-	    appendSignature(request);
-
-	    config.log("sending request...");
-	    Response response = request.send();
-	    String body = response.getBody();
-
-	    config.log("response status code: " + response.getCode());
-	    config.log("response body: " + body);
-	    return api.getRequestTokenExtractor().extract(body);
+    
+    OAuthRequest request = new OAuthRequest(api.getRequestTokenVerb(), requestTokenEndpoint);
+    
+    config.log("setting oauth_callback to " + config.getCallback());
+    request.addOAuthParameter(OAuthConstants.CALLBACK, config.getCallback());
+    addOAuthParams(request, OAuthConstants.EMPTY_TOKEN);
+    appendSignature(request);
+    
+    config.log("sending request...");
+    Response response = request.send();
+    String body = response.getBody();
+    
+    config.log("response status code: " + response.getCode());
+    config.log("response body: " + body);
+    return api.getRequestTokenExtractor().extract(body);
 	}
 	
 	/**
@@ -61,24 +61,24 @@ public class EtsyServiceImpl extends OAuth10aServiceImpl {
 	 */
 	@Override
 	public Token getAccessToken(Token requestToken, Verifier verifier)
-	  {
-	    config.log("obtaining access token from " + api.getAccessTokenEndpoint());
-	    
-	    String accessTokenEndpoint = api.getAccessTokenEndpoint();
+  {
+    config.log("obtaining access token from " + api.getAccessTokenEndpoint());
+	  
+    String accessTokenEndpoint = api.getAccessTokenEndpoint();
 		if(config.hasScope()){
 			accessTokenEndpoint = accessTokenEndpoint + "?scope=" + config.getScope();
 		}
-	    
-	    OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), accessTokenEndpoint);
-	    request.addOAuthParameter(OAuthConstants.TOKEN, requestToken.getToken());
-	    request.addOAuthParameter(OAuthConstants.VERIFIER, verifier.getValue());
-
-	    config.log("setting token to: " + requestToken + " and verifier to: " + verifier);
-	    addOAuthParams(request, requestToken);
-	    appendSignature(request);
-	    Response response = request.send();
-	    return api.getAccessTokenExtractor().extract(response.getBody());
-	  }
+    
+    OAuthRequest request = new OAuthRequest(api.getAccessTokenVerb(), accessTokenEndpoint);
+    request.addOAuthParameter(OAuthConstants.TOKEN, requestToken.getToken());
+    request.addOAuthParameter(OAuthConstants.VERIFIER, verifier.getValue());
+    
+    config.log("setting token to: " + requestToken + " and verifier to: " + verifier);
+    addOAuthParams(request, requestToken);
+    appendSignature(request);
+    Response response = request.send();
+    return api.getAccessTokenExtractor().extract(response.getBody());
+  }
 	
 	/**
 	 * {@inheritDoc}

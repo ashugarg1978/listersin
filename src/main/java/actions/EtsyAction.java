@@ -49,6 +49,8 @@ public class EtsyAction extends BaseAction {
 				.provider(EtsyApiSandbox.class)
 				.apiKey("t32m4aqlbvx9dwl3063hvkgl")
 				.apiSecret("j69xhnyq2z")
+        .scope("listings_r")
+        .debug()
 				.build();
 			
 		} else {

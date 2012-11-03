@@ -231,6 +231,8 @@ function bindevents()
 	
 	$('tr.row1 input[type=checkbox]').live('click', function(event) {
 		event.stopPropagation();
+		togglebulkbuttons();
+		return;
 	});
 	
 	$('a.ItemID').live('click', function(event) {
@@ -268,6 +270,8 @@ function bindevents()
 			$("input[name='id'][value!=on]").attr('checked', 'checked');
 			//$("input[name='allpages']").attr('checked', '');
 			$("input[name='allpages']").removeAttr('checked');
+			togglebulkbuttons();
+			
 			return;
 			
 		} else if (action == 'checkallpage') {
@@ -282,6 +286,8 @@ function bindevents()
 			//$("input[name='allpages']").attr('checked', '');
 			$("input[name='id'][value!=on]").removeAttr('checked');
 			$("input[name='allpages']").removeAttr('checked');
+			togglebulkbuttons();
+			
 			return;
 		}
 		
@@ -870,18 +876,6 @@ function bindevents()
     
     postdata  = 'method=GET&uri=/shipping/profiles/184';
     
-    postdata  = 'method=POST&uri=/listings';
-    postdata += '&quantity=1';
-    postdata += '&title=createviaapi';
-    postdata += '&description=testitem';
-    postdata += '&price=10.0';
-    postdata += '&shipping_profile_id=184';
-    postdata += '&category_id=69150353';
-    postdata += '&who_made=i_did';
-    postdata += '&is_supply=false';
-    postdata += '&when_made=2010_2012';
-    postdata += '&payment_template_id=92';
-    
     postdata  = 'method=POST&uri=/shipping/templates';
     postdata += '&title=ShippingTemplateA1';
     postdata += '&origin_country_id=131';
@@ -889,8 +883,6 @@ function bindevents()
     postdata += '&primary_cost=10.0';
     postdata += '&secondary_cost=15.0';
     
-    postdata  = 'method=GET&uri=/users/__SELF__';
-		
     postdata  = 'method=POST&uri=/shipping/profiles';
     postdata += '&name=ShippingProfileJPN4';
     postdata += '&origin_country_id=131';
@@ -901,6 +893,23 @@ function bindevents()
 		
     postdata  = 'method=GET&uri=/shipping/profiles/115060096';
 		
+    postdata  = 'method=GET&uri=/users/__SELF__';
+    
+    postdata  = 'method=POST&uri=/listings';
+    postdata += '&quantity=1';
+    postdata += '&title=createviaapi';
+    postdata += '&description=testitem';
+    postdata += '&price=10.0';
+    postdata += '&shipping_profile_id=184';
+    postdata += '&category_id=69150353';
+    postdata += '&who_made=i_did';
+    postdata += '&is_supply=0';
+    postdata += '&when_made=2010_2012';
+    postdata += '&payment_template_id=92';
+    //postdata += '&state=active';
+    
+    postdata  = 'method=GET&uri=/listings/active';
+    
     $.post('/etsy/call',
            postdata,
            function(data) {
@@ -920,6 +929,24 @@ function bindevents()
 	  });
 	*/
 }	
+
+function togglebulkbuttons() {
+	var checkeditems = $('tr.row1 input:checked[name=id][value!=on]');
+	
+	if (checkeditems.length == 0) {
+		$('button.copy, button.delete, button.add, button.relist,'
+			+ 'button.revise, button.verifyadditem, button.end', '#bulkbuttons')
+			.attr('disabled', 'disabled')
+			.addClass('disabled');
+	} else {
+		$('button.copy, button.delete, button.add, button.relist,'
+			+ 'button.revise, button.verifyadditem, button.end', '#bulkbuttons')
+			.removeAttr('disabled')
+			.removeClass('disabled');
+	}
+	
+	return;
+}
 
 function checkdemoaccount() {
     

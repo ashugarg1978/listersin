@@ -93,16 +93,14 @@ public class ApiCallTask implements Callable {
         
     URL url = new URL(apiurl);
     HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-		
+    
     conn.setRequestMethod("POST");
     conn.setDoInput(true);
     conn.setDoOutput(true);
 		conn.setRequestProperty("Content-Type", "text/xml");
-		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL",
-                            configdbo.getString("compatlevel"));
+		conn.setRequestProperty("X-EBAY-API-COMPATIBILITY-LEVEL", configdbo.getString("compatlevel"));
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
-		conn.setRequestProperty("X-EBAY-API-SITEID", siteid.toString());
-        
+		conn.setRequestProperty("X-EBAY-API-SITEID",    siteid.toString());
 		conn.setRequestProperty("X-EBAY-API-DEV-NAME",  devname);
 		conn.setRequestProperty("X-EBAY-API-APP-NAME",  appname);
 		conn.setRequestProperty("X-EBAY-API-CERT-NAME", certname);

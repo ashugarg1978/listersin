@@ -27,6 +27,8 @@ public class AdminAction extends BaseAction {
 	@Action(value="/admin/index", results={@Result(name="success",location="index.jsp")})
 	public String execute() throws Exception {
     
+    session.put("admin", "1");
+    
 		DBCollection coll = db.getCollection("users");
     
 		BasicDBObject sort = new BasicDBObject();
@@ -44,6 +46,12 @@ public class AdminAction extends BaseAction {
         Date created = sdf.parse(user.getString("created").replace("T", " ").replace(".000Z", ""));
         sdf.setTimeZone(TimeZone.getTimeZone("Japan"));
         user.put("created_local", sdf.format(created));
+      }
+      
+      if (user.containsField("lastused")) {
+        Date lused = sdf.parse(user.getString("lastused").replace("T", " ").replace(".000Z", ""));
+        sdf.setTimeZone(TimeZone.getTimeZone("Japan"));
+        user.put("lastused_local", sdf.format(lused));
       }
       
       users.add(user);

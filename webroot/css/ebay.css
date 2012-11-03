@@ -1037,3 +1037,8 @@ div.question-block textarea {
   display: none;
   margin-top: 10px;
 }
+
+button.disabled {
+  color: #aaa;
+  background-color: #eee;
+}

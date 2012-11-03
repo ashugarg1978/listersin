@@ -71,19 +71,41 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 																								 configdbo.getString("database"));
 			db = mc.getDB();
 			
-			// todo: exclude "canceled" user?
-			if (session.get("email") != null) {
-				BasicDBObject query = new BasicDBObject();
-				query.put("email", session.get("email").toString());
-				user = (BasicDBObject) db.getCollection("users").findOne(query);
-			}
-			
 			// timestamp
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date now = new Date();
 			basetimestamp = sdf.format(now);
 			log.debug("basetimestamp:"+basetimestamp);
+      
+      for (Enumeration enm=request.getHeaderNames(); enm.hasMoreElements();) {
+        String hdname = (String) enm.nextElement();
+        log.debug(hdname + ":" + request.getHeader(hdname));
+      }
+      
+			// todo: exclude "canceled" user?
+			if (session.get("email") != null) {
+        
+				BasicDBObject query = new BasicDBObject();
+				query.put("email", session.get("email").toString());
+				user = (BasicDBObject) db.getCollection("users").findOne(query);
+        
+        if (session.get("admin") != null) {
+          
+          log.debug("not update user log");
+          
+        } else {
+          
+          BasicDBObject set = new BasicDBObject();
+          set.put("lastused", basetimestamp);
+          set.put("useragent", request.getHeader("user-agent"));
+          
+          db.getCollection("users").update(query, new BasicDBObject("$set", set));
+          
+          log.debug("update user log");
+          
+        }
+      }
 			
 		} catch (Exception e) {
 			

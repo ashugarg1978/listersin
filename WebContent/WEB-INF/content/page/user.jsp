@@ -55,14 +55,14 @@
 	    <button class="checkall btnleft"><s:text name="CheckAll"/></button>
 	    <button class="uncheckall btnright"><s:text name="UncheckAll"/></button>
 	    
-	    <button class="copy btnleft"><s:text name="Copy"/></button>
-	    <button class="delete btnright"><s:text name="Delete"/></button>
+	    <button class="copy btnleft disabled" disabled="disabled"><s:text name="Copy"/></button>
+	    <button class="delete btnright disabled" disabled="disabled"><s:text name="Delete"/></button>
 	    
-	    <button class="add btnleft"><s:text name="Add"/></button>
-	    <button class="relist btncenter"><s:text name="Relist"/></button>
-	    <button class="revise btncenter"><s:text name="Revise"/></button>
-	    <button class="verifyadditem btncenter"><s:text name="Verify"/></button>
-	    <button class="end btnright"><s:text name="End"/></button>
+	    <button class="add btnleft disabled" disabled="disabled"><s:text name="Add"/></button>
+	    <button class="relist btncenter disabled" disabled="disabled"><s:text name="Relist"/></button>
+	    <button class="revise btncenter disabled" disabled="disabled"><s:text name="Revise"/></button>
+	    <button class="verifyadditem btncenter disabled" disabled="disabled"><s:text name="Verify"/></button>
+	    <button class="end btnright disabled" disabled="disabled"><s:text name="End"/></button>
 	    
 	    <input id="filtertitle" type="text" class="filter" name="Title" value="" size="20">
 	    <button class="btnright"><s:text name="Search"/></button>

@@ -7,13 +7,16 @@
 <title>ListersIn - <s:text name="eBayListingSoftware"/></title>
 
 <s:if test="#request.locale.language=='ja'">
+<meta name="keywords" content="eBay,出品,ツール,一括出品,オークション">
 <meta name="description" content="ListersInはeBay出品ツールです。シンプルな画面で操作が簡単です。無料デモをお試しください！">
 </s:if>
 <s:else>
+<meta name="keywords" content="eBay,listing,software,seller,tool">
 <meta name="description" content="ListersIn is an eBay listing software. Simple, easy and Gmail like user interface. Try free demo account before sign up!">
 </s:else>
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
 <link rel="shortcut icon" href="/img/favicon.png">
+<link rel="canonical" href="http://listers.in/"/>
 <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/ebay.js"></script>
@@ -143,7 +146,7 @@
 	    
 	    <div id="signinbox">
 		    
-		    <div style="margin-bottom:10px; font-weight:bold;">
+		    <div style="margin-bottom:10px; font-weight:bold; font-size:120%;">
           <s:text name="SignIn"/>
 		    </div>
 		    
@@ -177,12 +180,18 @@
 
 	    <div id="signupbox">
 		    
-		    <div style="margin-bottom:10px; font-weight:bold;">
+		    <div style="margin-bottom:10px; font-weight:bold; font-size:120%;">
           <s:text name="SignUp"/>
 					&nbsp;<span style="color:#088253;">FREE!</span>
 		    </div>
 		    <div id="signupmessage"></div>
-		    
+
+				<div style="margin:5px 0;">
+					Please input your email address and password.<br/>
+					This is NOT your eBay account. You don't need to<br/>
+					input your eBay account email and password.
+				</div>
+				
 		    <form method="post" action="">
 		      <s:text name="Email"/><br />
 		      <input type="text" name="email" size="40"><br /><br />
@@ -197,6 +206,10 @@
 		    </form>
 		    
 	    </div>
+
+			<div style="margin:10px 20px;">
+				<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
+			</div>
 
 	  <div id="twitter">
 	  
@@ -230,6 +243,18 @@
 		</script>
 		
 	  </div>
+		
+		<ul>
+			<li>
+				<a href="http://www.momsdirectory.net/">Moms Web Directory</a>
+			</li>
+			<li>
+				<a href="http://www.picktu.com/">Picktu Directory</a>
+			</li>
+			<li>
+				<a href="http://www.livepopular.com/">Popular Web Directory</a>
+			</li>
+		</ul>
 	  
 	</div>	  
 	

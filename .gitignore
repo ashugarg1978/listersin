@@ -3,6 +3,7 @@
 
 build/*
 config/*
+data/*
 dist/*
 logs/*
 webroot/itemimage/*
