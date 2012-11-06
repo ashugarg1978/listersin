@@ -20,7 +20,6 @@
         <th>Last used</th>
         <th>Action</th>
         <th>eBay IDs</th>
-        <th>User agent</th>
       </tr>
     </thead>
     <tbody>
@@ -42,7 +41,6 @@
 	            </s:iterator>
             </ul>
           </td>
-          <td>${useragent}</td>
 		    </tr>
 	    </s:iterator>
     </tbody>

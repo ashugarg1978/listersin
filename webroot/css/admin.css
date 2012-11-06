@@ -6,6 +6,7 @@ table {
 th, td {
   border-bottom: 1px solid #ccc;
   padding: 3px 10px;
+	font-size: 12px;
 }
 
 th {
