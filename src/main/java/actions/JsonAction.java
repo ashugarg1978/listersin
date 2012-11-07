@@ -113,6 +113,7 @@ public class JsonAction extends BaseAction {
 					field.put("timezone",  "PST8PDT");
 					field.put("itemlimit", "100");
 					field.put("created",   basetimestamp);
+          field.put("lastused",  basetimestamp);
           
 					db.getCollection("users").insert(field, WriteConcern.SAFE);
 					
