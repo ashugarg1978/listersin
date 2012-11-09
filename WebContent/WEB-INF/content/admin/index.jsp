@@ -20,6 +20,7 @@
         <th>Last used</th>
         <th>Action</th>
         <th>eBay IDs</th>
+        <th>eBay IDs2</th>
       </tr>
     </thead>
     <tbody>
@@ -38,6 +39,13 @@
             <ul>
 	            <s:iterator var="userid" value="#user.userids">
                 <li><s:property value="key"/></li>
+	            </s:iterator>
+            </ul>
+          </td>
+          <td>
+            <ul>
+	            <s:iterator var="userid" value="#user.userids2">
+                <li><s:property value="username"/></li>
 	            </s:iterator>
             </ul>
           </td>
