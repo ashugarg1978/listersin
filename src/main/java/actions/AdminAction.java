@@ -59,13 +59,13 @@ public class AdminAction extends BaseAction {
     
     return SUCCESS;
   }  
-
+	
 	@Action(value="/admin/deleteuser", results={@Result(name="success",location="index.jsp")})
   public String deleteuser() {
     
 		String id = ((String[]) parameters.get("id"))[0];
     log.debug("deleteuser id:"+id);
-    
+		
     BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
     

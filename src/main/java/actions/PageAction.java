@@ -313,9 +313,12 @@ public class PageAction extends BaseAction {
 		out.write(notifyxml);
 		out.close();
 		
+		//BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne
+		//	(new BasicDBObject("userids."+userid, new BasicDBObject("$exists", true)));
+    
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne
-			(new BasicDBObject("userids."+userid, new BasicDBObject("$exists", true)));
-		
+			(new BasicDBObject("userids2", userid));
+    
 		String itemid = "";
 		
 		if (eventname.equals("AskSellerQuestion")) {

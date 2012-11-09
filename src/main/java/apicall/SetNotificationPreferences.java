@@ -13,27 +13,15 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	
 	public SetNotificationPreferences() throws Exception {
 	}
-    
+	
 	public SetNotificationPreferences(String[] args) throws Exception {
 		email  = args[0];
 		userid = args[1];
 	}
-    
+	
 	public String call() throws Exception {
 		
-		/* get token from db */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
-
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
+    String token = gettoken(email, userid);
 		
 		/* SetNotificationPreferences */
 		ArrayList<BasicDBObject> ane = new ArrayList<BasicDBObject>();

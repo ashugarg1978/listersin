@@ -319,8 +319,9 @@ public class JsonAction extends BaseAction {
 		
 		db.getCollection("users").update
 			(new BasicDBObject("email", user.getString("email")),
-			 new BasicDBObject("$unset", new BasicDBObject("userids."+userid, 1)));
-		
+			 new BasicDBObject("$pull", new BasicDBObject("userids2",
+                                                    new BasicDBObject("username", userid))));
+    
 		return SUCCESS;
 	}
 	
@@ -437,10 +438,16 @@ public class JsonAction extends BaseAction {
 			
 			/* StartPrice */
 			if (mod.containsField("StartPrice")) {
-				DBObject sp = (DBObject) mod.get("StartPrice");
+				BasicDBObject sp = (BasicDBObject) mod.get("StartPrice");
 				//Float startprice = Float.parseFloat(sp.get("#text").toString());
 				//item.put("price", sp.get("@currencyID")+" "+startprice.intValue());
-				item.put("price", sp.get("@currencyID")+" "+sp.get("#text").toString());
+				if (sp.containsField("@currencyID")) {
+					item.put("price", sp.getString("@currencyID") + " " + sp.getString("#text"));
+				} else if (sp.containsField("#text")) {
+					item.put("price", sp.getString("#text"));
+				} else {
+					item.put("price", "(error)");
+				}
 			}
       
       /* scheduled time */
@@ -1095,13 +1102,13 @@ public class JsonAction extends BaseAction {
 	public String settings() throws Exception {
         
 		if (parameters.get("timezone") != null) {
-            
-            String timezone = ((String[]) parameters.get("timezone"))[0];
-            
-            db.getCollection("users").update
-                (new BasicDBObject("_id", new ObjectId(user.getString("_id"))),
-                 new BasicDBObject("$set", new BasicDBObject("timezone", timezone)));
-        }
+      
+      String timezone = ((String[]) parameters.get("timezone"))[0];
+      
+      db.getCollection("users").update
+        (new BasicDBObject("_id", new ObjectId(user.getString("_id"))),
+         new BasicDBObject("$set", new BasicDBObject("timezone", timezone)));
+    }
 		
 		BasicDBObject settings = new BasicDBObject();
 		settings.put("language",   user.getString("language"));
@@ -1110,20 +1117,26 @@ public class JsonAction extends BaseAction {
 		settings.put("itemlimit",  user.getString("itemlimit"));
 		settings.put("status",     user.getString("status"));
 		settings.put("email",      user.getString("email"));
-		
-		BasicDBObject userids = (BasicDBObject) ((BasicDBObject) user.get("userids")).copy();
+    
+    // todo: convert timezone of token expiration
 		// todo: remove tokens etc...
-		for (Object userid : userids.keySet()) {
-			BasicDBObject tmp = (BasicDBObject) userids.get(userid.toString());
+    BasicDBList userids2 = new BasicDBList();
+		for (Object useridobj : (BasicDBList) user.get("userids2")) {
+      
+      //log.debug("ids2:" + useridobj);
+      
+			BasicDBObject tmp = (BasicDBObject) ((BasicDBObject) useridobj).copy();
 			tmp.removeField("@xmlns");
 			tmp.removeField("Ack");
 			tmp.removeField("CorrelationID");
 			tmp.removeField("Version");
 			tmp.removeField("Build");
 			tmp.removeField("eBayAuthToken");
+      
+      userids2.add(tmp);
 		}
-		settings.put("userids", userids);
-		
+		settings.put("userids2", userids2);
+    
 		json = new LinkedHashMap<String,Object>();
 		json.put("settings", settings);
 		
@@ -1133,18 +1146,18 @@ public class JsonAction extends BaseAction {
 	public LinkedHashMap<String,Object> summarydata() throws Exception {
 		LinkedHashMap<String,Object> summarydata = new LinkedHashMap<String,Object>();
 		
-		if (!user.containsField("userids")) {
-			log.debug("summarydata() no userids.");
+		if (!user.containsField("userids2")) {
+			log.debug("summarydata() no userids2.");
 			return summarydata;
 		}
 		
 		LinkedHashMap<String,BasicDBObject> selling = getsellingquery();
 		
 		ArrayList<String> userids = new ArrayList<String>();
-		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
-			userids.add(userid.toString());
+		for (Object useridobj : (BasicDBList) user.get("userids2")) {
+			userids.add(((BasicDBObject) useridobj).getString("username"));
 		}
-		
+    
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		LinkedHashMap<String,Long> allsummary = new LinkedHashMap<String,Long>();
@@ -1782,10 +1795,10 @@ public class JsonAction extends BaseAction {
 		
 		/* allways filter with userids */
 		ArrayList<String> userids = new ArrayList<String>();
-		for (Object userid : ((BasicDBObject) user.get("userids")).keySet()) {
-			userids.add(userid.toString());
+		for (Object useridobj : (BasicDBList) user.get("userids2")) {
+			userids.add(((BasicDBObject) useridobj).getString("username"));
 		}
-		
+    
 		BasicDBObject query = new BasicDBObject();
 		
 		if (parameters.containsKey("id")) {

@@ -50,13 +50,21 @@ public class FetchToken extends ApiCall {
 		username = messages[1];
 		
 		writelog("FetchToken/"+email+"."+username+".xml", responsexml);
+    
+    resdbo.put("username", username);
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
 		
 		BasicDBObject update = new BasicDBObject();
+		update.put("$pull", new BasicDBObject("userids2", new BasicDBObject("username", username)));
+    
+		db.getCollection("users").update(query, update);
+    
+		update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("userids."+username, resdbo));
-		
+		update.put("$push", new BasicDBObject("userids2", resdbo));
+    
 		db.getCollection("users").update(query, update);
 		
 		return "";

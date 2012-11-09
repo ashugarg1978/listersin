@@ -9,16 +9,16 @@ import javax.net.ssl.HttpsURLConnection;
 public class GetSessionID extends ApiCall {
 	
 	private String email;
-    
+  
 	public GetSessionID() throws Exception {
-    }
-    
+  }
+  
 	public GetSessionID(String[] args) throws Exception {
 		this.email = args[0];
 	}
 	
 	public String call() throws Exception {
-		
+    
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		reqdbo.append("WarningLevel", "High");

@@ -649,26 +649,30 @@ function bindevents()
              
 				     $('table#setting_ebay_accounts').empty();
 				   
-				     if (data.json.settings.userids) {
-					     $.each(data.json.settings.userids, function(i, o) {
+				     if (data.json.settings.userids2) {
+					     $.each(data.json.settings.userids2, function(i, o) {
                  
 						     var trtag = $('<tr/>');
 						     
-						     $(trtag).append($('<td/>').html(i));
+						     $(trtag).append($('<td/>').html(o.username));
 						     
 						     $(trtag).append($('<button/>')
-                                 .attr('class', 'sync-'+i)
+                                 .attr('class', 'sync-' + o.username)
                                  .html('Sync items from eBay'));
 						     
 						     $(trtag).append($('<button/>')
-                                 .attr('class', 'updatetoken-'+i)
+                                 .attr('class', 'updatetoken-' + o.username)
                                  .html('Update token'));
 						     
 						     $(trtag).append($('<button/>')
-                                 .attr('class', 'removeaccount-'+i)
+                                 .attr('class', 'removeaccount-' + o.username)
                                  .html('Delete from ListersIn'));
 						     
 						     $('table#setting_ebay_accounts').append(trtag);
+                 
+								 //var optiontag = $('<option/>').val(o.username).text(o.username);
+                 
+								 //$('#csvform select[name=userid]').append(optiontag);
 					     });
 				     }
 				     
@@ -1077,16 +1081,16 @@ $.fn.extractObject = function() {
 			if (namev[0] == '') return;
 			
 			if (accum[namev[0]] != undefined) {
-                if ($.isArray(accum[namev[0]])) {
-                    accum[namev[0]].push(value);
-                    //accum[namev[0]].push(encodeURI(value));
-                } else {
-                    var tmpvalue = accum[namev[0]];
-                    accum[namev[0]] = [tmpvalue];
-                    accum[namev[0]].push(value);
-                    //accum[namev[0]].push(encodeURI(value));
-                }
-            } else {
+        if ($.isArray(accum[namev[0]])) {
+          accum[namev[0]].push(value);
+          //accum[namev[0]].push(encodeURI(value));
+        } else {
+          var tmpvalue = accum[namev[0]];
+          accum[namev[0]] = [tmpvalue];
+          accum[namev[0]].push(value);
+          //accum[namev[0]].push(encodeURI(value));
+        }
+      } else {
 				accum[namev[0]] = value;
 				//accum[namev[0]] = encodeURI(value);
 			}

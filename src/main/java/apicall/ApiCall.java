@@ -131,17 +131,21 @@ public class ApiCall implements Callable {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+		query.put("userids2.username", userid);
 		
 		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
+		fields.put("userids2", 1);
 		
+    String token = "";
+    
 		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
-		
+		for (Object useridobj : (BasicDBList) user.get("userids2")) {
+      if (((BasicDBObject) useridobj).getString("username").equals(userid)) {
+        token = ((BasicDBObject) useridobj).getString("eBayAuthToken");
+        break;
+      }
+    }
+    
 		return token;
 	}
 	
@@ -151,18 +155,15 @@ public class ApiCall implements Callable {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("email", email);
-		
+    
 		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query);
-			
-		if (user.containsField("userids")) {
-			BasicDBObject userids = (BasicDBObject) user.get("userids");
-			for (Object userid : userids.keySet()) {
-				
-				String token =
-					((BasicDBObject) userids.get(userid.toString())).getString("eBayAuthToken");
-				
-				hashmap.put(userid.toString(), token);
-			}
+		if (user.containsField("userids2")) {
+      for (Object useridobj : (BasicDBList) user.get("userids2")) {
+        String userid = ((BasicDBObject) useridobj).getString("username");
+        String token  = ((BasicDBObject) useridobj).getString("eBayAuthToken");
+        
+				hashmap.put(userid, token);
+      }
 		}
 		
 		return hashmap;

@@ -271,8 +271,7 @@ public class AddItems extends ApiCall {
       /* GetItem */
       if (itemid != null) {
         
-        BasicDBObject userids = (BasicDBObject) userdbo.get("userids");
-        String token = ((BasicDBObject) userids.get(userid)).getString("eBayAuthToken");
+        String token = gettoken(email, userid);
         
         BasicDBObject reqdbo = new BasicDBObject();
         reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
@@ -283,7 +282,8 @@ public class AddItems extends ApiCall {
         reqdbo.append("IncludeItemSpecifics",         "true");
         reqdbo.append("IncludeTaxTable",              "true");
         reqdbo.append("IncludeWatchCount",            "true");
-        reqdbo.append("ItemID", itemid);
+        reqdbo.append("ItemID",                       itemid);
+        reqdbo.append("MessageID", email+" "+userid+" "+itemid);
         
         String requestxml = convertDBObject2XML(reqdbo, "GetItem");
         writelog("GetItem/afterAdditems.req.xml", requestxml);
