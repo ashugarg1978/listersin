@@ -7,3 +7,5 @@ data/*
 dist/*
 logs/*
 webroot/itemimage/*
+webroot/blog/wp-content/uploads
+webroot/blog/wp-config.php
