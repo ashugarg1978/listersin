@@ -32,6 +32,7 @@ public class AdminAction extends BaseAction {
 		DBCollection coll = db.getCollection("users");
     
 		BasicDBObject sort = new BasicDBObject();
+		sort.put("lastused", -1);
 		sort.put("_id", -1);
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
@@ -45,13 +46,13 @@ public class AdminAction extends BaseAction {
       if (user.containsField("created")) {
         Date created = sdf.parse(user.getString("created").replace("T", " ").replace(".000Z", ""));
         sdf.setTimeZone(TimeZone.getTimeZone("Japan"));
-        user.put("created_local", sdf.format(created));
+        user.put("created_local", sdf.format(created).replace("+0900", ""));
       }
       
       if (user.containsField("lastused")) {
         Date lused = sdf.parse(user.getString("lastused").replace("T", " ").replace(".000Z", ""));
         sdf.setTimeZone(TimeZone.getTimeZone("Japan"));
-        user.put("lastused_local", sdf.format(lused));
+        user.put("lastused_local", sdf.format(lused).replace("+0900", ""));
       }
       
       users.add(user);
@@ -59,13 +60,13 @@ public class AdminAction extends BaseAction {
     
     return SUCCESS;
   }  
-	
+
 	@Action(value="/admin/deleteuser", results={@Result(name="success",location="index.jsp")})
   public String deleteuser() {
     
 		String id = ((String[]) parameters.get("id"))[0];
     log.debug("deleteuser id:"+id);
-		
+    
     BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
     

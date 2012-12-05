@@ -10,13 +10,21 @@
 <link rel="stylesheet" type="text/css" href="/css/ebay-lte-ie8.css"/>
 <![endif]-->
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
+<link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.9.1.custom/css/smoothness/jquery-ui-1.9.1.custom.min.css">
+<link rel="stylesheet" type="text/css" href="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css">
+<link rel="stylesheet" type="text/css" href="/js/jquery.qtip/jquery.qtip.min.css">
 <link rel="shortcut icon" href="/img/favicon.png">
+
 <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/jquery.sortable.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.9.1.custom/js/jquery-ui-1.9.1.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
+<script type="text/javascript" src="/js/jquery.qtip/jquery.qtip.min.js"></script>
+
 <script type="text/javascript" src="/js/ebay.js"></script>
 <script type="text/javascript">
 
@@ -58,11 +66,15 @@
 	    <button class="copy btnleft disabled" disabled="disabled"><s:text name="Copy"/></button>
 	    <button class="delete btnright disabled" disabled="disabled"><s:text name="Delete"/></button>
 	    
-	    <button class="add btnleft disabled" disabled="disabled"><s:text name="Add"/></button>
-	    <button class="relist btncenter disabled" disabled="disabled"><s:text name="Relist"/></button>
-	    <button class="revise btncenter disabled" disabled="disabled"><s:text name="Revise"/></button>
+	    <button class="add btnleft disabled" disabled="disabled"
+              title="List checked items to eBay."><s:text name="Add"/></button>
+	    <button class="relist btncenter disabled" disabled="disabled"
+              title="Relist checked items to eBay."><s:text name="Relist"/></button>
+	    <button class="revise btncenter disabled" disabled="disabled"
+              title="Revise checked items of eBay."><s:text name="Revise"/></button>
 	    <button class="verifyadditem btncenter disabled" disabled="disabled"><s:text name="Verify"/></button>
-	    <button class="end btnright disabled" disabled="disabled"><s:text name="End"/></button>
+	    <button class="end btnright disabled" disabled="disabled"
+              title="End checked items on eBay."><s:text name="End"/></button>
 	    
 	    <input id="filtertitle" type="text" class="filter" name="Title" value="" size="20">
 	    <button class="btnright"><s:text name="Search"/></button>
@@ -121,6 +133,7 @@
     
     <a href="#" id="calletsy">Etsy</a><br/>
     <a href="#" id="toggledebug">DEBUG</a><br/>
+    
     <div id="log"></div>
     
     <input type="hidden" class="filter" name="offset"   value="0"/>
@@ -206,12 +219,14 @@
 			        </select>
 		        </td>
 		      </tr>
-		      <tr>
-		        <th>Cancel account</th>
-		        <td>
-			        <a id="cancelaccountlink" href="/page/cancelaccount">Cancel account</a>
-		        </td>
-		      </tr>
+					<tr style="border-bottom:1px solid #aaa;">
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
 		      <tr>
 		        <th>eBay accounts</th>
 		        <td>
@@ -223,6 +238,45 @@
 			        </button>
 		        </td>
 		      </tr>
+					<tr style="border-bottom:1px solid #aaa;">
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+		      <tr>
+		        <th>Import items from CSV</th>
+		        <td>
+							<form method="post" action="/file/csvupload" id="csvform"
+										target="posttarget" enctype="multipart/form-data">
+
+								You can import items from<br/>
+                Turbo Lister &quot;File Exchange Format(CSV file)&quot;<br/>
+								<img src="/img/turbolistercsvexport.png" />
+								<br/>
+                <br/>
+								Import to
+								<select name="userid"></select>
+								<br/>
+								CSV file<input type="file" id="csvfile" name="fileUpload" />
+								
+								<button>
+									<s:text name="Import"/>
+								</button>
+							</form>
+							<div id="csvimportmessage"></div>
+		        </td>
+		      </tr>
+					<tr style="border-bottom:1px solid #aaa;">
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
 		      <tr>
 		        <th>Etsy accounts</th>
 		        <td>
@@ -238,6 +292,20 @@
 			          <s:text name="Send"/>
 			        </button>
               
+		        </td>
+		      </tr>
+					<tr style="border-bottom:1px solid #aaa;">
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+					<tr>
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
+		      <tr>
+		        <th>Cancel account</th>
+		        <td>
+			        <a id="cancelaccountlink" href="/page/cancelaccount">Cancel account</a>
 		        </td>
 		      </tr>
 	      </tbody>
@@ -423,7 +491,7 @@
 				      
 				      <input type="checkbox" value="true"
 					           name="setting.autorelist.addbestoffer"
-					            id="_id.setting.autorelist.addbestoffer"/>
+					            id="_id.setting.autorelist.addbestoffer" />
 				      <label for="_id.setting.autorelist.addbestoffer">
 				        Enable best offer option when auto relist.
 				      </label>
@@ -432,7 +500,7 @@
 			    <tr>
 			      <th><s:text name="Schedule"/></th>
 			      <td>
-              <input type="datetime-local" name="setting.schedule"/>
+              <input type="text" name="setting.schedule_local" />
             </td>
 			    </tr>
 		    </tbody>
@@ -1016,23 +1084,29 @@
 					<td class="shippingservices">
 						
 						<div class="ShippingService0">
+							
 							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServicePriority"
 										 type="text" size="1"/>
+							
 							<select name="mod.<s:text name="_SDSSO"/>.0.ShippingService"
 											class="ShippingService"></select>
 							
 							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.@currencyID"
 										 type="text" size="3" class="aslabel"/>
+							
 							<input name="mod.<s:text name="_SDSSO"/>.0.ShippingServiceCost.#text"
 										 type="text" size="5" placeholder="Cost"/>
 							
 							<input value="true" type="checkbox"
 										 name="mod.<s:text name="_SDSSO"/>.0.FreeShipping"
-									     id="_id.<s:text name="_SDSSO"/>.0.FreeShipping"/>
+									   id="_id.<s:text name="_SDSSO"/>.0.FreeShipping"/>
+							
 							<label  for="_id.<s:text name="_SDSSO"/>.0.FreeShipping">
 								Free shipping
 							</label>
+							
 							<a href="#" class="removesso">Remove service</a>
+							
 						</div>
 						
 						<a href="#" class="addsso">Offer additional service</a>
@@ -1081,24 +1155,29 @@
 					<th><s:text name="Services"/></th>
 					<td class="internationalshippingservices">
 						
-						<div class="ShippingService0">
-							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
-										 type="text" size="1">
-							<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
-											class="ShippingService"></select>
-							
-							<s:text name="Cost"/>
-							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
-										 type="text" size="3" class="aslabel">
-							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
-										 type="text" size="5">
-							
-							<a href="#" class="removesso">Remove service</a>
-							<br />
-							
-							<s:text name="ShipTo"/>
-							<div class="ShipToLocation"></div>
-							
+						<div class="ShippingService0 clearfix">
+							<div style="float:left;">
+								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
+											 type="text" size="1">
+							</div>
+							<div style="float:left;">
+								<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
+												class="ShippingService"></select>
+								
+								<s:text name="Cost"/>
+								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
+											 type="text" size="3" class="aslabel">
+								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
+											 type="text" size="5">
+								
+								<a href="#" class="removesso">Remove service</a>
+								<br />
+								
+								<div style="float:left;">
+									<s:text name="ShipTo"/>
+								</div>
+								<div class="ShipToLocation"></div>
+							</div>
 						</div>
 						
 						<a href="#" class="addsso">Offer additional service</a>

@@ -395,6 +395,10 @@ function bindevents()
 	/* Picture */
   $('input:file').live('change', function() {
 		
+    if ($(this).attr('id') == 'csvfile') {
+      return;
+    }
+    
 		var id = $(this).closest('tbody.itemrow').attr('id');
     var userid = $('select[name=UserID]', '#'+id).val();
     var divclass = $(this).closest('div').attr('class');
@@ -509,9 +513,9 @@ function bindevents()
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var tdclass = $(this).closest('td').attr('class');
 		
-		var pdiv = $(this).parent().parent();
+		var pdiv = $(this).closest('div[class^=ShippingService]').parent();
 		
-		$(this).parent().remove();
+		$(this).closest('div[class^=ShippingService]').remove();
 		
 		renumbersso(id, tdclass);
 		
@@ -648,7 +652,8 @@ function bindevents()
 				     $('select[name=TimeZone]', '#settings').val(data.json.settings.timezone);
              
 				     $('table#setting_ebay_accounts').empty();
-				   
+						 $('#csvform select[name=userid]').empty();
+						 
 				     if (data.json.settings.userids2) {
 					     $.each(data.json.settings.userids2, function(i, o) {
                  
@@ -670,9 +675,9 @@ function bindevents()
 						     
 						     $('table#setting_ebay_accounts').append(trtag);
                  
-								 //var optiontag = $('<option/>').val(o.username).text(o.username);
+								 var optiontag = $('<option/>').val(o.username).text(o.username);
                  
-								 //$('#csvform select[name=userid]').append(optiontag);
+								 $('#csvform select[name=userid]').append(optiontag);
 					     });
 				     }
 				     
@@ -922,6 +927,28 @@ function bindevents()
            'json');
     
     return false;
+  });
+  
+	$('#csvform').submit(function() {
+		if ($('#csvfile').val() == '') {
+		$('#csvimportmessage').html('Please select CSV file.');
+			return false;
+		}
+		
+		$('#csvimportmessage').html('Importing items from CSV file...');
+		
+		return true;
+	});
+	
+  //$('#checkduplicateitems').qtip({
+  $('#bulkbuttons button[title]').qtip({
+    position: {
+      my: 'top center',
+      at: 'bottom center'
+    },
+    style: {
+      classes: 'ui-tooltip-dark'
+    }
   });
   
 	/*
@@ -1327,15 +1354,25 @@ function getrow(idx, row)
 		}
 	}
 	
+  /*
   if (row.scheduled) {
 	  if (row.scheduled) {
 		  $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
     }
 	}
-
+  */
+  
   if (row.setting) {
+
+    /* Schedule */
+    if (row.setting.schedule_local) {
+	    var label = $('<div/>')
+        .addClass('normallabel')
+				.html('Schedule ' + row.setting.schedule_local);
+			$('td.Title', dom).append(label);
+    }
     
-    // Auto Relist Label
+    /* Auto Relist Label */
     if (row.setting.autorelist) {
       if (row.setting.autorelist.enabled == 'on') {
 		    if (row.setting.autorelist.addbestoffer) {
@@ -1423,6 +1460,7 @@ function setformelements(item)
 		}
 	}
 	
+	$('select[name="mod.ConditionID"]', '#'+id).empty();
 	var category;
 	if (item.mod.PrimaryCategory) {
 		var category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
@@ -1430,11 +1468,15 @@ function setformelements(item)
 		/* Condition */
 		if (category.CategoryFeatures) {
 			if (category.CategoryFeatures.ConditionEnabled == 'Disabled') {
+				
 				var optiontag = $('<option/>').val('').html('(disabled)');
-				$('select[name="mod.ConditionID"]', '#'+id).empty();
 				$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+				
 			} else {
-				$('select[name="mod.ConditionID"]', '#'+id).html($('<option/>'));
+				
+				var optiontag = $('<option/>').val('').html('(not selected)');
+				$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+				
 				var conditions = category.CategoryFeatures.ConditionValues.Condition;
 				for (i in conditions) {
 					var value = conditions[i].ID;
@@ -1442,11 +1484,22 @@ function setformelements(item)
 					var optiontag = $('<option/>').val(value).html(label);
 					$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
 				}
+				
 			}
+		} else {
+			
+			var optiontag = $('<option/>').val('').html('(Please select category)');
+			$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
+			
 		}
-
+		
 		/* BestOffer */
 		//log('BestOffer:'+category.CategoryFeatures.BestOfferEnabled);
+		
+	} else {
+		
+		var optiontag = $('<option/>').val('').html('(Please select category)');
+		$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
 		
 	}
 
@@ -1897,7 +1950,7 @@ function setformelements_shipping_international(item)
 		
 		$.each(item.mod.ShippingDetails.InternationalShippingServiceOption, function(k, v) {
 			if (v.ShippingServicePriority == 1) return;
-			addsso(id, 'internationalshippingserviceoptions');
+			addsso(id, 'internationalshippingservices');
 		});
 	}
   
@@ -2530,6 +2583,12 @@ function log(str)
 	$('#log').append(str+'<br/>');
 }
 
+function csvuploadedmessage()
+{
+	$('#csvimportmessage').html('Imported. Please check "Saved" items on the left navigation');
+}
+
+
 function updateduration(id)
 {
 	var site = $('select[name="mod.Site"]', '#'+id).val();
@@ -2730,8 +2789,7 @@ function showformvalues(item)
       
     });
   }
-  
-	
+
 	/* hide links */
 	$('a.addis',      detail).remove();
 	$('a.removeispc', detail).remove();
@@ -2894,6 +2952,8 @@ function fillformvalues(item)
 			items: ':not(.template)'
 		});
   }
+	
+  $('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
 	
 	return;
 }

@@ -462,9 +462,11 @@ public class JsonAction extends BaseAction {
 					Date scheduletime = sdf.parse(schedule);
           
 					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
-          sdf.applyPattern("MMM d HH:mm");
+          sdf.applyPattern("yyyy-MM-dd HH:mm");
           
-					item.put("scheduled", sdf.format(scheduletime));
+					item.put("setting.schedule", sdf.format(scheduletime));
+          
+          log.debug(schedule + " " + sdf.format(scheduletime));
         }
       }
       
@@ -474,15 +476,14 @@ public class JsonAction extends BaseAction {
                 
 				/* endtime */
 				if (((DBObject) org.get("ListingDetails")).containsField("EndTime")) {
-					
+          
 					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
-                    
+          sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+          
 					formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-					
+          
 					formatter.applyPattern("yyyy-MM-dd");
-					String endtime =
-						((DBObject) org.get("ListingDetails")).get("EndTime").toString();
+					String endtime = ((DBObject) org.get("ListingDetails")).get("EndTime").toString();
 					Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
 					
 					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
@@ -612,7 +613,10 @@ public class JsonAction extends BaseAction {
 				log.debug("themeid["+themeid+"] groupid["+groupid+"]");
 			}
 		}
-
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setLenient(false);
+    
     /* adjust timezone of membermessages */
     if (item.containsField("membermessages")) {
       BasicDBObject membermessages = (BasicDBObject) item.get("membermessages");
@@ -622,8 +626,6 @@ public class JsonAction extends BaseAction {
         
         String creationdate = membermessage.getString("CreationDate");
         
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        sdf.setLenient(false);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         
         Date creationdate_l = sdf.parse(creationdate.replace("T", " ").replace(".000Z", ""));
@@ -631,6 +633,26 @@ public class JsonAction extends BaseAction {
         sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
         
         membermessage.put("creationdate_l", sdf.format(creationdate_l));
+      }
+    }
+    
+    /* scheduled time */
+    if (item.containsField("setting")) {
+      BasicDBObject setting = (BasicDBObject) item.get("setting");
+      
+      if (setting.containsField("schedule")) {
+        
+        String schedule = setting.getString("schedule");
+        
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+        
+        Date schedule_local = sdf.parse(schedule);
+        
+        sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+        sdf.applyPattern("yyyy-MM-dd HH:mm");
+        
+        setting.put("schedule_local", sdf.format(schedule_local));
       }
     }
     
@@ -671,17 +693,18 @@ public class JsonAction extends BaseAction {
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
         
 		/* schedule */
-		if (setting.containsField("schedule")) {
-			String schedule = setting.getString("schedule").replace("T", " ");
-			if (schedule.length() == 16) {
-				schedule += ":00";
-			}
+		if (setting.containsField("schedule_local")) {
+			String schedule = setting.getString("schedule_local");
       
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+      
 			sdf.setLenient(false);
 			sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+      
 			Date scheduledate = sdf.parse(schedule);
+      
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+      sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
       
 			setting.put("schedule", sdf.format(scheduledate));
 		}
@@ -996,8 +1019,8 @@ public class JsonAction extends BaseAction {
 		String start = formatter.format(cal.getTime());
 		
 		/* GetSellerList */
-        String[] args = {"GetSellerList", email, userid, "Start", start, end};
-        writesocket_async(args);
+    String[] args = {"GetSellerList", email, userid, "Start", start, end};
+    writesocket_async(args);
         
 		cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 0);
@@ -1006,10 +1029,10 @@ public class JsonAction extends BaseAction {
 		start = formatter.format(cal.getTime());
 		
 		/* GetMemberMessages */
-        args = new String[]{"GetMemberMessages", email, userid,
-							start+"T00:00:00.000Z",
-							end+"T00:00:00.000Z"};
-        writesocket_async(args); // not wait
+    args = new String[]{"GetMemberMessages", email, userid,
+                        start+"T00:00:00.000Z",
+                        end+"T00:00:00.000Z"};
+    writesocket_async(args); // not wait
 		
 		return SUCCESS;
 	}
