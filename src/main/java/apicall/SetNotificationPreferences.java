@@ -13,27 +13,27 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	
 	public SetNotificationPreferences() throws Exception {
 	}
-	
+  
 	public SetNotificationPreferences(String[] args) throws Exception {
 		email  = args[0];
 		userid = args[1];
 	}
-	
+  
 	public String call() throws Exception {
-		
+    
     String token = gettoken(email, userid);
 		
 		/* SetNotificationPreferences */
 		ArrayList<BasicDBObject> ane = new ArrayList<BasicDBObject>();
 		
 		String[] events = {"ItemListed",
-						   "EndOfAuction",
-						   "ItemClosed",
-						   "ItemExtended",
-						   "ItemRevised",
-						   "ItemSold",
-						   "ItemUnsold",
-						   "AskSellerQuestion"};
+                       "EndOfAuction",
+                       "ItemClosed",
+                       "ItemExtended",
+                       "ItemRevised",
+                       "ItemSold",
+                       "ItemUnsold",
+                       "AskSellerQuestion"};
 		for (String event : events) {
 			BasicDBObject ne = new BasicDBObject();
 			ne.put("EventType", event);
@@ -72,11 +72,11 @@ public class SetNotificationPreferences extends ApiCall implements Callable {
 	public String callback(String responsexml) throws Exception {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-        
+    
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
 		userid = messages[1];
-        
+    
 		writelog("SetNotificationPreferences/"+userid+".xml", responsexml);
 		
 		return "";

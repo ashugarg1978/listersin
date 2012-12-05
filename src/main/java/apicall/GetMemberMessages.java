@@ -36,25 +36,13 @@ public class GetMemberMessages extends ApiCall implements Callable {
 	}
 	
 	public String call() throws Exception {
-        
-		/* get token from db */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
-		
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
-		
-        BasicDBObject reqdbo = new BasicDBObject();
-        reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-        reqdbo.put("WarningLevel", "High");
-        reqdbo.put("DetailLevel", "ReturnAll");
+    
+		String token = gettoken(email, userid);
+    
+    BasicDBObject reqdbo = new BasicDBObject();
+    reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+    reqdbo.put("WarningLevel", "High");
+    reqdbo.put("DetailLevel", "ReturnAll");
 		reqdbo.put("MailMessageType", "All");
 		reqdbo.put("MessageID", email+" "+userid+" "+itemid);
 		if (itemid != null) {
@@ -64,14 +52,14 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			reqdbo.put("EndCreationTime", end);
 		}
 		
-        String requestxml = convertDBObject2XML(reqdbo, "GetMemberMessages");
+    String requestxml = convertDBObject2XML(reqdbo, "GetMemberMessages");
 		
-        Future<String> future =
-            pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetMemberMessages"));
+    Future<String> future =
+      pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetMemberMessages"));
 		future.get();
-        
-        // todo: next page (pagination)
-        
+    
+    // todo: next page (pagination)
+    
 		return "";
 	}
 	
@@ -98,14 +86,14 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			return "0 MemberMessages";
 		}
 		
-        BasicDBObject mm = (BasicDBObject) resdbo.get("MemberMessage");
-        String messageclass = mm.get("MemberMessageExchange").getClass().toString();
-        BasicDBList membermessages = new BasicDBList();
-        if (messageclass.equals("class com.mongodb.BasicDBObject")) {
-            membermessages.add((BasicDBObject) mm.get("MemberMessageExchange"));
-        } else if (messageclass.equals("class com.mongodb.BasicDBList")) {
-            membermessages = (BasicDBList) mm.get("MemberMessageExchange");
-        }
+    BasicDBObject mm = (BasicDBObject) resdbo.get("MemberMessage");
+    String messageclass = mm.get("MemberMessageExchange").getClass().toString();
+    BasicDBList membermessages = new BasicDBList();
+    if (messageclass.equals("class com.mongodb.BasicDBObject")) {
+      membermessages.add((BasicDBObject) mm.get("MemberMessageExchange"));
+    } else if (messageclass.equals("class com.mongodb.BasicDBList")) {
+      membermessages = (BasicDBList) mm.get("MemberMessageExchange");
+    }
 		for (Object tmpmsg : membermessages) {
 			BasicDBObject mme = (BasicDBObject) tmpmsg;
 			
@@ -123,7 +111,7 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			
 			/* get collection name for the users */
 			BasicDBObject userquery = new BasicDBObject();
-			userquery.put("userids."+userid, new BasicDBObject("$exists", true));
+			userquery.put("userids2.username", userid);
 			BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
 			
 			/* GetItem */
@@ -134,9 +122,9 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
 			
 			itemcoll.update(new BasicDBObject("org.ItemID", itemid),
-							new BasicDBObject("$set", new BasicDBObject
-											  ("membermessages."+messageid, mme)),
-							false, false);
+                      new BasicDBObject("$set", new BasicDBObject
+                                        ("membermessages."+messageid, mme)),
+                      false, false);
 		}
 		
 		return "";

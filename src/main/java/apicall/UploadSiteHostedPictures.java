@@ -7,7 +7,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 
 public class UploadSiteHostedPictures extends ApiCall implements Callable {
-	
+  
 	private String email;
 	private String userid;
   private String exturl;
@@ -22,12 +22,11 @@ public class UploadSiteHostedPictures extends ApiCall implements Callable {
 	}
   
 	public String call() throws Exception {
-		
-		HashMap<String,String> tokenmap = getUserIdToken(email);
+    
+    String token = gettoken(email, userid);
     
 		BasicDBObject reqdbo = new BasicDBObject();
-		reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken",
-                                                         tokenmap.get(userid)));
+		reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
     reqdbo.put("ExternalPictureURL", exturl);
     
 		String requestxml = convertDBObject2XML(reqdbo, "UploadSiteHostedPictures");
@@ -42,9 +41,9 @@ public class UploadSiteHostedPictures extends ApiCall implements Callable {
 	}
 	
 	public String callback(String responsexml) throws Exception {
-		
+    
 		writelog("UploadSiteHostedPictures/res.xml", responsexml);
-		
+    
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
     
     BasicDBObject shpd = (BasicDBObject) resdbo.get("SiteHostedPictureDetails");

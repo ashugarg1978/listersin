@@ -40,7 +40,7 @@ public class EndItems extends ApiCall {
 		String userid;
 		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
-		
+    
 		BasicDBObject userdbo =
 			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
 		
@@ -66,7 +66,7 @@ public class EndItems extends ApiCall {
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
 			DBObject org = (DBObject) item.get("org");
-			
+      
 			userid = ((DBObject) org.get("Seller")).get("UserID").toString();
 			site   = mod.get("Site").toString();
 			
@@ -107,7 +107,7 @@ public class EndItems extends ApiCall {
 					BasicDBObject requestdbo = new BasicDBObject();
 					requestdbo.append("WarningLevel", "High");
 					requestdbo.append("RequesterCredentials",
-									  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
+                            new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
 					
 					int messageid = 0;
 					Integer tmpcnt = 0;
@@ -115,11 +115,11 @@ public class EndItems extends ApiCall {
 					for (Object tmpidx : litems) {
 						String id     = ((BasicDBObject) tmpidx).get("_id").toString();
 						String itemid = ((BasicDBObject) ((BasicDBObject) tmpidx)
-										 .get("org")).getString("ItemID");
+                             .get("org")).getString("ItemID");
 						
 						ldbo.add(new BasicDBObject("MessageID", userdbo.getString("_id")+" "+id)
-								 .append("ItemID", itemid)
-								 .append("EndingReason", "NotAvailable"));
+                     .append("ItemID", itemid)
+                     .append("EndingReason", "NotAvailable"));
 						tmpcnt++;
 					}
 					
@@ -135,13 +135,13 @@ public class EndItems extends ApiCall {
 					String requestxml = xmls.write(jso);
 					
 					writelog("EndItems/"
-							 +((String) tmpuserid)
-							 +"."+((String) tmpsite)
-							 +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
-							 +".xml", requestxml);
+                   +((String) tmpuserid)
+                   +"."+((String) tmpsite)
+                   +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
+                   +".xml", requestxml);
 					
 					updatemessage(email, "Ending "+(currentnum+1)+"-"+(currentnum+tmpcnt)
-								  + " of "+count+" items on eBay...");
+                        + " of "+count+" items on eBay...");
 					currentnum += tmpcnt;
 					
 					Future<String> future = pool18.submit

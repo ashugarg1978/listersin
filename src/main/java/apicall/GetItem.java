@@ -76,12 +76,12 @@ public class GetItem extends ApiCall implements Callable {
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();
 		userquery.put("email", email);
-		userquery.put("userids."+userid, new BasicDBObject("$exists", true));
+		userquery.put("userids2.username", userid);
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
 		
     //email = userdbo.getString("email");
 		String token = gettoken(email, userid);
-        
+    
 		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
 		
 		/* delete ItemSpecifics added from Product */

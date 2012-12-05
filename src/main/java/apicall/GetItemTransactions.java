@@ -41,55 +41,55 @@ public class GetItemTransactions extends ApiCall implements Callable {
 		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
 		String token = tokendbo.getString("eBayAuthToken");
 		
-        BasicDBObject reqdbo = new BasicDBObject();
-        reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-        reqdbo.put("WarningLevel", "High");
-        reqdbo.put("DetailLevel", "ReturnAll");
-        reqdbo.put("ItemID", itemid);
+    BasicDBObject reqdbo = new BasicDBObject();
+    reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+    reqdbo.put("WarningLevel", "High");
+    reqdbo.put("DetailLevel", "ReturnAll");
+    reqdbo.put("ItemID", itemid);
 		reqdbo.put("MessageID", email+" "+userid+" "+itemid);
-        
-        String requestxml = convertDBObject2XML(reqdbo, "GetItemTransactions");
+    
+    String requestxml = convertDBObject2XML(reqdbo, "GetItemTransactions");
 		
-        pool18.submit(new ApiCallTask(0, requestxml, "GetItemTransactions"));
-        
-        // todo: next page (pagination)
-        
+    pool18.submit(new ApiCallTask(0, requestxml, "GetItemTransactions"));
+    
+    // todo: next page (pagination)
+    
 		return "";
 	}
 	
 	public String callback(String responsexml) throws Exception {
-		
+    
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-        
-        BasicDBObject item   = (BasicDBObject) resdbo.get("Item");
-        BasicDBObject seller = (BasicDBObject) item.get("Seller");
-        
-        userid = seller.getString("UserID");
-        itemid = item.getString("ItemID");
-        
+    
+    BasicDBObject item   = (BasicDBObject) resdbo.get("Item");
+    BasicDBObject seller = (BasicDBObject) item.get("Seller");
+    
+    userid = seller.getString("UserID");
+    itemid = item.getString("ItemID");
+    
 		/* get collection name for the users */
 		BasicDBObject userquery = new BasicDBObject();
 		userquery.put("userids."+userid, new BasicDBObject("$exists", true));
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-        
+    
 		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
-        
+    
 		writelog("GetItemTransactions/"+email+"."+userid+"."+itemid+".xml", responsexml);
-        BasicDBObject ta = (BasicDBObject) resdbo.get("TransactionArray");
-        
-        String transclass = ta.get("Transaction").getClass().toString();
-        BasicDBList trans = new BasicDBList();
-        if (transclass.equals("class com.mongodb.BasicDBObject")) {
-            trans.add((BasicDBObject) ta.get("Transaction"));
-        } else if (transclass.equals("class com.mongodb.BasicDBList")) {
-            trans = (BasicDBList) ta.get("Transaction");
-        }
-        
+    BasicDBObject ta = (BasicDBObject) resdbo.get("TransactionArray");
+    
+    String transclass = ta.get("Transaction").getClass().toString();
+    BasicDBList trans = new BasicDBList();
+    if (transclass.equals("class com.mongodb.BasicDBObject")) {
+      trans.add((BasicDBObject) ta.get("Transaction"));
+    } else if (transclass.equals("class com.mongodb.BasicDBList")) {
+      trans = (BasicDBList) ta.get("Transaction");
+    }
+    
 		itemcoll.update(new BasicDBObject("org.ItemID", itemid),
-                        new BasicDBObject("$set", new BasicDBObject("transactions", trans)),
-                        false, false);
-        
+                    new BasicDBObject("$set", new BasicDBObject("transactions", trans)),
+                    false, false);
+    
 		return "";
 	}
-    
+  
 }
