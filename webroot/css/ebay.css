@@ -815,6 +815,10 @@ div.InternationalShippingService0 a.removesso {
   display: none;
 }
 
+div.ShipToLocation {
+  max-width: 500px;
+	float: left;
+}
 div.ShipToLocation div {
   float: left;
 }
