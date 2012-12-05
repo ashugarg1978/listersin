@@ -14,22 +14,23 @@ public class AddScheduledItems extends ApiCall implements Callable {
   
   private String from;
   private String to;
-    
+  
 	public AddScheduledItems() throws Exception {
   }
-    
+  
 	public AddScheduledItems(String[] args) throws Exception {
-    this.from = args[0].replace("T", " ");
-    this.to   = args[1].replace("T", " ");
+    this.from = args[0];
+    this.to   = args[1];
 	}
-    
+  
 	public String call() throws Exception {
-        
+    
     // todo: check running thread.
     
     DBCollection users = db.getCollection("users");
     DBCursor cursor = users.find().snapshot();
 		while (cursor.hasNext()) {
+      
       BasicDBObject user = (BasicDBObject) cursor.next();
       DBCollection items = db.getCollection("items."+user.getString("_id"));
       
