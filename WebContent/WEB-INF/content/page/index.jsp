@@ -244,18 +244,6 @@
 		
 	  </div>
 		
-		<ul>
-			<li>
-				<a href="http://www.momsdirectory.net/">Moms Web Directory</a>
-			</li>
-			<li>
-				<a href="http://www.picktu.com/">Picktu Directory</a>
-			</li>
-			<li>
-				<a href="http://www.livepopular.com/">Popular Web Directory</a>
-			</li>
-		</ul>
-	  
 	</div>	  
 	
 	<div style="clear:both;"></div>
