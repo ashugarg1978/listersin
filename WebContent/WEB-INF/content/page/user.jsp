@@ -500,7 +500,8 @@
 			    <tr>
 			      <th><s:text name="Schedule"/></th>
 			      <td>
-              <input type="text" name="setting.schedule_local" />
+              <input type="text" name="setting.schedule_local"
+										 placeholder="Click here to use calendar"/>
             </td>
 			    </tr>
 		    </tbody>
