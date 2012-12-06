@@ -98,8 +98,8 @@ public class ApiCall implements Callable {
 			(new BasicDBObject("email", email),
 			 new BasicDBObject("$set", new BasicDBObject("message", message)));
 		
-		log(email+" "+message);
-		
+		//log(email+" "+message);
+    
 		return;
 	}
 	
