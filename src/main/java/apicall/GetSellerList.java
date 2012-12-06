@@ -71,7 +71,7 @@ public class GetSellerList extends ApiCall {
 	}
 	
 	public String callback(String responsexml) throws Exception {
-		
+    
 		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
 		
 		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
@@ -97,12 +97,12 @@ public class GetSellerList extends ApiCall {
 		}
 		
 		log(userid+": "
-			+pagenumber+"/"
-			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
-			+" pages, "
-			+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)+"/"
-			+((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
-			+" items");
+        +pagenumber+"/"
+        +((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
+        +" pages, "
+        +((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)+"/"
+        +((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
+        +" items");
 		
 		String message = "Importing "+userid+"'s items from eBay."
 			+ " "+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)
