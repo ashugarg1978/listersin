@@ -98,13 +98,14 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			BasicDBObject mme = (BasicDBObject) tmpmsg;
 			
 			BasicDBObject item = (BasicDBObject) mme.get("Item");
-			BasicDBObject seller = (BasicDBObject) item.get("Seller");
 			BasicDBObject question = (BasicDBObject) mme.get("Question");
 
 			if (!question.getString("MessageType").equals("AskSellerQuestion")) {
 				continue;
 			}
 			
+			BasicDBObject seller = (BasicDBObject) item.get("Seller");
+      
 			String itemid = item.getString("ItemID");
 			String userid = seller.getString("UserID");
 			String messageid = question.getString("MessageID");
