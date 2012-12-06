@@ -784,6 +784,8 @@ function bindevents()
 			 $('input[name="mod.Quantity"]',         '#'+id).val('1');
 			 $('select[name="mod.Country"]',         '#'+id).val('US');
 			 
+			 $('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
+			 
 			 return;
 		 });
 		
@@ -939,6 +941,15 @@ function bindevents()
 		
 		return true;
 	});
+
+	$('select[name^="mod.ItemSpecifics.NameValueList"][name$="Value.selector"]')
+		.live('change', function() {
+
+			var id   = $(this).closest('tbody.itemrow').attr('id');
+			var name = $(this).attr('name').replace('.selector', '');
+			
+			$('input[name="'+name+'"]', '#'+id).val($(this).val());
+		});
 	
   //$('#checkduplicateitems').qtip({
   $('#bulkbuttons button[title]').qtip({
@@ -959,7 +970,7 @@ function bindevents()
 		$(this).html('');
 	  });
 	*/
-}	
+} // end of bindevents
 
 function togglebulkbuttons() {
 	var checkeditems = $('tr.row1 input:checked[name=id][value!=on]');
@@ -3054,7 +3065,7 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 			var selecttag = $('<select/>')
 				.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value.selector')
 				.addClass('remove')
-				.append($('<option/>').html('(select from list)'));
+				.append($('<option/>').val('').html('(select from list)'));
 			
 			var arrvr = arrayize(recomm.ValueRecommendation);
 			for (j in arrvr) {
