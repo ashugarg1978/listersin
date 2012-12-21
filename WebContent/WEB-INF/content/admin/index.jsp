@@ -37,7 +37,10 @@
           <td>
             <ul>
 	            <s:iterator var="userid" value="#user.userids2">
-                <li><s:property value="username"/></li>
+                <li>
+                  <s:property value="username"/>
+                  (<s:property value="TokenStatus.Status"/>)
+                </li>
 	            </s:iterator>
             </ul>
           </td>
