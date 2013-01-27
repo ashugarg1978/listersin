@@ -141,7 +141,22 @@ public class ApiCallTask implements Callable {
       System.out.println("ApiCallTask network error.");
       return "";
     }
-		
+    
+    /* Get response headers */
+    /*
+    Map responseMap = conn.getHeaderFields();
+    for (Iterator iterator = responseMap.keySet().iterator(); iterator.hasNext();) {
+      String key = (String) iterator.next();
+      System.out.println(key + " = ");
+      
+      List values = (List) responseMap.get(key);
+      for (int i = 0; i < values.size(); i++) {
+        Object o = values.get(i);
+        System.out.println(o + ", ");
+      }
+    }
+    */
+    
 		String savedir = basedir+"/logs/apicall/"+callname;
 		String filename = "_tmp."+siteid.toString()+".xml";
 		FileWriter fstream = new FileWriter(savedir+"/"+filename);

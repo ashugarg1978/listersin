@@ -25,7 +25,7 @@
 <script type="text/javascript" src="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="/js/jquery.qtip/jquery.qtip.min.js"></script>
 
-<script type="text/javascript" src="/js/ebay.js"></script>
+<script type="text/javascript" src="/js/ebay.js?1"></script>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];

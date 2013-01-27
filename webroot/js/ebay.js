@@ -257,6 +257,10 @@ function bindevents()
     
     if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
       if (checkdemoaccount()) return;
+			
+			if (!confirm($(this).html() + ' checked items?')) {
+				return;
+			}
     }
     
     if (action == 'delete') {

@@ -19,13 +19,13 @@
 define('DB_NAME', 'listersin_wordpress');
 
 /** MySQL database username */
-define('DB_USER', 'root');
+define('DB_USER', 'listersin');
 
 /** MySQL database password */
-define('DB_PASSWORD', '');
+define('DB_PASSWORD', 'lzF2p4');
 
 /** MySQL hostname */
-define('DB_HOST', 'localhost');
+define('DB_HOST', '10.156.234.30');
 
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');

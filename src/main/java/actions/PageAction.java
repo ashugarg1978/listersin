@@ -327,7 +327,7 @@ public class PageAction extends BaseAction {
 			BasicDBObject mme  = (BasicDBObject) mm.get("MemberMessageExchange");
 			BasicDBObject item = (BasicDBObject) mme.get("Item");
 			itemid = item.getString("ItemID");
-			
+      
 			/* GetMemberMessage */
 			String[] args = {"GetMemberMessages", userdbo.getString("email"), userid, itemid};
 			String result = writesocket(args);
@@ -338,8 +338,8 @@ public class PageAction extends BaseAction {
 			itemid = item.getString("ItemID");
             
 			/* GetItem */
-            String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
-            String result = writesocket(args);
+      String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
+      String result = writesocket(args);
             
 		}
 		
