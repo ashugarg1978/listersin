@@ -207,6 +207,10 @@
 		    
 	    </div>
 
+			<div id="ebaylogo">
+				<img src="/img/developersprogrammember_vert.png" />
+			</div>
+			
 			<div style="margin:10px 20px;">
 				<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
 			</div>

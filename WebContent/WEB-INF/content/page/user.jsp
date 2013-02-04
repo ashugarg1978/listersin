@@ -246,6 +246,30 @@
 						<th></th>
 						<td>&nbsp;</td>
 					</tr>
+          <tr>
+		        <th>Sync items from eBay</th>
+            <td>
+              <div id="syncitemsform">
+							  eBay User ID <select name="userid"></select><br/>
+							  Items which
+                <select name="daterange">
+                  <option value="Start">start</option>
+                  <option value="End">end</option>
+                </select>
+                between
+                <input type="text" name="datestart" value="" />
+                and
+                <input type="text" name="dateend" value="" />
+                (Max: 120 days)
+                <br/>
+                <button id="syncbutton">Sync items from eBay</button>
+              </div>
+            </td>
+          </tr>
+					<tr style="border-bottom:1px solid #aaa;">
+						<th></th>
+						<td>&nbsp;</td>
+					</tr>
 		      <tr>
 		        <th>Import items from CSV</th>
 		        <td>

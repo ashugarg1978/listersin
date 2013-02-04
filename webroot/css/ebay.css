@@ -756,6 +756,7 @@ select {
   font-family: arial, sans-serif;
   color: #444;
   height: 29px;
+	margin: 2px;
 }
 
 button:hover,
@@ -1045,4 +1046,13 @@ div.question-block textarea {
 button.disabled {
   color: #aaa;
   background-color: #eee;
+}
+
+#ebaylogo img {
+  width: 150px;
+	margin: 0 0 10px 20px;
+}
+
+#syncitemsform input {
+  width: 80px;
 }

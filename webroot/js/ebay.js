@@ -554,22 +554,41 @@ function bindevents()
 		return false;
 	});
 	
-	/* Import */
-	$('button[class^=sync]', 'div#settings').live('click', function() {
+	/* Sync items from eBay */
+  $('#syncbutton').live('click', function() {
     
     if (checkdemoaccount()) return;
+		
+    var datestart = $('input[name=datestart]', '#syncitemsform').val();
+    var dateend   = $('input[name=dateend]',   '#syncitemsform').val();
+
+    var start_y = datestart.substr(0, 4);
+    var start_m = datestart.substr(5, 2);
+    var start_d = datestart.substr(8, 2);
     
-    var userid = $(this).attr('class').replace(/^sync-/, '');
-    // todo: importing message
+    var end_y = dateend.substr(0, 4);
+    var end_m = dateend.substr(5, 2);
+    var end_d = dateend.substr(8, 2);
+    
+    var d1 = new Date(start_y, start_m-1, start_d);
+    var d2 = new Date(end_y, end_m-1, end_d);
+    
+    var diffsec = d2.getTime() - d1.getTime();
+    var diffday = (diffsec / 86400 / 1000) + 1;
+    
+    if (diffday > 120) {
+      alert('Please input less than 120 days.');
+      return false;
+    }
+    
+    var postdata = $('select,input', '#syncitemsform').serialize();
     
 		$.post('/json/import',
-			     'userid='+userid,
+			     postdata,
 			     function(data) {
 				     
 			     });
-    
-    return;
-	});
+  });
   
 	/* RemoveAccount */
 	$('button[class^=removeaccount]', 'div#settings').live('click', function() {
@@ -665,23 +684,27 @@ function bindevents()
 						     
 						     $(trtag).append($('<td/>').html(o.username));
 						     
-						     $(trtag).append($('<button/>')
-                                 .attr('class', 'sync-' + o.username)
-                                 .html('Sync items from eBay'));
-						     
-						     $(trtag).append($('<button/>')
-                                 .attr('class', 'updatetoken-' + o.username)
-                                 .html('Update token'));
-						     
-						     $(trtag).append($('<button/>')
-                                 .attr('class', 'removeaccount-' + o.username)
-                                 .html('Delete from ListersIn'));
+								 /*
+						     $(trtag).append($('<td/>').html($('<button/>')
+                                                 .attr('class', 'updatetoken-' + o.username)
+                                                 .html('Update token')));
+						     */
+								 
+						     $(trtag).append($('<td/>').html($('<button/>')
+                                                 .attr('class', 'removeaccount-' + o.username)
+                                                 .html('Delete from ListersIn')));
+                 
+						     //$(trtag).append($('<td/>').html(o.Timestamp));
+                 
+						     //$(trtag).append($('<td/>').html(o.HardExpirationTime));
 						     
 						     $('table#setting_ebay_accounts').append(trtag);
                  
 								 var optiontag = $('<option/>').val(o.username).text(o.username);
-                 
 								 $('#csvform select[name=userid]').append(optiontag);
+
+								 var optiontag2 = $('<option/>').val(o.username).text(o.username);
+								 $('#syncitemsform select[name=userid]').append(optiontag2);
 					     });
 				     }
 				     
@@ -690,6 +713,9 @@ function bindevents()
 			     'json');
 		
 		showcontent('#settings');
+    
+		$('input[name=datestart],input[name=dateend]', '#settings')
+      .datepicker({dateFormat: 'yy-mm-dd'});
 	});
 	
 	$('a#showhelp').live('click', function() {

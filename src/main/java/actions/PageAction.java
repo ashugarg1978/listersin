@@ -261,9 +261,9 @@ public class PageAction extends BaseAction {
 		cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 0);
 		end   = formatter.format(cal.getTime());
-		cal.add(Calendar.DATE, -30);
+		cal.add(Calendar.DATE, -30); // what is max?
 		start = formatter.format(cal.getTime());
-		
+    
 		/* GetMemberMessages */
     args = new String[]{"GetMemberMessages", email, username,
                         start+"T00:00:00.000Z",
@@ -306,9 +306,16 @@ public class PageAction extends BaseAction {
 		String userid = dbobject.getString("RecipientUserID");
 		log.debug("notify: "+userid+" "+eventname);
 		
+		String savedir = basedir + "/logs/apicall/notification/" + basetimestamp.substring(0,10);
+		log.debug("savedir:"+savedir);
+		
+		/* make log directory for each call */
+		if (!(new File(savedir)).exists()) {
+			new File(savedir).mkdir();
+		}
+		
 		// save xml file
-		FileWriter fstream = new FileWriter
-			(basedir+"/logs/apicall/notification/"+userid+"."+eventname+"."+basetimestamp+".xml");
+		FileWriter fstream = new FileWriter(savedir+"/"+userid+"."+eventname+"."+basetimestamp+".xml");
 		BufferedWriter out = new BufferedWriter(fstream);
 		out.write(notifyxml);
 		out.close();

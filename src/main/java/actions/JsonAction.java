@@ -1008,30 +1008,37 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/import")
 	public String importitems() throws Exception {
 		
-		String userid  = ((String[]) parameters.get("userid"))[0];
-		String email   = user.get("email").toString();
-		
+		String email     = user.get("email").toString();
+		String userid    = ((String[]) parameters.get("userid"))[0];
+    String daterange = ((String[]) parameters.get("daterange"))[0];
+    String datestart = ((String[]) parameters.get("datestart"))[0];
+    String dateend   = ((String[]) parameters.get("dateend"))[0];
+    
+    /*
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 1);
 		String end   = formatter.format(cal.getTime());
 		cal.add(Calendar.DATE, -29); // max 119
 		String start = formatter.format(cal.getTime());
-		
+		*/
+    
 		/* GetSellerList */
-    String[] args = {"GetSellerList", email, userid, "Start", start, end};
+    String[] args = {"GetSellerList", email, userid, daterange, datestart, dateend};
     writesocket_async(args);
         
+    /*
 		cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, 0);
 		end   = formatter.format(cal.getTime());
 		cal.add(Calendar.DATE, -30);
 		start = formatter.format(cal.getTime());
-		
+		*/
+    
 		/* GetMemberMessages */
     args = new String[]{"GetMemberMessages", email, userid,
-                        start+"T00:00:00.000Z",
-                        end+"T00:00:00.000Z"};
+                        datestart+"T00:00:00.000Z",
+                        dateend+"T00:00:00.000Z"};
     writesocket_async(args); // not wait
 		
 		return SUCCESS;
