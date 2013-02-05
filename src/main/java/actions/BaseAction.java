@@ -165,6 +165,8 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 
 	public String writesocket(String[] args) throws Exception {
 		
+    log.debug("writesocket " + daemonport + " " + StringUtils.join(args, "|"));
+    
 		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -182,6 +184,8 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
     
 	public String writesocket_async(String[] args) throws Exception {
 		
+    log.debug("writesocket_async " + daemonport + " " + StringUtils.join(args, "|"));
+    
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		

@@ -363,6 +363,7 @@ public class JsonAction extends BaseAction {
 		field.put("UserID",                          1);
 		
 		field.put("mod.Title",                       1);
+		field.put("mod.ListingType",                 1);
 		field.put("mod.Site",                        1);
 		field.put("mod.StartPrice",                  1);
 		field.put("mod.PictureDetails.GalleryURL",   1);
@@ -375,7 +376,8 @@ public class JsonAction extends BaseAction {
 		field.put("org.SellingStatus.ListingStatus", 1);
 		field.put("org.SellingStatus.QuantitySold",  1);
 		field.put("org.TimeLeft",                    1);
-		
+		field.put("org.WatchCount",                  1);
+    
 		BasicDBObject sort = new BasicDBObject();
 		sort.put("org.ListingDetails.EndTime", 1);
 		
@@ -1069,6 +1071,10 @@ public class JsonAction extends BaseAction {
 		
 		WriteResult result = coll.update(query, update, false, true);
 		
+		String[] args = {"EndItems", session.get("email").toString(), "end_"+timestamp};
+		writesocket_async(args);
+    
+    /*
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 		out.println("EndItems\n"
@@ -1077,7 +1083,8 @@ public class JsonAction extends BaseAction {
                     + "\n");
 		out.close();
 		socket.close();
-		
+		*/
+    
 		return SUCCESS;
 	}
 	

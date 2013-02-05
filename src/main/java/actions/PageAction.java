@@ -306,10 +306,8 @@ public class PageAction extends BaseAction {
 		String userid = dbobject.getString("RecipientUserID");
 		log.debug("notify: "+userid+" "+eventname);
 		
-		String savedir = basedir + "/logs/apicall/notification/" + basetimestamp.substring(0,10);
-		log.debug("savedir:"+savedir);
-		
 		/* make log directory for each call */
+		String savedir = basedir + "/logs/apicall/notification/" + basetimestamp.substring(0,10);
 		if (!(new File(savedir)).exists()) {
 			new File(savedir).mkdir();
 		}
@@ -324,7 +322,7 @@ public class PageAction extends BaseAction {
 		//	(new BasicDBObject("userids."+userid, new BasicDBObject("$exists", true)));
     
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne
-			(new BasicDBObject("userids2", userid));
+			(new BasicDBObject("userids2.username", userid));
     
 		String itemid = "";
 		
@@ -343,13 +341,12 @@ public class PageAction extends BaseAction {
 			
 			BasicDBObject item = (BasicDBObject) dbobject.get("Item");
 			itemid = item.getString("ItemID");
-            
+      
 			/* GetItem */
       String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
       String result = writesocket(args);
-            
 		}
-		
+    
 		// todo: are ItemUnsold and ItemClosed same?
 		if (eventname.equals("ItemUnsold")) {
 			

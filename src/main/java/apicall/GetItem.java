@@ -71,7 +71,13 @@ public class GetItem extends ApiCall implements Callable {
 		itemid = org.getString("ItemID");
 		String timestamp = resdbo.getString("Timestamp").replaceAll("\\.", "_");
 		
-		writelog("GetItem/"+userid+"."+itemid+".xml", responsexml);
+		/* make log directory for each call */
+		String savedir = basedir + "/logs/apicall/GetItem/" + timestamp.substring(0,10);
+		if (!(new File(savedir)).exists()) {
+			new File(savedir).mkdir();
+		}
+    
+		writelog("GetItem/"+timestamp.substring(0,10)+"/"+userid+"."+itemid+".xml", responsexml);
 		
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();

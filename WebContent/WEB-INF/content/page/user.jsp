@@ -165,6 +165,7 @@
 		        <a href="#" class="ItemID" target="_blank"></a>
 		      </td>
 		      <td class="price"></td>
+		      <td class="WatchCount"></td>
 		      <td class="EndTime"></td>
 		      <td class="PictureURL">
 		        <div>
@@ -173,12 +174,12 @@
 		      </td>
 	      </tr>
 	      <tr class="row2">
-		      <td colspan="8"></td>
+		      <td colspan="9"></td>
 	      </tr>
 	    </tbody>
 	    <tbody id="rowloading">
 	      <tr>
-		      <td colspan="8" align="center">
+		      <td colspan="9" align="center">
 		        <s:text name="LoadingItemData"/>
 		      </td>
 	      </tr>

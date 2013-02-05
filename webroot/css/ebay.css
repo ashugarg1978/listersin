@@ -483,7 +483,8 @@ ul.accountaction {
   */
 }
 
-td.price {
+td.price,
+td.WatchCount {
   text-align: right;
 }
 

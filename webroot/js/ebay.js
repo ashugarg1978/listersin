@@ -1301,10 +1301,17 @@ function getrow(idx, row)
 		
 		$('td.EndTime', dom).html(row.endtime);
 		
+    //$('td.WatchCount', dom).html(row.org.WatchCount);
+	  
 	} else {
 		$('a.ItemID', dom).remove();
 	}
-	$('td.price', dom).html(row.price);
+  
+  if (row.mod.ListingType.match('Fixed')) {
+	  $('td.price', dom).html('Fixed ' + row.price);
+  } else {
+	  $('td.price', dom).html(row.price);
+  }
 	
 	/* status(loading icon) */
 	if (typeof(row.status) == 'string' && row.status != '') {
@@ -1331,7 +1338,7 @@ function getrow(idx, row)
 	} else {
 		$('img.PictureURL', dom).remove();
 	}
-	
+
 	/* Labels */
 	if (typeof(row.labels) == 'object') {
 		$.each(row.labels, function(k, v) {
@@ -1390,7 +1397,7 @@ function getrow(idx, row)
 		if (row.org.ListingDetails.HasUnansweredQuestions == 'true') {
 			var huqtag = $('<div/>')
         .addClass('questionlabel')
-				.html('Unanswered Question');
+				.html('Unanswered');
 			$('td.Title', dom).append(huqtag);
 		}
 	}
