@@ -1852,6 +1852,7 @@ public class JsonAction extends BaseAction {
 			String selling = "";
 			String userid  = "";
 			String title   = "";
+			String listingtype = "";
 			String itemid  = "";
 			
 			LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
@@ -1877,6 +1878,12 @@ public class JsonAction extends BaseAction {
 			
 			if (!title.equals(""))
 				query.put("mod.Title", Pattern.compile(title));
+			
+			if (parameters.containsKey("mod.ListingType"))
+				listingtype = ((String[]) parameters.get("mod.ListingType"))[0];
+			
+			if (!listingtype.equals(""))
+				query.put("mod.ListingType", listingtype);
 			
 			if (parameters.containsKey("ItemID")) 
 				itemid = ((String[]) parameters.get("ItemID"))[0];
