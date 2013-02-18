@@ -62,7 +62,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			basedir = basedir.replaceAll("##.+$", "");
 			version = version.replaceAll("^.+##", "");
 			
-			log.debug("basedir:"+basedir+" version:"+version);
+			//log.debug("basedir:"+basedir+" version:"+version);
 			
 			configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 			daemonport = Integer.parseInt(configdbo.getString("daemonport"));
@@ -76,12 +76,14 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date now = new Date();
 			basetimestamp = sdf.format(now);
-			log.debug("basetimestamp:"+basetimestamp);
+			//log.debug("basetimestamp:"+basetimestamp);
       
+      /*
       for (Enumeration enm=request.getHeaderNames(); enm.hasMoreElements();) {
         String hdname = (String) enm.nextElement();
         log.debug(hdname + ":" + request.getHeader(hdname));
       }
+      */
       
 			// todo: exclude "canceled" user?
 			if (session.get("email") != null) {
@@ -92,7 +94,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
         
         if (session.get("admin") != null) {
           
-          log.debug("not update user log");
+          //log.debug("not update user log");
           
         } else {
           
@@ -102,7 +104,7 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
           
           db.getCollection("users").update(query, new BasicDBObject("$set", set));
           
-          log.debug("update user log");
+          //log.debug("update user log");
           
         }
       }
