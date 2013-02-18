@@ -18,6 +18,7 @@ public class GetSellerList extends ApiCall {
 	private String daterange;
 	private String datestart;
 	private String dateend;
+  private String detaillevel;
 	
 	public GetSellerList() throws Exception {
 	}
@@ -28,6 +29,11 @@ public class GetSellerList extends ApiCall {
 		this.daterange = args[2];
 		this.datestart = args[3];
 		this.dateend   = args[4];
+		if (args.length == 6) {
+			this.detaillevel = args[5];
+		} else {
+			this.detaillevel = "";
+    }
 	}
 	
 	public String call() throws Exception {
@@ -36,7 +42,11 @@ public class GetSellerList extends ApiCall {
 		
 		/* GetSellerList */
 		BasicDBObject dbobject = new BasicDBObject();
-		//dbobject.put("DetailLevel", "ReturnAll");
+    if (this.detaillevel.equals("ReturnAll")) {
+      dbobject.put("DetailLevel", "ReturnAll");
+    } else if (this.detaillevel.equals("Fine")) {
+      dbobject.put("GranularityLevel", "Fine");
+    }
 		dbobject.put("WarningLevel", "High");
 		dbobject.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
 		dbobject.put(daterange+"TimeFrom", datestart+" 00:00:00");
@@ -44,24 +54,23 @@ public class GetSellerList extends ApiCall {
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",50).append("PageNumber",1));
 		dbobject.put("Sort", "2");
 		dbobject.put("MessageID", email+" "+userid);
-    
+		
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
-		//writelog("GSL.req."+email+"."+userid+".xml", requestxml);
-		Future<String> future =
-            pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetSellerList"));
+		Future<String> future = pool18.submit
+			(new ApiCallTask(userid, 0, requestxml, "GetSellerList", "filename"));
 		String responsexml = future.get();
 		
 		BasicDBObject result = convertXML2DBObject(responsexml);
 		
 		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
-									 .get("TotalNumberOfPages").toString());
+																 .get("TotalNumberOfPages").toString());
 		log(userid+" : total "+pages+" page(s).");
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
 			requestxml = convertDBObject2XML(dbobject, "GetSellerList");
-			
-			future = pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetSellerList"));
+      
+			future = pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetSellerList", "filename"));
 			future.get();
 		}
 		
@@ -70,21 +79,21 @@ public class GetSellerList extends ApiCall {
 		return "OK";
 	}
 	
-	public String callback(String responsexml) throws Exception {
+	public String callback(String filename) throws Exception {
     
-		JSONObject json = (JSONObject) new XMLSerializer().read(responsexml);
-		
-		String userid = ((JSONObject) json.get("Seller")).get("UserID").toString();
+		String responsexml = readfile(filename);
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+		
+		String timestamp = resdbo.getString("Timestamp").replaceAll("\\.", "_");
+    
+		String userid = ((BasicDBObject) resdbo.get("Seller")).getString("UserID");
 		
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
 		userid = messages[1];
 		String token = gettoken(email, userid);
-		
-		//String userid = ((BasicDBObject) resdbo.get("Seller")).get("UserID").toString();
-		
+    
 		int pagenumber = Integer.parseInt(resdbo.getString("PageNumber"));
 		int itemcount  = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
 		int itemsperpage = Integer.parseInt(resdbo.getString("ItemsPerPage"));
@@ -92,43 +101,68 @@ public class GetSellerList extends ApiCall {
 		writelog("GetSellerList/"+email+"."+userid+"."+pagenumber+".xml", responsexml);
 		
 		if (itemcount == 0) {
-			log(userid+" no items.");
+			log(userid + " no items.");
 			return responsexml;
 		}
 		
-		log(userid+": "
-        +pagenumber+"/"
-        +((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
-        +" pages, "
-        +((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)+"/"
-        +((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
-        +" items");
-		
+		log(userid + ": "
+        + pagenumber + "/"
+        + ((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfPages").toString()
+        + " pages, "
+        + ((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)+"/"
+        + ((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
+        + " items");
+    
 		String message = "Importing "+userid+"'s items from eBay."
 			+ " "+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)
 			+ " of "
 			+ ((BasicDBObject) resdbo.get("PaginationResult")).getString("TotalNumberOfEntries")
 			+ " items.";
 		updatemessage(email, message);
+		
+		/* get collection name for each users */
+		BasicDBObject userquery = new BasicDBObject();
+		userquery.put("email", email);
+		userquery.put("userids2.username", userid);
+		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
     
-		JSONArray jsonarr = new JSONArray();
-		if (itemcount == 1) {
-			jsonarr.add(json.getJSONObject("ItemArray").getJSONObject("Item"));
+    String itemcollname = "items." + userdbo.getString("_id");
+    
+		BasicDBObject itemarray = (BasicDBObject) resdbo.get("ItemArray");
+		BasicDBList items = new BasicDBList();
+		String classname = itemarray.get("Item").getClass().toString();
+		if (classname.equals("class com.mongodb.BasicDBObject")) {
+			items.add((BasicDBObject) itemarray.get("Item"));
+		} else if (classname.equals("class com.mongodb.BasicDBList")) {
+			items = (BasicDBList) itemarray.get("Item");
 		} else {
-			jsonarr = json.getJSONObject("ItemArray").getJSONArray("Item");
+			log("Class Error:" + classname);
 		}
-		for (Object item : jsonarr) {
+		for (Object item : items) {
 			
-			/* convert JSON to DBObject */
-			DBObject dbobject = (DBObject) com.mongodb.util.JSON.parse(item.toString());
-			String itemid = dbobject.get("ItemID").toString();
+			BasicDBObject dbo = (BasicDBObject) item;
+			String itemid = dbo.get("ItemID").toString();
 			
-			/* GetItem */
-			String[] args = {email, userid, itemid, "waitcallback"};
-			GetItem getitem = new GetItem(args);
-			getitem.call();
-			
-			// Don't use GetMultipleItems which doesn't return needed info.
+      if (dbo.containsField("Title")) {
+				
+        // todo: update items collection
+        String[] args = {email, userid, itemid};
+        GetItem getitem = new GetItem(args);
+        getitem.upsertitem(email, userid, itemid, dbo, itemcollname, timestamp);
+        
+      } else {
+        
+        /* GetItem */
+        // todo: Should I wait callback?
+        //String[] args = {email, userid, itemid, "waitcallback"};
+        String[] args = {email, userid, itemid};
+        
+        GetItem getitem = new GetItem(args);
+        getitem.call();
+        
+        // Don't use GetMultipleItems which doesn't return needed info.
+        
+      }
 		}
 		
 		return responsexml;

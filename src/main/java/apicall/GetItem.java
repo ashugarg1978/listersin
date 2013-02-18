@@ -60,8 +60,7 @@ public class GetItem extends ApiCall implements Callable {
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		BasicDBObject org = (BasicDBObject) resdbo.get("Item");
-		BasicDBObject mod = (BasicDBObject) org.copy();
-		
+    
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
 		//userid = messages[1];
@@ -84,12 +83,24 @@ public class GetItem extends ApiCall implements Callable {
 		userquery.put("email", email);
 		userquery.put("userids2.username", userid);
 		BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-		
-    //email = userdbo.getString("email");
+    
 		String token = gettoken(email, userid);
     
-		DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
-		
+    String itemcollname = "items." + userdbo.getString("_id");
+		DBCollection itemcoll = db.getCollection(itemcollname);
+    
+    upsertitem(email, userid, itemid, org, itemcollname, timestamp);
+    
+		return "";
+	}
+  
+  public void upsertitem(String email, String userid, String itemid,
+                         BasicDBObject org,
+                         String itemcollname,
+                         String timestamp) throws Exception {
+    
+		BasicDBObject mod = (BasicDBObject) org.copy();
+    
 		/* delete ItemSpecifics added from Product */
 		if (mod.containsField("ItemSpecifics")) {
       
@@ -141,11 +152,12 @@ public class GetItem extends ApiCall implements Callable {
 		update.put("$set", set);
 		update.put("$push", new BasicDBObject("log", new BasicDBObject(timestamp, "Import from eBay")));
     
+		DBCollection itemcoll = db.getCollection(itemcollname);
 		itemcoll.update(query, update, true, false);
-		
-		return "";
-	}
-	
+    
+    return;
+  }
+  
 	/**
 	 *
 	 * ref: https://jira.mongodb.org/browse/JAVA-260
