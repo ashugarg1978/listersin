@@ -14,12 +14,12 @@
 <meta name="keywords" content="eBay,listing,software,seller,tool">
 <meta name="description" content="ListersIn is an eBay listing software. Simple, easy and Gmail like user interface. Try free demo account before sign up!">
 </s:else>
-<link rel="stylesheet" type="text/css" href="/css/ebay.css">
+<link rel="stylesheet" type="text/css" href="/css/index.css">
 <link rel="shortcut icon" href="/img/favicon.png">
 <link rel="canonical" href="http://listers.in/"/>
 <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
-<script type="text/javascript" src="/js/ebay.js"></script>
+<script type="text/javascript" src="/js/index.js"></script>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -36,20 +36,20 @@
 </head>
 <body>
 
-<div id="container-white">
+<div id="container">
   
-  <div id="header">
+  <div id="header" class="clearfix">
 	  <div id="logo">
 	    <a href="/"><img src="/img/logo.png" alt="ListersIn" /></a>
 	  </div>
-    <div style="float:right;">
+    <div id="header_right">
       <a href="/?request_locale=en">English</a> | <a href="/?request_locale=ja">日本語</a>
     </div>
   </div>
   
-  <div id="content960">
+  <div id="content" class="clearfix">
 	  
-	  <div style="margin:20px; float:left;">
+	  <div id="leftpane">
 	    <div style="margin-bottom:10px;">
 		    <h1>ListersIn - <s:text name="eBayListingSoftware"/></h1>
 	    </div>
@@ -142,7 +142,7 @@
       
 	  </div>
 	  
-	  <div style="float:right;">
+	  <div id="rightpane">
 	    
 	    <div id="signinbox">
 		    
@@ -205,8 +205,8 @@
 		      <button><s:text name="SignUp"/></button>
 		    </form>
 		    
-	    </div>
-
+	    </div><!-- signupbox -->
+			
 			<div id="ebaylogo">
 				<img src="/img/developersprogrammember_vert.png" />
 			</div>
@@ -214,49 +214,16 @@
 			<div style="margin:10px 20px;">
 				<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
 			</div>
-
-	  <div id="twitter">
-	  
-		<script charset="utf-8" src="http://widgets.twimg.com/j/2/widget.js"></script>
-		<script>
-  	    new TWTR.Widget({
-  	      version: 2,
-  	      type: 'profile',
-  	      rpp: 4,
-  	      interval: 30000,
-  	      width: 362,
-  	      height: 200,
-  	      theme: {
-  	        shell: {
-  	          background: '#666666',
-  	          color: '#ffffff'
-  	        },
-  	        tweets: {
-  	          background: '#ffffff',
-  	          color: '#333333',
-  	          links: '#088253'
-  	        }
-  	      },
-  	      features: {
-  	        scrollbar: true,
-  	        loop: false,
-  	        live: false,
-  	        behavior: 'all'
-  	      }
-  	    }).render().setUser('ListersIn').start();
-		</script>
+			
+		</div><!-- rightpane -->
 		
-	  </div>
-		
-	</div>	  
-	
-	<div style="clear:both;"></div>
-	
-  </div>
+  </div><!-- content -->
   
-  <div style="clear:both;"></div>
-
-</div>
+	<div id="footer">
+		ListersIn - <s:text name="eBayListingSoftware"/>
+	</div>
+	
+</div><!-- container -->
 
 </body>
 </html>

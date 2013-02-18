@@ -1,0 +1,197 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 13px;
+  color: #444;
+}
+
+#container {
+  margin: 0;
+}
+
+#header {
+  padding: 15px 20px;
+  background-color: #f1f1f1;
+	border-bottom: #e5e5e5;
+}
+
+#footer {
+  padding: 15px 20px;
+  background-color: #f1f1f1;
+	border-top: #e5e5e5;
+  text-align: center;
+}
+
+#logo {
+  float: left;
+  border: 1px solid #cccccc;
+  background-color: #fafafa;
+  text-align: center;
+  padding: 0;
+  width: 163px;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+}
+
+#header_right {
+  float: right;
+}
+
+#leftpane {
+  float: left;
+}
+
+#rightpane {
+  float: right;
+}
+
+#content {
+  width: 960px;
+	margin: 15px auto;
+}
+
+#signinbox,
+#signupbox {
+  background-color: whiteSmoke;
+  border: 1px solid #e5e5e5;
+  margin: 20px;
+  padding: 20px;
+}
+
+#twitter {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+#forgotpassworddiv {
+  display: none;
+  margin-top: 10px;
+}
+
+#screenshot {
+  width: 490px;
+  border: 1px solid #aaaaaa;
+}
+
+#feed {
+  margin: 20px;
+}
+
+#feed li {
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
+h2 {
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 0 0 0 0;
+  margin: 10px 0 0 0;
+}
+
+#ebaylogo img {
+  width: 150px;
+	margin: 0 0 10px 20px;
+}
+
+ul.features,
+ul.notice,
+ul.feedback,
+ul.blog {
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  width: 470px;
+}
+
+ul.features li {
+  background-image: url(/icon/03/10/02.png);
+  background-repeat: no-repeat;
+  padding-left: 20px;
+}
+
+ul.notice li {
+  background-image: url(/icon/01/10/50.png);
+  background-repeat: no-repeat;
+  padding-left: 20px;
+}
+
+ul.feedback li {
+  background-image: url(/icon/01/10/27.png);
+  background-repeat: no-repeat;
+  padding-left: 20px;
+}
+
+ul.blog li {
+  background-image: url(/icon/01/10/22.png);
+  background-repeat: no-repeat;
+  padding-left: 20px;
+  margin-bottom: 10px;
+}
+
+ul.blog li p {
+  margin-top: 5px;
+}
+
+/* clearfix */
+.clearfix:after {
+    content: "."; 
+    display: block; 
+    height: 0; 
+    clear: both; 
+    visibility: hidden;
+}
+.clearfix {display: inline-block;}
+/* Hides from IE-mac */
+* html .clearfix {height: 1%;}
+.clearfix {display: block;}
+/* End hide from IE-mac */
+
+a {
+  color: #000066;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #000066;
+}
+
+input {
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  padding: 3px 3px;
+  border: 1px solid #999;
+  font-family: arial, sans-serif;
+  color: #444;
+  height: 21px;
+}
+
+button,
+submit,
+input[type=submit] {
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  height: 29px;
+  min-width: 54px;
+  line-height: 29px;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 0px 8px;
+  border: 1px solid #999;
+  font-family: arial, sans-serif;
+  color: #444;
+  margin: 0px;
+}
