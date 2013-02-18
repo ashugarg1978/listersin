@@ -44,421 +44,470 @@
 
 <div id="container">
   
-  <div id="loading"><s:text name="Loading"/></div>
-  <div id="message"></div>
+	<div id="message"></div>
   
-  <div id="header">
+  <div id="leftpane">
+    
 	  <div id="logo">
-	    <a href="/"><img src="/img/logo.png"/></a>
-	  </div>
+			<a href="/"><img src="/img/logo.png"/></a>
+		</div>
 	  
-	  <div id="headerupper">
-	    <div id="headerupper_right">
-        ${user.email}
-	    </div>
-	  </div>
-	  
-	  <div id="bulkbuttons">
-	    
-	    <button class="checkall btnleft"><s:text name="CheckAll"/></button>
-	    <button class="uncheckall btnright"><s:text name="UncheckAll"/></button>
-	    
-	    <button class="copy btnleft disabled" disabled="disabled"><s:text name="Copy"/></button>
-	    <button class="delete btnright disabled" disabled="disabled"><s:text name="Delete"/></button>
-	    
-	    <button class="add btnleft disabled" disabled="disabled"
-              title="List checked items to eBay."><s:text name="Add"/></button>
-	    <button class="relist btncenter disabled" disabled="disabled"
-              title="Relist checked items to eBay."><s:text name="Relist"/></button>
-	    <button class="revise btncenter disabled" disabled="disabled"
-              title="Revise checked items of eBay."><s:text name="Revise"/></button>
-	    <button class="verifyadditem btncenter disabled" disabled="disabled"><s:text name="Verify"/></button>
-	    <button class="end btnright disabled" disabled="disabled"
-              title="End checked items on eBay."><s:text name="End"/></button>
-	    
-	    <input id="filtertitle" type="text" class="filter" name="Title" value="" size="20">
-	    <button class="btnright"><s:text name="Search"/></button>
-	    
-	    <button id="settingsbutton"><s:text name="Settings"/></button>
-	    
-	    <div id="headderrightbuttons">
-		    <a href="#" id="showhelp"><s:text name="Help"/></a>
-		    <a id="signout" href="/page/logout"><s:text name="SignOut"/></a>
-	    </div>
-	    
-	    <div style="clear:both;"></div>
-	  </div>
-  </div><!-- header -->
-  
-  <div id="toolbar">
-    
     <button class="newitem"><s:text name="AddNewItem"/></button>
+		
+    <div id="toolbar">
+      
+      <ul class="accounts">
+	      <li class="allitems"><s:text name="AllItems"/></li>
+	      <li class="itemstatuses">
+	        <ul class="accountaction">
+		        <li class="scheduled" ><img src="/icon/02/10/37.png"/><s:text name="Scheduled" /></li>
+		        <li class="active"    ><img src="/icon/04/10/02.png"/><s:text name="Active"    /></li>
+		        <li class="sold"      ><img src="/icon/02/10/50.png"/><s:text name="Sold"      /></li>
+		        <li class="unsold"    ><img src="/icon/04/10/10.png"/><s:text name="Unsold"    /></li>
+		        <li class="unanswered"><img src="/icon/04/10/10.png"/><s:text name="Unanswered"/></li>
+		        <li class="saved"     ><img src="/icon/04/10/10.png"/><s:text name="Saved"     /></li>
+	        </ul>
+	      </li>
+      </ul>
+      
+      <div id="filteroption">
+			  
+	      <a href="#" id="checkduplicateitems">Check duplicate items</a>
+			  
+			  <br/>
+			  <br/>
+			  
+	      <a href="http://forum.listers.in/" target="_blank"><s:text name="Forum"/></a>
+	      | <a href="http://listers.in/blog/" target="_blank"><s:text name="Blog"/></a>
+			  
+			  <br/>
+			  <br/>
+			  
+        <a href="/?request_locale=en">English</a>
+			  | <a href="/?request_locale=ja">日本語</a>
+			  | <a href="/?request_locale=de">Deutsch</a>
+			  
+			  <br/>
+			  
+      </div>
+      
+      <br/>
+      
+      <a href="#" id="calletsy">Etsy</a><br/>
+      <a href="#" id="toggledebug">DEBUG</a><br/>
+      
+      <div id="log"></div>
+      
+			<div id="hiddenforms">
+				
+        <select name="selling" class="filter">
+          <option value="allitems">All items</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="active">Active</option>
+          <option value="sold">Sold</option>
+          <option value="unsold">Unsold</option>
+          <option value="unanswered">Unanswered</option>
+          <option value="saved">Saved</option>
+        </select>
+				
+        <select name="UserID" class="filter">
+          <option value="">All UserID</option>
+        </select>
+				
+				<input type="text" class="filter" name="offset"   value="0"/>
+				<input type="text" class="filter" name="limit"    value="30"/>
+				<input type="text" class="filter" name="sort"     value="ListingDetails_EndTime"/>
+				<input type="text" class="filter" name="option"   value=""/>
+				<input type="text" class="filter" name="allpages" value=""/>
+				
+			</div>
+      
+      <iframe name="posttarget" src="/blank.html"></iframe>
+      
+    </div><!-- toolbar -->
     
-    <ul class="accounts">
-	    <li class="allitems"><s:text name="AllItems"/></li>
-	    <li class="itemstatuses">
-	      <ul class="accountaction">
-		      <li class="scheduled" ><img src="/icon/02/10/37.png"/><s:text name="Scheduled" /></li>
-		      <li class="active"    ><img src="/icon/04/10/02.png"/><s:text name="Active"    /></li>
-		      <li class="sold"      ><img src="/icon/02/10/50.png"/><s:text name="Sold"      /></li>
-		      <li class="unsold"    ><img src="/icon/04/10/10.png"/><s:text name="Unsold"    /></li>
-		      <li class="unanswered"><img src="/icon/04/10/10.png"/><s:text name="Unanswered"/></li>
-		      <li class="saved"     ><img src="/icon/04/10/10.png"/><s:text name="Saved"     /></li>
-	      </ul>
-	    </li>
-    </ul>
+  </div><!-- leftpane -->
+
+  <div id="rightpane">
     
-    <div id="filteroption">
+    <div id="header" class="clearfix">
 			
-	    <a href="#" id="checkduplicateitems">Check duplicate items</a>
+	    <div id="headerupper" class="clearfix">
+				
+				<div id="headersearchform" class="clearfix">
+					<input id="filtertitle" type="text" class="filter" name="Title" />
+					<select name="mod.ListingType" class="filter">
+						<option value="">All Listing Type</option>
+						<option value="Chinese">Online Auction</option>  
+						<option value="FixedPriceItem">Fixed Price</option>
+						<option value="StoresFixedPrice">Stores Fixed Price</option>
+						<option value="LeadGeneration">Classified Ad</option>
+					</select>
+					<button class="btnright"><s:text name="Search"/></button>
+				</div>
+				
+	      <div id="headerupper_right">
+          <div id="user_email">${user.email}</div>
+					<div>
+						<a href="#" id="showhelp"><s:text name="Help"/></a>
+						| <a id="signout" href="/page/logout"><s:text name="SignOut"/></a>
+					</div>
+	      </div>
+				
+	    </div>
 			
-			<br/>
-			<br/>
+	    <div id="bulkbuttons" class="clearfix">
+	      
+	      <button class="copy btnleft disabled"
+                disabled="disabled"><s:text name="Copy"/></button>
+	      <button class="delete btnright disabled"
+                disabled="disabled"><s:text name="Delete"/></button>
+	      
+	      <button class="add btnleft disabled" disabled="disabled"
+                title="List checked items to eBay."><s:text name="Add"/></button>
+	      <button class="relist btncenter disabled" disabled="disabled"
+                title="Relist checked items to eBay."><s:text name="Relist"/></button>
+	      <button class="revise btncenter disabled" disabled="disabled"
+                title="Revise checked items of eBay."><s:text name="Revise"/></button>
+	      <button class="verifyadditem btncenter disabled"
+                disabled="disabled"><s:text name="Verify"/></button>
+	      <button class="end btnright disabled" disabled="disabled"
+                title="End checked items on eBay."><s:text name="End"/></button>
+	      
+				
+	    </div>
+		  
+	    <button id="settingsbutton"><s:text name="Settings"/></button>
 			
-	    <a href="http://forum.listers.in/" target="_blank"><s:text name="Forum"/></a>
-	    | <a href="http://listers.in/blog/" target="_blank"><s:text name="Blog"/></a>
-			
-			<br/>
-			<br/>
-			
-      <a href="/?request_locale=en">English</a>
-			| <a href="/?request_locale=ja">日本語</a>
-			| <a href="/?request_locale=de">Deutsch</a>
-			
-			<br/>
-			
-    </div>
+    </div><!-- header -->
     
-    <br/>
-    
-    <a href="#" id="calletsy">Etsy</a><br/>
-    <a href="#" id="toggledebug">DEBUG</a><br/>
-    
-    <div id="log"></div>
-    
-    <input type="hidden" class="filter" name="offset"   value="0"/>
-    <input type="hidden" class="filter" name="limit"    value="20"/>
-    <input type="hidden" class="filter" name="selling"  value="active"/>
-    <input type="hidden" class="filter" name="sort"     value="ListingDetails_EndTime"/>
-    <input type="hidden" class="filter" name="option"   value=""/>
-    <input type="hidden" class="filter" name="allpages" value=""/>
-    <input type="hidden" class="filter" name="UserID"/>
-    
-    <iframe name="posttarget" src="/blank.html"></iframe>
-    
-  </div><!-- toolbar -->
-  
-  <div id="content">
-    
-    <table id="items" class="items">
-	    <tbody id="rowtemplate" class="itemrow">
-	      <tr class="row1">
-		      <td>
-		        <input type="checkbox" name="id"/>
-		      </td>
-		      <td>
-		        <img class="status" src="/icon/04/10/10.png"/>
-		      </td>
-		      <td class="Title"></td>
-		      <td class="UserID"></td>
-		      <td>
-		        <a href="#" class="ItemID" target="_blank"></a>
-		      </td>
-		      <td class="price"></td>
-		      <td class="WatchCount"></td>
-		      <td class="EndTime"></td>
-		      <td class="PictureURL">
-		        <div>
-			        <img class="PictureURL" src="/img/gray.png"/>
-		        </div>
-		      </td>
-	      </tr>
-	      <tr class="row2">
-		      <td colspan="9"></td>
-	      </tr>
-	    </tbody>
-	    <tbody id="rowloading">
-	      <tr>
-		      <td colspan="9" align="center">
-		        <s:text name="LoadingItemData"/>
-		      </td>
-	      </tr>
-	    </tbody>
-    </table><!-- #items -->
-    
-    <div id="settings">
-	    <table class="detail">
-	      <tbody>
-		      <tr>
-		        <th><s:text name="Email"/></th>
+    <div id="content">
+      
+      <table id="items" class="items">
+				<thead>
+					<td colspan="4">
+						<input type="checkbox" id="checkall" name="checkall" />
+						<label for="checkall">Check all</label>
+					</td>
+					<td class="title">Title</td>
+					<td class="UserID">UserID</td>
+					<td class="ItemID">ItemID</td>
+					<td class="WatchCount">Wch</td>
+					<td class="price">Price</td>
+					<td class="EndTime">End</td>
+				</thead>
+	      <tbody id="rowtemplate" class="itemrow">
+	        <tr class="row1">
 		        <td>
-			        <div id="settings-email"></div>
+		          <input type="checkbox" name="id"/>
 		        </td>
-		      </tr>
-		      <tr>
-		        <th>Status</th>
 		        <td>
-			        <div id="settings-status"></div>
+		          <img class="status" src="/icon/04/10/10.png"/>
 		        </td>
-		      </tr>
-		      <tr>
-		        <th>Expiration</th>
-		        <td>
-			        <div id="settings-expiration"></div>
+						<td class="ListingType"></td>
+		        <td class="PictureURL">
+		          <div>
+			          <img class="PictureURL" src="/img/gray.png"/>
+		          </div>
 		        </td>
-		      </tr>
-		      <tr>
-		        <th>Item limit</th>
+		        <td class="Title"></td>
+		        <td class="UserID"></td>
 		        <td>
-			        <div id="settings-itemlimit"></div>
+		          <a href="#" class="ItemID" target="_blank"></a>
 		        </td>
-		      </tr>
-		      <tr>
-		        <th>Time zone</th>
-		        <td>
-			        <select name="TimeZone">
-			        </select>
+		        <td class="WatchCount"></td>
+		        <td class="price"></td>
+		        <td class="EndTime"></td>
+	        </tr>
+	        <tr class="row2">
+		        <td colspan="10"></td>
+	        </tr>
+	      </tbody>
+	      <tbody id="rowloading">
+	        <tr>
+		        <td colspan="9" align="center">
+		          <s:text name="LoadingItemData"/>
 		        </td>
-		      </tr>
-					<tr style="border-bottom:1px solid #aaa;">
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-					<tr>
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-		      <tr>
-		        <th>eBay accounts</th>
-		        <td>
-			        <table id="setting_ebay_accounts">
-			        </table>
-			        
+	        </tr>
+	      </tbody>
+      </table><!-- #items -->
+      
+      <div id="settings">
+	      <table class="detail">
+	        <tbody>
+		        <tr>
+		          <th><s:text name="Email"/></th>
+		          <td>
+			          <div id="settings-email"></div>
+		          </td>
+		        </tr>
+		        <tr>
+		          <th>Status</th>
+		          <td>
+			          <div id="settings-status"></div>
+		          </td>
+		        </tr>
+		        <tr>
+		          <th>Expiration</th>
+		          <td>
+			          <div id="settings-expiration"></div>
+		          </td>
+		        </tr>
+		        <tr>
+		          <th>Item limit</th>
+		          <td>
+			          <div id="settings-itemlimit"></div>
+		          </td>
+		        </tr>
+		        <tr>
+		          <th>Time zone</th>
+		          <td>
+			          <select name="TimeZone">
+			          </select>
+		          </td>
+		        </tr>
+					  <tr style="border-bottom:1px solid #aaa;">
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+					  <tr>
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+		        <tr>
+		          <th>eBay accounts</th>
+		          <td>
+			          <table id="setting_ebay_accounts">
+			          </table>
+			          
+			          <button class="addebayaccount">
+			            <s:text name="AddeBayAccount"/>
+			          </button>
+		          </td>
+		        </tr>
+					  <tr style="border-bottom:1px solid #aaa;">
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+					  <tr>
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+            <tr>
+		          <th>Sync items from eBay</th>
+              <td>
+                <div id="syncitemsform">
+							    eBay User ID <select name="userid"></select><br/>
+							    Items which
+                  <select name="daterange">
+                    <option value="Start">start</option>
+                    <option value="End">end</option>
+                  </select>
+                  between
+                  <input type="text" name="datestart" value="" />
+                  and
+                  <input type="text" name="dateend" value="" />
+                  (Max: 120 days)
+                  <br/>
+                  <button id="syncbutton">Sync items from eBay</button>
+                </div>
+              </td>
+            </tr>
+					  <tr style="border-bottom:1px solid #aaa;">
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+		        <tr>
+		          <th>Import items from CSV</th>
+		          <td>
+							  <form method="post" action="/file/csvupload" id="csvform"
+										  target="posttarget" enctype="multipart/form-data">
+                  
+								  You can import items from<br/>
+                  Turbo Lister &quot;File Exchange Format(CSV file)&quot;<br/>
+								  <img src="/img/turbolistercsvexport.png" />
+								  <br/>
+                  <br/>
+								  Import to
+								  <select name="userid"></select>
+								  <br/>
+								  CSV file<input type="file" id="csvfile" name="fileUpload" />
+								  
+								  <button>
+									  <s:text name="Import"/>
+								  </button>
+							  </form>
+							  <div id="csvimportmessage"></div>
+		          </td>
+		        </tr>
+					  <tr style="border-bottom:1px solid #aaa;">
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+					  <tr>
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+		        <tr>
+		          <th>Etsy accounts</th>
+		          <td>
+			          <table id="setting_etsy_accounts">
+			          </table>
+			          
+			          <button class="addetsyaccount">
+			            <s:text name="AddEtsyAccount"/>
+			          </button>
+                
+                <input type="text" id="etsy_verification_code" size="10" />
+			          <button class="send-etsy-verification-code">
+			            <s:text name="Send"/>
+			          </button>
+                
+		          </td>
+		        </tr>
+					  <tr style="border-bottom:1px solid #aaa;">
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+					  <tr>
+						  <th></th>
+						  <td>&nbsp;</td>
+					  </tr>
+		        <tr>
+		          <th>Cancel account</th>
+		          <td>
+			          <a id="cancelaccountlink" href="/page/cancelaccount">Cancel account</a>
+		          </td>
+		        </tr>
+	        </tbody>
+	      </table>
+      </div><!-- #settings -->
+      
+      <div id="help">
+		    
+        <s:if test="#request.locale.language=='ja'">
+          まだListersInにeBayアカウントを追加されていない場合は、以下の説明をお読みください。<br/>
+          <br/>
+          
+		      <span style="font-weight:bold;">eBayアカウントの追加方法</span><br/>
+		      <ol>
+		        <li>
+			        「<s:text name="AddeBayAccount"/>」ボタンをクリックしてください。
 			        <button class="addebayaccount">
 			          <s:text name="AddeBayAccount"/>
 			        </button>
-		        </td>
-		      </tr>
-					<tr style="border-bottom:1px solid #aaa;">
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-					<tr>
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-          <tr>
-		        <th>Sync items from eBay</th>
-            <td>
-              <div id="syncitemsform">
-							  eBay User ID <select name="userid"></select><br/>
-							  Items which
-                <select name="daterange">
-                  <option value="Start">start</option>
-                  <option value="End">end</option>
-                </select>
-                between
-                <input type="text" name="datestart" value="" />
-                and
-                <input type="text" name="dateend" value="" />
-                (Max: 120 days)
-                <br/>
-                <button id="syncbutton">Sync items from eBay</button>
-              </div>
-            </td>
-          </tr>
-					<tr style="border-bottom:1px solid #aaa;">
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-		      <tr>
-		        <th>Import items from CSV</th>
-		        <td>
-							<form method="post" action="/file/csvupload" id="csvform"
-										target="posttarget" enctype="multipart/form-data">
-
-								You can import items from<br/>
-                Turbo Lister &quot;File Exchange Format(CSV file)&quot;<br/>
-								<img src="/img/turbolistercsvexport.png" />
-								<br/>
-                <br/>
-								Import to
-								<select name="userid"></select>
-								<br/>
-								CSV file<input type="file" id="csvfile" name="fileUpload" />
-								
-								<button>
-									<s:text name="Import"/>
-								</button>
-							</form>
-							<div id="csvimportmessage"></div>
-		        </td>
-		      </tr>
-					<tr style="border-bottom:1px solid #aaa;">
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-					<tr>
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-		      <tr>
-		        <th>Etsy accounts</th>
-		        <td>
-			        <table id="setting_etsy_accounts">
-			        </table>
-			        
-			        <button class="addetsyaccount">
-			          <s:text name="AddEtsyAccount"/>
+		        </li>
+		        <li>
+              eBayのログイン画面にジャンプしますので、
+              ListersInに追加したいeBayアカウントでログインしてください。<br />
+		        </li>
+		        <li>
+			        「I agree」ボタンをクリックしてください。<br/>
+		        </li>
+		        <li>
+              自動的にListersInの画面に戻ります。<br />
+              ListersInの画面の左側に、追加したeBayアカウントが表示されます。<br/>
+		        </li>
+		      </ol>
+		      
+          何かご不明な点がございましたら、
+		      <a href="mailto:support@listers.in">support@listers.in</a>
+          までメールでご質問ください。<br/>
+          
+          または
+          <a href="http://forum.listers.in/" target="_blank">このフォーラム</a>
+          にコメントを投稿してください。(フォーラムにログインしなくても匿名で投稿できます)<br/>
+        </s:if>
+        
+        <s:else>
+		      If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
+          <br/>
+          
+		      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+						<img src="/icon/01/16/44.png"/>
+						How to import your existing items from eBay to ListersIn
+					</div>
+		      <ol>
+		        <li>
+			        Click &quot;<s:text name="AddeBayAccount"/>&quot; button.
+			        <button class="addebayaccount">
+			          <s:text name="AddeBayAccount"/>
 			        </button>
-              
-              <input type="text" id="etsy_verification_code" size="10" />
-			        <button class="send-etsy-verification-code">
-			          <s:text name="Send"/>
-			        </button>
-              
-		        </td>
-		      </tr>
-					<tr style="border-bottom:1px solid #aaa;">
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-					<tr>
-						<th></th>
-						<td>&nbsp;</td>
-					</tr>
-		      <tr>
-		        <th>Cancel account</th>
-		        <td>
-			        <a id="cancelaccountlink" href="/page/cancelaccount">Cancel account</a>
-		        </td>
-		      </tr>
-	      </tbody>
-	    </table>
-    </div><!-- #settings -->
-    
-    <div id="help">
-	    
-      <s:if test="#request.locale.language=='ja'">
-        まだListersInにeBayアカウントを追加されていない場合は、以下の説明をお読みください。<br/>
-        <br/>
+		        </li>
+		        <li>
+			        You will be redirected to eBay sign in page.<br/>
+			        Please sign in to eBay with the account which you want to add to ListersIn.<br/>
+		        </li>
+		        <li>
+			        Click &quot;I agree&quot; button.<br/>
+		        </li>
+		        <li>
+			        You will be back to ListersIn site, and the eBay account will be shown at left side.
+		        </li>
+		        <li>
+							Your existing items will be imported from eBay automatically.
+		        </li>
+		      </ol>
+					
+		      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+						<img src="/icon/01/16/44.png"/>
+						How to prepare a new item and list to eBay
+					</div>
+					<ol>
+						<li>
+							Click &quot;Add New Item&quot; button on left navigation.
+							(below the ListersIn logo)
+						</li>
+						<li>
+							Fill out the item forms with information which you want to sell on eBay.
+						</li>
+						<li>
+							Click &quot;Save&quot; button to save the item data to ListersIn.
+						</li>
+						<li>
+							You can see the saved items by clicking &quot;Saved&quot; on left navigation.
+						</li>
+						<li>
+							Check the item which you want to list to eBay.
+							(Checkbox at left of each item's title)
+						</li>
+						<li>
+							Click &quot;List&quot; button on top of the page.
+						</li>
+					</ol>
+		      
+		      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
+						<img src="/icon/01/16/44.png"/>
+						How to relist an unsold item again
+					</div>
+					<ol>
+						<li>
+							Click &quot;Unsold&quot; on left navigation.
+						</li>
+						<li>
+							Check the item which you want to relist to eBay again.
+							(Checkbox at left of each item's title)
+						</li>
+						<li>
+							Click &quot;Relist&quot; button on top of the page.
+						</li>
+					</ol>
+					
+		      If you have any problems, please send an email to
+		      <a href="mailto:support@listers.in">support@listers.in</a> :)<br/>
+		      Or please post your comment to
+          <a href="http://forum.listers.in/" target="_blank">this forum</a>.
+          (You can post without forum account)<br/>
+        </s:else>
         
-	      <span style="font-weight:bold;">eBayアカウントの追加方法</span><br/>
-	      <ol>
-	        <li>
-		        「<s:text name="AddeBayAccount"/>」ボタンをクリックしてください。
-		        <button class="addebayaccount">
-		          <s:text name="AddeBayAccount"/>
-		        </button>
-	        </li>
-	        <li>
-            eBayのログイン画面にジャンプしますので、
-            ListersInに追加したいeBayアカウントでログインしてください。<br />
-	        </li>
-	        <li>
-		        「I agree」ボタンをクリックしてください。<br/>
-	        </li>
-	        <li>
-            自動的にListersInの画面に戻ります。<br />
-            ListersInの画面の左側に、追加したeBayアカウントが表示されます。<br/>
-	        </li>
-	      </ol>
-	      
-        何かご不明な点がございましたら、
-	      <a href="mailto:support@listers.in">support@listers.in</a>
-        までメールでご質問ください。<br/>
-        
-        または
-        <a href="http://forum.listers.in/" target="_blank">このフォーラム</a>
-        にコメントを投稿してください。(フォーラムにログインしなくても匿名で投稿できます)<br/>
-      </s:if>
+      </div><!-- #help -->
       
-      <s:else>
-	      If you don't add eBay account to ListersIn yet, please read following instruction.<br/>
-        <br/>
-        
-	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
-					<img src="/icon/01/16/44.png"/>
-					How to import your existing items from eBay to ListersIn
-				</div>
-	      <ol>
-	        <li>
-		        Click &quot;<s:text name="AddeBayAccount"/>&quot; button.
-		        <button class="addebayaccount">
-		          <s:text name="AddeBayAccount"/>
-		        </button>
-	        </li>
-	        <li>
-		        You will be redirected to eBay sign in page.<br/>
-		        Please sign in to eBay with the account which you want to add to ListersIn.<br/>
-	        </li>
-	        <li>
-		        Click &quot;I agree&quot; button.<br/>
-	        </li>
-	        <li>
-		        You will be back to ListersIn site, and the eBay account will be shown at left side.
-	        </li>
-	        <li>
-						Your existing items will be imported from eBay automatically.
-	        </li>
-	      </ol>
-				
-	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
-					<img src="/icon/01/16/44.png"/>
-					How to prepare a new item and list to eBay
-				</div>
-				<ol>
-					<li>
-						Click &quot;Add New Item&quot; button on left navigation.
-						(below the ListersIn logo)
-					</li>
-					<li>
-						Fill out the item forms with information which you want to sell on eBay.
-					</li>
-					<li>
-						Click &quot;Save&quot; button to save the item data to ListersIn.
-					</li>
-					<li>
-						You can see the saved items by clicking &quot;Saved&quot; on left navigation.
-					</li>
-					<li>
-						Check the item which you want to list to eBay.
-						(Checkbox at left of each item's title)
-					</li>
-					<li>
-						Click &quot;List&quot; button on top of the page.
-					</li>
-				</ol>
-	      
-	      <div style="font-weight:bold; margin-top:10px; font-size:110%;">
-					<img src="/icon/01/16/44.png"/>
-					How to relist an unsold item again
-				</div>
-				<ol>
-					<li>
-						Click &quot;Unsold&quot; on left navigation.
-					</li>
-					<li>
-						Check the item which you want to relist to eBay again.
-						(Checkbox at left of each item's title)
-					</li>
-					<li>
-						Click &quot;Relist&quot; button on top of the page.
-					</li>
-				</ol>
-				
-	      If you have any problems, please send an email to
-	      <a href="mailto:support@listers.in">support@listers.in</a> :)<br/>
-	      Or please post your comment to
-        <a href="http://forum.listers.in/" target="_blank">this forum</a>.
-        (You can post without forum account)<br/>
-      </s:else>
+      <div id="debug"></div>
       
-    </div><!-- #help -->
+    </div><!-- #content -->
     
-    <div id="debug"></div>
-    
-  </div><!-- #content -->
+  </div><!-- rightpane -->
+  
   
   <div style="clear:both;"></div>
 

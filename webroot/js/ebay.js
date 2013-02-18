@@ -68,6 +68,8 @@ $(function() {
 		$('#setting_etsy_accounts').closest('tr').remove();
   }
 	
+	$('input[name=limit]', '#toolbar').val(30);
+	
 	return;
 });
 
@@ -208,23 +210,31 @@ function bindevents()
            'json');
   });
 	
-	$(window).scroll(function() {
-		if (hasmore == false) return;
+	$('#content').scroll(function() {
 		
-		if ($(window).scrollTop() + $(window).height() == $('body').height()) {
-			
-			// Don't auto paging when editing a new item.
-			if ($('#newitem0').length) return; 
-			
-			$('div#loading').show();
+		if (hasmore == false) return;
+		if ($('#newitem0').length) return; // Don't auto paging when editing a new item.
+		
+		var top = $('#content').scrollTop();
+		
+		var headerh  = $('#header').height();
+		headerh += $('#header').css('margin-top').replace('px', '') - 0;
+		headerh += $('#header').css('margin-bottom').replace('px', '') - 0;
+		headerh += $('#content').css('margin-top').replace('px', '') - 0;
+
+		var c = $('#items').height() + headerh - $(window).height() - 0;
+
+		if (top >= c) {
 			
 			var offset = parseInt($('input.filter[name=offset]').val());
 			var limit  = parseInt($('input.filter[name=limit]' ).val());
 			
 			// todo: check offset number after calling refresh(). ex: after 3 items listed.
 			$('input.filter[name=offset]').val(offset+limit-0);
-			items();
+			items(false);
 		}
+		
+		return;
 	});
 	
 	$('tr.row1').live('click', clickTitle);
@@ -335,6 +345,18 @@ function bindevents()
 		return;
 	});
 	
+	$('#checkall').click(function() {
+		
+		if ($(this).attr('checked') == 'checked') {
+			$("input[name='id'][value!=on]").attr('checked', 'checked');
+		} else {
+			$("input[name='id'][value!=on]").removeAttr('checked');
+		}
+		
+		togglebulkbuttons();
+		return;
+	});
+	
 	/* Left Navi (eBay account name click) */
 	$('ul.accounts > li').live('click', function() {
 		
@@ -356,11 +378,11 @@ function bindevents()
 			.replace('allitems', '')
 			.replace(' ', '');
 		
-		$('input[name=UserID]').val(userid);
-		$('input[name=selling]').val('allitems');
+		$('select[name=UserID]').val(userid);
+		$('select[name=selling]').val('allitems');
 		$('input[name=offset]').val(0);
-		$('table#items tbody:gt(1)').remove();
-		items();
+		/*$('table#items tbody:gt(1)').remove();*/
+		items(true);
 		
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
@@ -379,16 +401,16 @@ function bindevents()
 		
 		showcontent('#items');
 			
-		$('input[name=selling]').val(v);
+		$('select[name=UserID]').val(userid);
+		$('select[name=selling]').val(v);
 		$('input[name=offset]').val(0);
-		$('input[name=UserID]').val(userid);
 		if (v == 'unsold' || v == 'sold' || v == 'allitems') {
 			$('input[name=sort]').val('ListingDetails_EndTime DESC');
 		} else {
 			$('input[name=sort]').val('ListingDetails_EndTime');
 		}
-		$('table#items tbody:gt(1)').remove();
-		items();
+		/*$('table#items tbody:gt(1)').remove();*/
+		items(true);
 		
 		$('ul.accounts li').removeClass('tabselected');
 		$(this).closest('li').addClass('tabselected');
@@ -828,12 +850,12 @@ function bindevents()
 	
 	$('#checkduplicateitems').live('click', function() {
 		
-		$('input[name=UserID]').val('');
-		$('input[name=selling]').val('allitems');
+		$('select[name=UserID]').val('');
+		$('select[name=selling]').val('allitems');
 		$('input[name=offset]').val(0);
 		$('input[name=option]').val('checkduplicateitems');
-		$('table#items tbody:gt(1)').remove();
-		items();
+		/*$('table#items tbody:gt(1)').remove();*/
+		items(true);
 		
 		return false;
 	});
@@ -992,14 +1014,10 @@ function bindevents()
     }
   });
   
-	/*
-    jQuery('div#message').ajaxStart(function() {
-		$(this).html('Loading');
-	  });
-    jQuery('div#message').ajaxStop(function() {
-		$(this).html('');
-	  });
-	*/
+  $('select[name="mod.ListingType"]', '#headersearchform').change(function() {
+		items(true);
+  });
+  
 } // end of bindevents
 
 function togglebulkbuttons() {
@@ -1021,8 +1039,8 @@ function togglebulkbuttons() {
 }
 
 function checkdemoaccount() {
-    
-  var email = $('#headerupper_right').html().replace(/[\r\n\s\t]/g, '');
+  
+  var email = $('#user_email').html();
   
   if (email == 'demo@listers.in') {
     alert('Sorry, this function is not available for demo account.');
@@ -1242,14 +1260,21 @@ function summary()
 }
 
 /* list items */
-function items()
+function items(clearitems)
 {
+	$('#message').html('Loading...');
+	
 	$.post
 	('/json/items',
 	 $('input.filter, select.filter').serialize(),
 	 function(data) {
 		 
+		 if (clearitems) {
+			 $('table#items tbody:gt(1)').remove();
+		 }
+		 
 		 if (data.json.cnt == 0) {
+			 $('#message').html('');
 			 $('tbody#rowloading > tr > td').html('No item data found.');
 			 $('tbody#rowloading').show();
 			 return;
@@ -1274,12 +1299,15 @@ function items()
 		 });
 		 
 		 if (data.json.message != '' && data.json.message != null) {
-			 $('div#message').html(data.json.message);
+			 $('#message').html(data.json.message);
 			 timeout = setTimeout('refresh()', 1000);
+		 } else {
+			 $('#message').html('');
 		 }
-		 //$('table#items').css('min-height', h+'px');
 	 },
 	 'json');
+	
+	return;
 }
 
 function getrow(idx, row)
@@ -1292,8 +1320,14 @@ function getrow(idx, row)
 		return dom;
 	}
 	
+  if (row.mod.ListingType.match('Fixed')) {
+		$('td.ListingType', dom).html('<img src="/img/currency_dollar.png" width="12"/>');
+	} else {
+		$('td.ListingType', dom).html('<img src="/img/auction_hammer_gavel.png" width="12"/>');
+	}
+  
 	$('td.Title', dom).html(row.mod.Title);
-    
+	
 	if (row.org) {
 		$('a.ItemID', dom)
 			.attr('href', row.org.ListingDetails.ViewItemURL)
@@ -1301,17 +1335,14 @@ function getrow(idx, row)
 		
 		$('td.EndTime', dom).html(row.endtime);
 		
-    //$('td.WatchCount', dom).html(row.org.WatchCount);
+    $('td.WatchCount', dom).html(row.org.WatchCount);
 	  
 	} else {
 		$('a.ItemID', dom).remove();
+    $('td.WatchCount', dom).html('-');
 	}
   
-  if (row.mod.ListingType.match('Fixed')) {
-	  $('td.price', dom).html('Fixed ' + row.price);
-  } else {
-	  $('td.price', dom).html(row.price);
-  }
+	$('td.price', dom).html(row.price);
 	
 	/* status(loading icon) */
 	if (typeof(row.status) == 'string' && row.status != '') {
@@ -1373,14 +1404,17 @@ function getrow(idx, row)
 	if (row.errors) {
 		$.each(row.errors, function(k, v) {
 			if (v != '') {
-				$('td.Title', dom).append('<br/>');
-				var spantag = $('<span/>').text(v.LongMessage);
 				if (v.SeverityCode == 'Warning') {
-					$(spantag).addClass('warning');
+					//$('td.Title', dom).append('<br/>');
+					//var spantag = $('<span/>').text(v.LongMessage);
+					//$(spantag).addClass('warning');
+					//$('td.Title', dom).append(spantag);
 				} else {
+					$('td.Title', dom).append('<br/>');
+					var spantag = $('<span/>').text(v.LongMessage);
 					$(spantag).addClass('error');
+					$('td.Title', dom).append(spantag);
 				}
-				$('td.Title', dom).append(spantag);
 			}
 		});
 	}
@@ -2081,6 +2115,29 @@ function resizediv_index()
 
 function resizediv()
 {
+	var windowh = $(window).height();
+  
+  var headerh  = $('#header').height();
+  headerh += $('#header').css('margin-top').replace('px', '') - 0;
+  headerh += $('#header').css('margin-bottom').replace('px', '') - 0;
+  
+  var contentmargin = $('#content').css('margin-top').replace('px', '');
+  
+  $('#content').height(windowh - headerh - contentmargin);
+	$('#toolbar').height(windowh - headerh - contentmargin);
+  
+  var windoww = $(window).width();
+  var leftw = $('#leftpane').width();
+  leftw += $('#leftpane').css('margin-right').replace('px', '') - 0;
+  leftw += $('#leftpane').css('margin-left').replace('px', '') - 0;
+  
+  $('#rightpane').width(windoww - leftw);
+	//$('#items').width(windoww - leftw - 30);
+  
+	$('#message').width($('#container').width());
+	
+  return;
+  
 	var w = $('div#container').width()-225;
 	var h = $('body').height() - 10;
 	//var headerheight = $('div#header').height();
@@ -2337,7 +2394,7 @@ var clickCancel = function() {
 	
 	// cancel add new item
 	if (id == 'newitem0') {
-		items();
+		items(true);
 		$('#newitem0').remove();
 		return false;
 	}
@@ -2591,7 +2648,7 @@ function refresh()
 function filter()
 {
 	$('input[name=offset]').val(0);
-	items();
+	items(true);
 	return;
 }
 
@@ -2628,7 +2685,7 @@ function dump(o)
 
 function log(str)
 {
-	$('#log').append(str+'<br/>');
+	$('#log').prepend(str+'<br/>');
 }
 
 function csvuploadedmessage()

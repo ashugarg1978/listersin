@@ -1,69 +1,72 @@
-html {
-  overflow: -moz-scrollbars-vertical;
-  overflow-y: scroll;
-}
-
 body {
-  margin: 0px 0px 0px 0px;
+  margin: 0;
   font-family: sans-serif;
   font-size: 13px;
   color: #444;
   background-color: #f7f7f7;
+  overflow: hidden;
 }
 
-div#container {
-  margin: 0px 0px 0px 0px;
+#container {
+  margin: 0;
   background-color: #f7f7f7;
 }
 
-div#container-white {
+#leftpane {
+  float: left;
+  margin: 15px 15px 0 20px;
+}
+
+#rightpane {
+  float: left;
+}
+
+#container-white {
   margin: 0px 0px 0px 0px;
   background-color: #ffffff;
 }
 
-div#header {
-  position: fixed;
+#header {
   background-color: #f7f7f7;
-  left: 0px;
-  top: 0px;
-  padding: 15px 20px 20px 20px;
-  z-index: 1;
-  /*border-bottom: 1px solid #c6c6c6;*/
+  margin: 15px 20px 0 0;
 }
 
-div#toolbar {
+#toolbar {
   width: 165px;
-  float: left;
-  position: fixed;
-  margin: 79px 20px 20px 20px;
+  margin: 15px 0 0;
   overflow: hidden;
 }
 
-div#toolbar:hover {
+#toolbar:hover {
   overflow: auto;
 }
 
-div#toolbar button {
+#toolbar button {
   width: 165px;
 }
 
-div#content {
-  float:right;
-  margin: 80px 20px 20px 20px;
+#content {
+  margin: 15px 0 0;
   background-color: #fff;
+  overflow-y: scroll;
 }
 
-div#content960 {
+#content960 {
   width: 960px;
   margin: 80px auto 20px auto;
   background-color: #fff;
 }
 
-div#feed {
+button.newitem {
+  margin: 15px 0 0;
+	width: 165px;
+}
+
+#feed {
   margin: 20px;
 }
 
-div#feed li {
+#feed li {
   margin-bottom: 10px;
 }
 
@@ -87,20 +90,26 @@ h2 {
 }
 
 #logo {
-  float: left;
   border: 1px solid #cccccc;
   background-color: #fafafa;
   text-align: center;
-  padding: 6px 10px 5px 10px;
-  width: 143px;
-  margin-right: 20px;
+  padding: 0;
+  width: 163px;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
 }
 
+#logo a {
+  display: block;
+	margin: 0;
+	padding: 0;
+}
+
 #logo img {
   border: 0px none;
+	margin: 0;
+	padding: 0;
 }
 
 #headderrightbuttons {
@@ -109,32 +118,37 @@ h2 {
   margin-top: 5px;
 }
 
-div#bulkbuttons button,
-div#bulkbuttons input,
+#bulkbuttons {
+  float: left;
+  margin: 15px 0 0;
+}
+
+#bulkbuttons button,
+#bulkbuttons input,
 div.editbuttons button {
   float: left;
 }
 
-div#search {
+#search {
   float: left;
 }
 
-div#headerupper {
-  height: 13px;
+#headerupper {
 }
-div#headerupper_right {
+#headerupper_right {
+  float: right;
   text-align: right;
-  font-weight: bold;
-  height: 13px;
+	font-size: 90%;
 }
-div#message {
+
+#message {
   position: fixed;
-  z-index: 2;
   text-align: center;
   font-weight: bold;
-  color: #bd451d;
-  top: 5px;
+  color: #015c65;
+	/*background-color: #ff9;*/
 }
+
 a {
   color: #000066;
   text-decoration: none;
@@ -157,6 +171,7 @@ table.items {
   border-top: 1px solid #dddddd;
   border-left: 1px solid #dddddd;
   border-right: 1px solid #dddddd;
+  width: 100%;
 }
 
 table.items tr.row1:hover {
@@ -199,6 +214,14 @@ table.items th a {
   font-weight: bold;
 }
 */
+
+#items thead td {
+  padding: 1px 5px;
+  border-bottom: 1px solid #ddd;
+	font-weight: bold;
+	color: #666;
+	background-color: #ddd;
+}
 
 table.items tr.row1 > td {
   /*white-space: nowrap;*/
@@ -366,7 +389,7 @@ div.notice {
   background-position: center center;
 }
 
-div#loading {
+#loading {
   position: fixed;
   top: 0px;
   margin: 0px auto 0px auto;
@@ -376,7 +399,7 @@ div#loading {
   display: none;
 }
 
-div#paging {
+#paging {
   margin: 5px;
   height: 20px;
   padding: 5px;
@@ -384,7 +407,7 @@ div#paging {
   float: right;
 }
 
-div#paging a {
+#paging a {
   text-decoration: none;
   border: 1px solid #999999;
   margin: 2px;
@@ -400,7 +423,7 @@ div.detail {
   margin: 10px 0px 10px 0px;
 }
 
-div#editform {
+#editform {
   display: none;
 }
 
@@ -427,8 +450,8 @@ img.PictureDetails_PictureURL {
 }
 
 ul.accounts {
-  margin: 20px 0px 0px 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
   list-style-type: none;
 }
 
@@ -606,14 +629,14 @@ div.Dimensions {
 }
 
 /* styles for debug */
-div#hiddenblocks {
+#hiddenblocks {
   margin: 10px 10px 0 0;
   background-color: #ffffdd;
   border: 1px solid #999966;
   border-radius:5px;
 }
 
-div#debug {
+#debug {
   display: none;
   margin: 10px;
   padding: 10px;
@@ -765,14 +788,16 @@ select:hover {
   cursor: pointer;
 }
 
-input#filtertitle {
+#filtertitle {
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
   margin-right: 0px;
+	float: left;
+	width: 300px;
 }
 
-div#signinbox,
-div#signupbox {
+#signinbox,
+#signupbox {
   background-color: whiteSmoke;
   border: 1px solid #e5e5e5;
   margin: 20px;
@@ -784,19 +809,19 @@ div#signupbox {
   margin-right: 20px;
 }
 
-div#help {
+#help {
   display: none;
   padding: 20px;
   border: 1px solid #eaeaea;
 }
 
-div#settings {
+#settings {
   display: none;
   padding: 20px;
   border: 1px solid #eaeaea;
 }
 
-div#ebayaccountsetting {
+#ebayaccountsetting {
   display: none;
   padding: 20px;
   border: 1px solid #eaeaea;
@@ -847,11 +872,11 @@ td.tab_subtitle {
   font-weight: bold;
 }
 
-div#help li {
+#help li {
   margin: 10px;
 }
 
-div#risknotice {
+#risknotice {
   color: red;
   font-weight: bold;
   border: 1px solid red;
@@ -1056,4 +1081,53 @@ button.disabled {
 
 #syncitemsform input {
   width: 80px;
+}
+
+#itemsearchform {
+	display: ;
+	border: 1px solid #ccc;
+  background-color: #fff;
+  padding: 10px 5px 5px;
+}
+
+#itemsheader td {
+  padding: 1px 5px;
+}
+
+#headersearchform {
+  float: left;
+}
+
+#headersearchform select,
+#headersearchform button {
+  float: left;
+	margin: 0;
+	border-radius: 0;
+  font-family: arial, sans-serif;
+  color: #444;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+#headersearchform input {
+  border-right: 0px none;
+}
+
+#settingsbutton {
+  float: right;
+  margin: 15px 0 0;
+}
+
+#checkall {
+  float: left;
+}
+
+label[for=checkall] {
+  float: left;
+  margin: 6px 0 0;
+}
+
+#hiddenforms,
+#toggledebug {
+  display: none;
 }
