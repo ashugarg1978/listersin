@@ -71,10 +71,12 @@ public class Daemon {
       String[] messages = new String[als.size()];
       messages = (String[]) als.toArray(messages);
 			
-      System.out.println(sdf.format(new Date()).toString()
-                         +" "+callclass+" ("+als.size()+" args)");
-      for (String tmpstr : messages) {
-        System.out.println(sdf.format(new Date()).toString()+" - "+tmpstr);
+      if (!callclass.equals("AddScheduledItems")) {
+        System.out.println(sdf.format(new Date()).toString()
+                           +" "+callclass+" ("+als.size()+" args)");
+        for (String tmpstr : messages) {
+          System.out.println(sdf.format(new Date()).toString()+" - "+tmpstr);
+        }
       }
       
 			try {
