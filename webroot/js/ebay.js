@@ -8,24 +8,21 @@ var foundproducts = new Array();
 /* initialize */
 $(function() {
 	
-	if (typeof(hash) == 'undefined') {
-    
-		resizediv_index();
-		bindevents_index();
-    
-	  if (!location.href.match(/sandbox/)) {
-      
-	  } else {
-      $('img[src="/img/topimage.jpg"]').hide();
-    }
-    
-		return;
-	}
+	/* for sandbox environment */
+	if (!location.href.match(/sandbox/)) {
+		$('#calletsy').remove();
+		$('#setting_etsy_accounts').closest('tr').remove();
+  }
+	
+	$('select[name=sortfield]', '#hiddenforms').val('org.ListingDetails.EndTime');
+	$('td.EndTime span.arrow', '#items > thead').html('<img src="/icon/03/10/34.png" />');
+	$('input[name=limit]', '#toolbar').val(30);
 	
 	resizediv();
+	
 	bindevents();
-	summary();
-	//dump(hash);
+	
+	summary(true);
 	
 	// todo: same code
 	$.each(hash, function(k, v) {
@@ -39,123 +36,10 @@ $(function() {
 		$('select[name="ScheduleTime.date"]', 'div#detailtemplate').append(optiontag);
 	});
 	
-	
-	//$.ajaxSetup({async: false});
-	
-	$('ul.accounts > li.allitems').click();
-	//$('ul.accounts > li > ul:first').show();
-	//$('li.active', $('ul.accountaction:first')).click();
-	
-	if (false) {
-		id = $('a.Title:lt(2):last').closest('tbody.itemrow').attr('id');
-		$('a.Title', 'tbody#'+id).click();
-		$('a.edit', 'tbody#'+id).click();
-		$('input[name="ProductSearch.QueryKeywords"]', '#'+id).val('htc');
-		$('button.GetProductSearchResults', '#'+id).click();
-		$('div.product:first').click();
-		$('div.ProductSellingPages select:first', '#'+id).click();
-		//$('a.save', '#'+id).click();
-	}
-	
-	//setTimeout('autoclick()', 2000);
-	//setTimeout("$('ul.editbuttons > li > a.save', 'div.detail').click()", 5000);
-	//setTimeout(autoclick, 3000);
-	
 	$('ul.pictures').sortable();
-	
-	if (!location.href.match(/sandbox/)) {
-		$('#calletsy').remove();
-		$('#setting_etsy_accounts').closest('tr').remove();
-  }
-	
-	$('input[name=limit]', '#toolbar').val(30);
 	
 	return;
 });
-
-function bindevents_index()
-{
-	/* Sign up button */
-	$('div#signupbox button').live('click', function() {
-    
-		var postdata = $('input', $(this).closest('form')).serialize();
-		
-		$.post('/json/signup',
-			     postdata,
-			     function(data) {
-				     if (data.json.result == true) {
-					     $('#signupmessage')
-						     .css('color', 'blue')
-						     .html('Confirmation mail was sent to<br/>'
-                       + data.json.message+'!<br/>'
-                       + 'If you can\'t find the email,<br/>'
-                       + 'Please also check spam folder.');
-				     } else {
-					     $('#signupmessage')
-						     .css('color', 'red')
-						     .html(data.json.message);
-				     }
-			     },
-			     'json');
-		
-		return false;
-	});
-	
-	/* Forgot password */
-	$('#forgotpasswordlink').live('click', function() {
-		$('#forgotpassworddiv').slideDown();
-		return false;
-	});
-
-	$('#forgotpassworddiv button').live('click', function() {
-		
-		var postdata = $('input', $(this).closest('form')).serialize();
-		
-		$.post('/json/forgotpassword',
-					 postdata,
-					 function(data) {
-				     if (data.json.result == true) {
-					     $('#forgotpasswordmessage')
-						     .css('color', 'blue')
-						     .html('Password reset mail was sent to<br/>'
-                       + data.json.message+'!<br/>'
-                       + 'If you can\'t find the email,<br/>'
-                       + 'Please also check spam folder.');
-				     } else {
-					     $('#forgotpasswordmessage')
-						     .css('color', 'red')
-						     .html(data.json.message);
-				     }
-					 },
-					 'json');
-		
-		return false;
-	});
-
-	/* Reset password button */
-	$('#resetpassworddiv button').live('click', function() {
-    
-		var postdata = $('input', $(this).closest('form')).serialize();
-		
-		$.post('/json/resetpassword',
-			     postdata,
-			     function(data) {
-				     if (data.json.result == true) {
-					     $('#resetpasswordmessage')
-						     .css('color', 'blue')
-						     .html('Your password was changed.<br/>'
-                       + 'Please sign in with new password.');
-				     } else {
-					     $('#resetpasswordmessage')
-						     .css('color', 'red')
-						     .html(data.json.message);
-				     }
-			     },
-			     'json');
-		
-		return false;
-	});
-}
 
 function bindevents()
 {
@@ -724,7 +608,7 @@ function bindevents()
                  
 								 var optiontag = $('<option/>').val(o.username).text(o.username);
 								 $('#csvform select[name=userid]').append(optiontag);
-
+								 
 								 var optiontag2 = $('<option/>').val(o.username).text(o.username);
 								 $('#syncitemsform select[name=userid]').append(optiontag2);
 					     });
@@ -790,8 +674,8 @@ function bindevents()
 		
 		var dom = $('#rowtemplate').clone().attr('id', id);
 		$('tr.row1', dom).hide();
-		$('tbody#rowloading').hide();
-		$('#items tbody:gt(1)').remove();
+		$('#rowloading').hide();
+		$('tbody:gt(1)', '#items').remove();
 		$('#items').append(dom);
 		
 		var detail = $('div.detail', 'div#detailtemplate').clone().css('display', 'block');
@@ -1017,7 +901,38 @@ function bindevents()
   $('select[name="mod.ListingType"]', '#headersearchform').change(function() {
 		items(true);
   });
-  
+	
+	$('td', '#items > thead').live('click', function() {
+		
+		var sortfield = $(this).attr('data-field');
+		if (sortfield == undefined) return;
+		
+		var currentsortfield = $('select[name=sortfield]', '#hiddenforms').val();
+		var currentsortorder = $('select[name=sortorder]', '#hiddenforms').val();
+		
+		$('span.arrow', '#items > thead').empty();
+		
+		if (sortfield == currentsortfield) {
+			$('select[name=sortorder]', '#hiddenforms').val(-1*currentsortorder);
+		} else {
+			$('select[name=sortfield]', '#hiddenforms').val(sortfield);
+			$('select[name=sortorder]', '#hiddenforms').val(1);
+		}
+
+		if ($('select[name=sortorder]', '#hiddenforms').val() == 1) {
+			$('span.arrow', $(this)).html('<img src="/icon/03/10/34.png" />');
+		} else if ($('select[name=sortorder]', '#hiddenforms').val() == -1) {
+			$('span.arrow', $(this)).html('<img src="/icon/03/10/33.png" />');
+		}
+		
+		items(true);
+	});
+	/*
+	$('thead td', '#items').live('mouseout', function() {
+		$(this).css('text-decoration', 'none');
+	});
+  */
+	
 } // end of bindevents
 
 function togglebulkbuttons() {
@@ -1039,9 +954,9 @@ function togglebulkbuttons() {
 }
 
 function checkdemoaccount() {
-  
+    
   var email = $('#user_email').html();
-  
+	
   if (email == 'demo@listers.in') {
     alert('Sorry, this function is not available for demo account.');
     return true;
@@ -1115,8 +1030,8 @@ function titlesearch_keyupdone(str)
 	var str2 = $('input.filter[name=Title]').val();
 	if (str == str2 && str != strdiff) {
 		$('input[name=offset]').val(0);
-		$('table#items tbody:gt(1)').remove();
-		items();
+		/*$('table#items tbody:gt(1)').remove();*/
+		items(true);
 	}
 	strdiff = str;
 	
@@ -1206,7 +1121,7 @@ $.fn.extractObject = function() {
 	return accum;
 };
 
-function summary()
+function summary(initflag)
 {
 	var ulorg = $('ul.accounts').clone();
 	
@@ -1218,10 +1133,16 @@ function summary()
 		}
 		
 		$('ul.accounts > li.allitems').append(' (<span>'+data.json.alluserids.allitems+'</span>)');
+		$('ul.accounts > li.itemstatuses:first').attr('id', 'euidstatuses_allitems');
 		$.each(data.json.alluserids, function(k, v) {
 			$('ul.accounts > li > ul.accountaction li.'+k).append(' (<span>'+v+'</span>)');
 		});
 		
+    if (initflag) {
+      $('li.active', '#euidstatuses_allitems').click();
+    }
+    
+		/* each eBay UserIDs */
 		$.each(data.json, function(ebayuserid, o) {
 			if (ebayuserid == 'alluserids') return;
 			
@@ -1245,7 +1166,10 @@ function summary()
 			$('ul.accounts').append(ul.html());
 			
 			var optiontag = $('<option />').val(ebayuserid).html(ebayuserid);
-			$('select[name=UserID]', $('div#detailtemplate')).append(optiontag);
+			$('select[name=UserID]', '#detailtemplate').append(optiontag);
+      
+			var optiontag = $('<option />').val(ebayuserid).html(ebayuserid);
+			$('select[name=UserID]', '#hiddenforms').append(optiontag);
 		});
 		
 		var licount = $('ul.accounts > li').length;
@@ -1270,7 +1194,8 @@ function items(clearitems)
 	 function(data) {
 		 
 		 if (clearitems) {
-			 $('table#items tbody:gt(1)').remove();
+			 $('tbody:gt(1)', '#items').remove();
+		   $('#content').scrollTop(0);
 		 }
 		 
 		 if (data.json.cnt == 0) {
@@ -1285,6 +1210,12 @@ function items(clearitems)
 		 
 		 var offset = parseInt($('input.filter[name=offset]').val());
 		 var limit  = parseInt($('input.filter[name=limit]' ).val());
+		 
+		 var loaded = offset + limit;
+		 if (loaded > data.json.cnt) {
+			 loaded = data.json.cnt;
+		 }
+		 $('#paging').html(loaded + ' of ' + data.json.cnt);
 		 
 		 if (data.json.cnt > offset + limit) {
 			 hasmore = true;
@@ -1320,10 +1251,12 @@ function getrow(idx, row)
 		return dom;
 	}
 	
-  if (row.mod.ListingType.match('Fixed')) {
-		$('td.ListingType', dom).html('<img src="/img/currency_dollar.png" width="12"/>');
-	} else {
-		$('td.ListingType', dom).html('<img src="/img/auction_hammer_gavel.png" width="12"/>');
+	if (row.mod.ListingType) {
+		if (row.mod.ListingType.match('Fixed')) {
+			$('td.ListingType', dom).html('<img src="/img/currency_dollar.png" width="12"/>');
+		} else {
+			$('td.ListingType', dom).html('<img src="/img/auction_hammer_gavel.png" width="12"/>');
+		}
 	}
   
 	$('td.Title', dom).html(row.mod.Title);
@@ -1333,13 +1266,16 @@ function getrow(idx, row)
 			.attr('href', row.org.ListingDetails.ViewItemURL)
 			.html(row.org.ItemID);
 		
-		$('td.EndTime', dom).html(row.endtime);
-		
+		$('td.EndTime',    dom).html(row.endtime);
     $('td.WatchCount', dom).html(row.org.WatchCount);
-	  
+    $('td.HitCount',   dom).html(row.org.HitCount);
+    $('td.BidCount',   dom).html(row.org.SellingStatus.BidCount);
 	} else {
-		$('a.ItemID', dom).remove();
+		$('a.ItemID',      dom).replaceWith('-');
+		$('td.EndTime',    dom).html('-');
     $('td.WatchCount', dom).html('-');
+    $('td.HitCount',   dom).html('-');
+    $('td.BidCount',   dom).html('-');
 	}
   
 	$('td.price', dom).html(row.price);
@@ -2108,11 +2044,6 @@ function renumbersso(id, classname)
 	return;
 }
 
-function resizediv_index()
-{
-	$('#header').width($('#container-white').width()-40);
-}
-
 function resizediv()
 {
 	var windowh = $(window).height();
@@ -2132,6 +2063,8 @@ function resizediv()
   leftw += $('#leftpane').css('margin-left').replace('px', '') - 0;
   
   $('#rightpane').width(windoww - leftw);
+  //$('#content').width(windoww - leftw);
+  //$('#items').width(windoww - leftw);
 	//$('#items').width(windoww - leftw - 30);
   
 	$('#message').width($('#container').width());

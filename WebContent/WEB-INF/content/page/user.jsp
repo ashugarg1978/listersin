@@ -114,11 +114,26 @@
           <option value="">All UserID</option>
         </select>
 				
-				<input type="text" class="filter" name="offset"   value="0"/>
-				<input type="text" class="filter" name="limit"    value="30"/>
-				<input type="text" class="filter" name="sort"     value="ListingDetails_EndTime"/>
-				<input type="text" class="filter" name="option"   value=""/>
-				<input type="text" class="filter" name="allpages" value=""/>
+				<select name="sortfield" class="filter">
+					<option value="mod.Title">Title</option>
+					<option value="UserID">UserID</option>
+					<option value="org.ItemID">ItemID</option>
+					<option value="org.WatchCount">Watch count</option>
+					<option value="org.HitCount">Hit count</option>
+					<option value="org.SellingStatus.BidCount">Bid count</option>
+					<option value="mod.StartPrice">Price</option>
+					<option value="org.ListingDetails.EndTime">End time</option>
+				</select>
+				
+				<select name="sortorder" class="filter">
+					<option value="1">Ascending</option>
+					<option value="-1">Descending</option>
+				</select>
+				
+				<input type="text" class="filter" name="offset"    value="0"/>
+				<input type="text" class="filter" name="limit"     value="30"/>
+				<input type="text" class="filter" name="option"    value=""/>
+				<input type="text" class="filter" name="allpages"  value=""/>
 				
 			</div>
       
@@ -178,6 +193,7 @@
 	    </div>
 		  
 	    <button id="settingsbutton"><s:text name="Settings"/></button>
+			<div id="paging"></div>
 			
     </div><!-- header -->
     
@@ -189,12 +205,30 @@
 						<input type="checkbox" id="checkall" name="checkall" />
 						<label for="checkall">Check all</label>
 					</td>
-					<td class="title">Title</td>
-					<td class="UserID">UserID</td>
-					<td class="ItemID">ItemID</td>
-					<td class="WatchCount">Wch</td>
-					<td class="price">Price</td>
-					<td class="EndTime">End</td>
+					<td class="title"      data-field="mod.Title">
+						Title<span class="arrow"></span>
+					</td>
+					<td class="UserID"     data-field="UserID">
+						UserID<span class="arrow"></span>
+					</td>
+					<td class="ItemID"     data-field="org.ItemID">
+						ItemID<span class="arrow"></span>
+					</td>
+					<td class="WatchCount" data-field="org.WatchCount">
+						<span class="arrow"></span>Wch
+					</td>
+					<td class="HitCount"   data-field="org.HitCount">
+						<span class="arrow"></span>Hit
+					</td>
+					<td class="BidCount"   data-field="org.SellingStatus.BidCount">
+						<span class="arrow"></span>Bid
+					</td>
+					<td class="price"      data-field="mod.StartPrice">
+						<span class="arrow"></span>Price
+					</td>
+					<td class="EndTime"    data-field="org.ListingDetails.EndTime">
+						<span class="arrow"></span>End
+					</td>
 				</thead>
 	      <tbody id="rowtemplate" class="itemrow">
 	        <tr class="row1">
@@ -216,16 +250,18 @@
 		          <a href="#" class="ItemID" target="_blank"></a>
 		        </td>
 		        <td class="WatchCount"></td>
+		        <td class="HitCount"></td>
+		        <td class="BidCount"></td>
 		        <td class="price"></td>
 		        <td class="EndTime"></td>
 	        </tr>
 	        <tr class="row2">
-		        <td colspan="10"></td>
+		        <td colspan="12"></td>
 	        </tr>
 	      </tbody>
 	      <tbody id="rowloading">
 	        <tr>
-		        <td colspan="9" align="center">
+		        <td colspan="12" align="center">
 		          <s:text name="LoadingItemData"/>
 		        </td>
 	        </tr>

@@ -257,10 +257,11 @@ table.items tr.row2 > td {
 }
 
 td.Title {
-  min-width: 300px;
-  max-width: 400px;
+  /*min-width: 300px;*/
+  /*max-width: 400px;*/
   overflow: hidden;
   /*white-space: nowrap;*/
+	word-break: break-all;
 }
 
 div.labelwrap {
@@ -498,6 +499,10 @@ ul.accountaction {
   padding: 0px 0px 0px 0px;
 }
 
+#euidstatuses_allitems ul.accountaction {
+  display: block;
+}
+
 .tabselected {
   background-color: #cccccc;
   /*
@@ -507,7 +512,9 @@ ul.accountaction {
 }
 
 td.price,
-td.WatchCount {
+td.WatchCount,
+td.HitCount,
+td.BidCount {
   text-align: right;
 }
 
@@ -1127,7 +1134,24 @@ label[for=checkall] {
   margin: 6px 0 0;
 }
 
-#hiddenforms,
-#toggledebug {
+#items > thead td {
+  white-space: nowrap;
+}
+
+#items > thead td:hover {
+  text-decoration: underline;
+	cursor: pointer;
+}
+
+#items > thead span.arrow {
+  padding: 3px;
+}
+
+#paging {
+  float: right;
+  padding: 20px 5px 0 0;
+}
+
+#hiddenforms {
   display: none;
 }

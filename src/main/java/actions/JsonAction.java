@@ -377,9 +377,13 @@ public class JsonAction extends BaseAction {
 		field.put("org.SellingStatus.QuantitySold",  1);
 		field.put("org.TimeLeft",                    1);
 		field.put("org.WatchCount",                  1);
+		field.put("org.SellingStatus.BidCount",      1);
+		field.put("org.HitCount",                    1);
     
+		String sortfield = ((String[]) parameters.get("sortfield"))[0];
+		Integer sortorder = Integer.parseInt(((String[]) parameters.get("sortorder"))[0]);
 		BasicDBObject sort = new BasicDBObject();
-		sort.put("org.ListingDetails.EndTime", 1);
+		sort.put(sortfield, sortorder);
 		
 		/* check duplicate items */
 		String option = "";
@@ -693,7 +697,7 @@ public class JsonAction extends BaseAction {
 		BasicDBObject setting         = (BasicDBObject) item.get("setting");
 		BasicDBObject scheduletime    = (BasicDBObject) item.get("ScheduleTime");
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
-        
+    
 		/* schedule */
 		if (setting.containsField("schedule_local")) {
 			String schedule = setting.getString("schedule_local");
@@ -710,6 +714,12 @@ public class JsonAction extends BaseAction {
       
 			setting.put("schedule", sdf.format(scheduledate));
 		}
+    
+    /* cast StartPrice to float */
+    BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
+    String spval = spdbo.getString("#text");
+    Float floatval = Float.parseFloat(spval);
+    spdbo.put("#text", floatval);
     
 		/* ShippingType */
     // todo: check through here
@@ -1240,17 +1250,17 @@ public class JsonAction extends BaseAction {
 	
 	private LinkedHashMap<String,BasicDBObject> getsellingquery() {
 		
-		BasicDBObject allitems  = new BasicDBObject();
-		BasicDBObject scheduled = new BasicDBObject();
-		BasicDBObject active    = new BasicDBObject();
-		BasicDBObject sold      = new BasicDBObject();
-		BasicDBObject unsold    = new BasicDBObject();
+		BasicDBObject allitems   = new BasicDBObject();
+		BasicDBObject scheduled  = new BasicDBObject();
+		BasicDBObject active     = new BasicDBObject();
+		BasicDBObject sold       = new BasicDBObject();
+		BasicDBObject unsold     = new BasicDBObject();
 		BasicDBObject unanswered = new BasicDBObject();
-		BasicDBObject saved     = new BasicDBObject();
-        
+		BasicDBObject saved      = new BasicDBObject();
+    
 		scheduled.put("org.ItemID", new BasicDBObject("$exists", 0));
 		scheduled.put("setting.schedule", new BasicDBObject("$exists", 1));
-        
+    
 		active.put("org.ItemID", new BasicDBObject("$exists", 1));
 		active.put("org.SellingStatus.ListingStatus", "Active");
 		
@@ -1266,7 +1276,7 @@ public class JsonAction extends BaseAction {
 		
 		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
 		saved.put("setting.schedule", new BasicDBObject("$exists", 0));
-        
+    
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
 		selling.put("allitems",  allitems);
 		selling.put("scheduled", scheduled);
