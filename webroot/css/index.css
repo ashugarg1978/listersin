@@ -195,3 +195,12 @@ input[type=submit] {
   color: #444;
   margin: 0px;
 }
+
+#githubfeed {
+  margin: 20px 20px;
+}
+
+#githubfeed ul {
+  list-style: none;
+  padding: 0;
+}

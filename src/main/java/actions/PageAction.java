@@ -10,6 +10,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.net.ssl.HttpsURLConnection;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -24,6 +25,7 @@ public class PageAction extends BaseAction {
   
   protected LinkedHashMap<String, Object> initjson;
   protected SyndFeed feed;
+  protected BasicDBObject githubfeed;
   
   public PageAction() throws Exception {
   }
@@ -38,6 +40,10 @@ public class PageAction extends BaseAction {
   
   public SyndFeed getFeed() {
     return feed;
+  }
+
+  public BasicDBObject getGithubfeed() {
+    return githubfeed;
   }
   
   /* todo: session management in useraction json request */
@@ -137,10 +143,13 @@ public class PageAction extends BaseAction {
     } else {
       rssurl = "http://listers.in/blog/feed/";
     }
-    log.debug(rssurl);
+    
     URL feedUrl = new URL(rssurl);
     SyndFeedInput input = new SyndFeedInput();
     feed = input.build(new XmlReader(feedUrl));
+    
+    /* GitHub Feed */
+    githubfeed = githubfeed();
     
     return SUCCESS;
   }
@@ -248,7 +257,7 @@ public class PageAction extends BaseAction {
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.DATE, 60);
     String end   = formatter.format(cal.getTime());
-    cal.add(Calendar.DATE, -60); // max 119
+    cal.add(Calendar.DATE, -119); // min -119 from endtime
     String start = formatter.format(cal.getTime());
     
     /* GetSellerList */
@@ -258,13 +267,13 @@ public class PageAction extends BaseAction {
     cal = Calendar.getInstance();
     cal.add(Calendar.DATE, 0);
     end   = formatter.format(cal.getTime());
-    cal.add(Calendar.DATE, -30); // what is max?
+    cal.add(Calendar.DATE, -60); // what is max?
     start = formatter.format(cal.getTime());
     
     /* GetMemberMessages */
     args = new String[]{"GetMemberMessages", email, username,
-                        start+"T00:00:00.000Z",
-                        end+"T00:00:00.000Z"};
+                        start + "T00:00:00.000Z",
+                        end + "T00:00:00.000Z"};
     writesocket_async(args); // not wait
     
     return SUCCESS;
@@ -511,5 +520,32 @@ public class PageAction extends BaseAction {
     
     return;
   }
-  
+	
+	private BasicDBObject githubfeed() throws Exception {
+		
+    URL url = new URL("https://github.com/listersin/listersin/commits/master.atom");
+		
+    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		
+		conn.connect();
+		
+    InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
+		BufferedReader br = new BufferedReader(isr);
+		String line = "";
+		String xml = "";
+		while ((line = br.readLine()) != null) {
+			xml = xml + line + "\n";
+		}
+		br.close();
+		
+		XMLSerializer xmlSerializer = new XMLSerializer(); 
+		//xmlSerializer.setTypeHintsCompatibility(true);
+		xmlSerializer.setTypeHintsEnabled(false);
+		
+		net.sf.json.JSON json = xmlSerializer.read(xml);
+		
+		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
+		
+		return dbo;
+	}
 }

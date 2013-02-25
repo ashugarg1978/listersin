@@ -215,6 +215,22 @@
 				<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
 			</div>
 			
+      <div id="githubfeed">
+        
+	      <h2><s:text name="DevelopmentTimeline"/></h2>
+        
+        <ul>
+		      <s:iterator value="githubfeed.entry">
+		        <li>
+			        <div>${title.replaceAll("<", "&lt;").replaceAll(">", "&gt;")}</div>
+						  <div style="text-align:right; color:#aaa;">
+								${updated.replaceAll("-08:00", "").replaceAll("T", " ").replaceAll("2013-", "").replaceAll("2012-", "")}
+							</div>
+		        </li>
+		      </s:iterator>
+        </ul>
+      </div>
+      
 		</div><!-- rightpane -->
 		
   </div><!-- content -->
