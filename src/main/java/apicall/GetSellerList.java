@@ -44,6 +44,8 @@ public class GetSellerList extends ApiCall {
 		BasicDBObject dbobject = new BasicDBObject();
     if (this.detaillevel.equals("ReturnAll")) {
       dbobject.put("DetailLevel", "ReturnAll");
+      dbobject.put("IncludeWatchCount", "true");
+      dbobject.put("IncludeVariations", "true");
     } else if (this.detaillevel.equals("Fine")) {
       dbobject.put("GranularityLevel", "Fine");
     }
@@ -87,7 +89,8 @@ public class GetSellerList extends ApiCall {
 		
 		String timestamp = resdbo.getString("Timestamp").replaceAll("\\.", "_");
     
-		String userid = ((BasicDBObject) resdbo.get("Seller")).getString("UserID");
+		BasicDBObject seller = (BasicDBObject) resdbo.get("Seller");
+		String userid = seller.getString("UserID");
 		
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
 		email  = messages[0];
@@ -144,6 +147,8 @@ public class GetSellerList extends ApiCall {
 			String itemid = dbo.get("ItemID").toString();
 			
       if (dbo.containsField("Title")) {
+				
+				dbo.put("Seller", seller.copy());
 				
         // todo: update items collection
         String[] args = {email, userid, itemid};
