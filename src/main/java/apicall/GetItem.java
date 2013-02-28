@@ -126,7 +126,15 @@ public class GetItem extends ApiCall implements Callable {
 				}
 			}
 		}
-		
+    
+    /* cast StartPrice to float */
+    BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
+    String spval = spdbo.getString("#text");
+    //Float floatval = Float.parseFloat(spval);
+    //log("Float: " + floatval.toString());
+    Double floatval = new Double(spval);
+    spdbo.put("#text", floatval);
+    
 		/* delete fields which is not necessary in AddItem families */
 		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
 		for (Object fieldname : movefields) {

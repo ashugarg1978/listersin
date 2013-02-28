@@ -511,6 +511,10 @@ ul.accountaction {
   */
 }
 
+td.price {
+  white-space: nowrap;
+}
+
 td.price,
 td.WatchCount,
 td.HitCount,
