@@ -223,6 +223,9 @@ function bindevents()
 					 .css('visibility', '')
 					 .attr('checked', '');
 			 }
+			 if (action == 'delete') {
+         items(true);
+       }
 			 dump(data);
 		 });
 		
