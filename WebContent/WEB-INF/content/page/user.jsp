@@ -657,14 +657,21 @@
                   <div class="close">
                     <button>Close</button>
                   </div>
-					        <div class="producttemplate">
-					          <div class="productimage">
-						          <img src=""/>
-					          </div>
-					          <div class="producttext"></div>
-					          <div class="productid"></div>
-					          <div style="clear:both;"></div>
-					        </div>
+                  <ul class="suggestedcategories">
+                    
+                  </ul>
+                  <ul class="product-list clearfix">
+                    <li class="product-template clearfix">
+					            <div class="product-stockphoto">
+						            <img src=""/>
+					            </div>
+                      <div class="product-text">
+                        <div class="product-title"></div>
+                        <a href="#" class="product-select">Select</a>
+                        <a href="#" class="product-detail" target="_blank">Detail</a>
+                      </div>
+                    </li>
+                  </ul>
 				        </div>
 				        
 				        <input name="mod.ProductListingDetails.ProductID"

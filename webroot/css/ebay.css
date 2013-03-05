@@ -670,12 +670,58 @@ table.checkboxes td:first-child {
 }
 
 div.foundproducts {
+  /*
   max-height: 500px;
   overflow: scroll;
   position: absolute;
+  */
   display: none;
   background-color: #fff;
-  border: 1px solid #666666;
+  border: 1px solid #999;
+  padding: 5px 0 0 5px;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+	margin: 0 0 0 2px;
+}
+
+ul.product-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+li.product-template {
+  display: none;
+}
+
+li.product {
+  display: block;
+  float: left;
+  width: 275px;
+  margin: 0 5px 5px 0;
+  padding: 3px;
+  background-color: #efefef;
+}
+
+div.product-stockphoto {
+  float: left;
+  width: 70px;
+  height: 70px;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+div.product-text {
+  float: left;
+  width: 200px;
+}
+
+div.product-stockphoto img {
+  max-width: 70px;
+  max-height: 70px;
 }
 
 div.product {

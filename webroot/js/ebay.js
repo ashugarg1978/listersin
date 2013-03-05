@@ -527,23 +527,37 @@ function bindevents()
 	
 	$('button.GetProductSearchResults').live('click', findproducts);
 	
-	$('div.foundproducts div.product').live('click', function() {
+	$('div.foundproducts a.product-select').live('click', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
-		var productid = $('div.productid', $(this)).html();
+		var productid = $(this).attr('data-productid');
 		var product = foundproducts['R'+productid];
+		
+		/*
+		$.post('/json/findproducts',
+					 'findtype=ProductID&keyword=' + encodeURIComponent(productid),
+					 function(data) {
+						 
+					 },
+					 'json');
+		*/
 		
 		$('input[name="mod.ProductListingDetails.ProductID"]', '#'+id).val('');
 		$('input[name="mod.ProductListingDetails.ProductReferenceID"]', '#'+id).val(productid);
 		$('input[name="mod.Title"]', '#'+id).val(product.Title);
+    
+    // todo: set StockPhotoURL to 1st image.
+    var files = new Array();
+    files.push(product.StockPhotoURL);
+    addimage(id, 'pictures', files);
 		
-		$(this).closest('div.foundproducts').slideUp('fast');
+		$(this).closest('div.foundproducts').hide();
 		
 		return;
 	});
 
   $('div.foundproducts div.close button').live('click', function() {
-		$(this).closest('div.foundproducts').slideUp('fast');
+		$(this).closest('div.foundproducts').hide();
 		return;
   });
 	
@@ -980,7 +994,8 @@ var changeCurrency = function() {
 var findproducts = function() {
 	
 	$('div.foundproducts', td).hide();
-	$('div.producttemplate', td).nextAll().remove();
+	//$('div.producttemplate', td).nextAll().remove();
+	$('li.product-template', td).nextAll().remove();
   
 	var td = $(this).parent();
 	var keyword = $('input[name="ProductSearch.QueryKeywords"]', td).val();
@@ -1002,27 +1017,29 @@ var findproducts = function() {
 			     
 			     $.each(data.json.result.Product, function(i, o) {
 				     
-				     var productids = arrayize(o.ProductID);
-				     
 				     // todo: care Reference, UPC, ISBN, etc...
+				     var productids = arrayize(o.ProductID);
 				     var productid = productids[0]['#text'];
-             
 				     foundproducts['R'+productid] = o;
-				     
-				     var divtag = $('div.producttemplate', td).clone().attr('class', 'product');
-				     $(divtag).show();
-				     $('img',             divtag).attr('src', o.StockPhotoURL);
-				     $('div.producttext', divtag).html(o.Title);
-				     if (o.ItemSpecifics) {
-					     $.each(arrayize(o.ItemSpecifics.NameValueList), function(j, k) {
-						     $('div.producttext', divtag).append('<br/>'+k.Name+':'+k.Value);
-					     });
-				     }
-				     $('div.productid',   divtag).html(productids[0]['#text']);
-				     $('div.foundproducts', td).append(divtag);
-				     
+						 
+             var ultag = $('li.product-template', td).closest('ul');
+				     var litag = $('li.product-template', td).clone().attr('class', 'product');
+             
+             if (o.DisplayStockPhotos == 'true') {
+               $('img', litag).attr('src', o.StockPhotoURL);
+             } else {
+               $('img', litag).attr('src', '/img/noimage.jpg');
+             }
+             $('div.product-title', litag).html(o.Title);
+						 $('a.product-detail', litag).attr('href', o.DetailsURL);
+             
+						 
+						 $('a.product-select', litag).attr('data-productid', productid);
+						 
+             $(ultag).append(litag);
 			     });
-			     $('div.foundproducts', td).slideDown('fast');
+					 
+			     $('div.foundproducts', td).show();
            $('div.productsearchmessage', td).empty();
 		     },
 		     'json');

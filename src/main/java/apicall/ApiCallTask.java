@@ -123,6 +123,7 @@ public class ApiCallTask implements Callable {
     
     BasicDBObject inc = new BasicDBObject();
     inc.put("count", 1);
+    inc.put("callname." + callname, 1);
     if (!userid.equals("")) {
       inc.put(userid, 1);
     }
@@ -172,7 +173,8 @@ public class ApiCallTask implements Callable {
 				// todo: Should I add linefeed?
 				out.write(line);
 			} else {
-				responsexml = responsexml + line + "\n";
+				//responsexml = responsexml + line + "\n";
+				responsexml = responsexml + line; // test for GetSuggestedCategories
 			}
 		}
 		br.close();
