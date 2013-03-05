@@ -127,18 +127,22 @@ public class GetItem extends ApiCall implements Callable {
 			}
 		}
     
-    /* cast StartPrice to float */
-    BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
-    String spval = spdbo.getString("#text");
-    //Float floatval = Float.parseFloat(spval);
-    //log("Float: " + floatval.toString());
-    Double floatval = new Double(spval);
-    spdbo.put("#text", floatval);
-    
 		/* delete fields which is not necessary in AddItem families */
 		BasicDBList movefields = (BasicDBList) configdbo.get("removefield");
 		for (Object fieldname : movefields) {
 			movefield(mod, fieldname.toString());
+		}
+    
+		BasicDBList doublefields = (BasicDBList) configdbo.get("doublefield");
+		for (Object fieldname : doublefields) {
+			convertfield(mod, fieldname.toString());
+			convertfield(org, fieldname.toString());
+		}
+    
+		BasicDBList intfields = (BasicDBList) configdbo.get("intfield");
+		for (Object fieldname : intfields) {
+			convertint(mod, fieldname.toString());
+			convertint(org, fieldname.toString());
 		}
     
 		BasicDBObject query = new BasicDBObject();
@@ -196,4 +200,61 @@ public class GetItem extends ApiCall implements Callable {
 		
 		return;
 	}
+  
+	private void convertfield(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+		
+		/* leaf */
+		if (path.length == 1) {
+      Double doubleval = new Double(dbo.get(path[0]).toString());
+      dbo.put(path[0], doubleval);
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertfield((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertfield((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+  
+	private void convertint(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+    
+		/* leaf */
+		if (path.length == 1) {
+      Integer intval = new Integer(dbo.get(path[0]).toString());
+      dbo.put(path[0], intval);
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertint((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertint((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+  
 }
