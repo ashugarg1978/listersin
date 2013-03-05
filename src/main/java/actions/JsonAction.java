@@ -368,17 +368,17 @@ public class JsonAction extends BaseAction {
 		field.put("mod.StartPrice",                  1);
 		field.put("mod.PictureDetails.GalleryURL",   1);
 		field.put("mod.PictureDetails.PictureURL",   1);
-		
+    
+		field.put("org.HitCount",                    1);
 		field.put("org.ItemID",                      1);
 		field.put("org.ListingDetails.EndTime",      1);
 		field.put("org.ListingDetails.HasUnansweredQuestions",  1);
 		field.put("org.ListingDetails.ViewItemURL",  1);
+		field.put("org.SellingStatus.BidCount",      1);
 		field.put("org.SellingStatus.ListingStatus", 1);
 		field.put("org.SellingStatus.QuantitySold",  1);
 		field.put("org.TimeLeft",                    1);
 		field.put("org.WatchCount",                  1);
-		field.put("org.SellingStatus.BidCount",      1);
-		field.put("org.HitCount",                    1);
     
 		String sortfield = ((String[]) parameters.get("sortfield"))[0];
 		Integer sortorder = Integer.parseInt(((String[]) parameters.get("sortorder"))[0]);
@@ -718,7 +718,10 @@ public class JsonAction extends BaseAction {
     /* cast StartPrice to float */
     BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
     String spval = spdbo.getString("#text");
-    Float floatval = Float.parseFloat(spval);
+    
+    //Float floatval = Float.parseFloat(spval);
+    //Float floatval = new Float(spval);
+    Double floatval = new Double(spval);
     spdbo.put("#text", floatval);
     
 		/* ShippingType */
@@ -1112,28 +1115,27 @@ public class JsonAction extends BaseAction {
 			return SUCCESS;
 		}
 		
+    /* GetSuggestedCategories */
+    String[] args = {"GetSuggestedCategories", keyword};
+    String categoryresult = writesocket(args);
+    
 		/* FindProducts */
-		Socket socket = new Socket("localhost", daemonport);
-		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-        
-		out.println("FindProducts\n"
-                    + findtype + "\n"
-                    + keyword + "\n"
-                    + "\n");
-		String result = in.readLine();
-		
-		out.close();
-		in.close();
-		socket.close();
-		
+    String[] args2 = {"FindProducts", findtype, keyword};
+    String result = writesocket(args2);
+    
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
 		xmlSerializer.setTypeHintsEnabled(false);
+    
+		net.sf.json.JSON categoryjson = xmlSerializer.read(categoryresult);
+		BasicDBObject categorydbo =
+      (BasicDBObject) com.mongodb.util.JSON.parse(categoryjson.toString());
+    
 		net.sf.json.JSON tmpjson = xmlSerializer.read(result);
-		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
-		//BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(result);
-		
+		BasicDBObject dbo =
+      (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
+    
 		json = new LinkedHashMap<String,Object>();
+		json.put("categories", categorydbo);
 		json.put("result", dbo);
 		
 		return SUCCESS;
