@@ -4,32 +4,37 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
   
   <appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
-	<layout class="org.apache.log4j.PatternLayout"> 
-	  <!--param name="ConversionPattern" value="%d %-5p %c.%M:%L - %m%n"/-->
-	  <param name="ConversionPattern" value="[%d] %-5p %F:%L - %m%n"/> 
-	</layout> 
+		<layout class="org.apache.log4j.PatternLayout"> 
+			<!--param name="ConversionPattern" value="%d %-5p %c.%M:%L - %m%n"/-->
+			<param name="ConversionPattern" value="[%d] %-5p %F:%L - %m%n"/> 
+		</layout> 
   </appender>
   
   <logger name="com.opensymphony">
-	<level value="WARN" />
+		<level value="WARN" />
   </logger>
   
   <logger name="org.apache.struts2">
-	<level value="DEBUG" />
-	<!--level value="WARN" /-->
+		<level value="DEBUG" />
+		<!--level value="WARN" /-->
+  </logger>
+	
+  <logger name="CommonsLogger">
+		<!--evel value="DEBUG" /-->
+		<level value="WARN" />
   </logger>
   
   <logger name="net.sf.json.xml">
-	<level value="WARN" />
+		<level value="WARN" />
   </logger>
   
   <logger name="ebaytool">
-	<level value="DEBUG" />
+		<level value="DEBUG" />
   </logger>
   
   <root>
-	<priority value="INFO"/> 
-	<appender-ref ref="STDOUT" /> 
+		<priority value="INFO"/> 
+		<appender-ref ref="STDOUT" /> 
   </root> 
   
 </log4j:configuration> 
