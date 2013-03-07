@@ -7,7 +7,7 @@
 <title>Reset password - ListersIn</title>
 <link rel="stylesheet" type="text/css" href="/css/index.css">
 <link rel="shortcut icon" href="/img/favicon.png">
-<script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
 <script type="text/javascript" src="/js/index.js"></script>
 <script type="text/javascript">

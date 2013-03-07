@@ -5,7 +5,7 @@ $(function() {
 function bindevents()
 {
 	/* Sign up button */
-	$('div#signupbox button').live('click', function() {
+	$('button', '#signupbox').click(function() {
     
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
@@ -31,12 +31,12 @@ function bindevents()
 	});
 	
 	/* Forgot password */
-	$('#forgotpasswordlink').live('click', function() {
+	$('#forgotpasswordlink').click(function() {
 		$('#forgotpassworddiv').slideDown();
 		return false;
 	});
-
-	$('#forgotpassworddiv button').live('click', function() {
+	
+	$('button', '#forgotpassworddiv').click(function() {
 		
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
@@ -62,7 +62,7 @@ function bindevents()
 	});
 
 	/* Reset password button */
-	$('#resetpassworddiv button').live('click', function() {
+	$('button', '#resetpassworddiv').click(function() {
     
 		var postdata = $('input', $(this).closest('form')).serialize();
 		

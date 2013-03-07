@@ -46,7 +46,7 @@ function bindevents()
 	$(window).resize(resizediv);
 	
 	/* Add eBay account */
-	$('button.addebayaccount').live('click', function() {
+	$('button.addebayaccount').click(function() {
     
     if (checkdemoaccount()) return;
 		
@@ -65,7 +65,7 @@ function bindevents()
 	});
 	
 	/* Add Etsy account */
-	$('button.addetsyaccount').live('click', function() {
+	$('button.addetsyaccount').click(function() {
     
     if (checkdemoaccount()) return;
 		
@@ -83,7 +83,7 @@ function bindevents()
 			     'json');
 	});
   
-  $('button.send-etsy-verification-code').live('click', function() {
+  $('button.send-etsy-verification-code').click(function() {
     
     var postdata = 'verification_code=' + $('#etsy_verification_code').val();
     $.post('/etsy/accesstoken',
@@ -121,30 +121,30 @@ function bindevents()
 		return;
 	});
 	
-	$('tr.row1').live('click', clickTitle);
+	$('#items').on('click', 'tr.row1', clickTitle);
 	
-	$('tr.row1 input[type=checkbox]').live('click', function(event) {
+	$('#items').on('click', 'tr.row1 input[type=checkbox]', function(event) {
 		event.stopPropagation();
 		togglebulkbuttons();
 		return;
 	});
 	
-	$('a.ItemID').live('click', function(event) {
+	$('#items').on('click', 'a.ItemID', function(event) {
 		event.stopPropagation();
 	});
 	
-	$('select[name="mod.Site"]').live('change', changeSite);
-	$('select.category').live('change', changeCategory);
+	$('#items').on('change', 'select[name="mod.Site"]', changeSite);
+	$('#items').on('change', 'select.category', changeCategory);
 	
-	$('div.editbuttons button.edit',   'div.detail').live('click', clickEdit);
-	$('div.editbuttons button.save',   'div.detail').live('click', save);
-	$('div.editbuttons button.cancel', 'div.detail').live('click', clickCancel);
-	$('div.editbuttons button.delete', 'div.detail').live('click', clickDelete);
-	$('div.editbuttons button.copy',   'div.detail').live('click', clickCopy);
+	$('#items').on('click', 'div.editbuttons button.edit',   clickEdit);
+	$('#items').on('click', 'div.editbuttons button.save',   save);
+	$('#items').on('click', 'div.editbuttons button.cancel', clickCancel);
+	$('#items').on('click', 'div.editbuttons button.delete', clickDelete);
+	$('#items').on('click', 'div.editbuttons button.copy',   clickCopy);
 	
 	/* Bulk Buttons */
-	$('div#bulkbuttons button').live('click', function() {
-        
+	$('#bulkbuttons').on('click', 'button', function() {
+    
 		if ($(this).attr('id') == 'settingsbutton') return;
         
 		var action = $(this).attr('class').replace(/ .+$/, '');
@@ -245,7 +245,7 @@ function bindevents()
 	});
 	
 	/* Left Navi (eBay account name click) */
-	$('ul.accounts > li').live('click', function() {
+	$('#toolbar').on('click', 'ul.accounts > li', function() {
 		
 		if ($(this).attr('class') == undefined) {
 			return;
@@ -278,7 +278,7 @@ function bindevents()
 	});
 	
 	/* Left navi (item status click) */
-	$('ul.accountaction > li').live('click', function() {
+	$('#toolbar').on('click', 'ul.accountaction > li', function() {
 		
 		var v = $(this).attr('class').replace('tabselected', '').replace(' ', '');
 		
@@ -306,7 +306,7 @@ function bindevents()
 	});
 	
 	/* Picture */
-  $('input:file').live('change', function() {
+  $('#items').on('change', 'input:file', function() {
 		
     if ($(this).attr('id') == 'csvfile') {
       return;
@@ -339,12 +339,12 @@ function bindevents()
     return;
   });
   
-	$('select[name="mod.ListingType"]').live('change', function() {
+	$('#items').on('change', 'select[name="mod.ListingType"]', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		updateduration(id);
 	});
 	
-	$('ul.tabNav li').live('click', function() {
+	$('#items').on('click', 'ul.tabNav li', function() {
 		var id = $(this).closest('tbody').attr('id');
 		var curIdx = $(this).prevAll().length + 1;
 		
@@ -367,13 +367,13 @@ function bindevents()
 	
 	
 	/* Editor */
-	$('a.wysiwyg').live('click', function() {
+	$('#items').on('click', 'a.wysiwyg', function() {
 		$('textarea[name=description]', '#'+id).wysiwyg('destroy');
 		return false;
 	});
 	
 	/* ShippingType.domestic */
-	$('select[name="mod.ShippingDetails.ShippingType.domestic"]').live('change', function() {
+	$('#items').on('change', 'select[name="mod.ShippingDetails.ShippingType.domestic"]', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var item_modifing =
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -385,7 +385,8 @@ function bindevents()
 	});
   
   /* ShippingType.international */
-	$('select[name="mod.ShippingDetails.ShippingType.international"]').live('change', function() {
+	$('#items').on('change', 'select[name="mod.ShippingDetails.ShippingType.international"]',
+								 function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var item_modifing =
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -398,7 +399,7 @@ function bindevents()
 
 	/* ShippingPackage */
 	var _sdcsr = 'ShippingDetails.CalculatedShippingRate';
-	$('select[name="mod.'+_sdcsr+'.ShippingPackage"]').live('change', function() {
+	$('#items').on('change', 'select[name="mod.'+_sdcsr+'.ShippingPackage"]', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var item_modifing =
 			$('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -410,7 +411,7 @@ function bindevents()
 	});
 	
 	/* Offer additional service */
-	$('a.addsso').live('click', function() {
+	$('#items').on('click', 'a.addsso', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var tdclass = $(this).closest('td').attr('class');
@@ -421,7 +422,7 @@ function bindevents()
 	});
 
 	/* Remove service */
-	$('a.removesso').live('click', function() {
+	$('#items').on('click', 'a.removesso', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var tdclass = $(this).closest('td').attr('class');
@@ -438,7 +439,7 @@ function bindevents()
 	});
 	
 	/* Add ItemSpecifics */
-	$('a.addis').live('click', function() {
+	$('#items').on('click', 'a.addis', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var iscnt = $('table.ItemSpecifics tr', '#'+id).length;
 		var trtag = setformelements_itemspecifics_values(id, iscnt, null, null);
@@ -448,7 +449,7 @@ function bindevents()
 	});
 	
 	/* Remove ItemSpecifics */
-	$('a.removeispc').live('click', function() {
+	$('#items').on('click', 'a.removeispc', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		
 		$(this).closest('tr').remove();
@@ -464,7 +465,7 @@ function bindevents()
 	});
 	
 	/* Sync items from eBay */
-  $('#syncbutton').live('click', function() {
+  $('#syncbutton').click(function() {
     
     if (checkdemoaccount()) return;
 		
@@ -500,7 +501,7 @@ function bindevents()
   });
   
 	/* RemoveAccount */
-	$('button[class^=removeaccount]', 'div#settings').live('click', function() {
+	$('#settings').on('click', 'button[class^=removeaccount]', function() {
     
     if (checkdemoaccount()) return;
     
@@ -515,7 +516,7 @@ function bindevents()
     return;
 	});
 	
-	$('#cancelaccountlink').live('click', function() {
+	$('#cancelaccountlink').click(function() {
     if (checkdemoaccount()) return false;
 		
 		if (confirm('Cancel your account?')) {
@@ -525,9 +526,9 @@ function bindevents()
 		}
 	});
 	
-	$('button.GetProductSearchResults').live('click', findproducts);
+	$('#items').on('click', 'button.GetProductSearchResults', findproducts);
 	
-	$('div.foundproducts a.product-select').live('click', function() {
+	$('#items').on('click', 'div.foundproducts a.product-select', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var productid = $(this).attr('data-productid');
@@ -556,12 +557,12 @@ function bindevents()
 		return;
 	});
 
-  $('div.foundproducts div.close button').live('click', function() {
+  $('#items').on('click', 'div.foundproducts div.close button', function() {
 		$(this).closest('div.foundproducts').hide();
 		return;
   });
 	
-	$('a#toggledebug').live('click', function() {
+	$('#toggledebug').click(function() {
 		if ($('div#debug').css('display') == 'none') {
 			showcontent('#debug');
 		} else {
@@ -572,12 +573,12 @@ function bindevents()
 	});
 	
 	// Title Search
-	$('input.filter[name=Title]').live('keyup', function() {
+	$('input.filter[name=Title]').keyup(function() {
 		setTimeout('titlesearch_keyupdone("' + $(this).val() + '")', 500);
 	});
 	
 	// Settings button
-	$('button#settingsbutton').live('click', function() {
+	$('#settingsbutton').click(function() {
     
 		// setformelements
 		$('select[name=TimeZone]', '#settings').empty();
@@ -641,11 +642,11 @@ function bindevents()
       .datepicker({dateFormat: 'yy-mm-dd'});
 	});
 	
-	$('a#showhelp').live('click', function() {
+	$('#showhelp').click(function() {
 		showcontent('#help');
 	});
   
-  $('select[name=TimeZone]', '#settings').live('click', function() {
+  $('select[name=TimeZone]', '#settings').click(function() {
     
     var postdata = 'timezone='+encodeURIComponent($(this).val());
     
@@ -660,7 +661,7 @@ function bindevents()
   });
 	
 	// Theme select
-	$('select[name="ListingDesigner.GroupID"]').live('change', function() {
+	$('#items').on('change', 'select[name="ListingDesigner.GroupID"]', function() {
 		var id = $(this).closest('tbody.itemrow').attr('id');
 		var site = $('select[name="mod.Site"]', '#'+id).val();
 		if ($(this).val() == '') {
@@ -683,7 +684,7 @@ function bindevents()
 	});
 	
 	// Add New Item
-	$('button.newitem').live('click', function() {
+	$('button.newitem').click(function() {
 		
 		showcontent('#items');
 		
@@ -702,7 +703,8 @@ function bindevents()
 		$('div.tabContainer', '#'+id).children().show();
 		
 		// todo: compare to CKEditor
-		$('textarea[name="mod.Description"]', '#'+id).wysiwyg();
+		//$('textarea[name="mod.Description"]', '#'+id).wysiwyg();
+		$('textarea[name="mod.Description"]', '#'+id).redactor();
 		
 		showbuttons(dom, 'save,cancel');
 		
@@ -747,9 +749,9 @@ function bindevents()
 		return false;
 	});
 	
-	$('select[name="mod.Currency"]').live('change', changeCurrency);
+	$('#items').on('change', 'select[name="mod.Currency"]', changeCurrency);
 	
-	$('#checkduplicateitems').live('click', function() {
+	$('#checkduplicateitems').click(function() {
 		
 		$('select[name=UserID]').val('');
 		$('select[name=selling]').val('allitems');
@@ -762,13 +764,13 @@ function bindevents()
 	});
 	
 	// Delete Picture
-	$('a.deletepicture').live('click', function() {
+	$('#items').on('click', 'a.deletepicture', function() {
 		$(this).closest('li').remove();
 		return false;
 	});
   
 	// Send a message to buyer
-  $('div.buyer-sendmessage button').live('click', function() {
+  $('#items').on('click', 'div.buyer-sendmessage button', function() {
     
 		var id = $(this).closest('tbody.itemrow').attr('id');
     var selleruserid = rowsdata[id].org.Seller.UserID;
@@ -791,7 +793,7 @@ function bindevents()
   });
 	
 	/* AddMemberMessageRTQ */
-  $('div.question-block button').live('click', function() {
+  $('#items').on('click', 'div.question-block button', function() {
 		
 		var id     = $(this).closest('tbody.itemrow').attr('id');
     var userid = rowsdata[id].org.Seller.UserID;
@@ -825,7 +827,7 @@ function bindevents()
            'json');
   });
   
-  $('#calletsy').live('click', function() {
+  $('#calletsy').click(function() {
     
     var postdata = '';
     
@@ -895,8 +897,9 @@ function bindevents()
 		return true;
 	});
 
-	$('select[name^="mod.ItemSpecifics.NameValueList"][name$="Value.selector"]')
-		.live('change', function() {
+	$('#items').on('change',
+								 'select[name^="mod.ItemSpecifics.NameValueList"][name$="Value.selector"]',
+								 function() {
 
 			var id   = $(this).closest('tbody.itemrow').attr('id');
 			var name = $(this).attr('name').replace('.selector', '');
@@ -919,7 +922,7 @@ function bindevents()
 		items(true);
   });
 	
-	$('td', '#items > thead').live('click', function() {
+	$('#items').on('click', 'thead td', function() {
 		
 		var sortfield = $(this).attr('data-field');
 		if (sortfield == undefined) return;
@@ -944,11 +947,6 @@ function bindevents()
 		
 		items(true);
 	});
-	/*
-	$('thead td', '#items').live('mouseout', function() {
-		$(this).css('text-decoration', 'none');
-	});
-  */
 	
 } // end of bindevents
 
@@ -1026,7 +1024,7 @@ var findproducts = function() {
 				     var litag = $('li.product-template', td).clone().attr('class', 'product');
              
              if (o.DisplayStockPhotos == 'true') {
-               $('img', litag).attr('src', o.StockPhotoURL);
+               $('img', litag).attr('src', '/image/?url=' + encodeURIComponent(o.StockPhotoURL));
              } else {
                $('img', litag).attr('src', '/img/noimage.jpg');
              }
@@ -1320,6 +1318,9 @@ function getrow(idx, row)
 			pictstr = row.mod.PictureDetails.GalleryURL[0];
 		}
 	}
+  
+  pictstr = '/image/?url=' + encodeURIComponent(pictstr);
+  
 	if (pictstr != '') {
 		$('img.PictureURL', dom).attr('src', pictstr);
 	} else {
@@ -2168,7 +2169,8 @@ var clickEdit = function() {
 	fillformvalues(item);
 	
 	// todo: compare to CKEditor
-	$('textarea[name="mod.Description"]', 'tbody#'+id).wysiwyg();
+	//$('textarea[name="mod.Description"]', 'tbody#'+id).wysiwyg();
+	$('textarea[name="mod.Description"]', 'tbody#'+id).redactor();
 	
 	showbuttons(dom, 'save,cancel');
 	
@@ -2827,7 +2829,7 @@ function showformvalues(item)
 		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
 			var lidiv = $('ul.pictures li.template', detail).clone();
 			$(lidiv).removeClass('template');
-			$('img', lidiv).attr('src', url);
+			$('img', lidiv).attr('src', '/image/?url=' + encodeURIComponent(url));
 			$('ul.pictures', detail).append(lidiv);
 		});
 		//$('ul.pictures', detail).sortable();
@@ -3250,7 +3252,7 @@ function addimage(id, divclass, files) {
 	$.each(files, function(i, url) {
 		var li = $('ul.pictures li.template', '#'+id).clone();
 		$(li).removeClass('template');
-		$('img', li).attr('src', url);
+		$('img', li).attr('src', '/image/?url=' + encodeURIComponent(url));
 		$('div.'+divclass+' ul', '#'+id).append(li);
 	});
 	
