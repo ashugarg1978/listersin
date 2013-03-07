@@ -2,6 +2,7 @@
 var rowsdata = new Array();
 var hasmore  = false;
 var strdiff  = '';
+var strprev  = '';
 var timeout  = null;
 var foundproducts = new Array();
 
@@ -27,16 +28,14 @@ $(function() {
 	// todo: same code
 	$.each(hash, function(k, v) {
 		var optiontag = $('<option />').val(k).html(k);
-		$('select[name="mod.Site"]', 'div#detailtemplate').append(optiontag);
+		$('select[name="mod.Site"]', '#detailtemplate').append(optiontag);
 	});
 	
 	/* scheduledays */
 	$.each(scheduledays, function(k, v) {
 		var optiontag = $('<option />').val(k).html(v);
-		$('select[name="ScheduleTime.date"]', 'div#detailtemplate').append(optiontag);
+		$('select[name="ScheduleTime.date"]', '#detailtemplate').append(optiontag);
 	});
-	
-	$('ul.pictures').sortable();
 	
 	return;
 });
@@ -326,7 +325,7 @@ function bindevents()
 		var divclassform = $('<input/>').attr('name', 'divclass').val(divclass);
 		$(this).closest('form').append(divclassform);
     
-		$('ul.pictures', '#'+id).sortable('destroy');
+		//$('ul.pictures', '#'+id).sortable('destroy');
 		
 		$(this).attr('name', 'fileUpload')
 		$(this).closest('form').submit();
@@ -574,7 +573,8 @@ function bindevents()
 	
 	// Title Search
 	$('input.filter[name=Title]').keyup(function() {
-		setTimeout('titlesearch_keyupdone("' + $(this).val() + '")', 500);
+    strprev = $(this).val();
+		setTimeout('titlesearch_keyupdone()', 500);
 	});
 	
 	// Settings button
@@ -1043,15 +1043,14 @@ var findproducts = function() {
 		     'json');
 }
 
-function titlesearch_keyupdone(str)
+function titlesearch_keyupdone()
 {
 	var str2 = $('input.filter[name=Title]').val();
-	if (str == str2 && str != strdiff) {
+	if (strprev == str2 && strprev != strdiff) {
 		$('input[name=offset]').val(0);
-		/*$('table#items tbody:gt(1)').remove();*/
 		items(true);
 	}
-	strdiff = str;
+	strdiff = strprev;
 	
 	return;
 }
@@ -1205,10 +1204,14 @@ function summary(initflag)
 function items(clearitems)
 {
 	$('#message').html('Loading...');
+  
+  var postdata = $('input.filter, select.filter').extractObject();
+	postdata = JSON.stringify(postdata);
+	postdata = encodeURIComponent(postdata);
 	
 	$.post
 	('/json/items',
-	 $('input.filter, select.filter').serialize(),
+	 $('input.filter, select.filter').serialize() + '&json=' +　postdata,
 	 function(data) {
 		 
 		 if (clearitems) {
@@ -2193,12 +2196,12 @@ var save = function() {
 	$.each($('ul.pictures li', '#'+id), function (i, li) {
 		if ($(li).attr('class') == 'template') return;
 		
-		var src = $('img', li).attr('src');
+		var url = $('img', li).attr('data-url');
 		
 		var input = $('<input />')
 			.attr('type', 'hidden')
 			.attr('name', 'mod.PictureDetails.PictureURL')
-			.val(src);
+			.val(url);
 		
 		$('div.pictures', '#'+id).append(input);
 	});
@@ -2208,12 +2211,12 @@ var save = function() {
 		$.each($('ul.variationpictures li', div), function(j, li) {
 			if ($(li).attr('class') == 'template') return;
 			
-			var src = $('img', li).attr('src');
+			var url = $('img', li).attr('data-url');
 			
 			var input = $('<input />')
 				.attr('type', 'hidden')
 				.attr('name', 'mod.Variations.Pictures.VariationSpecificPictureSet.'+i+'.PictureURL')
-				.val(src);
+				.val(url);
 			
 			$(div).append(input);
 		});
@@ -2822,19 +2825,25 @@ function showformvalues(item)
 	});
 	
 	/* PictureDetails */
+	$('div.pictures form', detail).remove();
 	$('input[type=file]', detail).remove();
 	
 	$('ul.pictures li:gt(0)', detail).remove();
 	if (item.mod.PictureDetails) {
 		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
 			var lidiv = $('ul.pictures li.template', detail).clone();
-			$(lidiv).removeClass('template');
-			$('img', lidiv).attr('src', '/image/?url=' + encodeURIComponent(url));
+			$(lidiv).removeClass('template').addClass('pictureli');
+      
+			$('img', lidiv)
+        .attr('data-url', url)
+        .attr('src', '/image/?url=' + encodeURIComponent(url));
+			
+			$('a.deletepicture', lidiv).remove();
+      
 			$('ul.pictures', detail).append(lidiv);
 		});
-		//$('ul.pictures', detail).sortable();
 	}
-
+	
   /* Variations.Pictures */
   if (item.mod.Variations) {
     $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
@@ -2842,7 +2851,7 @@ function showformvalues(item)
 			o.PictureURL = arrayize(o.PictureURL);
       $.each(o.PictureURL, function(j, url) {
 			  var lidiv = $('div.VariationPictures'+i+' li.template', detail).clone();
-			  $(lidiv).removeClass('template');
+			  $(lidiv).removeClass('template').addClass('pictureli');
 			  $('img', lidiv).attr('src', url);
 			  $('div.VariationPictures'+i+' ul.variationpictures', detail).append(lidiv);
       });
@@ -2986,13 +2995,15 @@ function fillformvalues(item)
 		
 		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
 			var lidiv = $('ul.pictures li:first', '#'+id).clone();
-			$(lidiv).removeClass('template');
-			$('img', lidiv).attr('src', url);
+			$(lidiv).removeClass('template').addClass('pictureli');
+      
+			$('img', lidiv)
+        .attr('data-url', url)
+        .attr('src', '/image/?url=' + encodeURIComponent(url));
+      
 			$('ul.pictures', '#'+id).append(lidiv);
 		});
-		$('ul.pictures', '#'+id).sortable({
-			items: ':not(.template)'
-		});
+		$('ul.pictures', '#'+id).sortable({items: 'li.pictureli'});
 	}
   
   /* VariationPictures */
@@ -3002,15 +3013,17 @@ function fillformvalues(item)
 			o.PictureURL = arrayize(o.PictureURL);
       $.each(o.PictureURL, function(j, url) {
 			  var lidiv = $('div.VariationPictures'+i+' li.template', '#'+id).clone();
-			  $(lidiv).removeClass('template');
-			  $('img', lidiv).attr('src', url);
+			  $(lidiv).removeClass('template').addClass('pictureli');
+        
+			  $('img', lidiv)
+          .attr('data-url', url)
+          .attr('src', '/image/?url=' + encodeURIComponent(url));
+        
 			  $('div.VariationPictures'+i+' ul.variationpictures', '#'+id).append(lidiv);
       });
       
     });
-		$('ul.variationpictures', '#'+id).sortable({
-			items: ':not(.template)'
-		});
+		$('ul.variationpictures', '#'+id).sortable({items: 'li.pictureli'});
   }
 	
   $('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
@@ -3250,15 +3263,20 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 function addimage(id, divclass, files) {
   
 	$.each(files, function(i, url) {
+    
 		var li = $('ul.pictures li.template', '#'+id).clone();
-		$(li).removeClass('template');
-		$('img', li).attr('src', '/image/?url=' + encodeURIComponent(url));
+    
+		$(li).removeClass('template').addClass('pictureli');
+    
+		$('img', li)
+      .attr('data-url', url)
+      .attr('src', '/image/?url=' + encodeURIComponent(url));
+    
 		$('div.'+divclass+' ul', '#'+id).append(li);
+    
 	});
 	
-	$('div.'+divclass+' ul', '#'+id).sortable({
-		items: ':not(.template)'
-	});
+	$('div.'+divclass+' ul', '#'+id).sortable({items: 'li.pictureli'});
 	
 	return;
 }

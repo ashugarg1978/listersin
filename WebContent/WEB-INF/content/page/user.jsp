@@ -11,7 +11,7 @@
 <![endif]-->
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <link rel="stylesheet" type="text/css" href="/js/redactor/redactor.css">
-<link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.9.1.custom/css/smoothness/jquery-ui-1.9.1.custom.min.css">
+<link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.10.1.custom/css/smoothness/jquery-ui-1.10.1.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery.qtip/jquery.qtip.min.css">
 <link rel="shortcut icon" href="/img/favicon.png">
@@ -23,12 +23,11 @@
 
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
-<script type="text/javascript" src="/js/jquery.sortable.min.js"></script>
-<script type="text/javascript" src="/js/jquery-ui-1.9.1.custom/js/jquery-ui-1.9.1.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery-ui-1.10.1.custom/js/jquery-ui-1.10.1.custom.min.js"></script>
 <script type="text/javascript" src="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="/js/jquery.qtip/jquery.qtip.min.js"></script>
 
-<script type="text/javascript" src="/js/ebay.js?1"></script>
+<script type="text/javascript" src="/js/ebay.js"></script>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
@@ -839,7 +838,7 @@
 			      <div>
 				      <img src="/img/noimage.jpg"/>
 			      </div>
-			      <a href="#" class="deletepicture"><a:text name="Delete"/></a>
+			      <a href="#" class="deletepicture"><s:text name="Delete"/></a>
 			    </li>
 		    </ul>
 		    
@@ -847,6 +846,7 @@
 				      target="posttarget" enctype="multipart/form-data">
           Add images
 			    <input type="file" name="multiplefile" multiple="multiple"/>
+					You can select multiple files at once.
 		    </form>
 		    
 		  </div>
