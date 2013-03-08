@@ -231,14 +231,9 @@ function bindevents()
 		return;
 	});
 	
+  /* Check all items */
 	$('#checkall').click(function() {
-		
-		if ($(this).attr('checked') == 'checked') {
-			$("input[name='id'][value!=on]").attr('checked', 'checked');
-		} else {
-			$("input[name='id'][value!=on]").removeAttr('checked');
-		}
-		
+		$('input[name="id"][id!="rowtemplate"]', '#items').prop('checked', $(this).is(':checked'));
 		togglebulkbuttons();
 		return;
 	});
@@ -951,7 +946,8 @@ function bindevents()
 } // end of bindevents
 
 function togglebulkbuttons() {
-	var checkeditems = $('tr.row1 input:checked[name=id][value!=on]');
+  
+	var checkeditems = $('input:checked[name="id"][id!="rowtemplate"]', '#items');
 	
 	if (checkeditems.length == 0) {
 		$('button.copy, button.delete, button.add, button.relist,'
