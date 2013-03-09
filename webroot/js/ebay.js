@@ -148,18 +148,12 @@ function bindevents()
         
 		var action = $(this).attr('class').replace(/ .+$/, '');
     
-    if (action.match(/^add|relist|revise|verifyadditem|end$/)) {
+    if (action.match(/^delete|add|relist|revise|verifyadditem|end$/)) {
       if (checkdemoaccount()) return;
 			
 			if (!confirm($(this).html() + ' checked items?')) {
 				return;
 			}
-    }
-    
-    if (action == 'delete') {
-      if (!confirm('Delete checked items?')) {
-        return;
-      }
     }
 		
 		if (action == 'checkall') {
@@ -193,13 +187,13 @@ function bindevents()
 			alert('apply to all pages?');
 			postdata = $('input.filter, select.filter').serialize();
 		} else {
-			postdata = $("input[name='id'][value!=on]:checked").serialize();
+			postdata = $('input[name="id"][id!="rowtemplate"]:checked').serialize();
 		}
 		
-		$("input[name='id']:checked").each(function() {
+		$('input:checked[name="id"][id!="rowtemplate"]').each(function() {
 			$(this).css('visibility', 'hidden');
 			$(this).parent().addClass('loading');
-            
+      
 			if (action == 'delete') {
         $('#'+$(this).val()).remove();
       }
@@ -210,15 +204,15 @@ function bindevents()
 		 postdata,
 		 function(data) {
 			 if (action == 'add'
-				 || action == 'end'
-				 || action == 'relist'
-				 || action == 'revise'
-				 || action == 'verifyadditem') {
+				   || action == 'end'
+				   || action == 'relist'
+				   || action == 'revise'
+				   || action == 'verifyadditem') {
 				 refresh();
 			 }
 			 if (action == 'copy' || action == 'delete') {
 				 $("td.loading").removeClass('loading');
-				 $("input[name='id'][value!=on]:checked")
+				 $('input:checked[name="id"][id!="rowtemplate"]')
 					 .css('visibility', '')
 					 .attr('checked', '');
 			 }
@@ -233,7 +227,8 @@ function bindevents()
 	
   /* Check all items */
 	$('#checkall').click(function() {
-		$('input[name="id"][id!="rowtemplate"]', '#items').prop('checked', $(this).is(':checked'));
+		$('input[name="id"]', '#items tbody[id!="rowtemplate"]')
+			.prop('checked', $(this).is(':checked'));
 		togglebulkbuttons();
 		return;
 	});
@@ -498,13 +493,21 @@ function bindevents()
 	$('#settings').on('click', 'button[class^=removeaccount]', function() {
     
     if (checkdemoaccount()) return;
-    
+		
+		var trtag = $(this).closest('tr');
+		
     var userid = $(this).attr('class').replace(/^removeaccount-/, '');
     
+		if (!confirm('Remove ' + userid + ' from ListersIn?')) {
+			return false;
+		}
+		
+		var postdata = 'userid=' + userid;
+		
 		$.post('/json/removeaccount',
-			     'userid='+userid,
+			     postdata,
 			     function(data) {
-				     
+				     $(trtag).remove();
 			     });
     
     return;
@@ -680,6 +683,11 @@ function bindevents()
 	
 	// Add New Item
 	$('button.newitem').click(function() {
+		
+		if ($('select[name="UserID"] option', '#detailtemplate').length == 0) {
+			alert('Please add your eBay account to ListersIn.');
+			return false;
+		}
 		
 		showcontent('#items');
 		
@@ -947,7 +955,7 @@ function bindevents()
 
 function togglebulkbuttons() {
   
-	var checkeditems = $('input:checked[name="id"][id!="rowtemplate"]', '#items');
+	var checkeditems = $('input:checked[name="id"]', '#items tbody[id!="rowtemplate"]');
 	
 	if (checkeditems.length == 0) {
 		$('button.copy, button.delete, button.add, button.relist,'
@@ -1196,10 +1204,10 @@ function summary(initflag)
 	return;
 }
 
-/* list items */
+/* show item list */
 function items(clearitems)
 {
-	$('#message').html('Loading...');
+	$('#message').html('Loading items...');
   
   var postdata = $('input.filter, select.filter').extractObject();
 	postdata = JSON.stringify(postdata);
@@ -1318,9 +1326,8 @@ function getrow(idx, row)
 		}
 	}
   
-  pictstr = '/image/?url=' + encodeURIComponent(pictstr);
-  
 	if (pictstr != '') {
+		pictstr = '/image/?url=' + encodeURIComponent(pictstr);
 		$('img.PictureURL', dom).attr('src', pictstr);
 	} else {
 		$('img.PictureURL', dom).remove();
@@ -2324,7 +2331,13 @@ var save = function() {
 			     showformvalues(item);
 			     showbuttons(detail, 'edit,copy,delete');
 			     $('div.productsearchform', '#'+id).remove();
-			     
+
+			     var rowdom = getrow(id, item);
+					 var row1 = $('tr.row1', rowdom);
+					 $('tr.row1', '#'+id).replaceWith(row1);
+					 $('tr.row1', '#'+id).show();
+					 
+					 $('#message').html('Saved an item.');
 		     },
 		     'json');
 	
