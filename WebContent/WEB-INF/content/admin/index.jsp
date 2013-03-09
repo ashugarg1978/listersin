@@ -36,7 +36,7 @@
     </thead>
     <tbody>
 	    <s:iterator var="user" value="users">
-				<s:if test="userids2 == null || userids.size() == 0">
+				<s:if test="userids2 == null || userids2.size() == 0">
 					<tr>
 						<td>
 							<a href="/admin/signin?email=${email}" target="usersignin">${email}</a>
