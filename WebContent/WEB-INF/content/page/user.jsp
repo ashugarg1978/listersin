@@ -87,7 +87,6 @@
 			  
         <a href="/?request_locale=en">English</a>
 			  | <a href="/?request_locale=ja">日本語</a>
-			  | <a href="/?request_locale=de">Deutsch</a>
 			  
 			  <br/>
 			  
