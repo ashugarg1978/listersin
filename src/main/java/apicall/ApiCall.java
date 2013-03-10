@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
+import org.bson.types.ObjectId;
 
 public class ApiCall implements Callable {
 	
@@ -168,5 +169,29 @@ public class ApiCall implements Callable {
 		
 		return hashmap;
 	}
-	
+  
+  public String getnewtokenmap(String email) throws Exception {
+    
+		ObjectId newid = new ObjectId();
+    
+		BasicDBObject newitem = new BasicDBObject();
+		newitem.put("_id", newid);
+		newitem.put("email", email);
+		
+		db.getCollection("tokenmap").insert(newitem, WriteConcern.SAFE);
+    
+    return newid.toString();
+  }
+  
+  public String getemailfromtokenmap(String tokenid) {
+    
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(tokenid));
+    
+		BasicDBObject tokenmap = (BasicDBObject) db.getCollection("tokenmap").findOne(query);
+		String email = tokenmap.getString("email");
+    
+    return email;
+  }
+    
 }
