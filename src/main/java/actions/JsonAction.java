@@ -811,7 +811,7 @@ public class JsonAction extends BaseAction {
 		}
     
     // todo: call VerifyAdditem immediatly here.
-		if (true) {
+		if (!user.getString("email").equals("demo@listers.in")) {
 			
 			String taskid = "verifyadditem_";
 			taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
@@ -828,6 +828,8 @@ public class JsonAction extends BaseAction {
 			String[] args = {"VerifyAddItem", user.getString("email"), taskid};
 			String verifyresult = writesocket(args);
 		}
+		
+		updatemessage(user.getString("email"), false, "Saved.");
 		
 		// memo: The id "newitem0" seem to be replaced with new ObjectId automatically.
 		return "item";
