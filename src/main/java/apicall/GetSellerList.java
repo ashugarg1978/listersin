@@ -40,6 +40,12 @@ public class GetSellerList extends ApiCall {
 		
 		String token = gettoken(email, userid);
 		
+    String messageid = getnewtokenmap(email);
+    messageid += " " + userid;
+    messageid += " " + daterange;
+    messageid += " " + datestart;
+    messageid += " " + dateend;
+    
 		/* GetSellerList */
 		BasicDBObject dbobject = new BasicDBObject();
     if (this.detaillevel.equals("ReturnAll")) {
@@ -55,18 +61,18 @@ public class GetSellerList extends ApiCall {
 		dbobject.put(daterange+"TimeTo",   dateend  +" 00:00:00");
 		dbobject.put("Pagination", new BasicDBObject("EntriesPerPage",50).append("PageNumber",1));
 		dbobject.put("Sort", "2");
-		dbobject.put("MessageID", email+" "+userid);
-		
+		dbobject.put("MessageID", messageid);
+    
 		String requestxml = convertDBObject2XML(dbobject, "GetSellerList");
 		Future<String> future = pool18.submit
 			(new ApiCallTask(userid, 0, requestxml, "GetSellerList", "filename"));
 		String responsexml = future.get();
-		
-		BasicDBObject result = convertXML2DBObject(responsexml);
-		
-		int pages = Integer.parseInt(((BasicDBObject) result.get("PaginationResult"))
-																 .get("TotalNumberOfPages").toString());
-		log(userid+" : total "+pages+" page(s).");
+    
+		BasicDBObject resdbo = convertXML2DBObject(responsexml);
+    BasicDBObject paginationresult = (BasicDBObject) resdbo.get("PaginationResult");
+    
+		int pages = Integer.parseInt(paginationresult.getString("TotalNumberOfPages"));
+		int total = Integer.parseInt(paginationresult.getString("TotalNumberOfEntries"));
 		
 		for (int i=2; i<=pages; i++) {
 			((BasicDBObject) dbobject.get("Pagination")).put("PageNumber", i);
@@ -76,8 +82,21 @@ public class GetSellerList extends ApiCall {
 			future.get();
 		}
 		
-		updatemessage(email, "");
-		
+		if (total == 0) {
+			
+      updatemessage(email, false,
+                    "No " + userid + "'s items which " + daterange.toLowerCase()
+                    + " between " + datestart + " and " + dateend + ".");
+      
+		} else {
+      
+      updatemessage(email, false,
+                    "Imported " + userid + "'s " + total + " items"
+                    + " which " + daterange.toLowerCase()
+                    + " between " + datestart + " and " + dateend + ".");
+      
+    }
+    
 		return "OK";
 	}
 	
@@ -93,18 +112,21 @@ public class GetSellerList extends ApiCall {
 		String userid = seller.getString("UserID");
 		
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
-		email  = messages[0];
-		userid = messages[1];
+		email     = getemailfromtokenmap(messages[0]);
+		userid    = messages[1];
+    daterange = messages[2];
+    datestart = messages[3];
+    dateend   = messages[4];
+    
 		String token = gettoken(email, userid);
     
-		int pagenumber = Integer.parseInt(resdbo.getString("PageNumber"));
-		int itemcount  = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
+		int pagenumber   = Integer.parseInt(resdbo.getString("PageNumber"));
+		int itemcount    = Integer.parseInt(resdbo.getString("ReturnedItemCountActual"));
 		int itemsperpage = Integer.parseInt(resdbo.getString("ItemsPerPage"));
 		
 		writelog("GetSellerList/"+email+"."+userid+"."+pagenumber+".xml", responsexml);
-		
+    
 		if (itemcount == 0) {
-			log(userid + " no items.");
 			return responsexml;
 		}
 		
@@ -116,12 +138,13 @@ public class GetSellerList extends ApiCall {
         + ((BasicDBObject) resdbo.get("PaginationResult")).get("TotalNumberOfEntries").toString()
         + " items");
     
-		String message = "Importing "+userid+"'s items from eBay."
+		String message = "Importing " + userid + "'s items from eBay."
 			+ " "+((pagenumber-1)*itemsperpage+1)+"-"+((pagenumber-1)*itemsperpage+itemcount)
 			+ " of "
 			+ ((BasicDBObject) resdbo.get("PaginationResult")).getString("TotalNumberOfEntries")
 			+ " items.";
-		updatemessage(email, message);
+    
+		updatemessage(email, true, message);
 		
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();

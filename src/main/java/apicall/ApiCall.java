@@ -92,14 +92,38 @@ public class ApiCall implements Callable {
 		
 		return;
 	}
-	
+  
+  /*
 	public void updatemessage(String email, String message) {
+    updatemessage(email, false, message);
+    log("Don't use old updatemessage() function!");
+		return;
+	}
+	*/
+  
+	public void updatemessage(String email, boolean hasnext, String message) {
+    
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ");
+    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date now = new Date();
+    String basetimestamp = sdf.format(now);
+    
+    BasicDBObject msgdbo = new BasicDBObject();
+    msgdbo.put("datetime", now);
+    msgdbo.put("hasnext", hasnext);
+    msgdbo.put("message", message);
 		
 		db.getCollection("users").update
 			(new BasicDBObject("email", email),
-			 new BasicDBObject("$set", new BasicDBObject("message", message)));
+			 new BasicDBObject("$set", new BasicDBObject("message", msgdbo)));
 		
-		//log(email+" "+message);
+		/*
+		db.getCollection("users").update
+			(new BasicDBObject("email", email),
+			 new BasicDBObject("$push", new BasicDBObject("messages", msgdbo)));
+		*/
+		
+		log(email + " [" + message + "]");
     
 		return;
 	}
@@ -108,8 +132,8 @@ public class ApiCall implements Callable {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date now = new Date();
-		System.out.println(sdf.format(now).toString()+" "+message);
-		
+		System.out.println(sdf.format(now).toString() + " " + message);
+    
 		return;
 	}
 	

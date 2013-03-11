@@ -61,7 +61,7 @@ public class EndItems extends ApiCall {
 		LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
 		DBCursor cur = coll.find(query);
 		Integer count = cur.count();
-		updatemessage(email, "Ending "+count+" items on eBay...");
+		updatemessage(email, true, "Ending " + count + " items.");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
@@ -140,8 +140,8 @@ public class EndItems extends ApiCall {
                    +"."+new Integer(Integer.parseInt(tmpchunk.toString())).toString()
                    +".xml", requestxml);
 					
-					updatemessage(email, "Ending "+(currentnum+1)+"-"+(currentnum+tmpcnt)
-                        + " of "+count+" items on eBay...");
+					updatemessage(email, true, "Ending "+(currentnum+1)+"-"+(currentnum+tmpcnt)
+                        + " of "+count+" items on eBay.");
 					currentnum += tmpcnt;
 					
 					Future<String> future = pool18.submit
@@ -151,7 +151,7 @@ public class EndItems extends ApiCall {
 			}
 		}
 		
-		updatemessage(email, "");
+		updatemessage(email, false, "Ending finished.");
 		
 		return "OK";
 	}

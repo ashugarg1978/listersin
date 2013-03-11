@@ -45,28 +45,32 @@ import org.bson.types.ObjectId;
 @Result(name="success",type="json")
 public class JsonAction extends BaseAction {
 	
-	//protected Logger log = Logger.getLogger(this.getClass());
-	
-	public JsonAction() throws Exception {
-	}
-	
 	private LinkedHashMap<String,Object> json;
 	
+	public JsonAction() throws Exception {
+		json = new LinkedHashMap<String,Object>();
+	}
+	
 	public LinkedHashMap<String,Object> getJson() {
+		
+    if (session.get("email") != null) {
+			if (user.containsField("message")) {
+				json.put("message", user.get("message"));
+			}
+		}
+		
 		return json;
 	}
 	
 	@Action(value="/json/signup")
 	public String signup() throws Exception {
 		
-		json = new LinkedHashMap<String,Object>();
-		
 		boolean result = false;
 		String message = "signup error";
 		
 		if (parameters.get("email") != null
-			&& parameters.get("password") != null
-			&& parameters.get("password2") != null) {
+				&& parameters.get("password") != null
+				&& parameters.get("password2") != null) {
 			
 			String email     = ((String[]) parameters.get("email"))[0];
 			String password  = ((String[]) parameters.get("password"))[0];
@@ -127,8 +131,7 @@ public class JsonAction extends BaseAction {
 		}
 		
 		json.put("result", result);
-		json.put("message", message);
-		
+    
 		return SUCCESS;
 	}
 
@@ -170,10 +173,8 @@ public class JsonAction extends BaseAction {
 			message = email;
 		}
 		
-		json = new LinkedHashMap<String,Object>();
 		json.put("result", result);
-		json.put("message", message);
-		
+    
 		return SUCCESS;
 	}
 
@@ -213,9 +214,7 @@ public class JsonAction extends BaseAction {
 			message = "";
     }
     
-		json = new LinkedHashMap<String,Object>();
 		json.put("result", result);
-		json.put("message", message);
     
     return SUCCESS;
 	}
@@ -304,7 +303,6 @@ public class JsonAction extends BaseAction {
 			+ "&runame=" + configdbo.getString("runame")
 			+ "&SessID=" + sessionid;
 		
-		json = new LinkedHashMap<String,Object>();
 		json.put("url", url);
     
 		return SUCCESS;
@@ -312,15 +310,19 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/removeaccount")
 	public String removeaccount() throws Exception {
-		
-		// todo: remove items
+    
+    // todo: check userid exists in userids2 array.
 		String userid = parameters.get("userid")[0];
-		log.debug("removeaccount:"+userid);
-		
+    
+    db.getCollection("items." + user.getString("_id")).remove
+      (new BasicDBObject("UserID", userid));
+    
 		db.getCollection("users").update
 			(new BasicDBObject("email", user.getString("email")),
 			 new BasicDBObject("$pull", new BasicDBObject("userids2",
                                                     new BasicDBObject("username", userid))));
+    
+    updatemessage(user.getString("email"), false, "Removed eBay account " + userid + ".");
     
 		return SUCCESS;
 	}
@@ -329,9 +331,16 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/items")
 	public String items() throws Exception {
 		
+    /* Save filter for next use */
+		String filterform = ((String[]) parameters.get("json"))[0];
+		BasicDBObject filterdbo = (BasicDBObject) com.mongodb.util.JSON.parse(filterform);
+    
+    db.getCollection("users").update
+      (new BasicDBObject("_id", new ObjectId(user.getString("_id"))),
+       new BasicDBObject("$set", new BasicDBObject("filter", filterdbo)));
+    
 		json = _items();
-		json.put("message", user.getString("message"));
-		
+    
 		return SUCCESS;
 	}
 	
@@ -380,10 +389,13 @@ public class JsonAction extends BaseAction {
 		field.put("org.TimeLeft",                    1);
 		field.put("org.WatchCount",                  1);
     
-		String sortfield = ((String[]) parameters.get("sortfield"))[0];
-		Integer sortorder = Integer.parseInt(((String[]) parameters.get("sortorder"))[0]);
 		BasicDBObject sort = new BasicDBObject();
-		sort.put(sortfield, sortorder);
+		
+		if (parameters.get("sortfield") != null) {
+			String sortfield = ((String[]) parameters.get("sortfield"))[0];
+			Integer sortorder = Integer.parseInt(((String[]) parameters.get("sortorder"))[0]);
+			sort.put(sortfield, sortorder);
+		}
 		
 		/* check duplicate items */
 		String option = "";
@@ -525,13 +537,11 @@ public class JsonAction extends BaseAction {
 	})
 	public String item() throws Exception {
 		
-		log.debug("/json/item(1)");
-		json = new LinkedHashMap<String,Object>();
-		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		/* handling post parameters */
 		String id = parameters.get("id")[0];
+		log.debug("item:" + id);
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
@@ -714,15 +724,15 @@ public class JsonAction extends BaseAction {
       
 			setting.put("schedule", sdf.format(scheduledate));
 		}
-    
+		
     /* cast StartPrice to float */
-    BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
-    String spval = spdbo.getString("#text");
-    
-    //Float floatval = Float.parseFloat(spval);
-    //Float floatval = new Float(spval);
-    Double floatval = new Double(spval);
-    spdbo.put("#text", floatval);
+		if (mod.containsField("StartPrice")) {
+			BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
+			String spval = spdbo.getString("#text");
+			
+			Double floatval = new Double(spval);
+			spdbo.put("#text", floatval);
+		}
     
 		/* ShippingType */
     // todo: check through here
@@ -749,6 +759,8 @@ public class JsonAction extends BaseAction {
 			
 			/* save new item */
 			ObjectId newid = new ObjectId();
+			id = newid.toString();
+			
 			log.debug("newid:"+newid.toString());
 			parameters.get("id")[0] = newid.toString();
 			
@@ -797,14 +809,32 @@ public class JsonAction extends BaseAction {
 			dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
 			
 		}
+    
+    // todo: call VerifyAdditem immediatly here.
+		if (true) {
+			
+			String taskid = "verifyadditem_";
+			taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
+			
+			BasicDBObject query = new BasicDBObject();
+			query.put("_id", new ObjectId(id));
+			
+			BasicDBObject update = new BasicDBObject();
+			update.put("$set", new BasicDBObject("status", taskid));
+			
+			WriteResult result = db.getCollection("items."+user.getString("_id")).update(query, update);
+			
+			/* VerifyAddItem */
+			String[] args = {"VerifyAddItem", user.getString("email"), taskid};
+			String verifyresult = writesocket(args);
+		}
 		
+		// memo: The id "newitem0" seem to be replaced with new ObjectId automatically.
 		return "item";
 	}
 	
 	@Action(value="/json/copy")
 	public String copy() throws Exception {
-		
-		json = new LinkedHashMap<String,Object>();
 		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
@@ -836,8 +866,6 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/delete")
 	public String delete() throws Exception {
-        
-		json = new LinkedHashMap<String,Object>();
 		
 		BasicDBObject query = getFilterQuery();
         
@@ -854,8 +882,6 @@ public class JsonAction extends BaseAction {
 		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
 		Date now = new Date();
 		String timestamp = sdf.format(now);
-		
-		json = new LinkedHashMap<String,Object>();
 		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
@@ -899,8 +925,6 @@ public class JsonAction extends BaseAction {
 		Date now = new Date();
 		String timestamp = sdf.format(now);
 		
-		json = new LinkedHashMap<String,Object>();
-		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
@@ -933,45 +957,30 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/verifyadditem")
 	public String verifyadditem() throws Exception {
 		
-		// todo: timezone doesn't work
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
-		json = new LinkedHashMap<String,Object>();
-		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
 		
+		String taskid = "verify_";
+		taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
+		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		//query.put("status", new BasicDBObject("$ne", "relist")); // todo: re-enable this line
 		
 		Long count = coll.count(query);
-		String message = "Verifying "+count+" items...";
+		updatemessage(user.getString("email"), true, "Verifing " + count + " items.");
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("status", "verifyadditem_"+timestamp));
+		update.put("$set", new BasicDBObject("status", taskid));
 		
-		WriteResult result = db.getCollection("items."+user.getString("_id"))
-			.update(query, update, false, true);
+		WriteResult result = coll.update(query, update, false, true);
 		
-		json.put("result", result);
-		
-		Socket socket = new Socket("localhost", daemonport);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("VerifyAddItem\n"
-                    + session.get("email") + "\n"
-                    + "verifyadditem_"+timestamp + "\n"
-                    + "\n");
-		out.close();
-		socket.close();
-		
+		String[] args = {"VerifyAddItem", session.get("email").toString(), taskid};
+		writesocket_async(args);
+    
 		return SUCCESS;
 	}
 	
@@ -983,8 +992,6 @@ public class JsonAction extends BaseAction {
 		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
 		Date now = new Date();
 		String timestamp = sdf.format(now);
-		
-		json = new LinkedHashMap<String,Object>();
 		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
@@ -1062,41 +1069,30 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/end")
 	public String end() throws Exception {
 		
-		// todo: timezone doesn't work
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
+		
+		String taskid = "end_";
+		taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
 		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
 		
+		Long count = coll.count(query);
+		updatemessage(user.getString("email"), true, "Ending " + count + " items.");
+		
 		// todo: disable auto relisting.
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("status", "end_"+timestamp));
+		update.put("$set", new BasicDBObject("status", taskid));
 		
 		WriteResult result = coll.update(query, update, false, true);
 		
-		String[] args = {"EndItems", session.get("email").toString(), "end_"+timestamp};
+		String[] args = {"EndItems", session.get("email").toString(), taskid};
 		writesocket_async(args);
-    
-    /*
-		Socket socket = new Socket("localhost", daemonport);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("EndItems\n"
-                    + session.get("email") + "\n"
-                    + "end_"+timestamp + "\n"
-                    + "\n");
-		out.close();
-		socket.close();
-		*/
     
 		return SUCCESS;
 	}
@@ -1134,7 +1130,6 @@ public class JsonAction extends BaseAction {
 		BasicDBObject dbo =
       (BasicDBObject) com.mongodb.util.JSON.parse(tmpjson.toString());
     
-		json = new LinkedHashMap<String,Object>();
 		json.put("categories", categorydbo);
 		json.put("result", dbo);
 		
@@ -1143,7 +1138,9 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/summary")
 	public String summary() throws Exception {
-		json = summarydata();
+		
+		json.put("summary", summarydata());
+		
 		return SUCCESS;
 	}
 	
@@ -1185,8 +1182,7 @@ public class JsonAction extends BaseAction {
       userids2.add(tmp);
 		}
 		settings.put("userids2", userids2);
-    
-		json = new LinkedHashMap<String,Object>();
+		
 		json.put("settings", settings);
 		
 		return SUCCESS;
@@ -1342,8 +1338,6 @@ public class JsonAction extends BaseAction {
 		/* handling post parameters */
 		String site = ((String[]) parameters.get("site"))[0];
 		
-		json = new LinkedHashMap<String,Object>();
-		
 		/* grandchildren */
 		String[] pathstr = {"0"};
 		BasicDBObject children2 = children2(site, pathstr);
@@ -1399,29 +1393,31 @@ public class JsonAction extends BaseAction {
 		String path = ((String[]) parameters.get("path"))[0];
 		String[] arrpath = path.split("\\.");
 		
-		json = new LinkedHashMap<String,Object>();
 		json.put("gc2", children2(site, arrpath));
 		
 		return SUCCESS;
 	}
-
+  
 	@Action(value="/json/refresh")
 	public String refresh() throws Exception {
 		
-		if (parameters.containsKey("id")) {
-			json = _items();
-		} else {
-			json = new LinkedHashMap<String,Object>();
-		}
+    json = _items();
 		
-		json.put("message", user.getString("message"));
 		json.put("summary", summarydata());
 		
 		return SUCCESS;
 	}
 	
-    @Action(value="/json/sendmessage")
-    public String sendmessage() throws Exception {
+	@Action(value="/json/dismissmessage")
+	public String dismissmessage() throws Exception {
+		
+		updatemessage(user.getString("email"), false, "");
+		
+		return SUCCESS;
+	}
+	
+	@Action(value="/json/sendmessage")
+	public String sendmessage() throws Exception {
 		
 		/*
         for (String key : parameters.keySet()) {

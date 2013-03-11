@@ -59,7 +59,9 @@ public class ReviseItem extends ApiCall {
 		DBCursor cur = coll.find(query);
 		Integer count = cur.count();
 		Integer currentnum = 0;
-		updatemessage(email, "Revising "+count+" items to eBay...");
+    
+		updatemessage(email, true, "Revising " + count + " items.");
+    
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
@@ -97,16 +99,16 @@ public class ReviseItem extends ApiCall {
 					
 			//String requestxml = convertDBObject2XML(reqdbo, "ReviseItem");
 			writelog("ReviseItem/req.xml", requestxml);
-			
-			updatemessage(email, "Revising "+(currentnum+1)+" of "+count+" items to eBay...");
+      
+			updatemessage(email, true, "Revising " + (currentnum+1) + " of " + count + " items.");
 			currentnum++;
 					
 			Future<String> future = pool18.submit
 				(new ApiCallTask(userid, getSiteID(site), requestxml, "ReviseItem"));
 			future.get(); // wait
 		}
-
-		updatemessage(email, "");
+    
+		updatemessage(email, false, "Revising finished.");
 		
 		return "";
 	}

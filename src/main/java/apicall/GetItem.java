@@ -43,8 +43,8 @@ public class GetItem extends ApiCall implements Callable {
 		reqdbo.append("IncludeTaxTable",              "true");
 		reqdbo.append("IncludeWatchCount",            "true");
 		reqdbo.append("ItemID",                         itemid);
-		reqdbo.append("MessageID", email+" "+userid+" "+itemid);
-		
+		reqdbo.append("MessageID", getnewtokenmap(email) + " " + userid + " " + itemid);
+    
 		String requestxml = convertDBObject2XML(reqdbo, "GetItem");
         
 		Future<String> future = pool18.submit(new ApiCallTask(userid, 0, requestxml, "GetItem"));
@@ -62,7 +62,7 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject org = (BasicDBObject) resdbo.get("Item");
     
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
-		email  = messages[0];
+		email = getemailfromtokenmap(messages[0]);
 		//userid = messages[1];
 		//itemid = messages[2];
 		
@@ -75,9 +75,8 @@ public class GetItem extends ApiCall implements Callable {
 		if (!(new File(savedir)).exists()) {
 			new File(savedir).mkdir();
 		}
-    
 		writelog("GetItem/"+timestamp.substring(0,10)+"/"+userid+"."+itemid+".xml", responsexml);
-		
+    
 		/* get collection name for each users */
 		BasicDBObject userquery = new BasicDBObject();
 		userquery.put("email", email);
@@ -114,9 +113,9 @@ public class GetItem extends ApiCall implements Callable {
 			} else if (classname.equals("class com.mongodb.BasicDBList")) {
 				namevaluelist = (BasicDBList) iscopy.get("NameValueList");
 			} else {
-				log("Class Error:"+classname);
+				log("Class Error:" + classname);
 			}
-			
+      
 			for (int i=namevaluelist.size()-1; i>=0; i--) {
 				BasicDBObject namevalue = (BasicDBObject) namevaluelist.get(i);
 				if (namevalue.containsField("Source")) {
@@ -185,6 +184,18 @@ public class GetItem extends ApiCall implements Callable {
 		/* leaf */
 		if (path.length == 1) {
 			dbo.removeField(path[0]);
+      
+      /* test for int cast (price) */
+      /*
+      log(path[0] + " cast ?");
+      if (path[0].equals("#text")) {
+        String value = dbo.get(path[0]).toString();
+        Float floatval = Float.parseFloat(value);
+        dbo.put(path[0], floatval);
+        log(path[0] + ":" + value);
+      }
+      */
+      
 			return;
 		}
 		

@@ -63,14 +63,14 @@ public class ApiCallTask3 implements Callable {
 		/* Sandbox */
 		String apiurl   = configdbo.getString("openapiurl");
 		String appname  = configdbo.getString("appname");
-
-        URL url = new URL(apiurl);
+		
+		URL url = new URL(apiurl);
 		
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		
-        conn.setRequestMethod("POST");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
+		conn.setRequestMethod("POST");
+		conn.setDoInput(true);
+		conn.setDoOutput(true);
 		conn.setRequestProperty("Content-Type", "text/xml");
 		conn.setRequestProperty("X-EBAY-API-VERSION", configdbo.getString("compatlevel"));
 		conn.setRequestProperty("X-EBAY-API-CALL-NAME", callname);
@@ -84,7 +84,7 @@ public class ApiCallTask3 implements Callable {
 		osw.write(requestxml);
 		osw.flush();
 		osw.close();
-        conn.connect();
+    conn.connect();
 		
 		String savedir = basedir+"/logs/apicall/"+callname;
 		String filename = "_tmp."+siteid.toString()+".xml";
@@ -92,7 +92,7 @@ public class ApiCallTask3 implements Callable {
 		BufferedWriter out = new BufferedWriter(fstream);
 		
 		/* handle http response */
-        InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
+    InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
 		BufferedReader br = new BufferedReader(isr);
 		String line;
 		String responsexml = "";

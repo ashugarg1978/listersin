@@ -46,7 +46,9 @@ public class ApiCallTask implements Callable {
 		if (db == null) {
 			Mongo m = new Mongo(configdbo.getString("mongohost"));
 			db = m.getDB(configdbo.getString("database"));
-      System.out.println("ApiCallTask() constructor. db");
+      
+      SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+      System.out.println(sdf2.format(now).toString() + " ApiCallTask() constructor. db");
 		}
 	}
   

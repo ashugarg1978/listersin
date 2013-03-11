@@ -212,7 +212,7 @@ public class PageAction extends BaseAction {
     return SUCCESS;
   }
   
-  @Action(value="/page/logout", results={@Result(name="success",location="index.jsp")})
+  @Action(value="/page/logout", results={@Result(name="success",type="redirect",location="/page/index")})
   public String logout() {
     
     session.remove("email");
@@ -260,21 +260,28 @@ public class PageAction extends BaseAction {
     cal.add(Calendar.DATE, -119); // min -119 from endtime
     String start = formatter.format(cal.getTime());
     
+    updatemessage(email, true,
+                  "Importing " + username + "'s items from eBay"
+                  + " which end between " + start + " and " + end + ".");
+    
     /* GetSellerList */
     args = new String[]{"GetSellerList", email, username, "End", start, end, "ReturnAll"};
     writesocket_async(args); // not wait
     
-    cal = Calendar.getInstance();
-    cal.add(Calendar.DATE, 0);
-    end   = formatter.format(cal.getTime());
-    cal.add(Calendar.DATE, -60); // what is max?
-    start = formatter.format(cal.getTime());
-    
-    /* GetMemberMessages */
-    args = new String[]{"GetMemberMessages", email, username,
-                        start + "T00:00:00.000Z",
-                        end + "T00:00:00.000Z"};
-    writesocket_async(args); // not wait
+    if (false) {
+      cal = Calendar.getInstance();
+      cal.add(Calendar.DATE, 0);
+      end   = formatter.format(cal.getTime());
+      cal.add(Calendar.DATE, -60); // what is max?
+      start = formatter.format(cal.getTime());
+      
+      /* GetMemberMessages */
+      args = new String[]{"GetMemberMessages", email, username,
+                          start + "T00:00:00.000Z",
+                          end + "T00:00:00.000Z"};
+      writesocket_async(args);
+      // not wait
+    }
     
     return SUCCESS;
   }
@@ -401,7 +408,7 @@ public class PageAction extends BaseAction {
     
     return SUCCESS;
   }
-    
+  
   private BasicDBObject getScheduleDays() {
     
     BasicDBObject days = new BasicDBObject();

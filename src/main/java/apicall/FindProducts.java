@@ -22,8 +22,9 @@ public class FindProducts extends ApiCall {
 		
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
-		reqdbo.append("WarningLevel", "High");
-		reqdbo.append("DetailLevel",  "ReturnAll");
+		//reqdbo.append("WarningLevel", "High");
+		//reqdbo.append("DetailLevel",  "ReturnAll");
+		reqdbo.append("IncludeSelector", "DomainHistogram");
 		reqdbo.append("MaxEntries",   "20");
 		reqdbo.append("MessageID",    findtype+"."+keyword);
 		

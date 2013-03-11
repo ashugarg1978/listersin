@@ -6,6 +6,25 @@ var strprev  = '';
 var timeout  = null;
 var foundproducts = new Array();
 
+/* global hook */
+$(document).ajaxComplete(function(event, xhr, settings) {
+	
+	var data = $.parseJSON(xhr.responseText);
+	
+	if (data.json.message == null) return;
+	if (data.json.message.message == null) return;
+	if (data.json.message.message == '') return;
+	
+	showmessage(data.json.message.message);
+	
+	if (data.json.message.hasnext) {
+		timeout = setTimeout('refresh()', 1000);
+	} else {
+		timeout = setTimeout('dismissmessage()', 2000);
+	}
+	
+});
+
 /* initialize */
 $(function() {
 	
@@ -24,6 +43,8 @@ $(function() {
 	bindevents();
 	
 	summary(true);
+	
+  $('#bulkbuttons').tooltip();
 	
 	// todo: same code
 	$.each(hash, function(k, v) {
@@ -203,23 +224,18 @@ function bindevents()
 		('/json/'+action,
 		 postdata,
 		 function(data) {
-			 if (action == 'add'
-				   || action == 'end'
-				   || action == 'relist'
-				   || action == 'revise'
-				   || action == 'verifyadditem') {
-				 refresh();
-			 }
+			 
 			 if (action == 'copy' || action == 'delete') {
 				 $("td.loading").removeClass('loading');
 				 $('input:checked[name="id"][id!="rowtemplate"]')
 					 .css('visibility', '')
 					 .attr('checked', '');
 			 }
+			 
 			 if (action == 'delete') {
          items(true);
        }
-			 dump(data);
+			 
 		 });
 		
 		return;
@@ -911,6 +927,7 @@ function bindevents()
 		});
 	
   //$('#checkduplicateitems').qtip({
+	/*
   $('#bulkbuttons button[title]').qtip({
     position: {
       my: 'top center',
@@ -920,7 +937,8 @@ function bindevents()
       classes: 'ui-tooltip-dark'
     }
   });
-  
+  */
+	
   $('select[name="mod.ListingType"]', '#headersearchform').change(function() {
 		items(true);
   });
@@ -1148,14 +1166,14 @@ function summary(initflag)
 	
 	$.getJSON('/json/summary', function(data) {
 		
-		if (!data.json.alluserids) {
+		if (!data.json.summary.alluserids) {
 			showcontent('#help');
 			return;
 		}
 		
-		$('ul.accounts > li.allitems').append(' (<span>'+data.json.alluserids.allitems+'</span>)');
+		$('ul.accounts > li.allitems').append(' (<span>'+data.json.summary.alluserids.allitems+'</span>)');
 		$('ul.accounts > li.itemstatuses:first').attr('id', 'euidstatuses_allitems');
-		$.each(data.json.alluserids, function(k, v) {
+		$.each(data.json.summary.alluserids, function(k, v) {
 			$('ul.accounts > li > ul.accountaction li.'+k).append(' (<span>'+v+'</span>)');
 		});
 		
@@ -1164,7 +1182,7 @@ function summary(initflag)
     }
     
 		/* each eBay UserIDs */
-		$.each(data.json, function(ebayuserid, o) {
+		$.each(data.json.summary, function(ebayuserid, o) {
 			if (ebayuserid == 'alluserids') return;
 			
 			var ul = ulorg.clone();
@@ -1207,7 +1225,7 @@ function summary(initflag)
 /* show item list */
 function items(clearitems)
 {
-	$('#message').html('Loading items...');
+	//showmessage('Loading items...');
   
   var postdata = $('input.filter, select.filter').extractObject();
 	postdata = JSON.stringify(postdata);
@@ -1224,7 +1242,6 @@ function items(clearitems)
 		 }
 		 
 		 if (data.json.cnt == 0) {
-			 $('#message').html('');
 			 $('tbody#rowloading > tr > td').html('No item data found.');
 			 $('tbody#rowloading').show();
 			 return;
@@ -1254,12 +1271,6 @@ function items(clearitems)
 			 $('#items').append(dom);
 		 });
 		 
-		 if (data.json.message != '' && data.json.message != null) {
-			 $('#message').html(data.json.message);
-			 timeout = setTimeout('refresh()', 1000);
-		 } else {
-			 $('#message').html('');
-		 }
 	 },
 	 'json');
 	
@@ -1284,7 +1295,7 @@ function getrow(idx, row)
 		}
 	}
   
-	$('td.Title', dom).html(row.mod.Title);
+	$('td.Title', dom).html(htmlencode(row.mod.Title));
 	
 	if (row.org) {
 		$('a.ItemID', dom)
@@ -2075,7 +2086,7 @@ function resizediv()
 {
 	var windowh = $(window).height();
   
-  var headerh  = $('#header').height();
+  var headerh = $('#header').height();
   headerh += $('#header').css('margin-top').replace('px', '') - 0;
   headerh += $('#header').css('margin-bottom').replace('px', '') - 0;
   
@@ -2096,24 +2107,11 @@ function resizediv()
   
 	$('#message').width($('#container').width());
 	
+	var theadh = $('thead', '#items').height();
+	
+	$('#rowloading td').height(windowh - headerh - contentmargin - theadh - 4);
+	
   return;
-  
-	var w = $('div#container').width()-225;
-	var h = $('body').height() - 10;
-	//var headerheight = $('div#header').height();
-	//alert(headerheight);
-	
-	$('div#content').width(w);
-	$('div#header').width($('div#container').width()-40);
-	$('div#message').width($('div#container').width());
-	$('table#items').width(w);
-	$('div#toolbar').height($(window).height()-99);
-	$('tbody#rowloading td').height($(window).height()-99);
-	
-	//$('div#content').css('margin-top', headerheight+'px');
-	//$('div#toolbar').css('margin-top', headerheight+'px');
-	
-	return;
 }
 
 var changeCategory = function() {
@@ -2304,6 +2302,8 @@ var save = function() {
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
 	
+	showmessage('Saving and verifing the item...');
+	
 	$.post('/json/save',
 		     'id='+id+'&json='+postdata,
 		     function(data) {
@@ -2327,6 +2327,7 @@ var save = function() {
 			     hash[site].ThemeGroup          = data.json.ThemeGroup;
 			     hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
 			     
+           
 			     setformelements(item);
 			     showformvalues(item);
 			     showbuttons(detail, 'edit,copy,delete');
@@ -2337,7 +2338,6 @@ var save = function() {
 					 $('tr.row1', '#'+id).replaceWith(row1);
 					 $('tr.row1', '#'+id).show();
 					 
-					 $('#message').html('Saved an item.');
 		     },
 		     'json');
 	
@@ -2523,9 +2523,9 @@ function refresh()
 {
 	var postdata = '';
 	
-	var loadings = $('td.loading > input:checkbox[name=id][value!=on]');
+	var loadings = $('td.loading > input:checkbox[name="id"]');
 	if (loadings.length > 0) {
-		$.each($('td.loading > input:checkbox[name=id][value!=on]'), function(k, v) {
+		$.each($('td.loading > input:checkbox[name="id"]'), function(k, v) {
 			postdata += '&id='+$(v).attr('value');
 		});
 	}
@@ -2535,12 +2535,7 @@ function refresh()
 	 postdata,
 	 function(data) {
 		 
-		 /* message */
-		 if (data.json.message == '') {
-			 $('div#message').html('');
-		 } else {
-			 $('div#message').html(data.json.message);
-		 }
+		 dump(data.json);
 		 
 		 /* summary */
 		 if (data.json.summary) {
@@ -2562,27 +2557,62 @@ function refresh()
 		 
 		 /* items */
 		 if (data.json.items) {
-			 $.each(data.json.items, function(idx, row) {
-				 dom = getrow(idx, row);
-				 $('#'+idx).replaceWith(dom);
-				 if (typeof(row.status) == 'string' && row.status != '') {
-					 //
-				 } else {
-					 //$('input:checkbox', dom).css('visibility', '').removeAttr('checked');
-					 $('input:checkbox', dom).parent().removeClass('loading');
+			 if (postdata != '') {
+				 
+				 $.each(data.json.items, function(idx, row) {
+					 dom = getrow(idx, row);
+					 $('#'+idx).replaceWith(dom);
+					 if (typeof(row.status) == 'string' && row.status != '') {
+						 //
+					 } else {
+						 //$('input:checkbox', dom).css('visibility', '').removeAttr('checked');
+						 $('input:checkbox', dom).parent().removeClass('loading');
+					 }
+					 rowsdata[idx] = row;
+				 });
+				 
+			 } else {
+				 
+				 $('tbody:gt(1)', '#items').remove();
+				 $('#content').scrollTop(0);
+				 
+				 $('tbody#rowloading').hide();
+				 
+				 var offset = parseInt($('input.filter[name=offset]').val());
+				 var limit  = parseInt($('input.filter[name=limit]' ).val());
+				 
+				 var loaded = offset + limit;
+				 if (loaded > data.json.cnt) {
+					 loaded = data.json.cnt;
 				 }
-				 rowsdata[idx] = row;
-			 });
+				 $('#paging').html(loaded + ' of ' + data.json.cnt);
+				 
+				 if (data.json.cnt > offset + limit) {
+					 hasmore = true;
+				 } else {
+					 hasmore = false;
+				 }
+				 
+				 $.each(data.json.items, function(idx, row) {
+					 rowsdata[idx] = row;
+					 var dom = getrow(idx, row);
+					 $('#items').append(dom);
+				 });
+				 
+			 }
 		 }
 		 
-		 /* timeout */
-		 if (data.json.message != '' && data.json.message != null) {
+		 /* message */
+		 if (postdata != '') {
+			 
 			 timeout = setTimeout('refresh()', 1000);
-		 } else if (postdata != '') {
-			 timeout = setTimeout('refresh()', 1000);
+			 
 		 } else {
+			 
 			 clearTimeout(timeout);
+			 
 		 }
+		 
 	 },
 	 'json');
 	
@@ -2606,6 +2636,30 @@ function refresh()
 			   });
 		   },
 		   'json');
+	
+	return;
+}
+
+function showmessage(message)
+{
+	$('#message').show();
+	$('#message').html(message);
+	
+	return;
+}
+
+function dismissmessage()
+{
+	$('#message').fadeOut();
+	
+	clearTimeout(timeout);
+	
+	$.post('/json/dismissmessage',
+			   null,
+			   function(data) {
+					 
+			   },
+			   'json');
 	
 	return;
 }
@@ -2653,6 +2707,11 @@ function log(str)
 	$('#log').prepend(str+'<br/>');
 }
 
+function htmlencode(str)
+{
+	return $('<div/>').text(str).html();
+}
+
 function csvuploadedmessage()
 {
 	$('#csvimportmessage').html('Imported. Please check "Saved" items on the left navigation');
@@ -2688,6 +2747,7 @@ function getListingDurationLabel(str)
 	return str;
 }
 
+/* Arrayize */
 function arrayize(object)
 {
   var result = null;
@@ -2702,6 +2762,7 @@ function arrayize(object)
 	return result;
 }
 
+/* Show form values */
 function showformvalues(item)
 {
 	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
@@ -2728,56 +2789,22 @@ function showformvalues(item)
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('input[type=text],input[type=datetime-local]', detail), function(i, form) {
+	$.each($('input[type="text"]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
+    
 		try {
-			eval("tmpvalue = item"+formname);
-			
+			eval('tmpvalue = item' + formname);
 			if (tmpvalue == null) tmpvalue = '';
-			
-			var htmlencoded = $('<div/>').text(tmpvalue).html();
-			$(form).replaceWith(htmlencoded);
-			
-			/*
-			if ($(form).attr('name').match(/^mod.PictureDetails.PictureURL./)) {
-				var imgclass = $(form).attr('name')
-					.replace(/^mod.PictureDetails.PictureURL./, 'PD_PURL_');
-				$('img.'+imgclass, detail).attr('src', tmpvalue);
-			}
-			*/
+			tmpvalue = htmlencode(tmpvalue);
+      
+      if (tmpvalue != '') {
+			  $(form).replaceWith(tmpvalue);
+      } else {
+			  $(form).remove();
+      }
 		} catch (err) {
-			$(form).replaceWith('');
-			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
-		}
-	});
-	
-	/* Description (before replacing textarea)*/
-	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
-	var iframe = $('<iframe/>').attr('class', 'description').attr('src', '/blank.html');
-	iframe.load(function() {
-		$(this).get(0).contentWindow.document.write(item.mod.Description);
-		
-		var iframeheight = $(this).contents().find('body').height() + 16
-		$(this).css('height', iframeheight+'px');
-	});
-	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
-	
-	/* textarea */
-	$.each($('textarea[name~=mod]', detail), function(i, form) {
-		var formname = $(form).attr('name');
-		formname = "['" + formname.replace(/\./g, "']['") + "']";
-		try {
-			eval("tmpvalue = item"+formname);
-			
-			if (tmpvalue == null) tmpvalue = '';
-			
-			var htmlencoded = $('<div/>').text(tmpvalue).html();
-			$(form).replaceWith(htmlencoded);
-			
-		} catch (err) {
-			$(form).replaceWith('');
-			//$(detail).prepend('ERR: ['+formname+']'+err.description+'<br />');
+			$(form).remove();
 		}
 	});
 	
@@ -2785,22 +2812,52 @@ function showformvalues(item)
 	$.each($('select', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		if (formname == null) return;
-		
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
+    
 		try {
-			eval("var tmpvalue = item"+formname);
-			//var tmpvalue = item[formname];
+			eval('tmpvalue = item' + formname);
 			if (tmpvalue == null) tmpvalue = '';
-			var label = $('option[value='+tmpvalue+']', form).html();
-			$(form).replaceWith(label);
+			var label = $('option[value="' + tmpvalue + '"]', form).html();
+      
+      if (label != '') {
+			  $(form).replaceWith(label);
+      } else {
+			  $(form).remove();
+      }
 		} catch (err) {
-			$(form).replaceWith('');
-			//$(detail).before('ERR: '+formname+' '+err+'<br />');
+			$(form).remove();
+		}
+	});
+	
+	/* textarea */
+	$.each($('textarea', detail), function(i, form) {
+		var formname = $(form).attr('name');
+		if (formname == null) return;
+		formname = "['" + formname.replace(/\./g, "']['") + "']";
+    
+		try {
+			eval("tmpvalue = item"+formname);
+			
+			if (tmpvalue == null) tmpvalue = '';
+			
+      var div =　$('<div/>')
+        .css('padding', '10px')
+        .css('border', '1px solid #999')
+        .html(tmpvalue);
+      
+      if ($(form).attr('name') == 'mod.Description') {
+        $('div.description', detail).html(div);
+      } else {
+			  $(form).replaceWith(div);
+      }
+			
+		} catch (err) {
+			$(form).remove();
 		}
 	});
 	
 	/* checkbox */
-	$.each($('input[type=checkbox]', detail), function(i, form) {
+	$.each($('input[type="checkbox"]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		if (formname == null) return;
 		formname = "['" + formname.replace(/\./g, "']['") + "']";

@@ -78,12 +78,10 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			basetimestamp = sdf.format(now);
 			//log.debug("basetimestamp:"+basetimestamp);
       
-      /*
       for (Enumeration enm=request.getHeaderNames(); enm.hasMoreElements();) {
         String hdname = (String) enm.nextElement();
-        log.debug(hdname + ":" + request.getHeader(hdname));
+        //log.debug(hdname + ":" + request.getHeader(hdname));
       }
-      */
       
 			// todo: exclude "canceled" user?
 			if (session.get("email") != null) {
@@ -94,18 +92,14 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
         
         if (session.get("admin") != null) {
           
-          //log.debug("not update user log");
-          
         } else {
-          
+					
           BasicDBObject set = new BasicDBObject();
           set.put("lastused", basetimestamp);
           set.put("useragent", request.getHeader("user-agent"));
           
           db.getCollection("users").update(query, new BasicDBObject("$set", set));
-          
-          //log.debug("update user log");
-          
+					
         }
       }
 			
@@ -166,8 +160,6 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	}
 
 	public String writesocket(String[] args) throws Exception {
-		
-    log.debug("writesocket " + daemonport + " " + StringUtils.join(args, "|"));
     
 		Socket socket = new Socket("localhost", daemonport);
 		BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -185,8 +177,6 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 	}
     
 	public String writesocket_async(String[] args) throws Exception {
-		
-    log.debug("writesocket_async " + daemonport + " " + StringUtils.join(args, "|"));
     
 		Socket socket = new Socket("localhost", daemonport);
 		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
@@ -198,4 +188,27 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
         
 		return "";
 	}
+  
+	public void updatemessage(String email, boolean hasnext, String message) {
+    
+    BasicDBObject msgdbo = new BasicDBObject();
+    msgdbo.put("datetime", new Date());
+    msgdbo.put("hasnext", hasnext);
+    msgdbo.put("message", message);
+		
+		db.getCollection("users").update
+			(new BasicDBObject("email", email),
+			 new BasicDBObject("$set", new BasicDBObject("message", msgdbo)));
+		
+		/*
+		db.getCollection("users").update
+			(new BasicDBObject("email", email),
+			 new BasicDBObject("$push", new BasicDBObject("messages", msgdbo)));
+		*/
+		
+		log.debug(email + " [" + message + "]");
+    
+		return;
+	}
+  
 }

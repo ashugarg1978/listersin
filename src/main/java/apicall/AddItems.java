@@ -45,6 +45,8 @@ public class AddItems extends ApiCall {
     BasicDBObject userdbo =
       (BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
     String user_id = userdbo.getString("_id");
+    
+    // todo: don't use user_id for uuidprefix.
     String uuidprefix = user_id.substring(user_id.length()-8);
     
     /* set intermediate status */
@@ -66,7 +68,7 @@ public class AddItems extends ApiCall {
     LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
     DBCursor cur = coll.find(query);
     Integer count = cur.count();
-    updatemessage(email, "Listing "+count+" items to eBay...");
+    updatemessage(email, true, "Listing " + count + " items to eBay...");
     while (cur.hasNext()) {
       DBObject item = cur.next();
       DBObject mod = (DBObject) item.get("mod");
@@ -75,7 +77,7 @@ public class AddItems extends ApiCall {
       String uuid = uuidprefix + item.get("_id").toString();
       uuid = uuid.toUpperCase();
       mod.put("UUID", uuid);
-      
+			
       userid = item.get("UserID").toString();
       site   = mod.get("Site").toString();
       
@@ -110,7 +112,7 @@ public class AddItems extends ApiCall {
         LinkedHashMap lhmsite = (LinkedHashMap) lhmuserid.get(tmpsite);
         
         String parentmessageid = "";
-        parentmessageid = userdbo.getString("email");
+        parentmessageid = getnewtokenmap(userdbo.getString("email"));
         parentmessageid += " " + tmpuserid;
         
         /* each chunk (5 items)*/
@@ -121,7 +123,7 @@ public class AddItems extends ApiCall {
           reqdbo.append("ErrorLanguage", "en_US");
           reqdbo.append("WarningLevel", "High");
           reqdbo.append("RequesterCredentials",
-                  new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
+                        new BasicDBObject("eBayAuthToken", tokenmap.get(tmpuserid)));
           
           String[] itemids = new String[5];
           int messageid = 0;
@@ -131,14 +133,14 @@ public class AddItems extends ApiCall {
             
             itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
             String id = ((BasicDBObject) tmpidx).get("_id").toString();
-            
-            ldbo.add(new BasicDBObject("MessageID", userdbo.getString("email")
-                           +" "+tmpuserid
-                           +" "+id)
-                 .append("Item", ((DBObject) tmpidx).get("mod")));
+						
+            ldbo.add(new BasicDBObject("MessageID", getnewtokenmap(userdbo.getString("email"))
+                                       + " " + tmpuserid
+                                       + " " + id)
+                     .append("Item", ((DBObject) tmpidx).get("mod")));
             
             parentmessageid += " " + id;
-          
+            
             tmpcnt++;
           }
           reqdbo.append("MessageID", parentmessageid);
@@ -174,8 +176,9 @@ public class AddItems extends ApiCall {
           
           validatexml(requestxmlfilename);
           
-          updatemessage(email, "Listing "+(currentnum+1)+"-"+(currentnum+tmpcnt)
-                  + " of "+count+" items to eBay...");
+          updatemessage(email, true,
+                        "Listing " + (currentnum+1) + "-" + (currentnum+tmpcnt)
+                        + " of " + count + " items to eBay...");
           currentnum += tmpcnt;
           
           Future<String> future = pool18.submit
@@ -185,8 +188,8 @@ public class AddItems extends ApiCall {
       }
     }
     
-    updatemessage(email, "");
-
+    updatemessage(email, false, "Listed " + count + " items.");
+    
     return "";
   }
   
@@ -221,7 +224,7 @@ public class AddItems extends ApiCall {
       BasicDBObject item = (BasicDBObject) oitem;
       
       String[] messages = item.getString("CorrelationID").split(" ");
-      String email  = messages[0];
+      String email  = getemailfromtokenmap(messages[0]);
       String userid = messages[1];
       String id     = messages[2];
       
@@ -283,7 +286,7 @@ public class AddItems extends ApiCall {
         reqdbo.append("IncludeTaxTable",              "true");
         reqdbo.append("IncludeWatchCount",            "true");
         reqdbo.append("ItemID",                       itemid);
-        reqdbo.append("MessageID", email+" "+userid+" "+itemid);
+        reqdbo.append("MessageID", getnewtokenmap(email) + " " + userid + " " + itemid);
         
         String requestxml = convertDBObject2XML(reqdbo, "GetItem");
         writelog("GetItem/afterAdditems.req.xml", requestxml);

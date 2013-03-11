@@ -26,45 +26,35 @@ public class GetMyMessages extends ApiCall implements Callable {
 	}
 	
 	public String call() throws Exception {
-        
-		/* get token from db */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
+    
+		String token = gettoken(email, userid);
+    
+    BasicDBObject reqdbo = new BasicDBObject();
+    reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
+    reqdbo.put("WarningLevel", "High");
+    reqdbo.put("DetailLevel", "ReturnMessages");
+		reqdbo.put("MessageID", getnewtokenmap(email) + " " + userid);
+    
+    String requestxml = convertDBObject2XML(reqdbo, "GetMyMessages");
 		
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
-		
-        BasicDBObject reqdbo = new BasicDBObject();
-        reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
-        reqdbo.put("WarningLevel", "High");
-        reqdbo.put("DetailLevel", "ReturnHeaders");
-		reqdbo.put("MessageID", email+" "+userid);
-        
-        String requestxml = convertDBObject2XML(reqdbo, "GetMyMessages");
-		
-        Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetMyMessages"));
+    Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GetMyMessages"));
 		future.get();
-        
-        // todo: next page (pagination)
-        
+    
+    // todo: next page (pagination)
+    
 		return "";
 	}
 	
 	public String callback(String responsexml) throws Exception {
-		
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss_S");
-		Date now = new Date();
-		writelog("GetMyMessages/res"+sdf.format(now).toString()+".xml", responsexml);
-		
+    
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		
+    
+		String[] messages = resdbo.getString("CorrelationID").split(" ");
+		String email  = getemailfromtokenmap(messages[0]);
+		String userid = messages[1];
+    
+		writelog("GetMyMessages/" + userid + ".xml", responsexml);
+    
 		return "";
 	}
     

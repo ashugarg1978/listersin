@@ -59,7 +59,7 @@ public class AddFixedPriceItem extends ApiCall {
 		DBCursor cur = coll.find(query);
 		Integer count = cur.count();
 		Integer currentnum = 0;
-		updatemessage(email, "Relisting "+count+" items to eBay...");
+		updatemessage(email, true, "Relisting " + count + " items to eBay...");
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
@@ -98,7 +98,7 @@ public class AddFixedPriceItem extends ApiCall {
 			//String requestxml = convertDBObject2XML(reqdbo, "AddFixedPriceItem");
 			writelog("AddFixedPriceItem/req.xml", requestxml);
 			
-			updatemessage(email, "Relisting "+(currentnum+1)+" of "+count+" items to eBay...");
+			updatemessage(email, true, "Relisting "+(currentnum+1)+" of "+count+" items to eBay...");
 			currentnum++;
 					
 			Future<String> future = pool18.submit
@@ -106,7 +106,7 @@ public class AddFixedPriceItem extends ApiCall {
 			future.get(); // wait
 		}
 		
-		updatemessage(email, "");
+		updatemessage(email, false, "Listing finished.");
 		
 		return "";
 	}

@@ -35,22 +35,13 @@ public class GetTokenStatus extends ApiCall implements Callable {
         String userid = ((BasicDBObject) useridobj).getString("username");
         String token  = ((BasicDBObject) useridobj).getString("eBayAuthToken");
         
-        /* TokenMap */
-        ObjectId newid = new ObjectId();
-        
-        BasicDBObject newitem = new BasicDBObject();
-        newitem.put("_id", newid);
-        newitem.put("email", email);
-        
-        db.getCollection("tokenmap").insert(newitem, WriteConcern.SAFE);
-        
         log(email + " " + userid);
         
         /* GetTokenStatus */
         BasicDBObject reqdbo = new BasicDBObject();
         reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
         reqdbo.put("WarningLevel", "High");
-        reqdbo.put("MessageID", newid.toString() + " " + userid);
+        reqdbo.put("MessageID", getnewtokenmap(email) + " " + userid);
         
         String requestxml = convertDBObject2XML(reqdbo, "GetTokenStatus");
         
@@ -66,15 +57,8 @@ public class GetTokenStatus extends ApiCall implements Callable {
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
     
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
-		String tokenid = messages[0];
-		String userid  = messages[1];
-    
-    /* TokenMap */
-		BasicDBObject tokenquery = new BasicDBObject();
-		tokenquery.put("_id", new ObjectId(tokenid));
-    
-		BasicDBObject tokenmap = (BasicDBObject) db.getCollection("tokenmap").findOne(tokenquery);
-		String email = tokenmap.getString("email");
+		String email  = getemailfromtokenmap(messages[0]);
+		String userid = messages[1];
     
 		writelog("GetTokenStatus/"+email+"."+userid+".xml", responsexml);
     

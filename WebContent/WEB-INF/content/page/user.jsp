@@ -13,7 +13,6 @@
 <link rel="stylesheet" type="text/css" href="/js/redactor/redactor.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.10.1.custom/css/smoothness/jquery-ui-1.10.1.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css">
-<link rel="stylesheet" type="text/css" href="/js/jquery.qtip/jquery.qtip.min.css">
 <link rel="shortcut icon" href="/img/favicon.png">
 
 <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
@@ -25,7 +24,6 @@
 <script type="text/javascript" src="/js/jquery.scrollTo-min.js"></script>
 <script type="text/javascript" src="/js/jquery-ui-1.10.1.custom/js/jquery-ui-1.10.1.custom.min.js"></script>
 <script type="text/javascript" src="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
-<script type="text/javascript" src="/js/jquery.qtip/jquery.qtip.min.js"></script>
 
 <script type="text/javascript" src="/js/ebay.js"></script>
 <script type="text/javascript">

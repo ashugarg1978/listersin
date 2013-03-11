@@ -6,7 +6,7 @@ function bindevents()
 {
 	/* Sign up button */
 	$('button', '#signupbox').click(function() {
-    
+		
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
 		$.post('/json/signup',

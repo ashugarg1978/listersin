@@ -32,22 +32,21 @@ public class VerifyAddItem extends ApiCall {
 		this.email  = args[0];
 		this.taskid = args[1];
 	}
-	
+  
 	public String call() throws Exception {
 		
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
 		BasicDBObject userdbo =
 			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
+    
 		String user_id = userdbo.getString("_id");
 		String uuidprefix = user_id.substring(user_id.length()-8);
 		
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
-		query.put("deleted",    new BasicDBObject("$exists", 0));
-		//query.put("org.ItemID", new BasicDBObject("$exists", 0));
-		query.put("status",     taskid);
-		
+		query.put("status", taskid);
+    
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("status", taskid+"_processing"));
 		
@@ -57,19 +56,25 @@ public class VerifyAddItem extends ApiCall {
 		/* re-query */
 		query.put("status", taskid+"_processing");
 		
+		List<Future<String>> futures = new ArrayList<Future<String>>();
+		
 		/* each item */
-		DBCursor cur = coll.find(query);
-		Integer count = cur.count();
+		DBCursor cursor = coll.find(query);
+		Integer count = cursor.count();
 		Integer currentnum = 0;
-		updatemessage(email, "Verifying "+count+" items to eBay...");
-		while (cur.hasNext()) {
-			DBObject item = cur.next();
+		
+		updatemessage(email, true, "Verifying " + count + " items...");
+		
+		while (cursor.hasNext()) {
+			
+			DBObject item = cursor.next();
 			DBObject mod = (DBObject) item.get("mod");
 			DBObject org = (DBObject) item.get("org");
 			
 			String userid = item.get("UserID").toString();
 			String site   = mod.get("Site").toString();
 			
+			// todo: don't use user _id for prefix.
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
@@ -77,8 +82,8 @@ public class VerifyAddItem extends ApiCall {
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("ErrorLanguage", "en_US");
 			reqdbo.append("WarningLevel", "High");
-			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken",
-                                                              tokenmap.get(userid)));
+			reqdbo.append("RequesterCredentials", 
+										new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
 			reqdbo.append("MessageID", userdbo.getString("_id")+" "+item.get("_id").toString());
 			reqdbo.append("Item", mod);
 			
@@ -96,15 +101,22 @@ public class VerifyAddItem extends ApiCall {
 			
 			writelog("VerifyAddItem/VAI.req.xml", requestxml);
       
-			updatemessage(email, "Verifying "+(currentnum+1)+" of "+count+" items...");
+			updatemessage(email, true, "Verifying " + (currentnum+1) + " of " + count + " items...");
 			currentnum++;
 			
 			Future<String> future = pool18.submit
 				(new ApiCallTask(userid, getSiteID(site), requestxml, "VerifyAddItem"));
-			future.get(); // wait
+			future.get();
+			
+			//futures.add(future);
 		}
+		/*
+		for (Future<String> future : futures) {
+			future.get();
+		}		
+		*/
 		
-		updatemessage(email, "");
+		updatemessage(email, false, "Verifying finished.");
 		
 		return "";
 	}
@@ -139,8 +151,16 @@ public class VerifyAddItem extends ApiCall {
 			} else {
 				log("Class Error:"+errorclass);
 			}
+			
 			upditem.put("errors", errors);
+			
+		} else {
+			
+			/* No error! verified. */
+			upditem.put("errors", null);
+			
 		}
+		
 		if (responsedbo.get("Message") != null) {
 			upditem.put("message", responsedbo.getString("Message"));
 		}
