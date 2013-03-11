@@ -2535,8 +2535,6 @@ function refresh()
 	 postdata,
 	 function(data) {
 		 
-		 dump(data.json);
-		 
 		 /* message */
 		 if (data.json.message == '') {
 			 $('div#message').html('');
