@@ -340,14 +340,18 @@ public class PageAction extends BaseAction {
     
     if (eventname.equals("AskSellerQuestion")) {
       
-      BasicDBObject mm   = (BasicDBObject) dbobject.get("MemberMessage");
-      BasicDBObject mme  = (BasicDBObject) mm.get("MemberMessageExchange");
-      BasicDBObject item = (BasicDBObject) mme.get("Item");
+      BasicDBObject mm       = (BasicDBObject) dbobject.get("MemberMessage");
+      BasicDBObject mme      = (BasicDBObject) mm.get("MemberMessageExchange");
+      BasicDBObject item     = (BasicDBObject) mme.get("Item");
+      BasicDBObject question = (BasicDBObject) mme.get("Question");
+      
       itemid = item.getString("ItemID");
       
-      /* GetMemberMessage */
-      String[] args = {"GetMemberMessages", userdbo.getString("email"), userid, itemid};
-      String result = writesocket(args);
+      DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
+      
+			itemcoll.update(new BasicDBObject("org.ItemID", itemid),
+                      new BasicDBObject("$push", new BasicDBObject("messages", question)));
+      log.debug("db['"+itemcollname+"'].find({'org.ItemID':'"+itemid+"'}).forEach(printjson);");
       
     } else if (eventname.indexOf("Item") == 0) {
       
