@@ -316,16 +316,15 @@ public class PageAction extends BaseAction {
     String eventname = dbobject.getString("NotificationEventName");
     String userid = dbobject.getString("RecipientUserID");
     
-    log.debug("notify: " + userid + " " + eventname + " " + timestamp);
-    
     /* make log directory for each call */
-    String savedir = basedir + "/logs/apicall/notification/" + basetimestamp.substring(0,10);
+    String savedir = basedir + "/logs/apicall/notification";
+    savedir += "/" + eventname + "/" + basetimestamp.substring(0, 10);
     if (!(new File(savedir)).exists()) {
       new File(savedir).mkdir();
     }
     
     // save xml file
-    FileWriter fstream = new FileWriter(savedir+"/"+userid+"."+eventname+"."+basetimestamp+".xml");
+    FileWriter fstream = new FileWriter(savedir + "/" + userid + "." + basetimestamp + ".xml");
     BufferedWriter out = new BufferedWriter(fstream);
     out.write(notifyxml);
     out.close();
