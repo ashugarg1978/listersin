@@ -342,15 +342,35 @@ public class PageAction extends BaseAction {
       BasicDBObject mm       = (BasicDBObject) dbobject.get("MemberMessage");
       BasicDBObject mme      = (BasicDBObject) mm.get("MemberMessageExchange");
       BasicDBObject item     = (BasicDBObject) mme.get("Item");
-      BasicDBObject question = (BasicDBObject) mme.get("Question");
+			BasicDBObject question = (BasicDBObject) mme.get("Question");
+      
+			String messageid = question.getString("MessageID");
       
       itemid = item.getString("ItemID");
       
+      mme.removeField("Item");
+      
       DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
       
-			itemcoll.update(new BasicDBObject("org.ItemID", itemid),
-                      new BasicDBObject("$push", new BasicDBObject("messages", question)));
-      log.debug("db['"+itemcollname+"'].find({'org.ItemID':'"+itemid+"'}).forEach(printjson);");
+      BasicDBObject query = new BasicDBObject();
+      query.put("org.ItemID", itemid);
+      
+      DBObject exitem = itemcoll.findOne(query);
+      if (exitem == null) {
+        String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
+        String result = writesocket(args);
+      }
+      
+      /* Remove existing message */
+      BasicDBObject update = new BasicDBObject();
+      update.put("$pull", new BasicDBObject("membermessages",
+                                            new BasicDBObject("Question.MessageID", messageid)));
+			itemcoll.update(query, update);
+      
+      /* Insert new message */
+      update = new BasicDBObject();
+      update.put("$push", new BasicDBObject("membermessages", mme));
+			itemcoll.update(query, update);
       
     } else if (eventname.indexOf("Item") == 0) {
       

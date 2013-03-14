@@ -24,8 +24,10 @@ public class GetMemberMessages extends ApiCall implements Callable {
 	}
 	
 	public GetMemberMessages(String[] args) throws Exception {
+    
 		email  = args[0];
 		userid = args[1];
+    
 		if (args.length == 3) {
 			itemid = args[2];
 		} else if (args.length == 4) {
@@ -44,7 +46,7 @@ public class GetMemberMessages extends ApiCall implements Callable {
     reqdbo.put("WarningLevel", "High");
     reqdbo.put("DetailLevel", "ReturnAll");
 		reqdbo.put("MailMessageType", "All");
-		reqdbo.put("MessageID", email+" "+userid+" "+itemid);
+		reqdbo.put("MessageID", getnewtokenmap(email) + " " + userid + " " + itemid);
 		if (itemid != null) {
 			reqdbo.put("ItemID", itemid);
 		} else {
@@ -70,9 +72,9 @@ public class GetMemberMessages extends ApiCall implements Callable {
 		writelog("GetMemberMessages/res"+sdf.format(now).toString()+".xml", responsexml);
 		
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
-		
+    
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
-		email  = messages[0];
+		email  = getemailfromtokenmap(messages[0]);
 		userid = messages[1];
 		if (messages.length == 3) {
 			itemid = messages[2];
@@ -80,13 +82,18 @@ public class GetMemberMessages extends ApiCall implements Callable {
 		
 		writelog("GetMemberMessages/"+email+"."+userid+"."+itemid+".xml", responsexml);
 		
-		BasicDBObject pr = (BasicDBObject) resdbo.get("PaginationResult");
-		int total = Integer.parseInt(pr.getString("TotalNumberOfEntries"));
-		if (total == 0) {
-			return "0 MemberMessages";
-		}
+    upsertmembermessage(resdbo);
 		
-    BasicDBObject mm = (BasicDBObject) resdbo.get("MemberMessage");
+		return "";
+	}
+  
+  public void upsertmembermessage(BasicDBObject dbo) throws Exception {
+    
+		BasicDBObject pr = (BasicDBObject) dbo.get("PaginationResult");
+		int total = Integer.parseInt(pr.getString("TotalNumberOfEntries"));
+		if (total == 0) return;
+    
+    BasicDBObject mm = (BasicDBObject) dbo.get("MemberMessage");
     String messageclass = mm.get("MemberMessageExchange").getClass().toString();
     BasicDBList membermessages = new BasicDBList();
     if (messageclass.equals("class com.mongodb.BasicDBObject")) {
@@ -95,11 +102,12 @@ public class GetMemberMessages extends ApiCall implements Callable {
       membermessages = (BasicDBList) mm.get("MemberMessageExchange");
     }
 		for (Object tmpmsg : membermessages) {
+      
 			BasicDBObject mme = (BasicDBObject) tmpmsg;
-			
+      
 			BasicDBObject item = (BasicDBObject) mme.get("Item");
 			BasicDBObject question = (BasicDBObject) mme.get("Question");
-
+      
 			if (!question.getString("MessageType").equals("AskSellerQuestion")) {
 				continue;
 			}
@@ -114,21 +122,39 @@ public class GetMemberMessages extends ApiCall implements Callable {
 			BasicDBObject userquery = new BasicDBObject();
 			userquery.put("userids2.username", userid);
 			BasicDBObject userdbo = (BasicDBObject) db.getCollection("users").findOne(userquery);
-			
-			/* GetItem */
-			String[] args = {userdbo.getString("email"), userid, itemid, "waitcallback"};
-			GetItem getitem = new GetItem(args);
-			getitem.call();
+      
+      String email = userdbo.getString("email");
 			
 			DBCollection itemcoll = db.getCollection("items."+userdbo.getString("_id"));
+      
+      /* GetItem if the item does not exist. */
+      BasicDBObject query = new BasicDBObject();
+      query.put("org.ItemID", itemid);
+      
+      DBObject exitem = itemcoll.findOne(query);
+      if (exitem == null) {
+        log("call GetItem from GetMemberMessages upsertmembermessage().");
+        String[] args = {email, userid, itemid, "waitcallback"};
+        GetItem getitem = new GetItem(args);
+        getitem.call();
+      }
 			
-			itemcoll.update(new BasicDBObject("org.ItemID", itemid),
-                      new BasicDBObject("$set", new BasicDBObject
-                                        ("membermessages."+messageid, mme)),
-                      false, false);
+      mme.removeField("Item");
+      
+      /* Remove existing message */
+      BasicDBObject update = new BasicDBObject();
+      update.put("$pull", new BasicDBObject("membermessages",
+                                            new BasicDBObject("Question.MessageID", messageid)));
+			itemcoll.update(query, update);
+      
+      /* Insert new message */
+      update = new BasicDBObject();
+      update.put("$push", new BasicDBObject("membermessages", mme));
+			itemcoll.update(query, update);
+      
 		}
-		
-		return "";
-	}
     
+    return;
+  }
+
 }

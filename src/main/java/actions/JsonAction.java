@@ -369,6 +369,7 @@ public class JsonAction extends BaseAction {
 		field.put("setting",                         1);
 		field.put("errors",                          1);
 		field.put("message",                         1);
+		field.put("messages",                        1);
 		field.put("UserID",                          1);
 		
 		field.put("mod.Title",                       1);
@@ -634,6 +635,7 @@ public class JsonAction extends BaseAction {
     sdf.setLenient(false);
     
     /* adjust timezone of membermessages */
+    /*
     if (item.containsField("membermessages")) {
       BasicDBObject membermessages = (BasicDBObject) item.get("membermessages");
       
@@ -651,6 +653,7 @@ public class JsonAction extends BaseAction {
         membermessage.put("creationdate_l", sdf.format(creationdate_l));
       }
     }
+    */
     
     /* scheduled time */
     if (item.containsField("setting")) {
