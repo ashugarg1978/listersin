@@ -1,7 +1,5 @@
 package ebaytool.actions;
 
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 import com.mongodb.*;
 import ebaytool.actions.BaseAction;
@@ -24,8 +22,7 @@ import org.apache.struts2.convention.annotation.Results;
 public class PageAction extends BaseAction {
   
   protected LinkedHashMap<String, Object> initjson;
-  protected SyndFeed feed;
-  protected BasicDBObject githubfeed;
+  protected BasicDBObject blogfeed;
   
   public PageAction() throws Exception {
   }
@@ -38,12 +35,17 @@ public class PageAction extends BaseAction {
     return initjson;
   }
   
-  public SyndFeed getFeed() {
-    return feed;
+  public BasicDBObject getBlogfeed() throws Exception {
+    return blogfeed;
   }
-
-  public BasicDBObject getGithubfeed() {
-    return githubfeed;
+  
+  public BasicDBObject getGithubfeed() throws Exception {
+    
+    String xml = readfile(configdbo.getString("githubfile"));
+    
+    BasicDBObject feed = convertXML2DBObject(xml);
+    
+    return feed;
   }
   
   /* todo: session management in useraction json request */
@@ -137,19 +139,13 @@ public class PageAction extends BaseAction {
     }
     
     /* Read Blog RSS */
-    String rssurl;
+    String blogxml;
     if (locale.equals("ja") || locale.equals("ja_JP")) {
-      rssurl = "http://feedblog.ameba.jp/rss/ameblo/listersin/rss20.xml";
+      blogxml = readfile(configdbo.getString("ameblofile"));
     } else {
-      rssurl = "http://listers.in/blog/feed/";
+      blogxml = readfile(configdbo.getString("blogfile"));
     }
-    
-    URL feedUrl = new URL(rssurl);
-    SyndFeedInput input = new SyndFeedInput();
-    feed = input.build(new XmlReader(feedUrl));
-    
-    /* GitHub Feed */
-    githubfeed = githubfeed();
+    blogfeed = convertXML2DBObject(blogxml);
     
     return SUCCESS;
   }
@@ -550,32 +546,5 @@ public class PageAction extends BaseAction {
     
     return;
   }
-	
-	private BasicDBObject githubfeed() throws Exception {
-		
-    URL url = new URL("https://github.com/listersin/listersin/commits/master.atom");
-		
-    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-		
-		conn.connect();
-		
-    InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
-		BufferedReader br = new BufferedReader(isr);
-		String line = "";
-		String xml = "";
-		while ((line = br.readLine()) != null) {
-			xml = xml + line + "\n";
-		}
-		br.close();
-		
-		XMLSerializer xmlSerializer = new XMLSerializer(); 
-		//xmlSerializer.setTypeHintsCompatibility(true);
-		xmlSerializer.setTypeHintsEnabled(false);
-		
-		net.sf.json.JSON json = xmlSerializer.read(xml);
-		
-		BasicDBObject dbo = (BasicDBObject) com.mongodb.util.JSON.parse(json.toString());
-		
-		return dbo;
-	}
+  
 }

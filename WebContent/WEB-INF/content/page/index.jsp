@@ -122,15 +122,15 @@
 	    </div>
 	    <h2><s:text name="Blog"/></h2>
 	    <ul class="blog">
-		    <s:iterator value="feed.entries">
+		    <s:iterator value="blogfeed.channel.item">
 		      <li>
 			      <a href="${link}">${title}</a>
-						<div style="text-align:right; color:#aaa;">${publishedDate}</div>
+						<div style="text-align:right; color:#aaa;">${pubDate}</div>
 						<s:if test="#request.locale.language=='ja'">
-							<p>${description.value.replaceAll("<[^>]+>", "")}・・・</p>
+							<p>${description.replaceAll("<[^>]+>", "")}・・・</p>
 						</s:if>
 						<s:else>
-							<p>${description.value}</p>
+							<p>${description}</p>
 						</s:else>
 		      </li>
 		    </s:iterator>
