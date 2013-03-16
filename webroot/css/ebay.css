@@ -1205,3 +1205,59 @@ label[for=checkall] {
 #hiddenforms {
   display: none;
 }
+
+div.membermessage {
+  margin: 5px 0;
+  padding: 5px;
+  clear: both;
+  background-color: #e0e0e0;
+	border: 1px solid #ccc;
+}
+
+div.membermessage div.question {
+  float: left;
+	width: 50%;
+}
+
+div.membermessage div.form {
+  float: right;
+	width: 45%;
+}
+
+div.membermessage div.form {
+  display: table-cell;
+  vertical-align: bottom;
+}
+
+div.membermessage div.form textarea {
+  float: left;
+	width: 80%;
+	margin-right: 5px;
+}
+div.membermessage div.form button {
+  float: right;
+	margin-top: 10px;
+}
+
+div.membermessage div.question {
+  margin-right: 10px;
+}
+
+div.membermessage ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+div.membermessage li {
+  float: left;
+  margin: 0 10px 0 0;
+}
+
+div.membermessage div.body {
+  margin: 5px 0 0 0;
+  clear: both;
+  padding: 5px;
+  background-color: #fff;
+	border: 1px solid #ccc;
+}

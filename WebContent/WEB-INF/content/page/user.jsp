@@ -5,15 +5,13 @@
 <head>
 <meta charset="UTF-8">
 <title>ListersIn - <s:text name="eBayListingSoftware"/></title>
+<link rel="shortcut icon" href="/img/favicon.png">
+
 <link rel="stylesheet" type="text/css" href="/css/ebay.css">
-<!--[if lte IE 8]>
-<link rel="stylesheet" type="text/css" href="/css/ebay-lte-ie8.css"/>
-<![endif]-->
 <link rel="stylesheet" type="text/css" href="/js/jwysiwyg/jquery.wysiwyg.css">
 <link rel="stylesheet" type="text/css" href="/js/redactor/redactor.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery-ui-1.10.1.custom/css/smoothness/jquery-ui-1.10.1.custom.min.css">
 <link rel="stylesheet" type="text/css" href="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.css">
-<link rel="shortcut icon" href="/img/favicon.png">
 
 <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
@@ -27,18 +25,17 @@
 
 <script type="text/javascript" src="/js/ebay.js"></script>
 <script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-32099440-1']);
+_gaq.push(['_trackPageview']);
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-32099440-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
 </script>
+
 </head>
 <body>
 
@@ -558,7 +555,6 @@
 	  <li><s:text name="Payment"/></li>
 	  <li><s:text name="Shipping"/></li>
 	  <li><s:text name="Other"/></li>
-	  <li><s:text name="Messages"/></li>
 	  <li><s:text name="All"/></li>
 	</ul>
 	
@@ -1329,7 +1325,7 @@
 		  </table>
 		</div>
 	  </div><!-- tab -->
-
+    
 	  <div class="tab">
 			<div class="tabtitle">
 				<s:if test="#request.locale.language=='ja'">
@@ -1527,40 +1523,12 @@
 			<tr>
 			  <th><s:text name="AdditionalCheckoutInstructions"/></th>
 			  <td>
-				<textarea name="mod.ShippingDetails.PaymentInstructions"
-						  cols="60" rows="3"></textarea>
+				  <textarea name="mod.ShippingDetails.PaymentInstructions"
+						        cols="60" rows="3"></textarea>
 			  </td>
 			</tr>
 		  </tbody>
 		</table>
-	  </div><!-- tab -->
-	  
-	  <div class="tab">
-		<div class="tabtitle">
-		  <s:text name="Messages"/>
-		</div>
-    
-    <div class="question-block question-template clearfix">
-      <ul class="question-ul clearfix">
-        <li class="question-status"></li>
-        <li class="question-date"></li>
-        <li class="question-sender"></li>
-        <li class="question-parent"></li>
-      </ul>
-      <div class="question-body"></div>
-      <textarea></textarea>
-		  <button><s:text name="Respond"/></button>
-    </div>
-    
-		<div class="buyer-template clearfix">
-      <div class="buyer-userid"></div>
-		  <div class="buyer-information"></div>
-		  <div class="buyer-sendmessage">
-			  <textarea></textarea>
-			  <button>Send message</button>
-		  </div>
-		</div>
-    
 	  </div><!-- tab -->
 	  
 	</div><!-- tabContainer -->
@@ -1572,6 +1540,21 @@
 <div style="clear:both;"></div>
 
 </div><!-- #container -->
+
+<div id="membermessagetemplate" class="membermessage clearfix">
+  <div class="question">
+    <ul class="clearfix">
+      <li class="status"></li>
+      <li class="sender"></li>
+      <li class="date"></li>
+    </ul>
+    <div class="body"></div>
+  </div>
+  <div class="form">
+	  <textarea name="body"></textarea>
+	  <button><s:text name="Respond"/></button>
+  </div>
+</div>
 
 <script>
 var hash;

@@ -17,9 +17,9 @@ public class AddMemberMessageRTQ extends ApiCall implements Callable {
   private String itemid;
   private String parent;
   private String body;
-    
+	
 	public AddMemberMessageRTQ() throws Exception {
-    }
+	}
 	
 	public AddMemberMessageRTQ(String[] args) throws Exception {
 		this.email  = args[0];
@@ -31,26 +31,14 @@ public class AddMemberMessageRTQ extends ApiCall implements Callable {
     
 	public String call() throws Exception {
         
-		/* get token from db */
-		BasicDBObject query = new BasicDBObject();
-		query.put("email", email);
-		query.put("userids."+userid, new BasicDBObject("$exists", 1));
-		
-		BasicDBObject fields = new BasicDBObject();
-		fields.put("userids."+userid, 1);
-		
-		BasicDBObject user = (BasicDBObject) db.getCollection("users").findOne(query, fields);
-		
-		BasicDBObject useriddbo = (BasicDBObject) user.get("userids");
-		BasicDBObject tokendbo  = (BasicDBObject) useriddbo.get(userid);
-		String token = tokendbo.getString("eBayAuthToken");
+		String token = gettoken(email, userid);
 		
     BasicDBObject reqdbo = new BasicDBObject();
     reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", token));
     reqdbo.append("WarningLevel", "High");
     reqdbo.append("DetailLevel", "ReturnAll");
     reqdbo.append("ItemID", itemid);
-    reqdbo.append("MessageID", email+" "+userid+" "+itemid);
+    reqdbo.append("MessageID", getnewtokenmap(email) + " " + userid + " " + itemid);
 		
 		BasicDBObject mm = new BasicDBObject();
 		mm.put("ParentMessageID", parent);
@@ -59,6 +47,8 @@ public class AddMemberMessageRTQ extends ApiCall implements Callable {
 		reqdbo.append("MemberMessage", mm);
 		
     String requestxml = convertDBObject2XML(reqdbo, "AddMemberMessageRTQ");
+		
+		writelog("AddMemberMessageRTQ/"+email+"."+userid+"."+itemid+".req.xml", requestxml);
 		
 		Future<String> future =
       pool18.submit(new ApiCallTask(userid, 0, requestxml, "AddMemberMessageRTQ"));
@@ -72,7 +62,7 @@ public class AddMemberMessageRTQ extends ApiCall implements Callable {
 		BasicDBObject resdbo = convertXML2DBObject(responsexml);
 		
 		String[] messages = resdbo.getString("CorrelationID").split(" ");
-		email  = messages[0];
+		email  = getemailfromtokenmap(messages[0]);
 		userid = messages[1];
     itemid = messages[2];
 		

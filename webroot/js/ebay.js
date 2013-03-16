@@ -812,23 +812,24 @@ function bindevents()
   });
 	
 	/* AddMemberMessageRTQ */
-  $('#items').on('click', 'div.question-block button', function() {
+  $('#items').on('click', 'div.membermessage button', function() {
+		
+		var div = $(this).closest('div.membermessage');
 		
 		var id     = $(this).closest('tbody.itemrow').attr('id');
     var userid = rowsdata[id].org.Seller.UserID;
     var itemid = rowsdata[id].org.ItemID;
-		var parent = $('li.question-parent', $(this).parent()).text();
-    var body   = $('textarea', $(this).parent()).val();
+		var parent = $(div).attr('data-messageid');
+    var body   = $('textarea[name="body"]', div).val();
+		var sender = $('li.sender', div).html();
     
 		if (body == '') {
 			alert('Please input answer text.');
 			return false;
 		}
-		if (!confirm('Send this answer?')) {
+		if (!confirm('Send answer?')) {
 			return false;
 		}
-		
-		$(this).after('<img src="/img/indicator.gif"/> sending message...');
 		
     var postdata = 'id='+id;
     postdata += '&userid='+userid;
@@ -836,12 +837,14 @@ function bindevents()
     postdata += '&parent='+parent;
     postdata += '&body='+encodeURIComponent(body);
     
+		showmessage('Sending answer to ' + sender + '...');
+		
     $.post('/json/addmembermessagertq',
            postdata,
            function (data) {
-						 var item = data.json.item;
-						 rowsdata[id] = item;
-						 showmembermessages(id);
+						 $(div).fadeOut('slow', function() {
+							 $(div).remove();
+						 });
            },
            'json');
   });
@@ -1266,9 +1269,17 @@ function items(clearitems)
 		 }
 		 
 		 $.each(data.json.items, function(idx, row) {
+       
 			 rowsdata[idx] = row;
+       
 			 var dom = getrow(idx, row);
+			 
 			 $('#items').append(dom);
+       
+			 //$('tr.row2 td', '#'+idx).append('hoge');
+       setmembermessageform(idx, row);
+			 //$('tr.row2 td', '#'+idx).css('border', '2px solid red');
+			 
 		 });
 		 
 	 },
@@ -1395,6 +1406,23 @@ function getrow(idx, row)
 	if (row.message) {
 		$('td.Title', dom).append(row.message);
 	}
+  
+  /* MemberMessages (AskSellerQuestion)*/
+	/*
+  if (row.membermessages) {
+    $.each(row.membermessages, function(idx, mme) {
+      if (mme.MessageStatus != 'Unanswered') return;
+      
+      var div = $('<div/>')
+        .css('color', '#a33')
+        .html('[' + mme.Question.SenderID + '] ' + mme.Question.Body);
+      
+			$('td.Title', dom).append(div);
+    });
+  }
+  */
+	
+  /* Org */
 	if (row.org) {
 		if (row.org.SellingStatus.QuantitySold > 0) {
 			var soldtag = $('<div/>')
@@ -1402,12 +1430,14 @@ function getrow(idx, row)
 				.html(row.org.SellingStatus.QuantitySold+' sold!');
 			$('td.Title', dom).append(soldtag);
 		}
+    /*
 		if (row.org.ListingDetails.HasUnansweredQuestions == 'true') {
 			var huqtag = $('<div/>')
         .addClass('questionlabel')
 				.html('Unanswered');
 			$('td.Title', dom).append(huqtag);
 		}
+    */
 	}
 	
   /*
@@ -2169,6 +2199,7 @@ var clickEdit = function() {
 	$('div.detail', 'tbody#'+id).replaceWith(dom);
 	
 	// todo: disable modifying some fields when the item is active. (UserID, Site, etc...)
+	
 	setformelements(item);
 	fillformvalues(item);
 	
@@ -2417,15 +2448,14 @@ var clickTitle = function() {
 	
 	var id = $(this).closest('tbody').attr('id');
 	
-	if ($('tr.row2 td', '#'+id).html().match(/^<div/i)) {
-		//$('div.detail', '#'+id).slideToggle('fast');
+	if ($('tr.row2 td', '#'+id).html().match(/<div class="detail"/i)) {
 		$('div.detail', '#'+id).toggle();
 		return false;
 	}
 	
 	var detail = $('div.detail', 'div#detailtemplate').clone();
 	$('td:nth-child(2)', detail).hide();
-	$('tr.row2 td', '#'+id).html(detail);
+	$('tr.row2 td', '#'+id).append(detail);
 	$('div.detail', '#'+id).toggle();
 	
 	if (id == 'newitem0') {
@@ -2453,6 +2483,8 @@ var clickTitle = function() {
 		 hash[site].ThemeGroup          = data.json.ThemeGroup;
 		 hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
 		 
+     //setmembermessageform(item);
+     
 		 setformelements(item);
 		 showformvalues(item);
 		 $('div.productsearchform', '#'+id).remove();
@@ -2465,6 +2497,41 @@ var clickTitle = function() {
 	 'json');
 	
 	return false;
+}
+
+function setmembermessageform(id, item)
+{
+  if (item.membermessages == null) return;
+  
+  $.each(item.membermessages, function(idx, mme) {
+    
+    if (mme.MessageStatus != 'Unanswered') return;
+		
+    var div = $('#membermessagetemplate').clone().attr('id', '');
+    
+		$(div).attr('data-messageid', mme.Question.MessageID);
+		
+		var body = mme.Question.Body;
+		body = body.replace(/\r\n/g, '<br/>');
+		body = body.replace(/[\n\r]/g, '<br/>');
+		
+    $('div.body',  div).html(body);
+    $('li.status', div).html(mme.MessageStatus);
+    $('li.sender', div).html(mme.Question.SenderID);
+    $('li.date',   div).html(mme.CreationDate);
+    
+    if (mme.MessageStatus == 'Unanswered') {
+      $('li.status', div).css('color', '#f00');
+    } else if (mme.MessageStatus == 'Answered') {
+      $('li.status', div).css('color', '#090');
+      $('div.form', div).empty();
+    }
+    
+    //$('div.detail', '#'+id).before(div);
+    $('tr.row2 td', '#'+id).append(div);
+  });
+  
+  return;
 }
 
 function getcategorypulldown(site, categoryid)
@@ -2829,6 +2896,19 @@ function showformvalues(item)
 		}
 	});
 	
+	/* Description (before replacing textarea)*/
+	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
+	/*
+	var iframe = $('<iframe/>').attr('class', 'description').attr('src', '/blank.html');
+	iframe.load(function() {
+		$(this).get(0).contentWindow.document.write(item.mod.Description);
+		
+		var iframeheight = $(this).contents().find('body').height() + 16
+		$(this).css('height', iframeheight+'px');
+	});
+	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	*/
+	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
 		var formname = $(form).attr('name');
@@ -2929,8 +3009,6 @@ function showformvalues(item)
 	$('a.addsso',     detail).remove();
 	$('a.removesso',  detail).remove();
 	
-	showmembermessages(item.id);
-	
 	/* buyers information if exists */
 	/*
 	if (item.transactions) {
@@ -2947,41 +3025,6 @@ function showformvalues(item)
 		});
 	}
 	*/
-	
-	return;
-}
-
-function showmembermessages(id)
-{
-	var item = rowsdata[id];
-  
-	$('div.question-template', '#'+id).nextAll().remove();
-	
-  if (item.membermessages) {
-    $.each(item.membermessages, function(i, o) {
-      
-			var divtag = $('div.question-template', '#'+id).clone();
-			$(divtag).removeClass('question-template').css('display', 'block');
-      
-			$('li.question-status', divtag).append(o.MessageStatus);
-      if (o.MessageStatus == 'Unanswered') {
-			  $('li.question-status', divtag)
-          .css('font-weight', 'bold')
-          .css('color', '#f00');
-      } else if (o.MessageStatus == 'Answered') {
-			  $('li.question-status', divtag)
-          .css('font-weight', 'bold')
-          .css('color', '#090');
-      }
-      
-			$('li.question-date',   divtag).append(o.creationdate_l);
-			$('li.question-sender', divtag).append(o.Question.SenderID);
-			$('li.question-parent', divtag).append(o.Question.MessageID);
-			$('div.question-body',  divtag).append(o.Question.Body.replace(/\n/g, '<br/>'));
-      
-			$('div.question-template', '#'+id).parent().append(divtag);
-    });
-  }
 	
 	return;
 }

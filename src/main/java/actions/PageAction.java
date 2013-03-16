@@ -353,7 +353,7 @@ public class PageAction extends BaseAction {
       
       DBObject exitem = itemcoll.findOne(query);
       if (exitem == null) {
-        String[] args = {"GetItem", userdbo.getString("email"), userid, itemid};
+        String[] args = {"GetItem", userdbo.getString("email"), userid, itemid, "waitcallback"};
         String result = writesocket(args);
       }
       

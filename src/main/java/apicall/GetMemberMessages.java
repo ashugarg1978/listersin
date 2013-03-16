@@ -88,7 +88,7 @@ public class GetMemberMessages extends ApiCall implements Callable {
 	}
   
   public void upsertmembermessage(BasicDBObject dbo) throws Exception {
-    
+		
 		BasicDBObject pr = (BasicDBObject) dbo.get("PaginationResult");
 		int total = Integer.parseInt(pr.getString("TotalNumberOfEntries"));
 		if (total == 0) return;

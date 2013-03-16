@@ -369,7 +369,7 @@ public class JsonAction extends BaseAction {
 		field.put("setting",                         1);
 		field.put("errors",                          1);
 		field.put("message",                         1);
-		field.put("messages",                        1);
+		field.put("membermessages",                  1);
 		field.put("UserID",                          1);
 		
 		field.put("mod.Title",                       1);
@@ -384,6 +384,7 @@ public class JsonAction extends BaseAction {
 		field.put("org.ListingDetails.EndTime",      1);
 		field.put("org.ListingDetails.HasUnansweredQuestions",  1);
 		field.put("org.ListingDetails.ViewItemURL",  1);
+		field.put("org.Seller.UserID",               1);
 		field.put("org.SellingStatus.BidCount",      1);
 		field.put("org.SellingStatus.ListingStatus", 1);
 		field.put("org.SellingStatus.QuantitySold",  1);
@@ -425,7 +426,6 @@ public class JsonAction extends BaseAction {
 				gdq.removeField("count");
 				
 				gdbl.add(gdq);
-				log.debug(gd.toString());
 			}
 			
 			query.put("$or", gdbl);
@@ -438,7 +438,6 @@ public class JsonAction extends BaseAction {
 		
     Calendar calendar = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		log.debug(user.getString("timezone"));
 		SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
 		Date now = new Date();
 		//String today = sdf.format(calendar.getTime());
@@ -484,8 +483,6 @@ public class JsonAction extends BaseAction {
           sdf.applyPattern("yyyy-MM-dd HH:mm");
           
 					item.put("setting.schedule", sdf.format(scheduletime));
-          
-          log.debug(schedule + " " + sdf.format(scheduletime));
         }
       }
       
@@ -534,7 +531,6 @@ public class JsonAction extends BaseAction {
 	@Actions({
 		@Action(value="/json/item"),
 		@Action(value="/json/save-item"),
-		@Action(value="/json/addmembermessagertq-item")
 	})
 	public String item() throws Exception {
 		
@@ -542,7 +538,6 @@ public class JsonAction extends BaseAction {
 		
 		/* handling post parameters */
 		String id = parameters.get("id")[0];
-		log.debug("item:" + id);
 		
 		/* query */
 		BasicDBObject query = new BasicDBObject();
@@ -554,8 +549,6 @@ public class JsonAction extends BaseAction {
 		item.put("id", item.get("_id").toString());
 		
 		String site = mod.getString("Site");
-		
-		log.debug("/json/item(2)");
 		
 		if (mod.containsField("PrimaryCategory")) {
 			
@@ -576,9 +569,8 @@ public class JsonAction extends BaseAction {
 			for (int i = 0; i < path.size(); i++) {
 				pathstr[i+1] = path.get(i).toString();
 			}
-			log.debug("/json/item(3)");
+			
 			BasicDBObject children2 = children2(site, pathstr);
-			log.debug("/json/item(4)");
 			
 			LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
 			item.put("categorypath2", path2);
@@ -626,11 +618,9 @@ public class JsonAction extends BaseAction {
 				item.put("ListingDesigner", new BasicDBObject("GroupID", groupid));
 				
 				json.put("DescriptionTemplate", _descriptiontemplate(site, groupid));
-				
-				log.debug("themeid["+themeid+"] groupid["+groupid+"]");
 			}
 		}
-    
+		
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     sdf.setLenient(false);
     
@@ -678,8 +668,6 @@ public class JsonAction extends BaseAction {
 		/* remove fields */
 		item.removeField("_id");
 		
-		log.debug("/json/item(6)");
-		
 		BasicDBObject ebaydetails =
 			(BasicDBObject) db.getCollection(site+".eBayDetails").findOne();
 		
@@ -691,8 +679,6 @@ public class JsonAction extends BaseAction {
 		json.put("CategoryFeatures", categoryfeatures);
 		json.put("ThemeGroup",       themegroup(site));
 		
-		log.debug("/json/item(9)");
-		
 		return SUCCESS;
 	}
 	
@@ -701,8 +687,6 @@ public class JsonAction extends BaseAction {
 		
 		String id   = ((String[]) parameters.get("id"))[0];
 		String form = ((String[]) parameters.get("json"))[0];
-		log.debug("save: items."+user.getString("_id")+" "+id);
-		log.debug(form);
 		
 		BasicDBObject item            = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		BasicDBObject mod             = (BasicDBObject) item.get("mod");
@@ -748,10 +732,8 @@ public class JsonAction extends BaseAction {
 			
 			if (!mod.containsField("ShippingDetails")) {
 				mod.put("ShippingDetails", new BasicDBObject());
-				log.debug("putting ShippingDetails");
 			}
 			((BasicDBObject) mod.get("ShippingDetails")).put("ShippingType", stype);
-			log.debug("putting ShippingDetails:"+stype);
 		}
 		*/
     
@@ -764,7 +746,6 @@ public class JsonAction extends BaseAction {
 			ObjectId newid = new ObjectId();
 			id = newid.toString();
 			
-			log.debug("newid:"+newid.toString());
 			parameters.get("id")[0] = newid.toString();
 			
 			BasicDBObject newitem = new BasicDBObject();
@@ -778,7 +759,6 @@ public class JsonAction extends BaseAction {
 			newitem.put("log", logdbl);
 			
 			WriteResult result = coll.insert(newitem, WriteConcern.SAFE);
-			log.debug("save newitem: "+result.getError());
 			
 			/* save before and after file for diff */
 			DiffLogger dl = new DiffLogger();
@@ -803,7 +783,6 @@ public class JsonAction extends BaseAction {
 						  ("log", new BasicDBObject(basetimestamp, "Saved by user")));
 			
 			WriteResult result = coll.update(query, update);
-			log.debug("save result: "+result.getError());
 			
 			BasicDBObject after  = (BasicDBObject) coll.findOne(query);
 			
@@ -864,7 +843,6 @@ public class JsonAction extends BaseAction {
 		}
 		
 		WriteResult res = coll.insert(newdblist, WriteConcern.SAFE);
-		log.debug("result:"+res.toString());
 		
 		return SUCCESS;
 	}
@@ -1173,9 +1151,7 @@ public class JsonAction extends BaseAction {
 		// todo: remove tokens etc...
     BasicDBList userids2 = new BasicDBList();
 		for (Object useridobj : (BasicDBList) user.get("userids2")) {
-      
-      //log.debug("ids2:" + useridobj);
-      
+			
 			BasicDBObject tmp = (BasicDBObject) ((BasicDBObject) useridobj).copy();
 			tmp.removeField("@xmlns");
 			tmp.removeField("Ack");
@@ -1197,7 +1173,6 @@ public class JsonAction extends BaseAction {
 		LinkedHashMap<String,Object> summarydata = new LinkedHashMap<String,Object>();
 		
 		if (!user.containsField("userids2")) {
-			log.debug("summarydata() no userids2.");
 			return summarydata;
 		}
 		
@@ -1275,7 +1250,8 @@ public class JsonAction extends BaseAction {
 		unsold.put("org.SellingStatus.QuantitySold", "0");
 		
 		unanswered.put("org.ItemID", new BasicDBObject("$exists", 1));
-		unanswered.put("org.ListingDetails.HasUnansweredQuestions", "true");
+		unanswered.put("membermessages.MessageStatus", "Unanswered");
+		//unanswered.put("org.ListingDetails.HasUnansweredQuestions", "true");
 		
 		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
 		saved.put("setting.schedule", new BasicDBObject("$exists", 0));
@@ -1427,7 +1403,6 @@ public class JsonAction extends BaseAction {
 		/*
         for (String key : parameters.keySet()) {
             String[] vals = parameters.get(key);
-            log.debug(key+":"+vals[0]);
         }
 		
 		String[] args = {
@@ -1443,11 +1418,11 @@ public class JsonAction extends BaseAction {
         */
 		
         return SUCCESS;
-    }
-
-    @Action(value="/json/addmembermessagertq")
-    public String addmembermessagertq() throws Exception {
-
+	}
+	
+	@Action(value="/json/addmembermessagertq")
+	public String addmembermessagertq() throws Exception {
+			
 		String email  = session.get("email").toString();
 		String userid = ((String[]) parameters.get("userid"))[0];
 		String itemid = ((String[]) parameters.get("itemid"))[0];
@@ -1464,9 +1439,13 @@ public class JsonAction extends BaseAction {
 			result = writesocket(args);
 		}
 		
-		return "item";
-    }    
-    
+    updatemessage(user.getString("email"), false, "Sent message.");
+		
+		json.put("result", result);
+
+		return SUCCESS;
+	}    
+  
 	private BasicDBObject children2(String site, String[] path) {
 		
 		BasicDBObject result = new BasicDBObject();
@@ -1493,7 +1472,6 @@ public class JsonAction extends BaseAction {
 			if (dboft != null) {
 				for (Object o : dboft.keySet()) {
 					features.put(o.toString(), dboft.get(o.toString()));
-					log.debug("overwrite:" + categoryid + ":" + o.toString()+":"+dboft.get(o.toString()));
 				}
 			}
 			
@@ -1607,10 +1585,8 @@ public class JsonAction extends BaseAction {
 		String shippingtype = "";
 		
 		for (int i=0; i<typemap.length; i++) {
-			log.debug(typemap[i][0]+"-"+typemap[i][1]+" ? "+dmst+"-"+intl);
 			if (typemap[i][0].equals(dmst) && typemap[i][1].equals(intl)) {
 				shippingtype = typemap[i][2];
-				log.debug("matched!");
 				break;
 			}
 		}
@@ -1834,7 +1810,6 @@ public class JsonAction extends BaseAction {
 		DBObject newdbo = db.getCollection(site+".CategoryMappings")
 			.findOne(new BasicDBObject("@oldID", categoryid.toString()));
 		if (newdbo != null) {
-			log.debug("mapcategoryid("+site+", "+categoryid+") -> "+newdbo.get("@id").toString());
 			categoryid = Integer.parseInt(newdbo.get("@id").toString());
 		}
 		
