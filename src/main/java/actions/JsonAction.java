@@ -55,6 +55,11 @@ public class JsonAction extends BaseAction {
 		
     if (session.get("email") != null) {
 			if (user.containsField("message")) {
+				
+				BasicDBObject query = new BasicDBObject();
+				query.put("email", session.get("email").toString());
+				user = (BasicDBObject) db.getCollection("users").findOne(query);
+				
 				json.put("message", user.get("message"));
 			}
 		}
@@ -838,6 +843,8 @@ public class JsonAction extends BaseAction {
 			// remove fields
 			item.removeField("_id");
 			item.removeField("org");
+			item.removeField("membermessages");
+			item.removeField("log");
 			
 			newdblist.add((BasicDBObject) item.copy());
 		}
@@ -875,26 +882,17 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		//query.put("status", ""); // todo: re-enable this line. also end, revise?
 		
 		Long count = coll.count(query);
-		String message = "Listing "+count+" items...";
+		updatemessage(user.getString("email"), true, "Listing " + count + " items.");
 		
 		BasicDBObject update = new BasicDBObject();
 		update.put("$set", new BasicDBObject("status", "add_"+timestamp));
 		
 		WriteResult result = coll.update(query, update, false, true);
 		
-		json.put("result", result);
-		
-		Socket socket = new Socket("localhost", daemonport);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("AddItems\n"
-                    + session.get("email") + "\n"
-                    + "add_"+timestamp + "\n"
-                    + "\n");
-		out.close();
-		socket.close();
+		String[] args = {"AddItems", session.get("email").toString(), "add_"+timestamp};
+		writesocket_async(args);
 		
 		return SUCCESS;
 	}

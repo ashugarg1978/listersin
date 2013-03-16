@@ -174,10 +174,7 @@ function bindevents()
     
     if (action.match(/^delete|add|relist|revise|verifyadditem|end$/)) {
       if (checkdemoaccount()) return;
-			
-			if (!confirm($(this).html() + ' checked items?')) {
-				return;
-			}
+			if (!confirm($(this).html() + ' checked items?')) return;
     }
 		
 		if (action == 'checkall') {
@@ -729,8 +726,10 @@ function bindevents()
 		$('div.tabContainer', '#'+id).children().show();
 		
 		// todo: compare to CKEditor
-		//$('textarea[name="mod.Description"]', '#'+id).wysiwyg();
-		$('textarea[name="mod.Description"]', '#'+id).redactor();
+		$('textarea[name="mod.Description"]', '#'+id).redactor({
+			convertDivs: false,
+			convertLinks: false
+		});
 		
 		showbuttons(dom, 'save,cancel');
 		
@@ -2211,8 +2210,10 @@ var clickEdit = function() {
 	fillformvalues(item);
 	
 	// todo: compare to CKEditor
-	//$('textarea[name="mod.Description"]', 'tbody#'+id).wysiwyg();
-	$('textarea[name="mod.Description"]', 'tbody#'+id).redactor();
+	$('textarea[name="mod.Description"]', '#'+id).redactor({
+		convertDivs: false,
+		convertLinks: false
+	});
 	
 	showbuttons(dom, 'save,cancel');
 	
@@ -2675,18 +2676,6 @@ function refresh()
 				 
 			 }
 		 }
-		 
-		 /* message */
-		 if (postdata != '') {
-			 
-			 timeout = setTimeout('refresh()', 1000);
-			 
-		 } else {
-			 
-			 clearTimeout(timeout);
-			 
-		 }
-		 
 	 },
 	 'json');
 	
