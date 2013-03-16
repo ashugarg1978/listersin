@@ -62,8 +62,6 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			basedir = basedir.replaceAll("##.+$", "");
 			version = version.replaceAll("^.+##", "");
 			
-			//log.debug("basedir:"+basedir+" version:"+version);
-			
 			configdbo = convertXML2DBObject(readfile(basedir+"/config/config.xml"));
 			daemonport = Integer.parseInt(configdbo.getString("daemonport"));
 			
@@ -76,11 +74,9 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 			Date now = new Date();
 			basetimestamp = sdf.format(now);
-			//log.debug("basetimestamp:"+basetimestamp);
-      
+			
       for (Enumeration enm=request.getHeaderNames(); enm.hasMoreElements();) {
         String hdname = (String) enm.nextElement();
-        //log.debug(hdname + ":" + request.getHeader(hdname));
       }
       
 			// todo: exclude "canceled" user?

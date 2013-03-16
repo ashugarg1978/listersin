@@ -58,6 +58,9 @@ $(function() {
 		$('select[name="ScheduleTime.date"]', '#detailtemplate').append(optiontag);
 	});
 	
+	$('input[name="datestart"]', '#syncitemsform').val(mischash.datestart);
+	$('input[name="dateend"]', '#syncitemsform').val(mischash.dateend);
+	
 	return;
 });
 
@@ -496,6 +499,10 @@ function bindevents()
       return false;
     }
     
+		if (!confirm('Sync items from eBay?')) return;
+		
+		showmessage('Syncing items from eBay...');
+		
     var postdata = $('select,input', '#syncitemsform').serialize();
     
 		$.post('/json/import',

@@ -113,7 +113,21 @@ public class PageAction extends BaseAction {
         
         /* Schedule Days */
         initjson.put("scheduledays", getScheduleDays());
-        
+				
+				
+				/* Default date range value for sync item form */
+				SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.DATE, 60);
+				String end   = formatter.format(cal.getTime());
+				cal.add(Calendar.DATE, -119); // min -119 from endtime
+				String start = formatter.format(cal.getTime());
+				
+				BasicDBObject mischash = new BasicDBObject();
+				mischash.put("datestart", start);
+				mischash.put("dateend", end);
+				initjson.put("mischash", mischash);
+				
         return "alreadyloggedin";
       }
     }
