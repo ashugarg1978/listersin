@@ -144,6 +144,11 @@ public class GetItem extends ApiCall implements Callable {
 			convertint(org, fieldname.toString());
 		}
     
+		/* Remove banner from description */
+		String description = mod.getString("Description");
+		description = description.replaceAll("<div id=\"listersin-banner\".+?</div>", "");
+		mod.put("Description", description);
+		
 		BasicDBObject query = new BasicDBObject();
 		query.put("org.Seller.UserID", userid);
     query.put("org.ItemID", itemid);

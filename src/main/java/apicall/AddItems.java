@@ -68,7 +68,7 @@ public class AddItems extends ApiCall {
     LinkedHashMap<String,LinkedHashMap> lhm = new LinkedHashMap<String,LinkedHashMap>();
     DBCursor cur = coll.find(query);
     Integer count = cur.count();
-    updatemessage(email, true, "Listing " + count + " items to eBay...");
+    updatemessage(email, true, "Listing " + count + " items to eBay.");
     while (cur.hasNext()) {
       DBObject item = cur.next();
       DBObject mod = (DBObject) item.get("mod");
@@ -93,8 +93,7 @@ public class AddItems extends ApiCall {
       int curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
       int size = ((List) ((LinkedHashMap) lhm.get(userid).get(site)).get(curidx-1)).size();
       if (size >= 5) {
-        ((LinkedHashMap) lhm.get(userid).get(site)).put(curidx,
-                                new ArrayList<DBObject>());
+        ((LinkedHashMap) lhm.get(userid).get(site)).put(curidx, new ArrayList<DBObject>());
         curidx = ((LinkedHashMap) lhm.get(userid).get(site)).size();
       }
       
@@ -131,13 +130,23 @@ public class AddItems extends ApiCall {
           List<DBObject> ldbo = new ArrayList<DBObject>();
           for (Object tmpidx : litems) {
             
-            itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
-            String id = ((BasicDBObject) tmpidx).get("_id").toString();
+            BasicDBObject mod = (BasicDBObject) ((DBObject) tmpidx).get("mod");
+            String tmpdesc = mod.getString("Description");
 						
-            ldbo.add(new BasicDBObject("MessageID", getnewtokenmap(userdbo.getString("email"))
-                                       + " " + tmpuserid
-                                       + " " + id)
-                     .append("Item", ((DBObject) tmpidx).get("mod")));
+            // todo: avoid duplicate link
+						String banner = readfile(basedir + "/data/banner.html");
+						
+            tmpdesc += banner;
+            
+            mod.put("Description", tmpdesc);
+            
+            itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
+            
+            String id = ((BasicDBObject) tmpidx).get("_id").toString();
+            
+            String msgid = getnewtokenmap(userdbo.getString("email")) + " " + tmpuserid + " " + id;
+            
+            ldbo.add(new BasicDBObject("MessageID", msgid).append("Item", mod));
             
             parentmessageid += " " + id;
             
@@ -178,7 +187,7 @@ public class AddItems extends ApiCall {
           
           updatemessage(email, true,
                         "Listing " + (currentnum+1) + "-" + (currentnum+tmpcnt)
-                        + " of " + count + " items to eBay...");
+                        + " of " + count + " items to eBay.");
           currentnum += tmpcnt;
           
           Future<String> future = pool18.submit
