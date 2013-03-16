@@ -333,7 +333,7 @@ _gaq.push(['_trackPageview']);
 							    Items which
                   <select name="daterange">
                     <option value="Start">start</option>
-                    <option value="End">end</option>
+                    <option value="End" selected="selected">end</option>
                   </select>
                   between
                   <input type="text" name="datestart" value="" />
@@ -1563,6 +1563,8 @@ hash = ${initjson.hash};
 var timezoneids = ${initjson.timezoneids};
 
 var scheduledays = ${initjson.scheduledays};
+
+var mischash = ${initjson.mischash};
 
 //var summary;
 //summary = ${initjson.summary};
