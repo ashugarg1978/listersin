@@ -15,8 +15,8 @@
   </logger>
   
   <logger name="org.apache.struts2">
-		<level value="DEBUG" />
-		<!--level value="WARN" /-->
+		<!--level value="DEBUG" /-->
+		<level value="WARN" />
   </logger>
 	
   <logger name="CommonsLogger">
