@@ -1187,7 +1187,11 @@ function summary(initflag)
 		});
 		
     if (initflag) {
-      $('li.active', '#euidstatuses_allitems').click();
+			if ($('#user_email').html() == 'demo@listers.in') {
+				$('li.saved', '#euidstatuses_allitems').click();
+			} else {
+				$('li.active', '#euidstatuses_allitems').click();
+			}
     }
     
 		/* each eBay UserIDs */
