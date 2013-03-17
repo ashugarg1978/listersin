@@ -4,9 +4,16 @@ $(function() {
 
 function bindevents()
 {
+	/* Try demo button */
+	$('#trydemo').click(function() {
+		$('input[name="email"]',    '#signinbox').val('demo@listers.in');
+		$('input[name="password"]', '#signinbox').val('demo');
+		$('button', '#signinbox').click();
+	});
+	
 	/* Sign up button */
 	$('button', '#signupbox').click(function() {
-		
+    
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
 		$.post('/json/signup',

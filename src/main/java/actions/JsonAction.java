@@ -402,6 +402,7 @@ public class JsonAction extends BaseAction {
 			String sortfield = ((String[]) parameters.get("sortfield"))[0];
 			Integer sortorder = Integer.parseInt(((String[]) parameters.get("sortorder"))[0]);
 			sort.put(sortfield, sortorder);
+			sort.put("_id", -1);
 		}
 		
 		/* check duplicate items */

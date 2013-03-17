@@ -259,9 +259,11 @@ table.items tr.row2 > td {
 td.Title {
   /*min-width: 300px;*/
   /*max-width: 400px;*/
-  overflow: hidden;
+  /*overflow: hidden;*/
   /*white-space: nowrap;*/
 	word-break: break-all;
+  font-weight: bold;
+	color: #666;
 }
 
 div.labelwrap {
@@ -973,12 +975,13 @@ ul.variationpictures {
 ul.pictures li,
 ul.variationpictures li {
   width: 100px;
-  height: 120px;
+  /*height: 120px;*/
   float: left;
   margin: 5px;
   padding: 5px;
   border: 1px solid #CCC;
   text-align: center;
+	background-color: #fff;
 }
 
 ul.pictures li.template,
@@ -1161,7 +1164,6 @@ button.disabled {
 	margin: 0;
 	border-radius: 0;
   font-family: arial, sans-serif;
-  color: #444;
   font-weight: bold;
   font-size: 11px;
 }
@@ -1203,6 +1205,10 @@ label[for=checkall] {
 }
 
 #hiddenforms {
+  display: none;
+}
+
+#membermessagetemplate {
   display: none;
 }
 
@@ -1260,4 +1266,10 @@ div.membermessage div.body {
   padding: 5px;
   background-color: #fff;
 	border: 1px solid #ccc;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #3079ed;
+  color: #fff;
 }

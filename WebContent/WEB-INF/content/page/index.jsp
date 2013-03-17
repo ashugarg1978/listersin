@@ -124,7 +124,7 @@
 	    <ul class="blog">
 		    <s:iterator value="blogfeed.channel.item">
 		      <li>
-			      <a href="${link}">${title}</a>
+			      <a href="${link}" target="_blank">${title}</a>
 						<div style="text-align:right; color:#aaa;">${pubDate}</div>
 						<s:if test="#request.locale.language=='ja'">
 							<p>${description.replaceAll("<[^>]+>", "")}・・・</p>
@@ -153,12 +153,10 @@
 		    <form method="post" action="/">
 		      <label for="email"><s:text name="Email"/></label><br />
 		      <input type="text" id="email" name="email" size="40" value=""><br />
-          <s:text name="DemoAccount"/>: demo@listers.in<br/>
           <br />
 		      
 		      <label for="password"><s:text name="Password"/></label><br />
 		      <input type="password" id="password" name="password" size="40" value=""><br />
-          <s:text name="DemoAccount"/>: demo<br/>
           <br />
 		      
 		      <button><s:text name="SignIn"/></button>
@@ -180,9 +178,10 @@
 
 	    <div id="signupbox">
 		    
-		    <div style="margin-bottom:10px; font-weight:bold; font-size:120%;">
+		    <div style="margin-bottom:10px; font-weight:bold; font-size:120%;" class="clearfix">
           <s:text name="SignUp"/>
 					&nbsp;<span style="color:#088253;">FREE!</span>
+					<button id="trydemo"><s:text name="TryDemoAccount"/></button>
 		    </div>
 		    <div id="signupmessage"></div>
 
@@ -207,12 +206,16 @@
 		    
 	    </div><!-- signupbox -->
 			
-			<div id="ebaylogo">
-				<img src="/img/developersprogrammember_vert.png" />
-			</div>
-			
-			<div style="margin:10px 20px;">
-				<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
+			<div id="logos" class="clearfix">
+				
+				<div id="ebaylogo">
+					<img src="/img/developersprogrammember_vert.png" />
+				</div>
+				
+				<div id="godaddylogo">
+					<span id="siteseal"><script type="text/javascript" src="https://seal.godaddy.com/getSeal?sealID=yll915qgMP7yndpJAjqzM9yakbiWYQYo1WTrUzmLPbgYnnprdG"></script></span>
+				</div>
+				
 			</div>
 			
       <div id="githubfeed">

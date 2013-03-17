@@ -55,8 +55,15 @@ body {
 #signupbox {
   background-color: whiteSmoke;
   border: 1px solid #e5e5e5;
-  margin: 20px;
   padding: 20px;
+}
+
+#signinbox {
+  margin: 0 20px 20px;
+}
+
+#signupbox {
+  margin: 20px;
 }
 
 #twitter {
@@ -96,10 +103,19 @@ h2 {
   margin: 10px 0 0 0;
 }
 
+#logos {
+  margin: 0 0 0 20px;
+}
+
+#logos div {
+  float: left;
+  margin: 0 20px 0 0;
+}
+
 #ebaylogo img {
   width: 150px;
-	margin: 0 0 10px 20px;
 }
+
 
 ul.features,
 ul.notice,
@@ -115,24 +131,27 @@ ul.features li {
   background-image: url(/icon/03/10/02.png);
   background-repeat: no-repeat;
   padding-left: 20px;
+	line-height: 1.5em;
 }
 
 ul.notice li {
   background-image: url(/icon/01/10/50.png);
   background-repeat: no-repeat;
   padding-left: 20px;
+	line-height: 1.5em;
 }
 
 ul.feedback li {
   background-image: url(/icon/01/10/27.png);
   background-repeat: no-repeat;
   padding-left: 20px;
+	line-height: 1.5em;
 }
 
 ul.blog li {
   background-image: url(/icon/01/10/22.png);
   background-repeat: no-repeat;
-  padding-left: 20px;
+  padding-left: 15px;
   margin-bottom: 10px;
 }
 
@@ -203,4 +222,21 @@ input[type=submit] {
 #githubfeed ul {
   list-style: none;
   padding: 0;
+}
+
+#githubfeed ul li {
+  background-image: url(/icon/02/10/36.png);
+  background-repeat: no-repeat;
+  padding-left: 15px;
+  margin-bottom: 5px;
+}
+
+#trydemo {
+  float: right;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: #3079ed;
+  color: #fff;
 }
