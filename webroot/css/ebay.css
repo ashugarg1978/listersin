@@ -262,8 +262,8 @@ td.Title {
   /*overflow: hidden;*/
   /*white-space: nowrap;*/
 	word-break: break-all;
-  font-weight: bold;
-	color: #666;
+  /*font-weight: bold;*/
+	color: #000;
 }
 
 div.labelwrap {
@@ -358,16 +358,18 @@ table.ItemSpecifics {
 }
 
 table.detail td {
-  padding: 2px;
+  padding: 2px 2px 2px 10px;
 }
 
 table.detail th {
-  text-align: left;
-  font-weight: bold;
-  white-space: nowrap;
+  text-align: right;
+  font-weight: normal;
+  /*white-space: nowrap;*/
   vertical-align: top;
   color: #666;
   padding: 7px;
+	border-right: 1px dotted #ccc;
+	width: 150px;
 }
 
 
@@ -574,7 +576,7 @@ ul.tabNav li:hover {
 }
 
 ul.tabNav li.current {
-  background-color: #666;
+  background-color: #74787e;
   color: #fff;
 }
 
@@ -582,7 +584,7 @@ div.tabContainer {
   clear: both;
   margin-bottom: 20px;
   padding: 10px;
-  border: 1px solid #666666;
+  border: 1px solid #74787e;
 }
 
 div.tabContainer div.tab {
@@ -916,7 +918,7 @@ a.addsso {
 div.tabtitle {
   font-size: 1.1em;
   color: #fff;
-  background-color: #666;
+  background-color: #74787e;
   padding: 5px 10px;
   font-weight: bold;
   margin-bottom: 10px;
