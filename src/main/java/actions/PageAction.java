@@ -64,8 +64,7 @@ public class PageAction extends BaseAction {
     if (session.containsKey("WW_TRANS_I18N_LOCALE")) {
       locale = session.get("WW_TRANS_I18N_LOCALE").toString();
     }
-    log.debug("locale: " + request.getLocale().toString() + " -> " + locale);
-    
+		
     DBCollection coll = db.getCollection("users");
     
     BasicDBObject query = new BasicDBObject();
