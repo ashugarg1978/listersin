@@ -23,13 +23,13 @@ function bindevents()
 					     $('#signupmessage')
 						     .css('color', 'blue')
 						     .html('Confirmation mail was sent to<br/>'
-                       + data.json.message+'!<br/>'
+                       + data.json.resultmessage+'!<br/>'
                        + 'If you can\'t find the email,<br/>'
                        + 'Please also check spam folder.');
 				     } else {
 					     $('#signupmessage')
 						     .css('color', 'red')
-						     .html(data.json.message);
+						     .html(data.json.resultmessage);
 				     }
 			     },
 			     'json');

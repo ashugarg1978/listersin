@@ -71,7 +71,7 @@ public class JsonAction extends BaseAction {
 	public String signup() throws Exception {
 		
 		boolean result = false;
-		String message = "signup error";
+		String resultmessage = "signup error";
 		
 		if (parameters.get("email") != null
 				&& parameters.get("password") != null
@@ -83,11 +83,11 @@ public class JsonAction extends BaseAction {
 			
 			if (email.equals("") || password.equals("") || password2.equals("")) {
 				
-				message = "Please fill forms.";
+				resultmessage = "Please fill forms.";
 				
 			} else if (!password.equals(password2)) {
 				
-				message = "Password mismatch.";
+				resultmessage = "Password mismatch.";
 				
 			} else {
         
@@ -99,7 +99,7 @@ public class JsonAction extends BaseAction {
 				
 				if (user != null) {
 					
-					message = "Sorry, this email already exists.";
+					resultmessage = "Sorry, this email already exists.";
 					
 				} else {
 					
@@ -129,12 +129,13 @@ public class JsonAction extends BaseAction {
 					sendmail(email, tmptoken);
 					
 					result = true;
-					
-					message = email;
+          
+					resultmessage = email;
 				}
 			}
 		}
 		
+		json.put("resultmessage", resultmessage);
 		json.put("result", result);
     
 		return SUCCESS;
@@ -247,9 +248,24 @@ public class JsonAction extends BaseAction {
 			 + "\n"
 			 + "Please click following link and complete sign up.\n"
 			 + "\n"
-			 + "http://"+configdbo.getString("hostname")+"/page/signup_confirm?t="+tmptoken+"\n"
+			 + "http://" + configdbo.getString("hostname") + "/page/signup_confirm?t=" + tmptoken + "\n"
 			 + "\n"
-			 + "------------------------------------------\n"
+       + "\n"
+       + "We would like to hear from you!\n"
+       + "What kind of functions do you need for third party eBay listing software?\n"
+       + "Please just reply to this email:)\n"
+       + "\n"
+       + "For example:\n"
+       + "- Manage multiple eBay accounts.\n"
+       + "- Image hosting server.\n"
+       + "- Multiple items bulk editing tool. (Find and replace)\n"
+       + "- Item duplication checker.\n"
+       + "- Manage other ecommerce platforms.(Amazon, etc.)\n"
+       + "- Auto relist after item is unsold.\n"
+       + "- Scheduled listing without additional fee.\n"
+			 + "- Keyboard shortcut for faster operation on daily tasks.\n"
+       + "\n"
+       + "------------------------------------------\n"
 			 + "ListersIn - eBay Listing Software\n"
 			 + "http://"+configdbo.getString("hostname")+"/\n"
 			 + "------------------------------------------\n");

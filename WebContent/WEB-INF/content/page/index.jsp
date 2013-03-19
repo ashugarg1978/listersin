@@ -183,8 +183,7 @@
 					&nbsp;<span style="color:#088253;">FREE!</span>
 					<button id="trydemo"><s:text name="TryDemoAccount"/></button>
 		    </div>
-		    <div id="signupmessage"></div>
-
+        
 				<div style="margin:5px 0;">
 					Please input your email address and password.<br/>
 					This is NOT your eBay account. You don't need to<br/>
@@ -201,6 +200,8 @@
 		      <s:text name="ConfirmPassword"/><br />
 		      <input type="text" name="password2" size="40"><br /><br />
 		      
+		      <div id="signupmessage"></div>
+          
 		      <button><s:text name="SignUp"/></button>
 		    </form>
 		    
