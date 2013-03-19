@@ -144,8 +144,9 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 		
 		String data = "";
 		
-		FileReader fr = new FileReader(filename);
-		BufferedReader br = new BufferedReader(fr);
+		//FileReader fr = new FileReader(filename);
+		Reader reader = new InputStreamReader(new FileInputStream(filename), "utf-8");
+		BufferedReader br = new BufferedReader(reader);
 		String line;
 		while ((line = br.readLine()) != null) {
 			data = data + line;
