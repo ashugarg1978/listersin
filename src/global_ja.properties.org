@@ -93,6 +93,7 @@ StartPrice = 開始価格
 Subtitle = サブタイトル
 Title = タイトル
 Trash = ごみ箱
+TryDemoAccount = デモを試してみる
 Unanswered = 未回答
 UncheckAll = クリア
 Unsold = 落札なし
