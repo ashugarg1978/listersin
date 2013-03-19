@@ -17,6 +17,8 @@
 		<li><a href="/admin/updatesummary">Update summary</a></li>
     <li><a href="http://forum.listers.in/" target="_blank">Forum</a></li>
     <li><a href="http://listers.in/blog/wp-admin/" target="_blank">Blog</a></li>
+    <li><a href="http://zabbix.devweb.in/" target="_blank">Zabbix</a></li>
+    <li><a href="http://www.tapatalk.com/forum_owner.php" target="_blank">Tapatalk</a></li>
 	</ul>
   
   <table>
