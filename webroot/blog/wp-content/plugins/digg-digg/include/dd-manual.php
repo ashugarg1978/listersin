@@ -40,11 +40,6 @@ $dd_manual_code = array(
 		"Compact" => "dd_linkedin_generate('Compact')",
 		"NoCount" => "dd_linkedin_generate('NoCount')"
 	),
-	"Digg" => array(
-		"Normal" => "dd_digg_generate('Normal')",
-		"Compact" => "dd_digg_generate('Compact')",
-		"Icon" => "dd_digg_generate('Icon')"
-	),
 	"Reddit" => array(
 		"Normal" => "dd_reddit_generate('Normal')",
 		"Compact" => "dd_reddit_generate('Compact')",
@@ -89,10 +84,6 @@ $dd_manual_code = array(
 		"Normal" => "dd_delicious_generate('Normal')",
 		"Compact" => "dd_delicious_generate('Compact')"
 	),
-	"Google Buzz" => array(
-		"Normal" => "dd_gbuzz_generate('Normal')",
-		"Compact" => "dd_gbuzz_generate('Compact')"
-	),
 	"The Web Blend" => array(
 		"Normal" => "dd_thewebblend_generate('Normal')",
 		"Compact" => "dd_thewebblend_generate('Compact')"
@@ -114,8 +105,8 @@ $dd_manual_code = array(
 		"Compact" => "dd_pinterest_generate('Compact')"
 	),
 	"Flattr" => array(
-		"Normal" => "dd_flattr_generate('Normal')",
-		"Compact" => "dd_flattr_generate('Compact')"
+		"Normal" => "dd_flattr_generate('Normal','flattr_username')",
+		"Compact" => "dd_flattr_generate('Compact','flattr_username')"
 	),
 );		
 	
@@ -134,9 +125,7 @@ function dd_linkedin_generate($buttonDesign='Normal'){
     $dd_linkedin = new DD_Linkedin();
     $dd_linkedin->constructURL($post_data['link'],$post_data['title'],$buttonDesign,$post_data['id'], false);
 	
-	$dd_linkedinJS = '<script type="text/javascript" src="' . DD_PLUGIN_URL . '../js/diggdigg-linkedin.js?ver=' . DD_VERSION . '"></script>';
-	
-	echo $dd_linkedinJS.' '.$dd_linkedin->finalURL;
+	echo $dd_linkedin->finalURL;
 }	
 
 function dd_reddit_generate($buttonDesign='Normal'){
@@ -350,11 +339,14 @@ function dd_pinterest_generate($buttonDesign='Normal'){
 	echo $dd_pinterest->finalURL;
 }
 
-function dd_flattr_generate($buttonDesign='Normal'){
+function dd_flattr_generate($buttonDesign='Normal', $uid=''){
 	$post_data = dd_getPostData();
     
+	global $globalcfg;
+	$globalcfg[DD_GLOBAL_FLATTR_OPTION][DD_GLOBAL_FLATTR_OPTION_UID] = $uid;
+	
     $dd_flattr = new DD_Flattr();
-    $dd_flattr->constructURL($post_data['link'],$post_data['title'],$buttonDesign,$post_data['id'],false);
+    $dd_flattr->constructURL($post_data['link'],$post_data['title'],$buttonDesign,$post_data['id'],false,$globalcfg);
     
 	echo $dd_flattr->finalURL;
 }
