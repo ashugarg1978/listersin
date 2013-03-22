@@ -24,16 +24,23 @@
   <table>
     <thead>
       <tr>
-        <th>Email</th>
-        <th>Status</th>
-        <th>Created</th>
-        <th>Last used</th>
-        <th>Action</th>
-        <th>eBay ID</th>
-        <th>1</th>
-        <th>2</th>
-        <th>3</th>
-        <th>4</th>
+        <th rowspan="2">Email</th>
+        <th rowspan="2">Status</th>
+        <th rowspan="2">Created</th>
+        <th rowspan="2">Last used</th>
+        <th rowspan="2">Action</th>
+        <th rowspan="2">eBay ID</th>
+        <th colspan="2">Active</th>
+        <th colspan="2">Cmpltd</th>
+        <th colspan="2">Saved</th>
+      </tr>
+      <tr>
+        <th>P</th>
+        <th>F</th>
+        <th>P</th>
+        <th>F</th>
+        <th>P</th>
+        <th>F</th>
       </tr>
     </thead>
     <tbody>
@@ -50,10 +57,12 @@
 							<a class="delete" href="#" data-id="${_id}">delete</a>
 						</td>
 						<td>-</td>
-						<td>-</td>
-						<td>-</td>
-						<td>-</td>
-						<td>-</td>
+						<td align="right">-</td>
+						<td align="right">-</td>
+						<td align="right">-</td>
+						<td align="right">-</td>
+						<td align="right">-</td>
+						<td align="right">-</td>
 					</tr>
 				</s:if>
 				<s:else>
@@ -78,10 +87,12 @@
                   <br/>(<s:property value="TokenStatus.Status"/>)
                 </s:if>
               </td>
-							<td><s:property value="summary.Active.truez"/></td>
-							<td><s:property value="summary.Active.falsez"/></td>
-							<td><s:property value="summary.Completed.truez"/></td>
-							<td><s:property value="summary.Completed.falsez"/></td>
+							<td align="right"><s:property value="summary.Active.truez"/></td>
+							<td align="right"><s:property value="summary.Active.falsez"/></td>
+							<td align="right"><s:property value="summary.Completed.truez"/></td>
+							<td align="right"><s:property value="summary.Completed.falsez"/></td>
+							<td align="right"><s:property value="summary.empty.truez"/></td>
+							<td align="right"><s:property value="summary.empty.falsez"/></td>
 						</tr>
 	        </s:iterator>
 					

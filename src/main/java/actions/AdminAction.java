@@ -128,7 +128,7 @@ public class AdminAction extends BaseAction {
 				
 				String userid = tmpid.getString("UserID");
 				
-				String listingstatus = "";
+				String listingstatus = "empty";
 				if (tmpid.containsField("ListingStatus")) {
 					listingstatus = tmpid.getString("ListingStatus");
 				}
