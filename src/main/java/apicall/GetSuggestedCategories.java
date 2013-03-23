@@ -1,6 +1,7 @@
 package ebaytool.apicall;
 
 import com.mongodb.*;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import net.sf.json.JSONObject;
@@ -18,6 +19,15 @@ public class GetSuggestedCategories extends ApiCall implements Callable {
 	}
   
 	public String call() throws Exception {
+		
+		/* Read from cache file */
+		String cachefile = basedir + "/logs/apicall/GetSuggestedCategories";
+		cachefile += "/" + query + ".xml";
+		if ((new File(cachefile)).exists()) {
+			log("read from cache");
+			String responsexml = readfile(cachefile);
+			return responsexml;
+		}
 		
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.put("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));

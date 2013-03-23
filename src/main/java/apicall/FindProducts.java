@@ -20,6 +20,17 @@ public class FindProducts extends ApiCall {
 	
 	public String call() throws Exception {
 		
+		/* Read from cache file */
+		if (findtype.equals("QueryKeywords")) {
+			String cachefile = basedir + "/logs/apicall/FindProducts";
+			cachefile += "/" + findtype + "." + keyword + ".xml";
+			if ((new File(cachefile)).exists()) {
+				log("read from cache");
+				String responsexml = readfile(cachefile);
+				return responsexml;
+			}
+		}
+		
 		BasicDBObject reqdbo = new BasicDBObject();
 		reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 		//reqdbo.append("WarningLevel", "High");
