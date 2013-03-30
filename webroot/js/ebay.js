@@ -545,9 +545,43 @@ function bindevents()
 	
 	$('#items').on('click', 'button.GetProductSearchResults', findproducts);
 	
+	/* Select product from found products */
 	$('#items').on('click', 'div.foundproducts a.product-select', function() {
 		
 		var id = $(this).closest('tbody.itemrow').attr('id');
+		
+		var site = $('select[name="mod.Site"]', '#'+id).val();
+		
+		var categoryid = $('ul.suggestedcategories input:checked', '#'+id).val();
+		var idpath     = $('ul.suggestedcategories input:checked', '#'+id).attr('data-idpath');
+		var categorypath = idpath.split('.');
+		var tmppath = ('0.'+idpath).split('.');
+		
+		$.getJSON
+		('/json/gc2?site=' + site + '&path=0.' + categorypath.join('.'),
+		 function(data) {
+			 
+			 dump(data);
+			 hash[site].Categories = data.json.gc2.Categories;
+			 
+			 //var tmppath = categorypath.split(',');
+			 var tmppds = getcategorypulldowns(site, tmppath);
+			 $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
+			 
+			 var item_modifing =
+				 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+				 .extractObject();
+			 
+			 item_modifing.id = id;
+			 item_modifing.categorypath = categorypath;
+			 
+			 setformelements(item_modifing);
+			 fillformvalues(item_modifing);
+			 
+			 return;
+		 });
+		
+		
 		var productid = $(this).attr('data-productid');
 		var product = foundproducts['R'+productid];
 		
@@ -1022,11 +1056,13 @@ var changeCurrency = function() {
 
 var findproducts = function() {
 	
-	$('div.foundproducts', td).hide();
-	//$('div.producttemplate', td).nextAll().remove();
-	$('li.product-template', td).nextAll().remove();
-  
+	var id = $(this).closest('tbody.itemrow').attr('id');
 	var td = $(this).parent();
+	
+	$('div.foundproducts',      td).hide();
+	$('li.suggestedcategory-template', td).nextAll().remove();
+	$('li.product-template',    td).nextAll().remove();
+  
 	var keyword = $('input[name="ProductSearch.QueryKeywords"]', td).val();
   if (keyword == '') {
     $('div.productsearchmessage', td).html('Please input keyword.');
@@ -1044,7 +1080,46 @@ var findproducts = function() {
              return;
            }
 			     
-			     $.each(data.json.result.Product, function(i, o) {
+					 $.each(data.json.categories.SuggestedCategoryArray.SuggestedCategory, function(i, o) {
+						 
+						 var category = o.Category;
+						 var categoryid = category.CategoryID;
+						 
+						 var idpath = new Array();
+						 var parentid = arrayize(category.CategoryParentID);
+						 $.each(parentid, function(j, p) {
+							 idpath.push(p);
+						 });
+						 idpath.push(category.CategoryID);
+						 
+						 var pathname = '';
+						 var parentname = arrayize(category.CategoryParentName);
+						 $.each(parentname, function(j, p) {
+							 pathname += p + ' > ';
+						 });
+						 pathname += category.CategoryName;
+						 
+						 var radioid = id + 'sc' + categoryid;
+						 
+						 var litag = $('li.suggestedcategory-template', td)
+							 .clone()
+							 .attr('class', 'suggestedcategory');
+						 
+						 $('input', litag)
+							 .attr('id', radioid)
+							 .val(categoryid)
+							 .attr('data-idpath', idpath.join('.'));
+						 
+						 if (i == 0) {
+							 $('input', litag).prop('checked', true);
+						 }
+						 
+						 $('label', litag).html(pathname).attr('for', radioid);
+						 
+						 $('ul.suggestedcategories', td).append(litag);
+					 });
+					 
+					 $.each(data.json.result.Product, function(i, o) {
 				     
 				     // todo: care Reference, UPC, ISBN, etc...
 				     var productids = arrayize(o.ProductID);
@@ -2898,16 +2973,31 @@ function showformvalues(item)
 	
 	/* Description (before replacing textarea)*/
 	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
-	/*
-	var iframe = $('<iframe/>').attr('class', 'description').attr('src', '/blank.html');
+	var iframe = $('<iframe/>')
+		.attr('id', 'iframe'+item.id)
+		.attr('class', 'description')
+		.attr('src', '/blank.html');
+	
 	iframe.load(function() {
 		$(this).get(0).contentWindow.document.write(item.mod.Description);
-		
-		var iframeheight = $(this).contents().find('body').height() + 16
-		$(this).css('height', iframeheight+'px');
+		$(this).contents().find('body').css('margin', '0');
+    
+    setTimeout(function() {
+		  $('#iframe'+item.id)
+        .css('height', ($('#iframe'+item.id).contents().find('body').height()+20) + 'px');
+    }, 2000);
 	});
-	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	
+	/*
+	$('textarea[name="mod.Description"]', detail)
+		.before($('<div/>').attr('id', 'isize'+item.id).html('CLICK'));
+	
+	$('#isize'+item.id).click(function() {
+		var id = $(this).closest('tbody').attr('id');
+		$('#iframe'+id).css('height', ($('#iframe'+id).contents().find('body').height()+16)+'px');
+	});
 	*/
+	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
 	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
@@ -3420,4 +3510,8 @@ function extract_shippingtype(item)
   item.mod.ShippingDetails.ShippingType = {'domestic': dmsttype, 'international': intltype};
   
   return item;
+}
+
+function resizeiframe(id) {
+	$('#iframe'+id).css('height', ($('#iframe'+id).contents().find('body').height()+16)+'px');
 }

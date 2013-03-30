@@ -652,9 +652,14 @@ _gaq.push(['_trackPageview']);
                   <div class="close">
                     <button>Close</button>
                   </div>
+									<div class="header">Categories</div>
                   <ul class="suggestedcategories">
-                    
+										<li class="suggestedcategory-template">
+											<input type="radio" name="CategoryID">
+											<label></label>
+										</li>
                   </ul>
+									<div class="header">Products</div>
                   <ul class="product-list clearfix">
                     <li class="product-template clearfix">
 					            <div class="product-stockphoto">
@@ -799,6 +804,12 @@ _gaq.push(['_trackPageview']);
 			    <tr>
 			      <th><s:text name="Condition"/></th>
 			      <td><select name="mod.ConditionID"></select></td>
+			    </tr>
+			    <tr>
+			      <th><s:text name="ConditionDescription"/></th>
+			      <td>
+							<textarea name="mod.ConditionDescription" cols="60" rows="3"></textarea>
+						</td>
 			    </tr>
 			    <tr>
 			      <th><s:text name="ItemSpecifics"/></th>

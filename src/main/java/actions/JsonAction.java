@@ -1258,11 +1258,11 @@ public class JsonAction extends BaseAction {
 		active.put("org.SellingStatus.ListingStatus", "Active");
 		
 		sold.put("org.ItemID", new BasicDBObject("$exists", 1));
-		sold.put("org.SellingStatus.QuantitySold", new BasicDBObject("$gte", "1"));
+		sold.put("org.SellingStatus.QuantitySold", new BasicDBObject("$gte", 1));
 		
 		unsold.put("org.ItemID", new BasicDBObject("$exists", 1));
 		unsold.put("org.SellingStatus.ListingStatus", "Completed");
-		unsold.put("org.SellingStatus.QuantitySold", "0");
+		unsold.put("org.SellingStatus.QuantitySold", 0);
 		
 		unanswered.put("org.ItemID", new BasicDBObject("$exists", 1));
 		unanswered.put("membermessages.MessageStatus", "Unanswered");

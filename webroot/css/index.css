@@ -217,6 +217,7 @@ input[type=submit] {
 
 #githubfeed {
   margin: 20px 20px;
+  width: 400px;
 }
 
 #githubfeed ul {
