@@ -3231,8 +3231,16 @@ function fillformvalues(item)
 /* ItemSpecifics */
 function setformelements_itemspecifics(item)
 {
+	console.log('item.mod.PrimaryCategory:' + item.mod.PrimaryCategory);
+	console.log('item.mod.PrimaryCategory.CategoryID' + item.mod.PrimaryCategory.CategoryID);
+	
+	if (item.mod.PrimaryCategory == undefined) {
+		// todo: hide forms
+		return;
+	}
+	
 	// todo: not return when undefined. (show empty forms)
-	if (item.mod.ItemSpecifics == undefined) return;
+	//if (item.mod.ItemSpecifics == undefined) return;
 	
 	var detail = $('div.detail', '#'+item.id);
 	$('table.ItemSpecifics', '#'+item.id).empty();
@@ -3241,7 +3249,11 @@ function setformelements_itemspecifics(item)
 	var parentid = item.categorypath[item.categorypath.length-2];
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
-	var specifics = arrayize(item.mod.ItemSpecifics.NameValueList);
+	var specifics = new Array();
+	if (item.mod.ItemSpecifics != undefined) {
+		specifics = arrayize(item.mod.ItemSpecifics.NameValueList);
+	}
+	
 	var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
 	
 	var specificskey = new Array();
@@ -3255,7 +3267,7 @@ function setformelements_itemspecifics(item)
 		recommkey[recomm[i].Name] = i;
 	}
 	
-	/* Existing specifics */
+	/* First, show existing selected specifics */
 	for (i in specifics) {
 		if (specifics[i] == null) continue;
 		var trtag = setformelements_itemspecifics_values(item.id,
@@ -3265,16 +3277,16 @@ function setformelements_itemspecifics(item)
 		$('table.ItemSpecifics', detail).append(trtag);
 	}
 	
-	/* Remaining recommended specifics */
+	/* Next, show remaining recommended specifics */
 	var addspidx = specifics.length;
 	for (i in recomm) {
 		if (specificskey[recomm[i].Name] != null) continue;
 		//if (recomm[i].ValidationRules.VariationSpecifics == 'Disabled') continue;
 		
 		var trtag = setformelements_itemspecifics_values(item.id,
-														 addspidx,
-														 recomm[i],
-														 null);
+																										 addspidx,
+																										 recomm[i],
+																										 null);
 		
 		$('table.ItemSpecifics', detail).append(trtag);
 		
