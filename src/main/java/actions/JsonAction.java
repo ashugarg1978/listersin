@@ -1165,17 +1165,19 @@ public class JsonAction extends BaseAction {
     // todo: convert timezone of token expiration
 		// todo: remove tokens etc...
     BasicDBList userids2 = new BasicDBList();
-		for (Object useridobj : (BasicDBList) user.get("userids2")) {
-			
-			BasicDBObject tmp = (BasicDBObject) ((BasicDBObject) useridobj).copy();
-			tmp.removeField("@xmlns");
-			tmp.removeField("Ack");
-			tmp.removeField("CorrelationID");
-			tmp.removeField("Version");
-			tmp.removeField("Build");
-			tmp.removeField("eBayAuthToken");
-      
-      userids2.add(tmp);
+		if (user.containsField("userids2")) {
+			for (Object useridobj : (BasicDBList) user.get("userids2")) {
+				
+				BasicDBObject tmp = (BasicDBObject) ((BasicDBObject) useridobj).copy();
+				tmp.removeField("@xmlns");
+				tmp.removeField("Ack");
+				tmp.removeField("CorrelationID");
+				tmp.removeField("Version");
+				tmp.removeField("Build");
+				tmp.removeField("eBayAuthToken");
+				
+				userids2.add(tmp);
+			}
 		}
 		settings.put("userids2", userids2);
 		
