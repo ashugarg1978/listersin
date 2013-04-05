@@ -1481,7 +1481,7 @@ function getrow(idx, row)
 					//$('td.Title', dom).append(spantag);
 				} else {
 					$('td.Title', dom).append('<br/>');
-					var spantag = $('<span/>').text(v.LongMessage);
+					var spantag = $('<span/>').text(v.ShortMessage);
 					$(spantag).addClass('error');
 					$('td.Title', dom).append(spantag);
 				}
