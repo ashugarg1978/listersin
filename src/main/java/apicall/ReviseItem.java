@@ -33,18 +33,16 @@ public class ReviseItem extends ApiCall {
 	
 	public String call() throws Exception {
 		
-		String userid;
-		String site;
 		HashMap<String,String> tokenmap = getUserIdToken(email);
 		
 		BasicDBObject userdbo =
 			(BasicDBObject) db.getCollection("users").findOne(new BasicDBObject("email", email));
+		
 		String user_id = userdbo.getString("_id");
 		String uuidprefix = user_id.substring(user_id.length()-8);
 		
 		/* set intermediate status */
 		BasicDBObject query = new BasicDBObject();
-		query.put("deleted",    new BasicDBObject("$exists", 0));
 		query.put("org.ItemID", new BasicDBObject("$exists", 1));
 		query.put("status",     taskid);
 		
@@ -56,30 +54,33 @@ public class ReviseItem extends ApiCall {
 		
 		/* re-query */
 		query.put("status", taskid+"_processing");
-		DBCursor cur = coll.find(query);
-		Integer count = cur.count();
+		DBCursor cursor = coll.find(query);
+		Integer count = cursor.count();
 		Integer currentnum = 0;
     
-		updatemessage(email, true, "Revising " + count + " items.");
+		updatemessage(email, true, "Revising " + count + " items...");
     
-		while (cur.hasNext()) {
-			DBObject item = cur.next();
+		while (cursor.hasNext()) {
+			
+			DBObject item = cursor.next();
 			DBObject mod = (DBObject) item.get("mod");
 			DBObject org = (DBObject) item.get("org");
 			
+			String userid = item.get("UserID").toString();
+			String site   = mod.get("Site").toString();
+			
+			// todo: don't use user _id for prefix.
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
 			mod.put("ItemID", org.get("ItemID").toString());
 			
-			userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
-			site   = mod.get("Site").toString();
 			
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("ErrorLanguage", "en_US");
 			reqdbo.append("WarningLevel", "High");
 			reqdbo.append("RequesterCredentials",
-						  new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
+										new BasicDBObject("eBayAuthToken", tokenmap.get(userid)));
 			reqdbo.append("MessageID", userdbo.getString("_id")+" "+item.get("_id").toString());
 			reqdbo.append("Item", mod);
 			
@@ -87,8 +88,8 @@ public class ReviseItem extends ApiCall {
 			String jss = reqdbo.toString();
 					
 			JSONObject jso = JSONObject.fromObject(jss);
-			JSONObject tmpi = ((JSONObject) jso).getJSONObject("Item");
-			expandElements(tmpi);
+			JSONObject tmpitem = jso.getJSONObject("Item");
+			expandElements(tmpitem);
 			
 			XMLSerializer xmls = new XMLSerializer();
 			xmls.setObjectName("ReviseItemRequest");
@@ -96,11 +97,10 @@ public class ReviseItem extends ApiCall {
 			xmls.setTypeHintsEnabled(false);
 					
 			String requestxml = xmls.write(jso);
-					
-			//String requestxml = convertDBObject2XML(reqdbo, "ReviseItem");
+			
 			writelog("ReviseItem/req.xml", requestxml);
       
-			updatemessage(email, true, "Revising " + (currentnum+1) + " of " + count + " items.");
+			updatemessage(email, true, "Revising " + (currentnum+1) + " of " + count + " items...");
 			currentnum++;
 					
 			Future<String> future = pool18.submit
@@ -115,29 +115,32 @@ public class ReviseItem extends ApiCall {
 	
 	public String callback(String responsexml) throws Exception {
 		
-		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
 		writelog("ReviseItem/res.xml", responsexml);
 		
-		// todo: almost same as AddItems callback function.
+		BasicDBObject responsedbo = convertXML2DBObject(responsexml);
+		log("Ack:"+responsedbo.get("Ack").toString());
 		
+		// todo: almost same as AddItems callback function.
 		String[] messages = responsedbo.getString("CorrelationID").split(" ");
 		String itemcollectionname_id = messages[0];
+		
 		String id = messages[1];
 		String itemid    = responsedbo.getString("ItemID");
 		String starttime = responsedbo.getString("StartTime");
 		String endtime   = responsedbo.getString("EndTime");
 		
-		
-		log("Ack:"+responsedbo.get("Ack").toString());
+		DBCollection coll = db.getCollection("items."+itemcollectionname_id);
 		
 		BasicDBObject upditem = new BasicDBObject();
 		upditem.put("status", "");
+		/*
 		if (itemid != null) {
 			upditem.put("org.ItemID", itemid);
 			upditem.put("org.ListingDetails.StartTime", starttime);
 			upditem.put("org.ListingDetails.EndTime", endtime);
 			upditem.put("org.SellingStatus.ListingStatus", "Active");
 		}
+		*/
 		
 		// todo: aware <SeverityCode>Warning</SeverityCode>
 		if (responsedbo.get("Errors") != null) {
@@ -150,39 +153,22 @@ public class ReviseItem extends ApiCall {
 			} else {
 				log("Class Error:"+errorclass);
 			}
+			
 			upditem.put("errors", errors);
+			
+		} else {
+			
+			/* No error! verified. */
+			upditem.put("errors", null);
+			
 		}
 		
-		BasicDBObject query = new BasicDBObject();
-		query.put("_id", new ObjectId(id));
-		
-		BasicDBObject update = new BasicDBObject();
-		update.put("$set", upditem);
-		
-		DBCollection coll = db.getCollection("items."+itemcollectionname_id);
-		WriteResult result = coll.update(query, update);
+		WriteResult result = coll.update(new BasicDBObject("_id", new ObjectId(id)),
+																		 new BasicDBObject("$set", upditem));
 		
 		return "";
 	}
 	
-	// todo: move to super class?
-	private int getSiteID(String site) throws Exception {
-
-		Integer siteid = null;
-		
-		DBObject row = db.getCollection("US.eBayDetails")
-			.findOne(null, new BasicDBObject("SiteDetails", 1));
-		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
-		for (Object sitedbo : sitedetails) {
-			if (site.equals(((BasicDBObject) sitedbo).getString("Site"))) {
-				siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
-				break;
-			}
-		}
-		
-		return siteid;
-	}
-
 	// todo: not copy from AddItems
 	private void expandElements(JSONObject item) throws Exception {
 		
@@ -207,5 +193,23 @@ public class ReviseItem extends ApiCall {
 		}
 		
 		return;
+	}
+	
+	// todo: move to super class?
+	private int getSiteID(String site) throws Exception {
+
+		Integer siteid = null;
+		
+		DBObject row = db.getCollection("US.eBayDetails")
+			.findOne(null, new BasicDBObject("SiteDetails", 1));
+		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+		for (Object sitedbo : sitedetails) {
+			if (site.equals(((BasicDBObject) sitedbo).getString("Site"))) {
+				siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+				break;
+			}
+		}
+		
+		return siteid;
 	}
 }

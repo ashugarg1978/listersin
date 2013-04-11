@@ -1281,34 +1281,33 @@ _gaq.push(['_trackPageview']);
 					<td class="internationalshippingservices">
 						
 						<div class="ShippingService0 clearfix">
-							<div style="float:left;">
-								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority"
-											 type="text" size="1">
-							</div>
-							<div style="float:left;">
-								<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
-												class="ShippingService"></select>
-								
-								<s:text name="Cost"/>
-								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
-											 type="text" size="3" class="aslabel">
-								<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
-											 type="text" size="5">
-								
-								<a href="#" class="removesso">Remove service</a>
-								<br />
-								
-								<div style="float:left;">
-									<s:text name="ShipTo"/>
-								</div>
-								<div class="ShipToLocation"></div>
-							</div>
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServicePriority" type="hidden" />
+							<select name="mod.<s:text name="_SDISSO"/>.0.ShippingService"
+											class="ShippingService"></select>
+							
+							<s:text name="Cost"/>
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.@currencyID"
+										 type="text" size="3" class="aslabel">
+							<input name="mod.<s:text name="_SDISSO"/>.0.ShippingServiceCost.#text"
+										 type="text" size="5">
+							
+							<a href="#" class="removesso">Remove service</a>
+							<br />
+							
+							<s:text name="ShipTo"/><br />
+							<ul class="ShipToLocation clearfix"></ul>
 						</div>
 						
 						<a href="#" class="addsso">Offer additional service</a>
-						
 					</td>
 			  </tr>
+        <tr>
+          <th><s:text name="ShipToLocations" /></th>
+          <td>
+            <ul class="ShipToLocations clearfix">
+            </ul>
+          </td>
+        </tr>
 			</tbody>
 			<tbody>
 			  <tr>

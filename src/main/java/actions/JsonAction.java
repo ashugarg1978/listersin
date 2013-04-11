@@ -780,11 +780,29 @@ public class JsonAction extends BaseAction {
 			logdbl.add(new BasicDBObject(basetimestamp, "Created by user"));
 			newitem.put("log", logdbl);
 			
-			WriteResult result = coll.insert(newitem, WriteConcern.SAFE);
+			coll.insert(newitem, WriteConcern.SAFE);
 			
 			/* save before and after file for diff */
 			DiffLogger dl = new DiffLogger();
 			dl.savediff("newitem0", newitem.toString(), newitem.toString(), basedir+"/logs/diff");
+			
+			if (!user.getString("email").equals("demo@listers.in")) {
+				
+				String taskid = "verifyadditem_";
+				taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
+				
+				BasicDBObject query = new BasicDBObject();
+				query.put("_id", new ObjectId(id));
+				
+				BasicDBObject update = new BasicDBObject();
+				update.put("$set", new BasicDBObject("status", taskid));
+				
+				db.getCollection("items."+user.getString("_id")).update(query, update);
+				
+				/* VerifyAddItem */
+				String[] args = {"VerifyAddItem", user.getString("email"), taskid};
+				String verifyresult = writesocket(args);
+			}
 			
 		} else {
 			
@@ -804,7 +822,7 @@ public class JsonAction extends BaseAction {
 			update.append("$push", new BasicDBObject
 						  ("log", new BasicDBObject(basetimestamp, "Saved by user")));
 			
-			WriteResult result = coll.update(query, update);
+			coll.update(query, update);
 			
 			BasicDBObject after  = (BasicDBObject) coll.findOne(query);
 			
@@ -812,25 +830,6 @@ public class JsonAction extends BaseAction {
 			DiffLogger dl = new DiffLogger();
 			dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
 			
-		}
-    
-    // todo: call VerifyAdditem immediatly here.
-		if (!user.getString("email").equals("demo@listers.in")) {
-			
-			String taskid = "verifyadditem_";
-			taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
-			
-			BasicDBObject query = new BasicDBObject();
-			query.put("_id", new ObjectId(id));
-			
-			BasicDBObject update = new BasicDBObject();
-			update.put("$set", new BasicDBObject("status", taskid));
-			
-			WriteResult result = db.getCollection("items."+user.getString("_id")).update(query, update);
-			
-			/* VerifyAddItem */
-			String[] args = {"VerifyAddItem", user.getString("email"), taskid};
-			String verifyresult = writesocket(args);
 		}
 		
 		updatemessage(user.getString("email"), false, "Saved.");
@@ -985,42 +984,29 @@ public class JsonAction extends BaseAction {
 	@Action(value="/json/revise")
 	public String revise() throws Exception {
 		
-		// todo: timezone doesn't work
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
-		sdf.setTimeZone(TimeZone.getTimeZone("Japan/Tokyo"));
-		Date now = new Date();
-		String timestamp = sdf.format(now);
-		
 		ArrayList<ObjectId> ids = new ArrayList<ObjectId>();
 		for (String id : (String[]) parameters.get("id")) {
 			ids.add(new ObjectId(id));
 		}
 		
+		String taskid = "revise_";
+		taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
+		
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new BasicDBObject("$in", ids));
-		//query.put("status", new BasicDBObject("$ne", "relist")); // todo: re-enable this line
 		
 		Long count = coll.count(query);
-		String message = "Revising "+count+" items...";
+		updatemessage(user.getString("email"), true, "Revising " + count + " items...");
 		
 		BasicDBObject update = new BasicDBObject();
-		update.put("$set", new BasicDBObject("status", "reviseitem_"+timestamp));
+		update.put("$set", new BasicDBObject("status", taskid));
 		
-		WriteResult result = db.getCollection("items."+user.getString("_id"))
-			.update(query, update, false, true);
+		WriteResult result = coll.update(query, update, false, true);
 		
-		json.put("result", result);
-		
-		Socket socket = new Socket("localhost", daemonport);
-		PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-		out.println("ReviseItem\n"
-                    + session.get("email") + "\n"
-                    + "reviseitem_"+timestamp + "\n"
-                    + "\n");
-		out.close();
-		socket.close();
+		String[] args = {"ReviseItem", session.get("email").toString(), taskid};
+		writesocket_async(args);
 		
 		return SUCCESS;
 	}

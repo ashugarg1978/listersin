@@ -1296,3 +1296,27 @@ button:hover {
 input[name="mod.ProductListingDetails.ProductID"] {
   margin-top: 5px;
 }
+
+ul.ShipToLocation,
+ul.ShipToLocations {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.ShipToLocation li,
+ul.ShipToLocations li {
+  float: left;
+  min-width: 140px;
+}
+
+td.internationalshippingservices div.ShippingService0,
+td.internationalshippingservices div.ShippingService1,
+td.internationalshippingservices div.ShippingService2,
+td.internationalshippingservices div.ShippingService3,
+td.internationalshippingservices div.ShippingService4 {
+  border: 1px solid #ccc;
+  padding: 5px;
+  margin: 0 0 5px;
+}
+

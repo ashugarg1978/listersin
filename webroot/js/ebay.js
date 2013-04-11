@@ -1391,7 +1391,11 @@ function getrow(idx, row)
 		}
 	}
   
-	$('td.Title', dom).html(htmlencode(row.mod.Title));
+  if (row.mod.Title) {
+	  $('td.Title', dom).html(htmlencode(row.mod.Title));
+  } else {
+	  $('td.Title', dom).html('(empty title)');
+  }
 	
 	if (row.org) {
 		$('a.ItemID', dom)
@@ -1636,8 +1640,9 @@ function setformelements(item)
 	if (item.mod.PrimaryCategory) {
 		var category = tmppc['c'+item.mod.PrimaryCategory.CategoryID];
 		
-		/* Condition */
 		if (category.CategoryFeatures) {
+      
+		  /* Condition */
 			if (category.CategoryFeatures.ConditionEnabled == 'Disabled') {
 				
 				var optiontag = $('<option/>').val('').html('(disabled)');
@@ -2043,21 +2048,19 @@ function setformelements_shipping_domestic(item)
 	$.each(hash[site].eBayDetails.ShippingLocationDetails, function(i, o) {
 		var idforlabel = id+'.'+_isso+'.0.ShipToLocation.'+o.ShippingLocation;
 		
-		var checkboxtag = $('<input/>')
+		var checkbox = $('<input/>')
 			.attr('type', 'checkbox')
 			.attr('id', idforlabel)
 			.attr('name', 'mod.'+_isso+'.0.ShipToLocation')
 			.val(o.ShippingLocation);
 		
-		var labeltag = $('<label/>')
+		var label = $('<label/>')
 			.attr('for', idforlabel)
 			.html(o.Description);
 		
-		var divtag = $('<div/>');
-		$(divtag).append(checkboxtag);
-		$(divtag).append(labeltag);
+		var li = $('<li/>').append(checkbox).append(label);
 		
-		$('div.ShipToLocation', '#'+id).append(divtag);
+		$('ul.ShipToLocation', '#'+id).append(li);
 	});
 	
 	// copy 2,3,4,...
@@ -2125,6 +2128,26 @@ function setformelements_shipping_international(item)
 		});
 	}
   
+	// ShipToLocations
+	$('td.ShipToLocations', '#'+id).empty();
+	$.each(hash[site].eBayDetails.ShippingLocationDetails, function(i, o) {
+		var idforlabel = id+'.ShipToLocations.'+o.ShippingLocation;
+		
+		var checkbox = $('<input/>')
+			.attr('type', 'checkbox')
+			.attr('id', idforlabel)
+			.attr('name', 'mod.ShipToLocations')
+			.val(o.ShippingLocation);
+		
+		var label = $('<label/>')
+			.attr('for', idforlabel)
+			.html(o.Description);
+		
+		var li = $('<li/>').append(checkbox).append(label);
+		
+		$('ul.ShipToLocations', '#'+id).append(li);
+	});
+  
   return;
 }
 
@@ -2143,7 +2166,7 @@ function addsso(id, classname)
 	
 	var sscopy = $(divs[0]).clone();
   
-  $('select,input', sscopy).val('');
+  $('select,input[type!="checkbox"]', sscopy).val('');
 	
 	if (classname == 'shippingservices') {
 		$('input[name$="FreeShipping"]', sscopy).remove();
@@ -2416,6 +2439,12 @@ var save = function() {
       
     }
   }
+	
+	if (postdata.mod.ShippingDetails.CalculatedShippingRate) {
+		if (postdata.mod.ShippingDetails.CalculatedShippingRate.WeightMajor['#text'] == 0) {
+			delete postdata.mod.ShippingDetails.CalculatedShippingRate;
+		}
+	}
   
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
@@ -3304,7 +3333,7 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 	var thtag = $('<th />');
 	var inputtag = $('<input />')
 		.attr('type', 'text')
-		.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Name');
+		.attr('name', 'mod.ItemSpecifics.NameValueList.'+i+'.Name');
 	$(thtag).append(inputtag);
 	if (specific == null && recomm != null) {
 		$(inputtag).val(recomm.Name)
@@ -3319,7 +3348,7 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 		
 		var inputtag = $('<input/>')
 			.attr('type', 'text')
-			.attr('Name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
+			.attr('name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value');
 		var tdtag = $('<td/>').append(inputtag);
 		
 		$(trtag).append(tdtag);
@@ -3348,7 +3377,7 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 		}
 		
 	} else if (recomm.ValidationRules.SelectionMode == 'FreeText'
-			   && recomm.ValidationRules.MaxValues != '1') {
+						 && recomm.ValidationRules.MaxValues != '1') {
 		
 		var tabletag = $('<table />');
 		
@@ -3425,7 +3454,7 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 		$(tdtag).append(tabletag);
 		
 	} else if (recomm.ValidationRules.SelectionMode == 'SelectionOnly'
-			   && recomm.ValidationRules.MaxValues == '1') {
+						 && recomm.ValidationRules.MaxValues == '1') {
 		
 		var selecttag = $('<select/>')
 			.attr('name', 'mod.ItemSpecifics.NameValueList.'+i+'.Value')

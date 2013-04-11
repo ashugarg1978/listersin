@@ -19,8 +19,8 @@ export CLASSPATH=$CPBASE/classes:$CPBASE/lib/*
 start() {
 	# option "-Xms1000m" is needed to read large xml files.
 	#java -Xms2500m ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
-	#java -Xmx1000m ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
-	java ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
+	java -Xmx1000m ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
+	#java ebaytool.apicall.Daemon start >> $BASEDIR/logs/daemon.log 2>&1 &
 }
 
 stop() {
