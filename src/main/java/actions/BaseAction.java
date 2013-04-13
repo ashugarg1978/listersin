@@ -2,19 +2,16 @@ package ebaytool.actions;
  
 import com.mongodb.*;
 import com.opensymphony.xwork2.ActionSupport;
-
 import java.io.*;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import net.sf.json.xml.XMLSerializer;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts2.interceptor.ParameterAware;
@@ -78,7 +75,23 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
       for (Enumeration enm=request.getHeaderNames(); enm.hasMoreElements();) {
         String hdname = (String) enm.nextElement();
       }
-      
+			
+			if (session.get("email") == null) {
+				for (Cookie c : request.getCookies()) {
+					if (c.getName().equals("JSESSIONID")) {
+						
+						user = (BasicDBObject) db.getCollection("users")
+							.findOne(new BasicDBObject("JSESSIONID", c.getValue()));
+						if (user != null) {
+							log.debug("restore session");
+							session.put("email", user.getString("email"));
+						}
+						
+						break;
+					}
+				}
+			}
+			
 			// todo: exclude "canceled" user?
 			if (session.get("email") != null) {
         
@@ -93,10 +106,23 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
           BasicDBObject set = new BasicDBObject();
           set.put("lastused", basetimestamp);
           set.put("useragent", request.getHeader("user-agent"));
-          
+					
           db.getCollection("users").update(query, new BasicDBObject("$set", set));
 					
         }
+				
+				for (Cookie c : request.getCookies()) {
+					if (c.getName().equals("JSESSIONID")) {
+						
+						BasicDBObject set = new BasicDBObject();
+						set.put("JSESSIONID", c.getValue());
+						
+						db.getCollection("users").update(query, new BasicDBObject("$set", set));
+						
+						break;
+					}
+				}
+			
       }
 			
 		} catch (Exception e) {
