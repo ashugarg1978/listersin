@@ -175,7 +175,7 @@ _gaq.push(['_trackPageview']);
                 disabled="disabled"><s:text name="Delete"/></button>
 	      
 	      <button class="add btnleft disabled" disabled="disabled"
-                title="List checked items to eBay."><s:text name="Add"/></button>
+                title="List checked items to eBay."><s:text name="List"/></button>
 	      <button class="relist btncenter disabled" disabled="disabled"
                 title="Relist checked items to eBay."><s:text name="Relist"/></button>
 	      <button class="revise btncenter disabled" disabled="disabled"
@@ -723,54 +723,92 @@ _gaq.push(['_trackPageview']);
 					List multiple variations of this item in one listing
 				</s:else>
 		  </div>
-		  <table class="detail">
-		    <tbody>
-			    <tr>
-			      <th><s:text name="VariationSpecificsSet"/></th>
-			      <td>
-							<table class="VariationSpecificsSet">
-							</table>
-			      </td>
-			    </tr>
-			    <tr>
-			      <th><s:text name="Variations"/></th>
-			      <td>
-							<table class="Variations">
-							</table>
-			      </td>
-			    </tr>
-			    <tr>
-			      <th><s:text name="VariationSpecificPictureSet"/></th>
-			      <td class="VariationSpecificPictureSet">
-							
-							<select name="mod.Variations.Pictures.VariationSpecificName">
-								<option value="">(not selected)</option>
-							</select>
-							
-							<div class="VariationPictures0">
-								<input type="text" name="mod.<s:text name="_VPVSPS"/>.0.VariationSpecificValue" />
-								<ul class="variationpictures clearfix">
-									<li class="template">
-										<div>
-											<img src="/img/noimage.jpg"/>
-										</div>
-										<a href="#" class="deletepicture"><a:text name="Delete"/></a>
-									</li>
-								</ul>
-                
-		            <form method="post" action="/file/upload"
-				              target="posttarget" enctype="multipart/form-data">
-                  Add images
-			            <input type="file" name="multiplefile" multiple="multiple"/>
-		            </form>
-							</div>
-							
-			      </td>
-			    </tr>
-		    </tbody>
-		  </table><!-- .detail -->
 			
+			<div class="variations-enabled">
+				
+				<div class="variationaddforms">
+					<div>
+						<s:text name="AddVariationDetail" />
+					</div>
+					<div>
+						<ul class="VariationSpecificsSet clearfix">
+						</ul>
+					</div>
+					<div>
+						<input type="text" id="addowndetail" class="inputleft" 
+									 placeholder="<s:text name="AddYourOwnDetail" />" />
+						<button class="addownbutton btnright"><s:text name="Add" /></button>
+					</div>
+				</div>
+				
+				<div class="variationstablewrapper">
+					<table class="Variations">
+						<thead>
+							<tr>
+								<th><s:text name="CustomLabel" /></th>
+								<th><s:text name="Price" /></th>
+								<th><s:text name="Quantity" /></th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<input type="text" name="mod.Variations.Variation.0.SKU" />
+								</td>
+								<td>
+									<input type="hidden" 
+												 name="mod.Variations.Variation.0.StartPrice.@currencyID" />
+									<div class="currencyID"></div>
+									<input type="text"   name="mod.Variations.Variation.0.StartPrice.#text" />
+								</td>
+								<td>
+									<input type="text" name="mod.Variations.Variation.0.Quantity" />
+								</td>
+								<td>
+									<a href="#" class="removevariationrow">X</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<a href="#" class="addvariationrow"><s:text name="AddMoreVariation" /></a>
+				</div>
+				
+				<div class="variationaddforms clearfix">
+					<div>
+						<s:text name="VariationSpecificPictureSet"/>
+					</div>
+					<div>
+						<select name="mod.Variations.Pictures.VariationSpecificName">
+							<option value="">(not selected)</option>
+						</select>
+					</div>
+				</div><!-- .variationaddforms -->
+				<div class="VariationSpecificPictureSet">
+					<div class="VariationPictures0">
+						<input type="hidden" name="mod.<s:text name="_VPVSPS"/>.0.VariationSpecificValue" />
+						<form method="post" action="/file/upload" target="posttarget" 
+									enctype="multipart/form-data">
+							<div class="variationspecificvalue"></div>
+							<span>Add images</span>
+							<input type="file" name="multiplefile" multiple="multiple"/>
+						</form>
+						<ul class="variationpictures clearfix">
+							<li class="template">
+								<div>
+									<img src="/img/noimage.jpg"/>
+								</div>
+								<a href="#" class="deletepicture"><a:text name="Delete"/></a>
+							</li>
+						</ul>
+					</div>
+				</div><!-- .VariationSpecificPictureSet -->
+				
+			</div><!-- .variations-enabled -->
 			
+			<div class="variations-disabled">
+				Variations are disabled in selected category.
+			</div>
 			
 		  <div class="tabtitle">
 				<s:if test="#request.locale.language=='ja'">

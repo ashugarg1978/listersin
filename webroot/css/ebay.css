@@ -369,7 +369,7 @@ table.detail th {
   color: #666;
   padding: 7px;
 	border-right: 1px dotted #ccc;
-	width: 150px;
+	width: 140px;
 }
 
 
@@ -989,6 +989,7 @@ ul.pictures,
 ul.variationpictures {
   list-style: none;
   padding: 0;
+	margin: 0;
 }
 
 ul.pictures li,
@@ -1297,6 +1298,57 @@ input[name="mod.ProductListingDetails.ProductID"] {
   margin-top: 5px;
 }
 
+div.variationstablewrapper {
+  clear: both;
+  border: 1px solid #aaa;
+	margin: 10px;
+  padding: 5px;
+}
+
+div.VariationSpecificPictureSet {
+  margin: 5px;
+}
+
+div.variationaddforms {
+}
+
+div.variationaddforms div {
+  float: left;
+  margin: 5px 10px;
+}
+
+div.variations-enabled {
+  display: none;
+}
+
+div.variations-disabled {
+  margin: 0 5px 10px;
+}
+
+table.Variations {
+  margin: 10px 0;
+}
+table.Variations input {
+  width: 90px;
+  /*display: block;*/
+}
+table.Variations th,
+table.Variations td {
+  text-align: left;
+  padding: 2px 5px;
+	position: relative;
+  white-space: nowrap;
+}
+table.Variations th div {
+  display: inline;
+}
+
+input[name^="mod.Variations.Variation"][name*="StartPrice"],
+input[name^="mod.Variations.Variation"][name*="Quantity"] {
+  text-align: right;
+  width: 50px;
+}
+
 ul.ShipToLocation,
 ul.ShipToLocations {
   list-style: none;
@@ -1320,3 +1372,59 @@ td.internationalshippingservices div.ShippingService4 {
   margin: 0 0 5px;
 }
 
+select.selector {
+  position: absolute;
+  z-index: 10;
+  display: none;
+  margin: 0;
+  padding: 0;
+}
+
+a.removevariationname {
+  color: #aaa;
+	margin: 0 0 0 3px;
+}
+
+ul.VariationSpecificsSet {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+ul.VariationSpecificsSet li {
+  float: left;
+  padding: 3px;
+  border-radius: 2px;
+  -moz-border-radius: 2px;
+  -webkit-border-radius: 2px;
+  border: 1px solid #cccccc;
+  background-color: #fafafa;
+  margin: 0 5px 2px 0;
+}
+ul.VariationSpecificsSet li:hover {
+  cursor: pointer;
+  background-color: #3079ed;
+  color: #fff;
+}
+
+div.currencyID {
+  display: inline;
+}
+
+input.inputleft {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  margin-right: 0px;
+  float: left;
+}
+
+div[class^="VariationPictures"] {
+  border: 1px solid #aaa;
+  padding: 10px;
+  margin: 5px;
+  display: none;
+}
+
+div.variationspecificvalue {
+  display: inline;
+  font-weight: bold;
+}

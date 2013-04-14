@@ -121,6 +121,7 @@ function bindevents()
 		
 		if (hasmore == false) return;
 		if ($('#newitem0').length) return; // Don't auto paging when editing a new item.
+		if (!$('#items').is(':visible')) return;
 		
 		var top = $('#content').scrollTop();
 		
@@ -1012,6 +1013,116 @@ function bindevents()
 		items(true);
 	});
 	
+	$('#items').on('focus', 'input.selectorparent', function() {
+		$('select.selector').hide();
+		$('select', $(this).closest('td')).show();
+	});
+	
+	$('#items').on('click', 'a.removevariationname', function() {
+		// todo: check whether picture is selected before remove
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var num = $(this).closest('th').prevAll().length;
+		$(this).closest('th').remove();
+		$('table.Variations td:nth-child(' + (num+1) + ')', '#'+id).remove();
+		renumbervariations(id);
+		return false;
+	});
+	
+	$('#items').on('click', 'a.removevariationrow', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		$(this).closest('tr').remove();
+		renumbervariations(id);
+		return false;
+	})
+	
+	/* Add a variation name */
+	$('#items').on('click', 'ul.VariationSpecificsSet li', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var nvnames = $(this).html().split(' / ');
+		addvariationnames(id, nvnames);
+		return;
+	});
+	
+	/* Add own variation name */
+	$('#items').on('click', 'button.addownbutton', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		var nvname = $('input', $(this).closest('div')).val();
+		addvariationnames(id, [nvname]);
+		return;
+	});
+	
+	/* Add a variation row */
+	$('#items').on('click', 'a.addvariationrow', function() {
+		var id = $(this).closest('tbody.itemrow').attr('id');
+		addvariationrow(id);
+	});
+	
+	/* Select variation value from selection */
+	$('#items').on
+	('change', 'select[name^="mod.Variations.Variation"][name$="Value.selector"]', 
+	 function() {
+		 var name = $(this).attr('name');
+		 $('input[name="'+name.replace(/.selector$/, '')+'"]').val($(this).val());
+	 })
+	
+	/* Variation specific picture set */
+  $('#items').on
+  ('change', 
+   'select[name="mod.Variations.Pictures.VariationSpecificName"]', function() {
+		 var id = $(this).closest('tbody.itemrow').attr('id');
+     
+		 // todo: alert before delete images
+		 
+		 $('div[class^="VariationPictures"][class!="VariationPictures0"]', '#'+id).remove();
+		 
+     var val = $(this).val();
+     
+     var nvvals = [];
+     
+     var td = $('table.Variations tbody td', '#'+id);
+     $.each($('input[name$="Name"]', td), function() {
+       if ($(this).val() != val) return;
+       
+       var nvname = $(this).attr('name');
+       var nvval = $('[name="'+nvname.replace(/Name$/, 'Value')+'"]', td).val();
+			 
+			 if (nvval == '') return;
+       
+       if (nvvals.indexOf(nvval) == -1) {
+         nvvals.push(nvval);
+       }
+     });
+     
+     // todo: loop and add picture upload form
+     $.each(nvvals, function(idx, nvval) {
+			 
+       console.log(idx + ' = ' + nvval);
+			 
+			 if (idx > 0) {
+				 addvariationpicturerow(id, idx);
+			 }
+       
+			 $('div.VariationPictures'+idx
+				 + ' input[name="mod.Variations.Pictures.VariationSpecificPictureSet.'+idx+'.VariationSpecificValue"]', '#'+id).val(nvval);
+			 
+			 $('div.VariationPictures' + idx + ' div.variationspecificvalue', '#'+id)
+				 .html(val + ': ' + nvval);
+			 
+     });
+		 
+		 $('div.VariationSpecificPictureSet div[class^="VariationPictures"]', '#'+id).show();
+		 
+   });
+	
+	/* popup control */
+	$('html').click(function() {
+		$('.selector').hide();
+	});
+	
+	$('#items').on('click', 'input.selectorparent', function(event) {
+		event.stopPropagation();
+	});
+	
 } // end of bindevents
 
 function togglebulkbuttons() {
@@ -1315,13 +1426,19 @@ function items(clearitems)
 {
 	//showmessage('Loading items...');
   
-  var postdata = $('input.filter, select.filter').extractObject();
-	postdata = JSON.stringify(postdata);
-	postdata = encodeURIComponent(postdata);
+  var postjson = $('input.filter').extractObject();
+	postjson = JSON.stringify(postjson);
+	postjson = encodeURIComponent(postjson);
+	
+	var postdata = $('input.filter, select.filter').serialize();
+	
+	//postdata = postdata.replace('&mod.ListingType=', '');
+	if ($('select[name="mod.ListingType"]', '#headersearchform').val() == '') {
+	}
 	
 	$.post
 	('/json/items',
-	 $('input.filter, select.filter').serialize() + '&json=' +　postdata,
+	 postdata + '&json=' +　postjson,
 	 function(data) {
 		 
 		 if (clearitems) {
@@ -1568,6 +1685,64 @@ function getrow(idx, row)
 	return dom;
 }
 
+var clickTitle = function() {
+	
+	var id = $(this).closest('tbody').attr('id');
+	
+	if ($('tr.row2 td', '#'+id).html().match(/<div class="detail"/i)) {
+		$('div.detail', '#'+id).toggle();
+		return false;
+	}
+	
+	var detail = $('div.detail', 'div#detailtemplate').clone();
+	$('table.detail > tbody > tr > td', detail).hide();
+	$('tr.row2 td', '#'+id).append(detail);
+	$('div.detail', '#'+id).toggle();
+	
+	if (id == 'newitem0') {
+		return false;
+	}
+	
+	showmessage('Loading item data...');
+	
+	$.post
+	('/json/item',
+	 'id='+id,
+	 function(data) {
+		 var item = data.json.item;
+     
+     item = extract_shippingtype(item);
+     
+		 dump(item);
+     
+		 rowsdata[id] = item;
+		 
+		 var site = item.mod.Site;
+		 
+		 hash[site] = new Object;
+		 hash[site].eBayDetails         = data.json.eBayDetails;
+		 hash[site].Categories          = data.json.Categories;
+		 hash[site].CategoryFeatures    = data.json.CategoryFeatures;
+		 hash[site].ThemeGroup          = data.json.ThemeGroup;
+		 hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+		 
+     //setmembermessageform(item);
+     
+		 setformelements(item);
+		 showformvalues(item);
+		 $('div.productsearchform', '#'+id).remove();
+		 
+		 $('table.detail > tbody > tr > td', detail).show();
+		 //$('td:nth-child(2)', '#'+id).show();
+		 
+		 //$('div.pictures', '#'+id).append('<pre>'+$.dump(item.mod.PictureDetails)+'</pre>');
+		 //$.scrollTo('#'+id, {axis:'y', offset:0});
+	 },
+	 'json');
+	
+	return false;
+}
+
 // todo: skip some forms if selected category is not a leaf category.
 function setformelements(item)
 {
@@ -1662,6 +1837,16 @@ function setformelements(item)
 				}
 				
 			}
+      
+      /* Variations */
+      if (category.CategoryFeatures.VariationsEnabled == 'true') {
+        $('div.variations-disabled', '#'+id).hide();
+        $('div.variations-enabled',  '#'+id).show();
+      } else {
+        $('div.variations-enabled',  '#'+id).hide();
+        $('div.variations-disabled', '#'+id).show();
+      }
+			
 		} else {
 			
 			var optiontag = $('<option/>').val('').html('(Please select category)');
@@ -1834,119 +2019,90 @@ function setformelements(item)
 
 function setformelements_variations(item)
 {
-	if (item.mod.Variations == null) {
+	// todo: hide forms
+	if (item.mod.PrimaryCategory == undefined) {
 		return;
 	}
 	
-	/* VariationSpecificsSet */
-	var vss = item.mod.Variations.VariationSpecificsSet;
-	vss.NameValueList = arrayize(vss.NameValueList);
+	var categoryid = item.mod.PrimaryCategory.CategoryID;
+	var parentid = item.categorypath[item.categorypath.length-2];
+  if (parentid == undefined) return;
+	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
-	$('table.VariationSpecificsSet', '#'+item.id).empty();
-	$.each(vss.NameValueList, function(i, o) {
+	/* Recommended names */
+  if (category.CategorySpecifics) {
 		
-		var trtag = $('<tr />');
+		var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
+		var recommkey = new Array();
+		for (i in recomm) {
+			recommkey[recomm[i].Name] = i;
+		}
 		
-		var thtag = $('<th />');
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('size', '10')
-			.attr('name', 'mod.Variations.VariationSpecificsSet.NameValueList.'+i+'.Name');
-		$(thtag).append(inputtag);
-		$(trtag).append(thtag);
-		
-		var tdtag = $('<td />');
-		$.each(o.Value, function(j, val) {
-			
-			var inputtag = $('<input />')
-				.attr('type', 'text')
-				.attr('size', '10')
-				.attr('name', 'mod.Variations.VariationSpecificsSet.NameValueList.'+i+'.Value.'+j);
-			
-			$(tdtag).append(inputtag);
-			$(tdtag).append('<br/>');
-		});
-		$(trtag).append(tdtag);
-		
-		$('table.VariationSpecificsSet', '#'+item.id).append(trtag);
-
-		var optiontag = $('<option />').val(o.Name).text(o.Name);
-		$('select[name="mod.Variations.Pictures.VariationSpecificName"]', '#'+item.id)
-			.append(optiontag);
-	});
-	
-	/* Variation */
-	$.each(item.mod.Variations.Variation, function(i, variation) {
-		
-		var trtag = $('<tr />');
-		
-		var tdtag = $('<td />');
-		var inputtag = $('<input />').attr('type', 'text')
-			.attr('name', 'mod.Variations.Variation.'+i+'.SKU');
-		$(tdtag).append(inputtag);
-		$(trtag).append(tdtag);
-		
-		variation.VariationSpecifics.NameValueList
-			= arrayize(variation.VariationSpecifics.NameValueList);
-		$.each(variation.VariationSpecifics.NameValueList, function(j, o) {
-			var tdtag = $('<td />');
-			
-			var inputtag = $('<input />').attr('type', 'hidden')
-			.attr('name', 'mod.Variations.Variation.'+i+'.VariationSpecifics.NameValueList.'+j+'.Name');
-			$(tdtag).append(inputtag);
-			
-			var inputtag = $('<input />')
-				.attr('type', 'text')
-				.attr('size', '6')
-			.attr('name', 'mod.Variations.Variation.'+i+'.VariationSpecifics.NameValueList.'+j+'.Value');
-			$(tdtag).append(inputtag);
-			
-			$(trtag).append(tdtag);
+		/* parent-child pair */
+		var names = {};
+		$.each(recomm, function(i, o) {
+			if (o.ValidationRules.VariationSpecifics == 'Disabled') return;
+			if (o.ValidationRules.Relationship) {
+				
+				// todo: why same multiple parent name? is xml broken?
+				if ($.isArray(o.ValidationRules.Relationship)) {
+					names[o.ValidationRules.Relationship[0].ParentName] += ' / ' + o.Name;
+				} else {
+					names[o.ValidationRules.Relationship.ParentName] += ' / ' + o.Name;
+				}
+				
+			} else {
+				names[o.Name] = o.Name;
+			}
 		});
 		
-		var tdtag = $('<td />');
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('size', '3')
-			.attr('name', 'mod.Variations.Variation.'+i+'.Quantity');
-		$(tdtag).append(inputtag);
-		$(tdtag).append('items');
-		$(trtag).append(tdtag);
-		
-		var tdtag = $('<td />');
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('size', '3')
-			.attr('name', 'mod.Variations.Variation.'+i+'.StartPrice.@currencyID');
-		$(tdtag).append(inputtag);
-		$(trtag).append(tdtag);
-		
-		var tdtag = $('<td />');
-		var inputtag = $('<input />')
-			.attr('type', 'text')
-			.attr('size', '5')
-			.attr('name', 'mod.Variations.Variation.'+i+'.StartPrice.#text');
-		$(tdtag).append(inputtag);
-		$(trtag).append(tdtag);
-		
-		$('table.Variations', '#'+item.id).append(trtag);
-	});
+		/* name selector */
+		$('ul.VariationSpecificsSet', '#'+item.id).empty();
+		$.each(names, function(k, v) {
+			$('ul.VariationSpecificsSet', '#'+item.id).append($('<li />').html(v));
+		});
+	}
 	
-  /* VariationPictures */
-	var _vpvsps = 'Variations.Pictures.VariationSpecificPictureSet';
-  $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
-    if (i == 0) return;
+	/* If variations are already defined, then copy columns and rows */
+  if (item.mod.Variations) {
+		
+		/* each rows */
+		$.each(item.mod.Variations.Variation, function(rowidx, variation) {
+			
+      if (variation.VariationSpecifics == undefined) return;
+      
+			if (rowidx == 0) {
+				
+				/* each columns */
+				var nvl = arrayize(variation.VariationSpecifics.NameValueList);
+				$.each(nvl, function(colidx, nv) {
+					addvariationnames(item.id, [nv.Name]);
+				});
+				
+			} else {
+				
+				/* Copy input form row */
+				addvariationrow(item.id);
+			}
+			
+    });
+		
+		renumbervariations(item.id);
     
-    var div = $('div.VariationPictures0', '#'+item.id).clone();
-    $(div).attr('class', 'VariationPictures'+i);
-	  $('ul.variationpictures li:gt(0)', div).remove();
-		$('input', div).attr('name', 'mod.'+_vpvsps+'.'+i+'.VariationSpecificValue');
-    $('td.VariationSpecificPictureSet', '#'+item.id).append(div);
+    /* VariationPictures */
+		if (item.mod.Variations.Pictures) {
+			
+			$.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
+				if (i == 0) return;
+				addvariationpicturerow(item.id, i);
+				// don't show images here. show in showformvalues / fillformvalues
+			});
+			
+			$('div.VariationSpecificPictureSet div[class^="VariationPictures"]', '#'+item.id).show();
+		}
     
-    // don't show images here. show in showformvalues / fillformvalues
-  });
-  
-  
+  }
+	
 	return;
 }
 
@@ -2220,6 +2376,198 @@ function renumbersso(id, classname)
 	return;
 }
 
+
+function addvariationnames(id, nvnames)
+{
+	var colcount = $('table.Variations thead th', '#'+id).length;
+	if (colcount >= 9) {
+		alert('You can add maximum 5 variation details.');
+		return false;
+	}
+		
+	var site;
+	var categoryid;
+	var parentid;
+	
+	if (rowsdata[id]) {
+		
+		var item = rowsdata[id];
+		site       = item.mod.Site;
+		categoryid = item.mod.PrimaryCategory.CategoryID;
+		parentid   = item.categorypath[item.categorypath.length-2];
+		
+	} else {
+		
+		site       = $('select[name="mod.Site"]', '#'+id).val();
+		categoryid = $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).val();
+		parentid   = $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).prev().val();
+		
+	}
+	
+	var category = hash[site]['Categories']['c'+parentid]['c'+categoryid];
+	
+	/* Recommended names */
+	var recommkey = new Array();
+  if (category.CategorySpecifics) {
+		var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
+		for (i in recomm) {
+			recommkey[recomm[i].Name] = i;
+		}
+	}
+	
+	/* each name value names */
+	$.each(nvnames, function(idx, nvname) {
+		
+		var colcount = $('table.Variations thead th', '#'+id).length;
+		
+		/* <th> */
+		var a = $('<a/>').attr('href', '#').addClass('removevariationname').html('X');
+		var th = $('<th/>').append($('<div/>')).append(a);
+		$('div', th).html(nvname);
+    
+    // use eq() here
+		$('table.Variations thead th:eq('+(colcount-4)+')', '#'+id).after(th);
+		
+		/* <td> */
+    var hidden = $('<input/>')
+      .attr('type', 'hidden')
+      .attr('name', 'mod.Variations.Variation.0.VariationSpecifics.NameValueList.0.Name')
+      .val(nvname);
+		
+    var td = $('<td/>').append(hidden);
+		
+		if (recommkey[nvname] && recomm[recommkey[nvname]]) {
+			
+			var selectionmode = recomm[recommkey[nvname]].ValidationRules.SelectionMode;
+			if (selectionmode == 'FreeText') {
+			
+				var input = $('<input/>')
+					.attr('type', 'text')
+					.addClass('selectorparent')
+					.attr('name', 'mod.Variations.Variation.0.VariationSpecifics.NameValueList.0.Value');
+				
+				var selecttag = $('<select/>')
+					.addClass('selector')
+					.attr('name', 
+								'mod.Variations.Variation.0.VariationSpecifics.NameValueList.0.Value.selector');
+				
+				$.each(recomm[recommkey[nvname]].ValueRecommendation, function(k, o) {
+					var optiontag = $('<option/>').val(o.Value).html(o.Value);
+					$(selecttag).append(optiontag);
+				});
+				
+				$(td).append(input).append(selecttag);
+				
+			} else if (selectionmode == 'SelectionOnly') {
+				
+				var selecttag = $('<select/>')
+					.attr('name', 'mod.Variations.Variation.0.VariationSpecifics.NameValueList.0.Value');
+				
+				$.each(recomm[recommkey[nvname]].ValueRecommendation, function(k, o) {
+					var optiontag = $('<option/>').val(o.Value).html(o.Value);
+					$(selecttag).append(optiontag);
+				});
+				
+				$(td).append(selecttag);
+			}
+			
+		} else {
+			
+			/* Not recommended name, custom detail */
+			var input = $('<input/>')
+				.attr('type', 'text')
+				.attr('name', 'mod.Variations.Variation.0.VariationSpecifics.NameValueList.0.Value');
+			
+			$(td).append(input);
+			
+		}
+		
+    // use nth-child() for add to each row
+		$('table.Variations tbody td:nth-child('+(colcount-3)+')', '#'+id).after(td);
+		
+	});
+	
+	renumbervariations(id);
+	setvpvsn_options(id);
+	
+	return;
+}
+
+function addvariationrow(id)
+{
+	var tr = $('table.Variations tbody tr:first', '#'+id).clone()
+	$('table.Variations tbody', '#'+id).append(tr);
+  
+	renumbervariations(id);
+	
+	return;
+}
+
+function addvariationpicturerow(id, idx)
+{
+	var div = $('div.VariationPictures0', '#'+id).clone();
+	
+	$(div).attr('class', 'VariationPictures' + idx);
+	$('ul.variationpictures li:gt(0)', div).remove();
+	
+	$('input[type="hidden"]', div)
+		.attr('name', 
+					'mod.Variations.Pictures.VariationSpecificPictureSet.' + idx + '.VariationSpecificValue');
+	
+	//$('div.variationspecificvalue', div).html(nvname + ': ' + nvval);
+	
+	$('div.VariationSpecificPictureSet', '#'+id).append(div);
+	
+	return;
+}
+
+
+function renumbervariations(id)
+{
+	$.each($('table.Variations th input', '#'+id), function(i, th) {
+		var name = $(this).attr('name');
+		if (name == undefined) return;
+		$(this).attr('name', name.replace(/[0-9]+\.Name$/, i + '.Name'));
+	});
+	
+	/* each rows */
+	$.each($('table.Variations tbody tr', '#'+id), function(rowidx, tr) {
+		/* each columns */
+		$.each($('td', tr), function(colidx, td) {
+			/* each elements */
+			$.each($('input,select', td), function(i) {
+				
+				var name = $(this).attr('name');
+				if (name == undefined) return;
+				
+				name = name.replace(/Variation.[0-9]+/, 'Variation.'+rowidx);
+				name = name.replace(/[0-9]+.Value/, (colidx-1)+'.Value');
+				name = name.replace(/[0-9]+.Name/, (colidx-1)+'.Name');
+				
+				$(this).attr('name', name);
+			});;
+		});
+	});
+}
+
+/* <select name="mod.Variations.Pictures.VariationSpecificName"> */
+function setvpvsn_options(id)
+{
+	// todo: preserve selected value
+	
+  var select = $('select[name="mod.Variations.Pictures.VariationSpecificName"]', '#'+id);
+  $(select).empty();
+  $(select).append($('<option/>').val('').html('(not selected)'));
+  
+	var colcount = $('table.Variations thead th', '#'+id).length;
+	for (var i=1; i<=(colcount-4); i++) {
+		var str = $('table.Variations thead th:eq('+i+') div', '#'+id).html();
+    $(select).append($('<option/>').val(str).html(str));
+	}
+  
+  return;
+}
+
 function resizediv()
 {
 	var windowh = $(window).height();
@@ -2273,7 +2621,7 @@ var changeCategory = function() {
 		 hash[site].Categories = data.json.gc2.Categories;
 		 
 		 var item_modifing =
-			 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
+			 $('input[type="text"], input:checked, input[type="hidden"], select, textarea', '#'+id)
 			 .extractObject();
 		 
 		 item_modifing.id = id;
@@ -2347,7 +2695,7 @@ var save = function() {
 		
 		$('div.pictures', '#'+id).append(input);
 	});
-
+	
 	/* VariationPictures */
 	$.each($('div[class^=VariationPictures]'), function(i, div) {
 		$.each($('ul.variationpictures li', div), function(j, li) {
@@ -2440,12 +2788,68 @@ var save = function() {
     }
   }
 	
-	if (postdata.mod.ShippingDetails.CalculatedShippingRate) {
-		if (postdata.mod.ShippingDetails.CalculatedShippingRate.WeightMajor['#text'] == 0) {
-			delete postdata.mod.ShippingDetails.CalculatedShippingRate;
+	if (postdata.mod.ShippingDetails) {
+		if (postdata.mod.ShippingDetails.CalculatedShippingRate) {
+			if (postdata.mod.ShippingDetails.CalculatedShippingRate.WeightMajor['#text'] == 0) {
+				delete postdata.mod.ShippingDetails.CalculatedShippingRate;
+			}
 		}
 	}
   
+	/* VariationSpecificsSet */
+	if (postdata.mod.Variations) {
+		
+		var vssnvl = {};
+		$.each(postdata.mod.Variations.Variation, function(i, variation) {
+			$.each(variation.VariationSpecifics.NameValueList, function(j, nvl) {
+				if (vssnvl[nvl.Name]) {
+					if (!$.isArray(vssnvl[nvl.Name])) {
+						var tmpvalue = vssnvl[nvl.Name];
+						vssnvl[nvl.Name] = [tmpvalue];
+					}
+					if (vssnvl[nvl.Name].indexOf(nvl.Value) == -1) {
+						vssnvl[nvl.Name].push(nvl.Value);
+					}
+				} else {
+					vssnvl[nvl.Name] = nvl.Value;
+				}
+			});
+		});
+		
+		/* Pictures */
+		if (postdata.mod.Variations.Pictures) {
+			var vsn = postdata.mod.Variations.Pictures.VariationSpecificName;
+			$.each(postdata.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, vsps) {
+				if (vssnvl[vsn]) {
+					if (!$.isArray(vssnvl[vsn])) {
+						var tmpvalue = vssnvl[vsn];
+						vssnvl[vsn] = [tmpvalue];
+					}
+					if (vssnvl[vsn].indexOf(vsps.VariationSpecificValue) == -1) {
+						vssnvl[vsn].push(vsps.VariationSpecificValue);
+					}
+				} else {
+					vssnvl[vsn] = vsps.VariationSpecificValue;
+				}
+			});
+		}
+		
+		postdata.mod.Variations.VariationSpecificsSet = {}
+		postdata.mod.Variations.VariationSpecificsSet.NameValueList = [];
+		
+		$.each(vssnvl, function(nvname, nvvals) {
+			var tmpelm = {};
+			tmpelm['Name'] = nvname;
+			if (nvvals.length == 1) {
+				tmpelm['Value'] = nvvals[0];
+			} else {
+				tmpelm['Value'] = nvvals;
+			}
+			
+			postdata.mod.Variations.VariationSpecificsSet.NameValueList.push(tmpelm);
+		});
+	}
+	
 	postdata = JSON.stringify(postdata);
 	postdata = encodeURIComponent(postdata);
 	
@@ -2475,6 +2879,21 @@ var save = function() {
 			     hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
 			     
            
+					 var detail = $('div.detail', 'div#detailtemplate').clone();
+					 
+					 /* preserve selected tab */
+					 var tab = $('ul.tabNav > li.current', '#'+id);
+					 var tabnum = tab.prevAll().length + 1;
+					 $('.tabNav',       detail).children('.current').removeClass('current');
+					 $('.tabContainer', detail).children('.current').hide();
+					 $('.tabContainer', detail).children('.current').removeClass('current');
+					 $('.tabNav',       detail).children('li:nth-child('+tabnum+')').addClass('current');
+					 $('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
+					 $('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
+					 
+					 $('tr.row2 td div.detail', '#'+id).replaceWith(detail);
+					 $('tr.row2 td div.detail', '#'+id).show();
+					 
 			     setformelements(item);
 			     showformvalues(item);
 			     showbuttons(detail, 'edit,copy,delete');
@@ -2512,6 +2931,21 @@ var clickCancel = function() {
 		$('#newitem0').remove();
 		return false;
 	}
+	
+	var detail = $('div.detail', 'div#detailtemplate').clone();
+	
+	/* preserve selected tab */
+	var tab = $('ul.tabNav > li.current', '#'+id);
+	var tabnum = tab.prevAll().length + 1;
+	$('.tabNav',       detail).children('.current').removeClass('current');
+	$('.tabContainer', detail).children('.current').hide();
+	$('.tabContainer', detail).children('.current').removeClass('current');
+	$('.tabNav',       detail).children('li:nth-child('+tabnum+')').addClass('current');
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').show();
+	$('.tabContainer', detail).children('div:nth-child('+tabnum+')').addClass('current');
+	
+	$('tr.row2 td div.detail', '#'+id).replaceWith(detail);
+	$('tr.row2 td div.detail', '#'+id).show();
 	
 	setformelements(rowsdata[id]);
 	showformvalues(rowsdata[id]);
@@ -2560,61 +2994,6 @@ var changeSite = function() {
 	return;
 }
 
-var clickTitle = function() {
-	
-	var id = $(this).closest('tbody').attr('id');
-	
-	if ($('tr.row2 td', '#'+id).html().match(/<div class="detail"/i)) {
-		$('div.detail', '#'+id).toggle();
-		return false;
-	}
-	
-	var detail = $('div.detail', 'div#detailtemplate').clone();
-	$('td:nth-child(2)', detail).hide();
-	$('tr.row2 td', '#'+id).append(detail);
-	$('div.detail', '#'+id).toggle();
-	
-	if (id == 'newitem0') {
-		return false;
-	}
-	
-	$.post
-	('/json/item',
-	 'id='+id,
-	 function(data) {
-		 var item = data.json.item;
-     
-     item = extract_shippingtype(item);
-     
-		 dump(item);
-     
-		 rowsdata[id] = item;
-		 
-		 var site = item.mod.Site;
-		 
-		 hash[site] = new Object;
-		 hash[site].eBayDetails         = data.json.eBayDetails;
-		 hash[site].Categories          = data.json.Categories;
-		 hash[site].CategoryFeatures    = data.json.CategoryFeatures;
-		 hash[site].ThemeGroup          = data.json.ThemeGroup;
-		 hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
-		 
-     //setmembermessageform(item);
-     
-		 setformelements(item);
-		 showformvalues(item);
-		 $('div.productsearchform', '#'+id).remove();
-		 
-		 $('td:nth-child(2)', '#'+id).show();
-		 
-		 //$('div.pictures', '#'+id).append('<pre>'+$.dump(item.mod.PictureDetails)+'</pre>');
-		 //$.scrollTo('#'+id, {axis:'y', offset:0});
-	 },
-	 'json');
-	
-	return false;
-}
-
 function setmembermessageform(id, item)
 {
   if (item.membermessages == null) return;
@@ -2655,7 +3034,7 @@ function getcategorypulldown(site, categoryid)
 	var sel = $('<select class="category"/>');
 	var opt = $('<option/>').val('').text('');
 	sel.append(opt);
-    
+  
 	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
     
 		var str = hash[site]['category']['name'][childid];
@@ -2756,6 +3135,7 @@ function refresh()
 				 
 			 } else {
 				 
+				 /*
 				 $('tbody:gt(1)', '#items').remove();
 				 $('#content').scrollTop(0);
 				 
@@ -2781,6 +3161,7 @@ function refresh()
 					 var dom = getrow(idx, row);
 					 $('#items').append(dom);
 				 });
+				 */
 				 
 			 }
 		 }
@@ -2936,6 +3317,7 @@ function arrayize(object)
 /* Show form values */
 function showformvalues(item)
 {
+	/* Arrayize */
 	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
 		item.mod.PictureDetails.PictureURL
 			= arrayize(item.mod.PictureDetails.PictureURL);
@@ -2957,13 +3339,19 @@ function showformvalues(item)
 			= arrayize(item.mod.ItemSpecifics.NameValueList);
 	}
 	
+	if (item.mod.Variations) {
+		$.each(item.mod.Variations.Variation, function(idx, variation) {
+			item.mod.Variations.Variation[idx].VariationSpecifics.NameValueList
+				= arrayize(item.mod.Variations.Variation[idx].VariationSpecifics.NameValueList);
+		});
+	}
+	
 	var detail = $('div.detail', '#'+item.id);
 	
 	/* text */
-	$.each($('input[type="text"]', detail), function(i, form) {
+	$.each($('input[type="text"][name^="mod"]', detail), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
-    
 		try {
 			eval('tmpvalue = item' + formname);
 			if (tmpvalue == null) tmpvalue = '';
@@ -3108,9 +3496,12 @@ function showformvalues(item)
 	}
 	
   /* Variations.Pictures */
-  if (item.mod.Variations) {
+  if (item.mod.Variations && item.mod.Variations.Pictures) {
     $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
       
+			$('div.VariationPictures'+i+' div.variationspecificvalue', detail)
+				.html(item.mod.Variations.Pictures.VariationSpecificName + ':' + o.VariationSpecificValue);
+			
 			o.PictureURL = arrayize(o.PictureURL);
       $.each(o.PictureURL, function(j, url) {
 			  var lidiv = $('div.VariationPictures'+i+' li.template', detail).clone();
@@ -3127,6 +3518,12 @@ function showformvalues(item)
 	$('a.removeispc', detail).remove();
 	$('a.addsso',     detail).remove();
 	$('a.removesso',  detail).remove();
+	$('a.removevariationname', detail).remove();
+	$('a.removevariationrow',  detail).remove();
+	$('a.addvariationrow',     detail).remove();
+	
+	$('div.VariationSpecificPictureSet span', detail).remove();
+	$('div.variationaddforms', detail).remove();
 	
 	/* buyers information if exists */
 	/*
@@ -3164,7 +3561,7 @@ function fillformvalues(item)
 	}
 	
 	// input, text, textarea
-	$.each($('input[type=text], input[type=hidden], input[type=datetime-local], select, textarea[name^=mod]', '#'+id), function(i, form) {
+	$.each($('input[type="text"][name^="mod"], input[type="hidden"][name^="mod"], input[type=datetime-local], select, textarea[name^="mod"]', '#'+id), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
@@ -3174,6 +3571,11 @@ function fillformvalues(item)
 		} catch (err) {
 			//$(detail).prepend('ERR: '+err.description+'<br />');
 		}
+	});
+	
+	// label
+	$.each($('table.Variations input[type="hidden"]'), function() {
+		$('div', $(this).closest('th')).html($(this).val());
 	});
 	
 	// checkbox
@@ -3207,6 +3609,7 @@ function fillformvalues(item)
 			$(o).val(currency);
 		}
 	});
+	$('div.currencyID').html($('select[name="mod.Currency"]', '#'+id).val());
 	
 	/* ItemSpecifics Name */
 	$('th input[name^="mod.ItemSpecifics.NameValueList"]', '#'+id).each(function(i, o) {
@@ -3233,22 +3636,26 @@ function fillformvalues(item)
 	}
   
   /* VariationPictures */
-  if (item.mod.Variations) {
-    $.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
-      
+  if (item.mod.Variations && item.mod.Variations.Pictures) {
+		$.each(item.mod.Variations.Pictures.VariationSpecificPictureSet, function(i, o) {
+			
+			$('div.VariationPictures' + i + ' div.variationspecificvalue', '#'+id)
+				.html(item.mod.Variations.Pictures.VariationSpecificName + ':' + o.VariationSpecificValue);
+			
 			o.PictureURL = arrayize(o.PictureURL);
-      $.each(o.PictureURL, function(j, url) {
-			  var lidiv = $('div.VariationPictures'+i+' li.template', '#'+id).clone();
-			  $(lidiv).removeClass('template').addClass('pictureli');
-        
-			  $('img', lidiv)
-          .attr('data-url', url)
-          .attr('src', '/image/?url=' + encodeURIComponent(url));
-        
-			  $('div.VariationPictures'+i+' ul.variationpictures', '#'+id).append(lidiv);
-      });
-      
-    });
+			$.each(o.PictureURL, function(j, url) {
+				var lidiv = $('div.VariationPictures'+i+' li.template', '#'+id).clone();
+				$(lidiv).removeClass('template').addClass('pictureli');
+				
+				$('img', lidiv)
+					.attr('data-url', url)
+					.attr('src', '/image/?url=' + encodeURIComponent(url));
+				
+				$('div.VariationPictures'+i+' ul.variationpictures', '#'+id).append(lidiv);
+			});
+			
+		});
+		
 		$('ul.variationpictures', '#'+id).sortable({items: 'li.pictureli'});
   }
 	
@@ -3260,9 +3667,6 @@ function fillformvalues(item)
 /* ItemSpecifics */
 function setformelements_itemspecifics(item)
 {
-	console.log('item.mod.PrimaryCategory:' + item.mod.PrimaryCategory);
-	console.log('item.mod.PrimaryCategory.CategoryID' + item.mod.PrimaryCategory.CategoryID);
-	
 	if (item.mod.PrimaryCategory == undefined) {
 		// todo: hide forms
 		return;
@@ -3276,6 +3680,7 @@ function setformelements_itemspecifics(item)
 	
 	var categoryid = item.mod.PrimaryCategory.CategoryID;
 	var parentid = item.categorypath[item.categorypath.length-2];
+  if (parentid == undefined) return;
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
 	var specifics = new Array();
@@ -3283,6 +3688,7 @@ function setformelements_itemspecifics(item)
 		specifics = arrayize(item.mod.ItemSpecifics.NameValueList);
 	}
 	
+  if (category.CategorySpecifics == undefined) return;
 	var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
 	
 	var specificskey = new Array();
@@ -3551,8 +3957,4 @@ function extract_shippingtype(item)
   item.mod.ShippingDetails.ShippingType = {'domestic': dmsttype, 'international': intltype};
   
   return item;
-}
-
-function resizeiframe(id) {
-	$('#iframe'+id).css('height', ($('#iframe'+id).contents().find('body').height()+16)+'px');
 }
