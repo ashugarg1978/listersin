@@ -77,17 +77,19 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
       }
 			
 			if (session.get("email") == null) {
-				for (Cookie c : request.getCookies()) {
-					if (c.getName().equals("JSESSIONID")) {
-						
-						user = (BasicDBObject) db.getCollection("users")
-							.findOne(new BasicDBObject("JSESSIONID", c.getValue()));
-						if (user != null) {
-							log.debug("restore session");
-							session.put("email", user.getString("email"));
+				if (request.getCookies() != null) {
+					for (Cookie c : request.getCookies()) {
+						if (c.getName().equals("JSESSIONID")) {
+							
+							user = (BasicDBObject) db.getCollection("users")
+								.findOne(new BasicDBObject("JSESSIONID", c.getValue()));
+							if (user != null) {
+								log.debug("restore session [" + user.getString("email") + "]");
+								session.put("email", user.getString("email"));
+							}
+							
+							break;
 						}
-						
-						break;
 					}
 				}
 			}
@@ -109,20 +111,18 @@ public class BaseAction extends ActionSupport implements ServletContextAware,
 					
           db.getCollection("users").update(query, new BasicDBObject("$set", set));
 					
-        }
-				
-				for (Cookie c : request.getCookies()) {
-					if (c.getName().equals("JSESSIONID")) {
-						
-						BasicDBObject set = new BasicDBObject();
-						set.put("JSESSIONID", c.getValue());
-						
-						db.getCollection("users").update(query, new BasicDBObject("$set", set));
-						
-						break;
+					for (Cookie c : request.getCookies()) {
+						if (c.getName().equals("JSESSIONID")) {
+							
+							set = new BasicDBObject();
+							set.put("JSESSIONID", c.getValue());
+							
+							db.getCollection("users").update(query, new BasicDBObject("$set", set));
+							
+							break;
+						}
 					}
-				}
-			
+        }
       }
 			
 		} catch (Exception e) {
