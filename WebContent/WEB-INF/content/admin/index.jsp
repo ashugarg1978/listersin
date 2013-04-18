@@ -25,7 +25,6 @@
     <thead>
       <tr>
         <th rowspan="2">Email</th>
-        <th rowspan="2">Status</th>
         <th rowspan="2">Created</th>
         <th rowspan="2">Last used</th>
         <th rowspan="2">Action</th>
@@ -49,8 +48,10 @@
 					<tr>
 						<td>
 							<a href="/admin/signin?email=${email}" target="usersignin">${email}</a>
+							<s:if test="status != 'free trial'">
+                <div>${status}</div>
+							</s:if>
 						</td>
-						<td>${status}</td>
 						<td>${created_local}</td>
 						<td>${lastused_local}</td>
 						<td>
@@ -72,8 +73,10 @@
 							<s:if test="#status.first == true">
 								<td rowspan="${userids2.size()}">
 									<a href="/admin/signin?email=${email}" target="usersignin">${email}</a>
+							    <s:if test="status != 'free trial'">
+                    <div>${status}</div>
+							    </s:if>
 								</td>
-								<td rowspan="${userids2.size()}">${status}</td>
 								<td rowspan="${userids2.size()}">${created_local}</td>
 								<td rowspan="${userids2.size()}">${lastused_local}</td>
 								<td rowspan="${userids2.size()}">

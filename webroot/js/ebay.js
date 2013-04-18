@@ -11,9 +11,12 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 	
 	var data = $.parseJSON(xhr.responseText);
 	
-	if (data.json.message == null) return;
-	if (data.json.message.message == null) return;
-	if (data.json.message.message == '') return;
+	if (data.json.message == null
+			|| data.json.message.message == null
+			|| data.json.message.message == '') {
+		showmessage('');
+		return;
+	}
 	
 	showmessage(data.json.message.message);
 	
@@ -23,6 +26,7 @@ $(document).ajaxComplete(function(event, xhr, settings) {
 		timeout = setTimeout('dismissmessage()', 2000);
 	}
 	
+	return;
 });
 
 /* initialize */

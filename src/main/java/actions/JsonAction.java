@@ -759,6 +759,8 @@ public class JsonAction extends BaseAction {
 		}
 		*/
     
+    boolean orgexists = false;
+    
 		/* items collection */
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
@@ -786,24 +788,6 @@ public class JsonAction extends BaseAction {
 			DiffLogger dl = new DiffLogger();
 			dl.savediff("newitem0", newitem.toString(), newitem.toString(), basedir+"/logs/diff");
 			
-			if (!user.getString("email").equals("demo@listers.in")) {
-				
-				String taskid = "verifyadditem_";
-				taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
-				
-				BasicDBObject query = new BasicDBObject();
-				query.put("_id", new ObjectId(id));
-				
-				BasicDBObject update = new BasicDBObject();
-				update.put("$set", new BasicDBObject("status", taskid));
-				
-				db.getCollection("items."+user.getString("_id")).update(query, update);
-				
-				/* VerifyAddItem */
-				String[] args = {"VerifyAddItem", user.getString("email"), taskid};
-				String verifyresult = writesocket(args);
-			}
-			
 		} else {
 			
 			/* update existing item */
@@ -830,8 +814,30 @@ public class JsonAction extends BaseAction {
 			DiffLogger dl = new DiffLogger();
 			dl.savediff(id, before.toString(), after.toString(), basedir+"/logs/diff");
 			
+      if (before.containsField("org")) {
+        orgexists = true;
+      }
 		}
-		
+    
+    if (!orgexists && !user.getString("email").equals("demo@listers.in")) {
+      
+      /* VerifyAddItem */
+      String taskid = "verifyadditem_";
+      taskid += basetimestamp.replace(" ", "_").replace("+0000", "").replace(":", "-");
+			
+      BasicDBObject query = new BasicDBObject();
+      query.put("_id", new ObjectId(id));
+			
+      BasicDBObject update = new BasicDBObject();
+      update.put("$set", new BasicDBObject("status", taskid));
+			
+      db.getCollection("items."+user.getString("_id")).update(query, update);
+      
+      String[] args = {"VerifyAddItem", user.getString("email"), taskid};
+      String verifyresult = writesocket(args);
+      
+    }
+    
 		updatemessage(user.getString("email"), false, "Saved.");
 		
 		// memo: The id "newitem0" seem to be replaced with new ObjectId automatically.

@@ -441,6 +441,23 @@ public class PageAction extends BaseAction {
     return SUCCESS;
   }
   
+  @Action(value="/page/listeditems", results={@Result(name="success",location="listeditems.jsp")})
+  public String listeditems() throws Exception {
+    
+    BasicDBList rows = new BasicDBList();
+    
+		DBCursor cursor = db.getCollection("listeditems").find();
+		while (cursor.hasNext()) {
+			BasicDBObject row = (BasicDBObject) cursor.next();
+      rows.add(row);
+		}		
+    
+    blogfeed = new BasicDBObject();
+    blogfeed.put("rows", rows);
+    
+    return SUCCESS;
+  }
+  
   private BasicDBObject getScheduleDays() {
     
     BasicDBObject days = new BasicDBObject();
