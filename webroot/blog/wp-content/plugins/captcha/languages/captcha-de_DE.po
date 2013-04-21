@@ -1,0 +1,407 @@
+# Byrial Ole Jensen <byrial@vip.cybercity.dk>, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: captcha\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-18 13:23+0300\n"
+"PO-Revision-Date: 2013-04-18 13:23+0300\n"
+"Last-Translator: \n"
+"Language-Team: Thomas Hartung <thartung@adipositas-mm.de>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: da\n"
+"X-Generator: Poedit 1.5.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: captcha.php:31
+msgid "Login form"
+msgstr "Loginformular"
+
+#: captcha.php:32
+#, fuzzy
+msgid "Registration form"
+msgstr "Registrierungsformular"
+
+#: captcha.php:32
+msgid "Register form"
+msgstr "Registrierungsformular"
+
+#: captcha.php:33
+#, fuzzy
+msgid "Reset Password form"
+msgstr "Formular für verlorene Passwörter"
+
+#: captcha.php:33
+msgid "Lost password form"
+msgstr "Formular für verlorene Passwörter"
+
+#: captcha.php:34
+msgid "Comments form"
+msgstr "Kommentarformular"
+
+#: captcha.php:35
+msgid "Hide CAPTCHA for registered users"
+msgstr "Keine CAPTCHA-Abfrage für angemeldete Benutzer"
+
+#: captcha.php:40
+msgid "Plus (&#43;)"
+msgstr "Plus (&#43;)"
+
+#: captcha.php:40
+msgid "Plus"
+msgstr "Plus (&#43;)"
+
+#: captcha.php:41
+msgid "Minus (&minus;)"
+msgstr "Minus (&minus;)"
+
+#: captcha.php:41
+msgid "Minus"
+msgstr "Minus (&minus;)"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiplication (&times;)"
+msgstr "Multipliziere (&times;)"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiply"
+msgstr "Multipliziere (&times;)"
+
+#: captcha.php:47
+msgid "Numbers"
+msgstr "Ziffern"
+
+#: captcha.php:48
+msgid "Words"
+msgstr "Wörter"
+
+#: captcha.php:102
+msgid "Activated plugins"
+msgstr "Aktivierte Plugins"
+
+#: captcha.php:104
+#: captcha.php:112
+#: captcha.php:120
+msgid "Read more"
+msgstr "Lesen Sie mehr"
+
+#: captcha.php:104
+#: captcha.php:224
+#: captcha.php:233
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: captcha.php:110
+msgid "Installed plugins"
+msgstr "Installierte Plugins"
+
+#: captcha.php:118
+msgid "Recommended plugins"
+msgstr "Empfohlene Plugins"
+
+#: captcha.php:120
+msgid "Download"
+msgstr "Herunterladen"
+
+#: captcha.php:120
+#, php-format
+msgid "Install %s"
+msgstr "Installiere %s"
+
+#: captcha.php:120
+msgid "Install now from wordpress.org"
+msgstr "Installiere jetzt von wordpress.org"
+
+#: captcha.php:122
+#, fuzzy
+msgid "If you have any questions, please contact us via plugin@bestwebsoft.com or fill in the contact form on our website"
+msgstr "Wenn Sie Fragen haben, kontaktieren Sie uns bitte via plugin@bestwebsoft.com oder benutzen Sie das Kontakformular auf unserer Seite"
+
+#: captcha.php:132
+#: captcha.php:296
+#, fuzzy
+msgid "Captcha Settings"
+msgstr "Captcha Optionen"
+
+#: captcha.php:132
+msgid "Captcha"
+msgstr "Captcha"
+
+#: captcha.php:234
+msgid "FAQ"
+msgstr "Häufig gestellte Fragen (FAQ)"
+
+#: captcha.php:235
+msgid "Support"
+msgstr "Unterstützung"
+
+#: captcha.php:279
+#, fuzzy
+msgid "Please select one item in the block Arithmetic and Complexity for CAPTCHA"
+msgstr "Bitte wählen Sie eine Option im Bereich Arithmetische Aktionen und Komplexität des CAPTCHA"
+
+#: captcha.php:283
+msgid "Options saved."
+msgstr "Einstellungen gespeichert."
+
+#: captcha.php:302
+#, fuzzy
+msgid "Enable CAPTCHA for:"
+msgstr "CAPTCHA aktivieren für:"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+msgid "Contact form"
+msgstr "CONTACT FORM-Plugin"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+#, fuzzy
+msgid "(powered by bestwebsoft.com)"
+msgstr "(powered by bestwebsoft.com)"
+
+#: captcha.php:318
+msgid "Activate contact form"
+msgstr "Aktiviere CONTACT FORM"
+
+#: captcha.php:321
+msgid "Download contact form"
+msgstr "CONTACT FORM herunterladen"
+
+#: captcha.php:323
+#, fuzzy
+msgid "If you would like to customize this plugin for a custom form, please contact us via <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> or fill in the contact form on our site"
+msgstr "Wenn Sie dieses Plugin für ein benutzerdefiniertes Formular anpassen möchten, kontaktieren Sie uns bitte über <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> oder benutzen Sie das Kontaktformular auf unserer Webseite"
+
+#: captcha.php:327
+#, fuzzy
+msgid "Title for CAPTCHA in the form"
+msgstr "Textaufforderung für die Eingabe des CAPTCHA im Formular"
+
+#: captcha.php:331
+msgid "Arithmetic actions for CAPTCHA"
+msgstr "Arithmetische Operationen für CAPTCHA"
+
+#: captcha.php:340
+msgid "CAPTCHA complexity level"
+msgstr ""
+
+#: captcha.php:350
+msgid "Save Changes"
+msgstr "Änderungen speichern"
+
+#: captcha.php:394
+#: captcha.php:400
+#: captcha.php:565
+#: captcha.php:572
+#: captcha.php:582
+#: captcha.php:589
+msgid "ERROR"
+msgstr "FEHLER"
+
+#: captcha.php:394
+#: captcha.php:416
+#: captcha.php:532
+#: captcha.php:565
+#: captcha.php:582
+#: captcha.php:605
+msgid "Please fill the form."
+msgstr ""
+
+#: captcha.php:400
+#: captcha.php:427
+#: captcha.php:572
+#: captcha.php:589
+#, fuzzy
+msgid "Please enter a valid CAPTCHA value."
+msgstr "Bitte ergänzen Sie das CAPTCHA."
+
+#: captcha.php:538
+#: captcha.php:612
+#, fuzzy
+msgid "Error: You have entered an incorrect CAPTCHA value. Click the BACK button on your browser, and try again."
+msgstr "Fehler: Sie haben die falsche CAPTCHA-Phrase eingegeben! Drücken Sie den \"ZURÜCK\"-Button in Ihrem Browser und versuchen Sie es erneut!"
+
+#: captcha.php:627
+#: captcha.php:861
+msgid "zero"
+msgstr "null"
+
+#: captcha.php:628
+#: captcha.php:862
+#: captcha.php:1057
+msgid "one"
+msgstr "eins"
+
+#: captcha.php:629
+#: captcha.php:863
+msgid "two"
+msgstr "zwei"
+
+#: captcha.php:630
+#: captcha.php:864
+msgid "three"
+msgstr "drei"
+
+#: captcha.php:631
+#: captcha.php:865
+msgid "four"
+msgstr "vier"
+
+#: captcha.php:632
+#: captcha.php:866
+msgid "five"
+msgstr "fünf"
+
+#: captcha.php:633
+#: captcha.php:867
+#: captcha.php:1057
+msgid "six"
+msgstr "sechs"
+
+#: captcha.php:634
+#: captcha.php:868
+#: captcha.php:1045
+#: captcha.php:1051
+msgid "seven"
+msgstr "sieben"
+
+#: captcha.php:635
+#: captcha.php:869
+#: captcha.php:1048
+msgid "eight"
+msgstr "acht"
+
+#: captcha.php:636
+#: captcha.php:870
+msgid "nine"
+msgstr "neun"
+
+#: captcha.php:639
+#: captcha.php:873
+msgid "eleven"
+msgstr "elf"
+
+#: captcha.php:640
+#: captcha.php:874
+msgid "twelve"
+msgstr "zwölf"
+
+#: captcha.php:641
+#: captcha.php:875
+msgid "thirteen"
+msgstr "dreizehn"
+
+#: captcha.php:642
+#: captcha.php:876
+msgid "fourteen"
+msgstr "vierzehn"
+
+#: captcha.php:643
+#: captcha.php:877
+msgid "fifteen"
+msgstr "fünfzehn"
+
+#: captcha.php:644
+#: captcha.php:878
+msgid "sixteen"
+msgstr "sechszehn"
+
+#: captcha.php:645
+#: captcha.php:879
+msgid "seventeen"
+msgstr "siebzehn"
+
+#: captcha.php:646
+#: captcha.php:880
+msgid "eighteen"
+msgstr "achtzehn"
+
+#: captcha.php:647
+#: captcha.php:881
+msgid "nineteen"
+msgstr "neunzehn"
+
+#: captcha.php:650
+#: captcha.php:884
+msgid "ten"
+msgstr "zehn"
+
+#: captcha.php:651
+#: captcha.php:885
+msgid "twenty"
+msgstr "zwanzig"
+
+#: captcha.php:652
+#: captcha.php:886
+msgid "thirty"
+msgstr "dreißig"
+
+#: captcha.php:653
+#: captcha.php:887
+msgid "forty"
+msgstr "vierzig"
+
+#: captcha.php:654
+#: captcha.php:888
+msgid "fifty"
+msgstr "fünfzig"
+
+#: captcha.php:655
+#: captcha.php:889
+msgid "sixty"
+msgstr "sechzig"
+
+#: captcha.php:656
+#: captcha.php:890
+msgid "seventy"
+msgstr "siebzig"
+
+#: captcha.php:657
+#: captcha.php:891
+msgid "eighty"
+msgstr "achtzig"
+
+#: captcha.php:658
+#: captcha.php:892
+msgid "ninety"
+msgstr "neunzig"
+
+#: captcha.php:745
+#: captcha.php:979
+msgid "and"
+msgstr "und"
+
+#: captcha.php:764
+#, fuzzy
+msgid "Encryption password is not set"
+msgstr "Die Passwort-Entschlüsselung ist nicht gesetzt"
+
+#: captcha.php:783
+#, fuzzy
+msgid "Decryption password is not set"
+msgstr "Die Passwort-Entschlüsselung ist nicht gesetzt"
+
+#~ msgid "Increase"
+#~ msgstr "Erhöhen"
+#~ msgid "Difficulty for CAPTCHA"
+#~ msgstr "Schwierigkeitsgrad des CAPTCHA"
+#~ msgid "That CAPTCHA was incorrect."
+#~ msgstr "Das CAPTCHA war leider falsch!"
+#~ msgid "The password of encryption is not set"
+#~ msgstr "Die Passwort-Verschlüsselung ist nicht gesetzt"
+#~ msgid "null"
+#~ msgstr "null"
+#~ msgid "BWS Plugins"
+#~ msgstr "BWS Plugins"
+#~ msgid "Install Now"
+#~ msgstr "Installér nu"
+

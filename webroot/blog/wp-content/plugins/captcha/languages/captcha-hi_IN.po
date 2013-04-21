@@ -1,0 +1,406 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: captcha\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-18 13:24+0300\n"
+"PO-Revision-Date: 2013-04-18 13:24+0300\n"
+"Last-Translator: \n"
+"Language-Team: Outshine Solutions <ash.pr@outshinesolutions.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: hi_IN\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: captcha.php:31
+msgid "Login form"
+msgstr "परिवर्तन सहेजें"
+
+#: captcha.php:32
+#, fuzzy
+msgid "Registration form"
+msgstr " पंजीकरण प्रपत्र"
+
+#: captcha.php:32
+msgid "Register form"
+msgstr " पंजीकरण प्रपत्र"
+
+#: captcha.php:33
+#, fuzzy
+msgid "Reset Password form"
+msgstr "पासवर्ड प्रपत्र खो दिया है"
+
+#: captcha.php:33
+msgid "Lost password form"
+msgstr "पासवर्ड प्रपत्र खो दिया है"
+
+#: captcha.php:34
+msgid "Comments form"
+msgstr "टिप्पणियां फार्म"
+
+#: captcha.php:35
+msgid "Hide CAPTCHA for registered users"
+msgstr "पंजीकृत उपयोगकर्ताओं के लिए CAPTCHA छुपाएँ"
+
+#: captcha.php:40
+msgid "Plus (&#43;)"
+msgstr "प्लस (&#43;)"
+
+#: captcha.php:40
+msgid "Plus"
+msgstr "प्लस"
+
+#: captcha.php:41
+msgid "Minus (&minus;)"
+msgstr "माइनस (&minus;)"
+
+#: captcha.php:41
+msgid "Minus"
+msgstr "माइनस"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiplication (&times;)"
+msgstr "गुणा करना(&times;)"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiply"
+msgstr "गुणा करना(&times;)"
+
+#: captcha.php:47
+msgid "Numbers"
+msgstr "नंबर"
+
+#: captcha.php:48
+msgid "Words"
+msgstr "शब्द"
+
+#: captcha.php:102
+msgid "Activated plugins"
+msgstr "सक्रिय प्लगिन"
+
+#: captcha.php:104
+#: captcha.php:112
+#: captcha.php:120
+msgid "Read more"
+msgstr "और अधिक पढ़ें"
+
+#: captcha.php:104
+#: captcha.php:224
+#: captcha.php:233
+msgid "Settings"
+msgstr "सेटिंग्स"
+
+#: captcha.php:110
+msgid "Installed plugins"
+msgstr "स्थापित plugins"
+
+#: captcha.php:118
+msgid "Recommended plugins"
+msgstr "अनुशंसित प्लगिन"
+
+#: captcha.php:120
+msgid "Download"
+msgstr "डाउनलोड"
+
+#: captcha.php:120
+#, php-format
+msgid "Install %s"
+msgstr " स्थापित करें %s"
+
+#: captcha.php:120
+msgid "Install now from wordpress.org"
+msgstr "Wordpress.org से अब स्थापित करें"
+
+#: captcha.php:122
+#, fuzzy
+msgid "If you have any questions, please contact us via plugin@bestwebsoft.com or fill in the contact form on our website"
+msgstr "यदि आपके कोई प्रश्न हैं, हमें plugin@bestwebsoft.com के माध्यम से संपर्क करें या हमारी साइट पर हमारे संपर्क फार्म में भरें"
+
+#: captcha.php:132
+#: captcha.php:296
+#, fuzzy
+msgid "Captcha Settings"
+msgstr "Captcha विकल्प"
+
+#: captcha.php:132
+msgid "Captcha"
+msgstr "Captcha"
+
+#: captcha.php:234
+msgid "FAQ"
+msgstr "अक्सर पूछे जाने वाले प्रश्न"
+
+#: captcha.php:235
+msgid "Support"
+msgstr "समर्थन"
+
+#: captcha.php:279
+#, fuzzy
+msgid "Please select one item in the block Arithmetic and Complexity for CAPTCHA"
+msgstr "CAPTCHA के लिए ब्लॉक अंकगणित कार्यों और इस में एक बिंदु का चयन करें"
+
+#: captcha.php:283
+msgid "Options saved."
+msgstr "विकल्प बचाया."
+
+#: captcha.php:302
+#, fuzzy
+msgid "Enable CAPTCHA for:"
+msgstr "CAPTCHA सक्षम:"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+msgid "Contact form"
+msgstr "संपर्क फ़ॉर्म"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+#, fuzzy
+msgid "(powered by bestwebsoft.com)"
+msgstr "(bestwebsoft.com द्वारा सत्ता)"
+
+#: captcha.php:318
+msgid "Activate contact form"
+msgstr "संपर्क प्रपत्र सक्रिय"
+
+#: captcha.php:321
+msgid "Download contact form"
+msgstr "संपर्क फॉर्म डाउनलोड करें"
+
+#: captcha.php:323
+#, fuzzy
+msgid "If you would like to customize this plugin for a custom form, please contact us via <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> or fill in the contact form on our site"
+msgstr "اگر می خواهید این افزونه را به عنوان یک فرم اختصاصی سفارشی سازی کنید، لطفاً از طریق <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> با ما تماس بگیرید یا اینکه فرم تماس موجود در سایت ما را پُر کنید"
+
+#: captcha.php:327
+#, fuzzy
+msgid "Title for CAPTCHA in the form"
+msgstr "CAPTCHA के लिए लेबल"
+
+#: captcha.php:331
+msgid "Arithmetic actions for CAPTCHA"
+msgstr "CAPTCHA के लिए अंकगणित कार्रवाई"
+
+#: captcha.php:340
+msgid "CAPTCHA complexity level"
+msgstr ""
+
+#: captcha.php:350
+msgid "Save Changes"
+msgstr "परिवर्तन सहेजें"
+
+#: captcha.php:394
+#: captcha.php:400
+#: captcha.php:565
+#: captcha.php:572
+#: captcha.php:582
+#: captcha.php:589
+msgid "ERROR"
+msgstr "त्रुटि"
+
+#: captcha.php:394
+#: captcha.php:416
+#: captcha.php:532
+#: captcha.php:565
+#: captcha.php:582
+#: captcha.php:605
+msgid "Please fill the form."
+msgstr ""
+
+#: captcha.php:400
+#: captcha.php:427
+#: captcha.php:572
+#: captcha.php:589
+#, fuzzy
+msgid "Please enter a valid CAPTCHA value."
+msgstr "CAPTCHA पूरा करें."
+
+#: captcha.php:538
+#: captcha.php:612
+#, fuzzy
+msgid "Error: You have entered an incorrect CAPTCHA value. Click the BACK button on your browser, and try again."
+msgstr "त्रुटि: आप गलत CAPTCHA मुहावरा में प्रवेश किया.अपने ब्राउज़र के वापस बटन दबाएँ और फिर कोशिश करें."
+
+#: captcha.php:627
+#: captcha.php:861
+msgid "zero"
+msgstr "शून्य"
+
+#: captcha.php:628
+#: captcha.php:862
+#: captcha.php:1057
+msgid "one"
+msgstr "एक"
+
+#: captcha.php:629
+#: captcha.php:863
+msgid "two"
+msgstr "दो"
+
+#: captcha.php:630
+#: captcha.php:864
+msgid "three"
+msgstr "तीन"
+
+#: captcha.php:631
+#: captcha.php:865
+msgid "four"
+msgstr "चार"
+
+#: captcha.php:632
+#: captcha.php:866
+msgid "five"
+msgstr "पांच"
+
+#: captcha.php:633
+#: captcha.php:867
+#: captcha.php:1057
+msgid "six"
+msgstr "छह"
+
+#: captcha.php:634
+#: captcha.php:868
+#: captcha.php:1045
+#: captcha.php:1051
+msgid "seven"
+msgstr "सात"
+
+#: captcha.php:635
+#: captcha.php:869
+#: captcha.php:1048
+msgid "eight"
+msgstr "आठ"
+
+#: captcha.php:636
+#: captcha.php:870
+msgid "nine"
+msgstr "नौ"
+
+#: captcha.php:639
+#: captcha.php:873
+msgid "eleven"
+msgstr "ग्यारह"
+
+#: captcha.php:640
+#: captcha.php:874
+msgid "twelve"
+msgstr "बारह"
+
+#: captcha.php:641
+#: captcha.php:875
+msgid "thirteen"
+msgstr "तेरह"
+
+#: captcha.php:642
+#: captcha.php:876
+msgid "fourteen"
+msgstr "चौदह"
+
+#: captcha.php:643
+#: captcha.php:877
+msgid "fifteen"
+msgstr "पंद्रह"
+
+#: captcha.php:644
+#: captcha.php:878
+msgid "sixteen"
+msgstr "सोलह"
+
+#: captcha.php:645
+#: captcha.php:879
+msgid "seventeen"
+msgstr "सत्रह"
+
+#: captcha.php:646
+#: captcha.php:880
+msgid "eighteen"
+msgstr "अठारह"
+
+#: captcha.php:647
+#: captcha.php:881
+msgid "nineteen"
+msgstr "उन्नीस"
+
+#: captcha.php:650
+#: captcha.php:884
+msgid "ten"
+msgstr "दस"
+
+#: captcha.php:651
+#: captcha.php:885
+msgid "twenty"
+msgstr "बीस"
+
+#: captcha.php:652
+#: captcha.php:886
+msgid "thirty"
+msgstr "तीस"
+
+#: captcha.php:653
+#: captcha.php:887
+msgid "forty"
+msgstr "चालीस"
+
+#: captcha.php:654
+#: captcha.php:888
+msgid "fifty"
+msgstr "पचास"
+
+#: captcha.php:655
+#: captcha.php:889
+msgid "sixty"
+msgstr "साठ"
+
+#: captcha.php:656
+#: captcha.php:890
+msgid "seventy"
+msgstr "सत्तर"
+
+#: captcha.php:657
+#: captcha.php:891
+msgid "eighty"
+msgstr "अस्सी"
+
+#: captcha.php:658
+#: captcha.php:892
+msgid "ninety"
+msgstr "नब्बे"
+
+#: captcha.php:745
+#: captcha.php:979
+msgid "and"
+msgstr "और"
+
+#: captcha.php:764
+#, fuzzy
+msgid "Encryption password is not set"
+msgstr "Decoding के पासवर्ड सेट नहीं है"
+
+#: captcha.php:783
+#, fuzzy
+msgid "Decryption password is not set"
+msgstr "Decoding के पासवर्ड सेट नहीं है"
+
+#~ msgid "Increase"
+#~ msgstr "वृद्धि"
+#~ msgid "Difficulty for CAPTCHA"
+#~ msgstr "CAPTCHA के लिए कठिनाई"
+#~ msgid "That CAPTCHA was incorrect."
+#~ msgstr "CAPTCHA जो गलत था."
+#~ msgid "The password of encryption is not set"
+#~ msgstr "एन्क्रिप्शन का पासवर्ड नहीं सेट है"
+#~ msgid "null"
+#~ msgstr "هیچ"
+#~ msgid "BWS Plugins"
+#~ msgstr "افزونه های BWS"
+#~ msgid "Install Now"
+#~ msgstr "همین الان نصب کن"
+

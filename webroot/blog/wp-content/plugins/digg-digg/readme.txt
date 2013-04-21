@@ -2,13 +2,13 @@
 
 Contributors: joelg87, andy7629
 
-Tags: digg digg, buffer, digg, google, google+1, plus one, tweet, twitter, facebook, share, like, stumbleupon, social sharing, linkedin, reddit, pinterest, sharebar, social media, social networking, sharethis
+Tags: digg digg, buffer, digg, google, google+1, plus one, tweet, twitter, facebook, share, like, stumbleupon, social sharing, linkedin, reddit, pinterest, sharebar, social media, social networking, sharethis, pocket, tumblr
 
 Requires at least: 2.3
 
-Tested up to: 3.5.1
+Tested up to: 5.3.3
 
-Stable tag: 5.3.1
+Stable tag: 5.3.3
 
 
 
@@ -26,7 +26,7 @@ With Digg Digg by Buffer, you have an all in one social sharing plugin for your 
 
 
 
-* Display all popular social sharing buttons with count, such as Twitter, Buffer, Facebook Share, Facebook Like, Digg, LinkedIn, Google +1, Reddit, dZone, TweetMeme, Topsy, Yahoo Buzz, StumbleUpon, Del.icio.us, Sphinn, Designbump, WebBlend, BlogEngage and Serpd, Pinterest.
+* Display all popular social sharing buttons with count, such as Twitter, Buffer, Facebook Share, Facebook Like, Digg, LinkedIn, Google +1, Reddit, dZone, TweetMeme, Topsy, Yahoo Buzz, StumbleUpon, Del.icio.us, Sphinn, Designbump, WebBlend, BlogEngage, Serpd, Pinterest, Pocket and Tumblr.
 
 * Facebook Like (Iframe or XFBML), support thumbnail generation, multiple languages, show faces and send button.
 
@@ -156,9 +156,25 @@ In both Normal Display and Floating Display settings pages you can change the we
 
 
 
+= Digg Digg v5.3.3 - 12/04/2013 =
+
+* Fixed: Critical issue with updating Digg Digg where the plugin would disappear completely. Sorry about that guys!
+
+
+
+= Digg Digg v5.3.2 - 12/04/2013 =
+
+* New: Added Pocket Publisher Button
+
+* New: Added Tumblr Share Button
+
+* New: Buffer button now uses the post title rather than grabbing content from the page title.
+
+
+
 = Digg Digg v5.3.1 - 03/03/2013 =
 
-* Added: Extra documentation for excluding Digg Digg from certain pages within the FAQ.
+* New: Extra documentation for excluding Digg Digg from certain pages within the FAQ.
 
 * Fixed: Issue with duplicate LinkedIn buttons.
 

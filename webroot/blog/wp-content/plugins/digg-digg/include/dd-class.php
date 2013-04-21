@@ -379,9 +379,9 @@ class DD_Buffer extends BaseDD{
 	
 	var $isEncodeRequired = false;
 	
-	const BASEURL = '<a href="http://bufferapp.com/add" class="buffer-add-button" data-count="VOTE_BUTTON_DESIGN" data-url="VOTE_URL" data-via="VOTE_BUFFER_SOURCE"></a><script type="text/javascript" src="http://static.bufferapp.com/js/button.js"></script>';
+	const BASEURL = '<a href="http://bufferapp.com/add" class="buffer-add-button" data-count="VOTE_BUTTON_DESIGN" data-text="VOTE_TITLE" data-url="VOTE_URL" data-via="VOTE_BUFFER_SOURCE"></a><script type="text/javascript" src="http://static.bufferapp.com/js/button.js"></script>';
 
-	const BASEURL_LAZY = '<a href="http://bufferapp.com/add" class="buffer-add-button" data-count="VOTE_BUTTON_DESIGN" data-url="VOTE_URL" data-via="VOTE_BUFFER_SOURCE"></a>';
+	const BASEURL_LAZY = '<a href="http://bufferapp.com/add" class="buffer-add-button" data-count="VOTE_BUTTON_DESIGN" data-text="VOTE_TITLE" data-url="VOTE_URL" data-via="VOTE_BUFFER_SOURCE"></a>';
 	const BASEURL_LAZY_SCRIPT = "function loadBuffer_POST_ID(){ jQuery(document).ready(function(\$) { \$('.dd-buffer-POST_ID').remove();\$.getScript('http://static.bufferapp.com/js/button.js'); }); }";
 	const SCHEDULER_LAZY_SCRIPT = "window.setTimeout('loadBuffer_POST_ID()',SCHEDULER_TIMER);";
 	const SCHEDULER_LAZY_TIMER = "1000";
@@ -2119,4 +2119,194 @@ class DD_Serpd extends BaseDD{
         parent::BaseDD(self::NAME, self::URL_WEBSITE, self::URL_API, self::BASEURL);
     }    
 }
+
+
+/******************************************************************************************
+ * 
+ * Pocket
+ * 
+ */
+class DD_Pocket extends BaseDD{
+	var $append_type = 'left_float';
+	var $button_design = 'Normal';
+	var $lazy_load = false;
+	
+	const NAME = "Pocket";
+	const URL_WEBSITE = "http://www.getpocket.com";
+	const URL_API = "https://getpocket.com/publisher/button";
+	const DEFAULT_BUTTON_WEIGHT = "93";
+
+	const BASEURL ="<a data-pocket-label=\"pocket\" data-pocket-count=\"VOTE_BUTTON_DESIGN\" data-save-url=\"VOTE_URL\" class=\"pocket-btn\" data-lang=\"en\"></a><script type=\"text/javascript\">!function(d,i){if(!d.getElementById(i)){var j=d.createElement(\"script\");j.id=i;j.src=\"https://widgets.getpocket.com/v1/j/btn.js?v=1\";var w=d.getElementById(i);d.body.appendChild(j);}}(document,\"pocket-btn-js\");</script>";
+	
+	const OPTION_APPEND_TYPE = "dd_pocket_appendType";
+	const OPTION_BUTTON_DESIGN = "dd_pocket_buttonDesign";
+	const OPTION_BUTTON_WEIGHT = "dd_pocket_button_weight";
+	const OPTION_AJAX_LEFT_FLOAT = "dd_pocket_ajax_left_float";
+	const OPTION_LAZY_LOAD = "dd_pocket_lazy_load";
+	
+	const BASEURL_LAZY ="<div class='dd-pocket-ajax-load dd-pocket-POST_ID'></div><a data-pocket-label=\"pocket\" data-pocket-count=\"VOTE_BUTTON_DESIGN\" class=\"pocket-btn\" data-lang=\"en\"></a>";
+	const BASEURL_LAZY_SCRIPT = " function loadPocket_POST_ID(){ jQuery(document).ready(function(\$) { \$('.dd-pocket-POST_ID').remove();\$.getScript('https://widgets.getpocket.com/v1/j/btn.js?v=1'); }); }";
+	const SCHEDULER_LAZY_SCRIPT = "window.setTimeout('loadPocket_POST_ID()',SCHEDULER_TIMER);";
+	const SCHEDULER_LAZY_TIMER = "1000";
+
+	var $buttonLayout = array(
+		"Normal" => "vertical",
+		"Compact" => "horizontal",
+		"No Count" => "none"
+	);
+	
+	var $buttonLayoutLazy = array(
+		"Normal" => "vertical",
+		"Compact" => "horizontal",
+		"No Count" => "none"
+	);
+	
+	var $isEncodeRequired = false;
+	
+	const VOTE_SOURCE = "VOTE_SOURCE";
+	
+    public function DD_Pocket() {
+    	
+		$this->option_append_type = self::OPTION_APPEND_TYPE;
+		$this->option_button_design = self::OPTION_BUTTON_DESIGN;
+		$this->option_button_weight = self::OPTION_BUTTON_WEIGHT;
+		$this->option_ajax_left_float = self::OPTION_AJAX_LEFT_FLOAT;
+		$this->option_lazy_load = self::OPTION_LAZY_LOAD;
+		
+		$this->baseURL_lazy = self::BASEURL_LAZY;
+    	$this->baseURL_lazy_script = self::BASEURL_LAZY_SCRIPT;
+    	$this->scheduler_lazy_script = self::SCHEDULER_LAZY_SCRIPT;
+    	$this->scheduler_lazy_timer = self::SCHEDULER_LAZY_TIMER;
+    	
+		$this->button_weight_value = self::DEFAULT_BUTTON_WEIGHT;
+		
+        parent::BaseDD(self::NAME, self::URL_WEBSITE, self::URL_API, self::BASEURL);
+        
+    }
+    
+    public function constructNormalURL($url, $title, $button, $postId){
+		
+    	$finalURL = $this->baseURL;
+    	$finalURL = str_replace(self::VOTE_BUTTON_DESIGN,$this->getButtonDesign($button),$finalURL);
+    	$finalURL = str_replace(self::VOTE_TITLE,$title,$finalURL);
+    	$finalURL = str_replace(self::VOTE_URL,$url,$finalURL);
+		$finalURL = str_replace(parent::POST_ID,$postId,$finalURL);
+    	$this->finalURL = $finalURL;
+    }
+
+	public function constructLazyLoadURL($url, $title,$button, $postId){
+    	
+    	$finalURL_lazy = $this->baseURL_lazy;
+    	$finalURL_lazy = str_replace(parent::VOTE_URL,$url,$finalURL_lazy);
+    	$finalURL_lazy = str_replace(parent::VOTE_BUTTON_DESIGN,$this->getButtonDesignLazy($button),$finalURL_lazy);
+    	$finalURL_lazy = str_replace(parent::POST_ID,$postId,$finalURL_lazy);
+    	$this->finalURL_lazy = $finalURL_lazy;
+    	
+    	$finalURL_lazy_script = $this->baseURL_lazy_script;
+    	$finalURL_lazy_script = str_replace(parent::POST_ID,$postId,$finalURL_lazy_script);
+    	$this->finalURL_lazy_script = $finalURL_lazy_script;
+    	
+    	$final_scheduler_lazy_script = $this->scheduler_lazy_script;
+    	$final_scheduler_lazy_script = str_replace(parent::SCHEDULER_TIMER,$this->scheduler_lazy_timer,$final_scheduler_lazy_script);
+    	$final_scheduler_lazy_script = str_replace(parent::POST_ID,$postId,$final_scheduler_lazy_script);
+    	$this->final_scheduler_lazy_script =  $final_scheduler_lazy_script;
+    	
+    }
+}
+
+
+
+/******************************************************************************************
+ * 
+ * Tumblr
+ * 
+ */
+class DD_Tumblr extends BaseDD{
+	var $append_type = 'left_float';
+	var $button_design = 'Normal';
+	var $lazy_load = false;
+	
+	const NAME = "Tumblr";
+	const URL_WEBSITE = "http://www.tumblr.com";
+	const URL_API = "http://www.tumblr.com/buttons";
+	const DEFAULT_BUTTON_WEIGHT = "94";
+
+	const BASEURL ='<a href="http://www.tumblr.com/share?link=VOTE_URL" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:61px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a><script src="http://platform.tumblr.com/v1/share.js"></script>';
+	
+	//<a data-pocket-label=\"pocket\" data-pocket-count=\"VOTE_BUTTON_DESIGN\" data-save-url=\"VOTE_URL\" class=\"pocket-btn\" data-lang=\"en\"></a>
+	
+	const OPTION_APPEND_TYPE = "dd_tumblr_appendType";
+	const OPTION_BUTTON_DESIGN = "dd_tumblr_buttonDesign";
+	const OPTION_BUTTON_WEIGHT = "dd_tumblr_button_weight";
+	const OPTION_AJAX_LEFT_FLOAT = "dd_tumblr_ajax_left_float";
+	const OPTION_LAZY_LOAD = "dd_tumblr_lazy_load";
+	
+	const BASEURL_LAZY ='<div class="dd-tumblrajax-load dd-tumblr-POST_ID"></div><a href="http://www.tumblr.com/share?link=VOTE_URL" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:61px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+	const BASEURL_LAZY_SCRIPT = " function loadTumblr_POST_ID(){ jQuery(document).ready(function(\$) { \$('.dd-pocket-POST_ID').remove();\$.getScript('http://platform.tumblr.com/v1/share.js'); }); }";
+	const SCHEDULER_LAZY_SCRIPT = "window.setTimeout('loadTumblr_POST_ID()',SCHEDULER_TIMER);";
+	const SCHEDULER_LAZY_TIMER = "1000";
+
+	var $buttonLayout = array(
+		"Normal" => ""
+	);
+	
+	var $buttonLayoutLazy = array(
+		"Normal" => ""
+	);
+	
+	var $isEncodeRequired = true;
+	
+	const VOTE_SOURCE = "VOTE_SOURCE";
+	
+    public function DD_Tumblr() {
+    	
+		$this->option_append_type = self::OPTION_APPEND_TYPE;
+		$this->option_button_design = self::OPTION_BUTTON_DESIGN;
+		$this->option_button_weight = self::OPTION_BUTTON_WEIGHT;
+		$this->option_ajax_left_float = self::OPTION_AJAX_LEFT_FLOAT;
+		$this->option_lazy_load = self::OPTION_LAZY_LOAD;
+		
+		$this->baseURL_lazy = self::BASEURL_LAZY;
+    	$this->baseURL_lazy_script = self::BASEURL_LAZY_SCRIPT;
+    	$this->scheduler_lazy_script = self::SCHEDULER_LAZY_SCRIPT;
+    	$this->scheduler_lazy_timer = self::SCHEDULER_LAZY_TIMER;
+    	
+		$this->button_weight_value = self::DEFAULT_BUTTON_WEIGHT;
+		
+        parent::BaseDD(self::NAME, self::URL_WEBSITE, self::URL_API, self::BASEURL);
+        
+    }
+    
+    public function constructNormalURL($url, $title, $button, $postId){
+		
+    	$finalURL = $this->baseURL;
+    	$finalURL = str_replace(self::VOTE_BUTTON_DESIGN,$this->getButtonDesign($button),$finalURL);
+    	$finalURL = str_replace(self::VOTE_TITLE,$title,$finalURL);
+    	$finalURL = str_replace(self::VOTE_URL,$url,$finalURL);
+		$finalURL = str_replace(parent::POST_ID,$postId,$finalURL);
+    	$this->finalURL = $finalURL;
+    }
+
+	public function constructLazyLoadURL($url, $title,$button, $postId){
+    	
+    	$finalURL_lazy = $this->baseURL_lazy;
+    	$finalURL_lazy = str_replace(parent::VOTE_URL,$url,$finalURL_lazy);
+    	$finalURL_lazy = str_replace(parent::VOTE_BUTTON_DESIGN,$this->getButtonDesignLazy($button),$finalURL_lazy);
+    	$finalURL_lazy = str_replace(parent::POST_ID,$postId,$finalURL_lazy);
+    	$this->finalURL_lazy = $finalURL_lazy;
+    	
+    	$finalURL_lazy_script = $this->baseURL_lazy_script;
+    	$finalURL_lazy_script = str_replace(parent::POST_ID,$postId,$finalURL_lazy_script);
+    	$this->finalURL_lazy_script = $finalURL_lazy_script;
+    	
+    	$final_scheduler_lazy_script = $this->scheduler_lazy_script;
+    	$final_scheduler_lazy_script = str_replace(parent::SCHEDULER_TIMER,$this->scheduler_lazy_timer,$final_scheduler_lazy_script);
+    	$final_scheduler_lazy_script = str_replace(parent::POST_ID,$postId,$final_scheduler_lazy_script);
+    	$this->final_scheduler_lazy_script =  $final_scheduler_lazy_script;
+    	
+    }
+}
+
+
+
 ?>

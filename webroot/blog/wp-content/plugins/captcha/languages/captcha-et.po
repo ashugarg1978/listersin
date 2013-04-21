@@ -1,0 +1,408 @@
+# Byrial Ole Jensen <byrial@vip.cybercity.dk>, 2011.
+msgid ""
+msgstr ""
+"Project-Id-Version: captcha\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-04-18 13:24+0300\n"
+"PO-Revision-Date: 2013-04-18 13:24+0300\n"
+"Last-Translator: \n"
+"Language-Team: Ahto Tanner <ahto2@moonsoftware.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ET\n"
+"X-Generator: Poedit 1.5.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: captcha.php:31
+msgid "Login form"
+msgstr "Sisselogimisvormil"
+
+#: captcha.php:32
+#, fuzzy
+msgid "Registration form"
+msgstr "Registreerimisvormil"
+
+#: captcha.php:32
+msgid "Register form"
+msgstr "Registreerimisvormil"
+
+#: captcha.php:33
+#, fuzzy
+msgid "Reset Password form"
+msgstr "Kaotatud parooli vormil"
+
+#: captcha.php:33
+msgid "Lost password form"
+msgstr "Kaotatud parooli vormil"
+
+#: captcha.php:34
+msgid "Comments form"
+msgstr "Kommentaarivormil"
+
+#: captcha.php:35
+msgid "Hide CAPTCHA for registered users"
+msgstr "Peida CAPTCHA registreeritud kasutajatele"
+
+#: captcha.php:40
+msgid "Plus (&#43;)"
+msgstr "Pluss (&#43;)"
+
+#: captcha.php:40
+msgid "Plus"
+msgstr "Pluss"
+
+#: captcha.php:41
+msgid "Minus (&minus;)"
+msgstr "Miinus (&minus;)"
+
+#: captcha.php:41
+msgid "Minus"
+msgstr "Miinus"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiplication (&times;)"
+msgstr "Korruta (&times;)"
+
+#: captcha.php:42
+#, fuzzy
+msgid "Multiply"
+msgstr "Korruta (&times;)"
+
+#: captcha.php:47
+msgid "Numbers"
+msgstr "Numbrid"
+
+#: captcha.php:48
+msgid "Words"
+msgstr "Sõnad"
+
+#: captcha.php:102
+msgid "Activated plugins"
+msgstr "Aktiveeritud pluginad"
+
+#: captcha.php:104
+#: captcha.php:112
+#: captcha.php:120
+msgid "Read more"
+msgstr "Loe lisaks"
+
+#: captcha.php:104
+#: captcha.php:224
+#: captcha.php:233
+msgid "Settings"
+msgstr "Seaded"
+
+#: captcha.php:110
+msgid "Installed plugins"
+msgstr "Paigaldatud pluginad"
+
+#: captcha.php:118
+msgid "Recommended plugins"
+msgstr "Soovitavad pluginad"
+
+#: captcha.php:120
+msgid "Download"
+msgstr "Lae alla"
+
+#: captcha.php:120
+#, php-format
+msgid "Install %s"
+msgstr "Paigalda %s"
+
+#: captcha.php:120
+msgid "Install now from wordpress.org"
+msgstr "Paigalda kohe wordpress.org'ist"
+
+#: captcha.php:122
+#, fuzzy
+msgid "If you have any questions, please contact us via plugin@bestwebsoft.com or fill in the contact form on our website"
+msgstr "Kui sul on küsimusi siis kirjuta meile aadressil plugin@bestwebsoft.com või kasuda kontaktilehekülge meie kodulehel"
+
+#: captcha.php:132
+#: captcha.php:296
+#, fuzzy
+msgid "Captcha Settings"
+msgstr "CAPTCHA seaded"
+
+#: captcha.php:132
+msgid "Captcha"
+msgstr "CAPTCHA"
+
+#: captcha.php:234
+msgid "FAQ"
+msgstr "KKK"
+
+#: captcha.php:235
+msgid "Support"
+msgstr "Tugi"
+
+#: captcha.php:279
+#, fuzzy
+msgid "Please select one item in the block Arithmetic and Complexity for CAPTCHA"
+msgstr "Palun vali CAPTCHA jaoks vähemalt üks aritmeetiline operatsioon ja raskusaste"
+
+#: captcha.php:283
+msgid "Options saved."
+msgstr "Seaded salvestatud."
+
+#: captcha.php:302
+#, fuzzy
+msgid "Enable CAPTCHA for:"
+msgstr "Aktiveeri CAPTCHA:"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+msgid "Contact form"
+msgstr "Kontaktivormil"
+
+#: captcha.php:316
+#: captcha.php:318
+#: captcha.php:321
+#, fuzzy
+msgid "(powered by bestwebsoft.com)"
+msgstr "(powered by bestwebsoft.com)"
+
+#: captcha.php:318
+msgid "Activate contact form"
+msgstr "Aktiveeri kontaktivorm"
+
+#: captcha.php:321
+msgid "Download contact form"
+msgstr "Lae kontaktivorm alla"
+
+#: captcha.php:323
+#, fuzzy
+msgid "If you would like to customize this plugin for a custom form, please contact us via <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> or fill in the contact form on our site"
+msgstr "Kui soovite, et valmistame sellest pluginast teie erivajadustele vastava versiooni, siis kontakteeruge e-maili teel <a href=\"Mailto:plugin@bestwebsoft.com\">plugin@bestwebsoft.com</a> või meie veebilehe kontaktivormi kaudu"
+
+#: captcha.php:327
+#, fuzzy
+msgid "Title for CAPTCHA in the form"
+msgstr "Pealkiri CAPTCHA väljale:"
+
+#: captcha.php:331
+msgid "Arithmetic actions for CAPTCHA"
+msgstr "Vali kasutajale nähtavad aritmeetilised operatsioonid:"
+
+#: captcha.php:340
+msgid "CAPTCHA complexity level"
+msgstr ""
+
+#: captcha.php:350
+msgid "Save Changes"
+msgstr "Salvesta muudatused"
+
+#: captcha.php:394
+#: captcha.php:400
+#: captcha.php:565
+#: captcha.php:572
+#: captcha.php:582
+#: captcha.php:589
+msgid "ERROR"
+msgstr "VIGA"
+
+#: captcha.php:394
+#: captcha.php:416
+#: captcha.php:532
+#: captcha.php:565
+#: captcha.php:582
+#: captcha.php:605
+msgid "Please fill the form."
+msgstr ""
+
+#: captcha.php:400
+#: captcha.php:427
+#: captcha.php:572
+#: captcha.php:589
+#, fuzzy
+msgid "Please enter a valid CAPTCHA value."
+msgstr "Palun mine eelmisele lehele tagasi ja lahenda ka matemaatiline tehe."
+
+#: captcha.php:538
+#: captcha.php:612
+#, fuzzy
+msgid "Error: You have entered an incorrect CAPTCHA value. Click the BACK button on your browser, and try again."
+msgstr "Viga: Sisestasid vale matemaatilise tehte vastuse. Palun mine eelmisele lehele tagasi ja paranda viga."
+
+#: captcha.php:627
+#: captcha.php:861
+msgid "zero"
+msgstr "null"
+
+#: captcha.php:628
+#: captcha.php:862
+#: captcha.php:1057
+msgid "one"
+msgstr "üks"
+
+#: captcha.php:629
+#: captcha.php:863
+msgid "two"
+msgstr "kaks"
+
+#: captcha.php:630
+#: captcha.php:864
+msgid "three"
+msgstr "kolm"
+
+#: captcha.php:631
+#: captcha.php:865
+msgid "four"
+msgstr "neli"
+
+#: captcha.php:632
+#: captcha.php:866
+msgid "five"
+msgstr "viis"
+
+#: captcha.php:633
+#: captcha.php:867
+#: captcha.php:1057
+msgid "six"
+msgstr "kuus"
+
+#: captcha.php:634
+#: captcha.php:868
+#: captcha.php:1045
+#: captcha.php:1051
+msgid "seven"
+msgstr "seitse"
+
+#: captcha.php:635
+#: captcha.php:869
+#: captcha.php:1048
+msgid "eight"
+msgstr "kaheksa"
+
+#: captcha.php:636
+#: captcha.php:870
+msgid "nine"
+msgstr "üheksa"
+
+#: captcha.php:639
+#: captcha.php:873
+msgid "eleven"
+msgstr "üketeist"
+
+#: captcha.php:640
+#: captcha.php:874
+msgid "twelve"
+msgstr "kaksteist"
+
+#: captcha.php:641
+#: captcha.php:875
+msgid "thirteen"
+msgstr "kolmteist"
+
+#: captcha.php:642
+#: captcha.php:876
+msgid "fourteen"
+msgstr "neliteist"
+
+#: captcha.php:643
+#: captcha.php:877
+msgid "fifteen"
+msgstr "viisteist"
+
+#: captcha.php:644
+#: captcha.php:878
+msgid "sixteen"
+msgstr "kuusteist"
+
+#: captcha.php:645
+#: captcha.php:879
+msgid "seventeen"
+msgstr "seitseteist"
+
+#: captcha.php:646
+#: captcha.php:880
+msgid "eighteen"
+msgstr "kaheksateist"
+
+#: captcha.php:647
+#: captcha.php:881
+msgid "nineteen"
+msgstr "üheksateist"
+
+#: captcha.php:650
+#: captcha.php:884
+msgid "ten"
+msgstr "kümme"
+
+#: captcha.php:651
+#: captcha.php:885
+msgid "twenty"
+msgstr "kakskümmend"
+
+#: captcha.php:652
+#: captcha.php:886
+msgid "thirty"
+msgstr "kolmkümmend"
+
+#: captcha.php:653
+#: captcha.php:887
+msgid "forty"
+msgstr "nelikümmend"
+
+#: captcha.php:654
+#: captcha.php:888
+msgid "fifty"
+msgstr "viiskümmend"
+
+#: captcha.php:655
+#: captcha.php:889
+msgid "sixty"
+msgstr "kuuskümmend"
+
+#: captcha.php:656
+#: captcha.php:890
+msgid "seventy"
+msgstr "seitsekümmend"
+
+#: captcha.php:657
+#: captcha.php:891
+msgid "eighty"
+msgstr "kaheksakümmend"
+
+#: captcha.php:658
+#: captcha.php:892
+msgid "ninety"
+msgstr "üheksakümmend"
+
+#: captcha.php:745
+#: captcha.php:979
+msgid "and"
+msgstr "ja"
+
+#: captcha.php:764
+#, fuzzy
+msgid "Encryption password is not set"
+msgstr "Dekodeerimisparool on määramata"
+
+#: captcha.php:783
+#, fuzzy
+msgid "Decryption password is not set"
+msgstr "Dekodeerimisparool on määramata"
+
+#~ msgid "Increase"
+#~ msgstr "Suurenda"
+#~ msgid "Difficulty for CAPTCHA"
+#~ msgstr "CAPTCHA raskusaste:"
+#~ msgid "That CAPTCHA was incorrect."
+#~ msgstr "Matemaatilise tehte vastus oli vale."
+#~ msgid "The password of encryption is not set"
+#~ msgstr "Kodeerimisparool on määramata"
+#~ msgid "null"
+#~ msgstr "null"
+#~ msgid "BWS Plugins"
+#~ msgstr "BWS Plugins"
+#~ msgid "Install Now"
+#~ msgstr "Installér nu"
+
