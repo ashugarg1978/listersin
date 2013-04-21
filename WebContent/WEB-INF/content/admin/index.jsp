@@ -19,27 +19,21 @@
     <li><a href="http://listers.in/blog/wp-admin/" target="_blank">Blog</a></li>
     <li><a href="http://zabbix.devweb.in/" target="_blank">Zabbix</a></li>
     <li><a href="http://www.tapatalk.com/forum_owner.php" target="_blank">Tapatalk</a></li>
+    <li><a href="https://www.google.com/search?q=%22ListersIn%22+site:ebay.com" target="_blank">Listed</a></li>
 	</ul>
   
   <table>
     <thead>
       <tr>
-        <th rowspan="2">Email</th>
-        <th rowspan="2">Created</th>
-        <th rowspan="2">Last used</th>
-        <th rowspan="2">Action</th>
-        <th rowspan="2">eBay ID</th>
-        <th colspan="2">Active</th>
-        <th colspan="2">Cmpltd</th>
-        <th colspan="2">Saved</th>
-      </tr>
-      <tr>
+        <th>Email</th>
+        <th>Created</th>
+        <th>Last used</th>
+        <th>Action</th>
+        <th>eBay ID</th>
         <th>P</th>
-        <th>F</th>
-        <th>P</th>
-        <th>F</th>
-        <th>P</th>
-        <th>F</th>
+        <th>Actv</th>
+        <th>Cmpltd</th>
+        <th>Saved</th>
       </tr>
     </thead>
     <tbody>
@@ -58,8 +52,6 @@
 							<a class="delete" href="#" data-id="${_id}">delete</a>
 						</td>
 						<td>-</td>
-						<td align="right">-</td>
-						<td align="right">-</td>
 						<td align="right">-</td>
 						<td align="right">-</td>
 						<td align="right">-</td>
@@ -93,9 +85,7 @@
 							<td align="right"><s:property value="summary.Active.truez"/></td>
 							<td align="right"><s:property value="summary.Active.falsez"/></td>
 							<td align="right"><s:property value="summary.Completed.truez"/></td>
-							<td align="right"><s:property value="summary.Completed.falsez"/></td>
 							<td align="right"><s:property value="summary.empty.truez"/></td>
-							<td align="right"><s:property value="summary.empty.falsez"/></td>
 						</tr>
 	        </s:iterator>
 					

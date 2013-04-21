@@ -166,6 +166,7 @@ public class GetItem extends ApiCall implements Callable {
 		set.put("org", org);
 		set.put("mod", mod);
 		set.put("UserID", userid);
+		set.put("errors", null);
 		
 		update.put("$set", set);
 		update.put("$push", new BasicDBObject("log", new BasicDBObject(timestamp, "Import from eBay")));

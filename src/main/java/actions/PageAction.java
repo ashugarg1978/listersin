@@ -223,7 +223,11 @@ public class PageAction extends BaseAction {
   
   @Action(value="/page/logout", results={@Result(name="success",type="redirect",location="/page/index")})
   public String logout() {
-    
+		
+		db.getCollection("users")
+			.update(new BasicDBObject("email", session.get("email").toString()),
+							new BasicDBObject("$unset", new BasicDBObject("JSESSIONID", "")));
+		
     session.remove("email");
     
     return SUCCESS;
