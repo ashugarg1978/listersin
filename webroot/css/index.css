@@ -220,6 +220,10 @@ input[type=submit] {
   width: 400px;
 }
 
+#ebayannoucement {
+  margin: 20px;
+}
+
 #githubfeed ul {
   list-style: none;
   padding: 0;

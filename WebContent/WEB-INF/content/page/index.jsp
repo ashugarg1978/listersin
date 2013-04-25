@@ -219,6 +219,11 @@
 				
 			</div>
 			
+      <div id="ebayannoucement">
+	      <h2>eBay Announcement</h2>
+        <a href="/ebay-announcement.php">Sellers should check this information.</a>
+      </div>
+        
       <div id="githubfeed">
         
 	      <h2><s:text name="DevelopmentTimeline"/></h2>
