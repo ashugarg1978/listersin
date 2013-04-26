@@ -195,10 +195,10 @@
 		      <input type="text" name="email" size="40"><br /><br />
 		      
 		      <s:text name="Password"/><br />
-		      <input type="text" name="password" size="40"><br /><br />
+		      <input type="password" name="password" size="40"><br /><br />
 		      
 		      <s:text name="ConfirmPassword"/><br />
-		      <input type="text" name="password2" size="40"><br /><br />
+		      <input type="password" name="password2" size="40"><br /><br />
 		      
 		      <div id="signupmessage"></div>
           
