@@ -651,7 +651,8 @@ div.Dimensions {
   display: none;
   margin: 10px;
   padding: 10px;
-  background-color: #ffffcc;
+  background-color: #333;
+	color: #fff;
 }
 
 iframe[name=posttarget] {
