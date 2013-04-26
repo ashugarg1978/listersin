@@ -1510,9 +1510,21 @@ function getrow(idx, row)
 			.html(row.org.ItemID);
 		
 		$('td.EndTime',    dom).html(row.endtime);
-    $('td.WatchCount', dom).html(row.org.WatchCount);
-    $('td.HitCount',   dom).html(row.org.HitCount);
-    $('td.BidCount',   dom).html(row.org.SellingStatus.BidCount);
+		if (row.org.WatchCount != undefined) {
+			$('td.WatchCount', dom).html(row.org.WatchCount);
+		} else {
+			$('td.WatchCount', dom).html('-');
+		}
+		if (row.org.HitCount != undefined) {
+			$('td.HitCount', dom).html(row.org.HitCount);
+		} else {
+			$('td.HitCount', dom).html('-');
+		}
+		if (row.org.SellingStatus.BidCount != undefined) {
+			$('td.BidCount', dom).html(row.org.SellingStatus.BidCount);
+		} else {
+			$('td.BidCount', dom).html('-');
+		}
 	} else {
 		$('a.ItemID',      dom).replaceWith('-');
 		$('td.EndTime',    dom).html('-');
