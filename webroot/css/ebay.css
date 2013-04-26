@@ -168,9 +168,9 @@ table.items {
   border-spacing: 0px;
   border-collapse: collapse;
   
-  border-top: 1px solid #dddddd;
-  border-left: 1px solid #dddddd;
-  border-right: 1px solid #dddddd;
+  border-top: 1px solid #999;
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
   width: 100%;
 }
 
@@ -180,7 +180,7 @@ table.items tr.row1:hover {
 }
 
 table.items tr.row2 {
-  border-bottom: 1px solid #dddddd;
+  border-bottom: 1px solid #999;
 }
 
 tbody#rowloading {
@@ -217,7 +217,7 @@ table.items th a {
 
 #items thead td {
   padding: 1px 5px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #999;
 	font-weight: bold;
 	color: #666;
 	background-color: #ddd;
@@ -225,7 +225,7 @@ table.items th a {
 
 table.items tr.row1 > td {
   /*white-space: nowrap;*/
-  padding: 1px 5px;
+  padding: 5px 5px 2px;
 }
 
 table.items tr.row1 img.PictureURL {
@@ -257,12 +257,7 @@ table.items tr.row2 > td {
 }
 
 td.Title {
-  /*min-width: 300px;*/
-  /*max-width: 400px;*/
-  /*overflow: hidden;*/
-  /*white-space: nowrap;*/
 	word-break: break-all;
-  /*font-weight: bold;*/
 	color: #000;
 }
 
