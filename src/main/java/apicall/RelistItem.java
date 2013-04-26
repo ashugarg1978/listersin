@@ -64,14 +64,17 @@ public class RelistItem extends ApiCall {
     
 		while (cur.hasNext()) {
 			DBObject item = cur.next();
-			DBObject mod = (DBObject) item.get("mod");
-			DBObject org = (DBObject) item.get("org");
-			
+			BasicDBObject mod = (BasicDBObject) item.get("mod");
+			BasicDBObject org = (BasicDBObject) item.get("org");
+      
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
-			mod.put("UUID", uuid);
+			//mod.put("UUID", uuid);
 			mod.put("ItemID", org.get("ItemID").toString());
 			
+      String banner = readfile(basedir + "/data/banner.html");
+      mod.put("Description", mod.getString("Description") + banner);
+      
 			userid = ((BasicDBObject) org.get("Seller")).get("UserID").toString();
 			site   = mod.get("Site").toString();
 			
@@ -150,7 +153,14 @@ public class RelistItem extends ApiCall {
 			} else {
 				log("Class Error:"+errorclass);
 			}
+			
 			upditem.put("errors", errors);
+			
+		} else {
+			
+			/* No error! */
+			upditem.put("errors", null);
+			
 		}
 		
 		BasicDBObject query = new BasicDBObject();
