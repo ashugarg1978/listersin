@@ -15,7 +15,6 @@
 
 <script type="text/javascript" src="/js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/js/jquery.dump.js"></script>
-<script type="text/javascript" src="/js/jwysiwyg/jquery.wysiwyg.js"></script>
 <script type="text/javascript" src="/js/redactor/redactor.min.js"></script>
 
 <script type="text/javascript" src="/js/jquery.timers-1.2.js"></script>
@@ -146,7 +145,8 @@ _gaq.push(['_trackPageview']);
 	    <div id="headerupper" class="clearfix">
 				
 				<div id="headersearchform" class="clearfix">
-					<input id="filtertitle" type="text" class="filter" name="Title" />
+					<input id="filtertitle" type="text" class="filter" name="Title" 
+                 placeholder="<s:text name="SearchItems"/>" />
 					<select name="mod.ListingType" class="filter">
 						<option value="">All Listing Type</option>
 						<option value="Chinese">Online Auction</option>  
@@ -280,22 +280,36 @@ _gaq.push(['_trackPageview']);
 		          </td>
 		        </tr>
 		        <tr>
-		          <th>Expiration</th>
-		          <td>
-			          <div id="settings-expiration"></div>
-		          </td>
-		        </tr>
-		        <tr>
-		          <th>Item limit</th>
-		          <td>
-			          <div id="settings-itemlimit"></div>
-		          </td>
-		        </tr>
-		        <tr>
 		          <th>Time zone</th>
 		          <td>
-			          <select name="TimeZone">
-			          </select>
+<select name="TimeZone">
+  <option value="GMT-12:00">UTC -12:00 (Eniwetok, Kwajalein)</option>
+  <option value="GMT-11:00">UTC -11:00 (Midway Island, Samoa)</option>
+  <option value="GMT-10:00">UTC -10:00 (Hawaii)</option>
+  <option value="GMT-09:00">UTC -09:00 (Alaska)</option>
+  <option value="GMT-08:00">UTC -08:00 (Pacific Time - US &amp; Canada; Tijuana)</option>
+  <option value="GMT-07:00">UTC -07:00 (Mountain Time - US &amp; Canada)</option>
+  <option value="GMT-06:00">UTC -06:00 (Central Time; Central America; Mexico City)</option>
+  <option value="GMT-05:00">UTC -05:00 (Eastern Time - US &amp; Canada; Bogota, Lima)</option>
+  <option value="GMT-04:00">UTC -04:00 (Atlantic Time - Canada; Caracas, Santiago)</option>
+  <option value="GMT-03:00">UTC -03:00 (Greenland, Buenos Aires, Brasilia)</option>
+  <option value="GMT-02:00">UTC -02:00 (Mid-Atlantic)</option>
+  <option value="GMT-01:00">UTC -01:00 (Azores, Cape Verde Is.)</option>
+  <option value="GMT+00:00">UTC -00:00 (GMT, London, Dublin, Casablanca, Edinburgh)</option>
+  <option value="GMT+01:00">UTC +01:00 (Rome, Berlin, Paris, Amsterdam, Stockholm)</option>
+  <option value="GMT+02:00">UTC +02:00 (Athens, Helsinki, Cairo)</option>
+  <option value="GMT+03:00">UTC +03:00 (Moscow, Nairobi, Kuwait)</option>
+  <option value="GMT+04:00">UTC +04:00 (Baku, Abu Dhabi, Tbilisi)</option>
+  <option value="GMT+05:00">UTC +05:00 (Karachi, Islamabad, )</option>
+  <option value="GMT+06:00">UTC +06:00 (Astana, Sri Jayawardenepura)</option>
+  <option value="GMT+07:00">UTC +07:00 (Bangkok, Hanoi, Jakarta, Krasnoyarsk)</option>
+  <option value="GMT+08:00">UTC +08:00 (Hong Kong, Beijing, Singapore, Taipei)</option>
+  <option value="GMT+09:00">UTC +09:00 (Tokyo, Osaka, Seoul, Yakutsk)</option>
+  <option value="GMT+10:00">UTC +10:00 (Sydney, Guam, Melbourne, Brisbane, Hobart)</option>
+  <option value="GMT+11:00">UTC +11:00 (Solomon Is., New Caledonia, Magadan)</option>
+  <option value="GMT+12:00">UTC +12:00 (Fiji, Marshall Is., Kamchatka)</option>
+  <option value="GMT+13:00">UTC +13:00 (Nuku'alofa)</option>
+</select>
 		          </td>
 		        </tr>
 					  <tr style="border-bottom:1px solid #aaa;">
@@ -469,6 +483,10 @@ _gaq.push(['_trackPageview']);
 		        <li>
 			        You will be redirected to eBay sign in page.<br/>
 			        Please sign in to eBay with the account which you want to add to ListersIn.<br/>
+              <div style="color:red;">
+                You don't give your eBay user id and password to ListersIn.<br/>
+                You just allow ListersIn to access eBay data via its API.
+              </div>
 		        </li>
 		        <li>
 			        Click &quot;I agree&quot; button.<br/>
@@ -641,7 +659,7 @@ _gaq.push(['_trackPageview']);
 				        
 				        <span class="CharacteristicsSetsName"></span>
 				        <input name="ProductSearch.QueryKeywords" type="text" size="30" class="remove"/>
-				        <button class="GetProductSearchResults">Search</button>
+				        <button class="GetProductSearchResults"><s:text name="Search"/></button>
 				        <div class="productsearchmessage"></div>
 				        <input name="ProductSearch.CharacteristicSetIDs.ID" type="hidden" class="remove"/>
 				        
@@ -650,16 +668,16 @@ _gaq.push(['_trackPageview']);
 				        
 				        <div class="foundproducts">
                   <div class="close">
-                    <button>Close</button>
+                    <button><s:text name="Close"/></button>
                   </div>
-									<div class="header">Categories</div>
+									<div class="header"><s:text name="Categories"/></div>
                   <ul class="suggestedcategories">
 										<li class="suggestedcategory-template">
 											<input type="radio" name="CategoryID">
 											<label></label>
 										</li>
                   </ul>
-									<div class="header">Products</div>
+									<div class="header"><s:text name="Products"/></div>
                   <ul class="product-list clearfix">
                     <li class="product-template clearfix">
 					            <div class="product-stockphoto">
@@ -672,7 +690,7 @@ _gaq.push(['_trackPageview']);
                       </div>
                     </li>
                   </ul>
-				        </div>
+				        </div><!-- .foundproducts -->
 				        
 				        <input name="mod.ProductListingDetails.ProductID"
 						           type="text" size="15" placeholder="Product ID"/>
@@ -1608,14 +1626,8 @@ _gaq.push(['_trackPageview']);
 var hash;
 hash = ${initjson.hash};
 
-var timezoneids = ${initjson.timezoneids};
-
-var scheduledays = ${initjson.scheduledays};
-
 var mischash = ${initjson.mischash};
 
-//var summary;
-//summary = ${initjson.summary};
 </script>
 
 </body>

@@ -56,12 +56,6 @@ $(function() {
 		$('select[name="mod.Site"]', '#detailtemplate').append(optiontag);
 	});
 	
-	/* scheduledays */
-	$.each(scheduledays, function(k, v) {
-		var optiontag = $('<option />').val(k).html(v);
-		$('select[name="ScheduleTime.date"]', '#detailtemplate').append(optiontag);
-	});
-	
 	$('input[name="datestart"]', '#syncitemsform').val(mischash.datestart);
 	$('input[name="dateend"]', '#syncitemsform').val(mischash.dateend);
 	
@@ -637,22 +631,14 @@ function bindevents()
 	// Settings button
 	$('#settingsbutton').click(function() {
     
-		// setformelements
-		$('select[name=TimeZone]', '#settings').empty();
-		$.each(timezoneids, function(k, v) {
-			//var optiontag = $('<option/>').val(k).text(v);
-			var optiontag = $('<option/>').val(k).text(k);
-			$('select[name=TimeZone]', '#settings').append(optiontag);
-		});
-		
 		$.post('/json/settings',
 			     null,
 			     function(data) {
-				   
+				     
              $('#settings-email').html(data.json.settings.email);
              $('#settings-status').html(data.json.settings.status);
-             $('#settings-expiration').html(data.json.settings.expiration);
-             $('#settings-itemlimit').html(data.json.settings.itemlimit);
+             //$('#settings-expiration').html(data.json.settings.expiration);
+             //$('#settings-itemlimit').html(data.json.settings.itemlimit);
 				     $('select[name=TimeZone]', '#settings').val(data.json.settings.timezone);
              
 				     $('table#setting_ebay_accounts').empty();
