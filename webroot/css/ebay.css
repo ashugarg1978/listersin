@@ -649,10 +649,13 @@ div.Dimensions {
 
 #debug {
   display: none;
-  margin: 10px;
   padding: 10px;
   background-color: #333;
 	color: #fff;
+}
+
+#debug pre {
+  word-break: break-all;
 }
 
 iframe[name=posttarget] {

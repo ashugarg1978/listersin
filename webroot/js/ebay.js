@@ -1715,8 +1715,20 @@ var clickTitle = function() {
      
      item = extract_shippingtype(item);
      
-		 dump(item);
+		 //dump(item);
+		 //return;
+		 
+		 /* Remove unsafe javascript in description */
+		 var tmpdesc = item.mod.Description;
+		 tmpdesc = tmpdesc.replace(/<!--ASW-->[\s\S]+<!--ASW-->/, '');
+		 tmpdesc = tmpdesc.replace(/<!--STARTFROOGALLERY-->.+<!--ENDFROOGALLERY-->/, '');
+		 tmpdesc = 
+			 tmpdesc.replace(/<!-- VENDBASCTCTCTVENDBASCT -->.+<!-- VENDBASCTCTCTVENDBASCT -->/, '');
+		 item.mod.Description = tmpdesc;
      
+		 //dumpvalue(item.mod.Description);
+		 //return;
+		 
 		 rowsdata[id] = item;
 		 
 		 var site = item.mod.Site;
@@ -2032,7 +2044,7 @@ function setformelements_variations(item)
 	var category = hash[item.mod.Site]['Categories']['c'+parentid]['c'+categoryid];
 	
 	/* Recommended names */
-  if (category.CategorySpecifics) {
+  if (category.CategorySpecifics && category.CategorySpecifics.NameRecommendation) {
 		
 		var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
 		var recommkey = new Array();
@@ -2623,7 +2635,7 @@ var changeCategory = function() {
 		 hash[site].Categories = data.json.gc2.Categories;
 		 
 		 var item_modifing =
-			 $('input[type="text"], input:checked, input[type="hidden"], select, textarea', '#'+id)
+			 $('input[type="text"][name^="mod"], input:checked, input[type="hidden"], select[name^="mod"], textarea', '#'+id)
 			 .extractObject();
 		 
 		 item_modifing.id = id;
@@ -3256,6 +3268,12 @@ function dump(o)
 	$('div#debug').html('<pre>'+htmlencoded+'</pre>');
 }
 
+function dumpvalue(value)
+{
+	var htmlencoded = $('<div/>').text(value).html();
+	$('div#debug').html('<pre>'+htmlencoded+'</pre>');
+}
+
 function log(str)
 {
 	$('#log').prepend(str+'<br/>');
@@ -3392,6 +3410,7 @@ function showformvalues(item)
 	
 	/* Description (before replacing textarea)*/
 	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
+	/*
 	var iframe = $('<iframe/>')
 		.attr('id', 'iframe'+item.id)
 		.attr('class', 'description')
@@ -3406,7 +3425,7 @@ function showformvalues(item)
         .css('height', ($('#iframe'+item.id).contents().find('body').height()+20) + 'px');
     }, 2000);
 	});
-	
+	*/
 	/*
 	$('textarea[name="mod.Description"]', detail)
 		.before($('<div/>').attr('id', 'isize'+item.id).html('CLICK'));
@@ -3416,7 +3435,7 @@ function showformvalues(item)
 		$('#iframe'+id).css('height', ($('#iframe'+id).contents().find('body').height()+16)+'px');
 	});
 	*/
-	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	//$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
 	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
@@ -3569,6 +3588,12 @@ function fillformvalues(item)
 		
 		try {
 			eval("var tmpvalue = item"+formname);
+			
+			if (formname == 'mod.Description') {
+				console.log(tmpvalue);
+				//return;
+			}
+
 			$(form).val(tmpvalue);
 		} catch (err) {
 			//$(detail).prepend('ERR: '+err.description+'<br />');
