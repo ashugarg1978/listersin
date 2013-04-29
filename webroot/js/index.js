@@ -14,6 +14,14 @@ function bindevents()
 	/* Sign up button */
 	$('button', '#signupbox').click(function() {
     
+		$('#signupmessage').css('color', 'red').html('');
+		
+		var email = $('input[name="email"]', '#signupbox').val();
+		if (!email.match(/@/)) {
+			$('#signupmessage').css('color', 'red').html('Email is invalid.');
+			return false;
+		}
+		
 		var postdata = $('input', $(this).closest('form')).serialize();
 		
 		$.post('/json/signup',
