@@ -1719,12 +1719,14 @@ var clickTitle = function() {
 		 //return;
 		 
 		 /* Remove unsafe javascript in description */
-		 var tmpdesc = item.mod.Description;
-		 tmpdesc = tmpdesc.replace(/<!--ASW-->[\s\S]+<!--ASW-->/, '');
-		 tmpdesc = tmpdesc.replace(/<!--STARTFROOGALLERY-->.+<!--ENDFROOGALLERY-->/, '');
-		 tmpdesc = 
-			 tmpdesc.replace(/<!-- VENDBASCTCTCTVENDBASCT -->.+<!-- VENDBASCTCTCTVENDBASCT -->/, '');
-		 item.mod.Description = tmpdesc;
+		 if (item.mod.Description != undefined) {
+			 var tmpdesc = item.mod.Description;
+			 tmpdesc = tmpdesc.replace(/<!--ASW-->[\s\S]+<!--ASW-->/, '');
+			 tmpdesc = tmpdesc.replace(/<!--STARTFROOGALLERY-->.+<!--ENDFROOGALLERY-->/, '');
+			 tmpdesc = 
+				 tmpdesc.replace(/<!-- VENDBASCTCTCTVENDBASCT -->.+<!-- VENDBASCTCTCTVENDBASCT -->/, '');
+			 item.mod.Description = tmpdesc;
+		 }
      
 		 //dumpvalue(item.mod.Description);
 		 //return;
