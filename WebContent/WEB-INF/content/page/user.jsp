@@ -1114,14 +1114,6 @@ _gaq.push(['_trackPageview']);
 				      <input name="mod.BuyItNowPrice.#text" type="text" size="10">
 			      </td>
 			    </tr>
-			    <tr>
-			      <th><s:text name="BuyerGuaranteePrice"/></th>
-			      <td>
-				      <input name="mod.BuyerGuaranteePrice.@currencyID"
-					           type="text" size="3" class="aslabel">
-				      <input name="mod.BuyerGuaranteePrice.#text" type="text" size="10">
-			      </td>
-			    </tr>
 		    </tbody>
 		  </table>
 	  </div>
