@@ -154,12 +154,12 @@ public class RelistItem extends ApiCall {
 				log("Class Error:"+errorclass);
 			}
 			
-			upditem.put("errors", errors);
+			upditem.put("err", errors);
 			
 		} else {
 			
 			/* No error! */
-			upditem.put("errors", null);
+			upditem.put("err", null);
 			
 		}
 		
@@ -176,6 +176,7 @@ public class RelistItem extends ApiCall {
 	}
 	
 	// todo: move to super class?
+  /*
 	private int getSiteID(String site) throws Exception {
 
 		Integer siteid = null;
@@ -192,7 +193,8 @@ public class RelistItem extends ApiCall {
 		
 		return siteid;
 	}
-
+  */
+  
 	// todo: not copy from AddItems
 	private void expandElements(JSONObject item) throws Exception {
 		

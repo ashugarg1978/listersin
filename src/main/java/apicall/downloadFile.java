@@ -25,28 +25,35 @@ public class downloadFile extends ApiCall {
 	
 	public String callback(String site) throws Exception {
 		
-		String savedir = basedir+"/logs/apicall/downloadFile";
-		
-		FileDataSource fds = new FileDataSource(savedir+"/"+site+".raw");
-		MimeMultipart mmp = new MimeMultipart(fds);
-		BodyPart bp = mmp.getBodyPart(1);
-		
-		ZipInputStream zis = new ZipInputStream(bp.getInputStream());
-		ZipEntry entry;
-		while ((entry = zis.getNextEntry()) != null) {
-			log("unzip: "+entry+" "+site);
-			int count;
-			byte data[] = new byte[4096];
-			
-			FileOutputStream fos = new FileOutputStream(savedir+"/"+site+".xml");
-			BufferedOutputStream dest = new BufferedOutputStream(fos, 4096);
-			while ((count = zis.read(data, 0, 4096)) != -1) {
-				dest.write(data, 0, count);
-			}
-			dest.flush();
-			dest.close();
-		}
-		zis.close();
+    String savedir = basedir+"/logs/apicall/downloadFile";
+    
+    if ((new File(savedir+"/"+site+".xml")).exists()) {
+      
+      log("already unzipped file exists " + site);
+      
+    } else {      
+      
+      FileDataSource fds = new FileDataSource(savedir+"/"+site+".raw");
+      MimeMultipart mmp = new MimeMultipart(fds);
+      BodyPart bp = mmp.getBodyPart(1);
+      
+      ZipInputStream zis = new ZipInputStream(bp.getInputStream());
+      ZipEntry entry;
+      while ((entry = zis.getNextEntry()) != null) {
+        log("unzip: "+entry+" "+site);
+        int count;
+        byte data[] = new byte[4096];
+        
+        FileOutputStream fos = new FileOutputStream(savedir+"/"+site+".xml");
+        BufferedOutputStream dest = new BufferedOutputStream(fos, 4096);
+        while ((count = zis.read(data, 0, 4096)) != -1) {
+          dest.write(data, 0, count);
+        }
+        dest.flush();
+        dest.close();
+      }
+      zis.close();
+    }
     
 		DBCollection coll = db.getCollection(site+".CategorySpecifics");
 		if (db.collectionExists(site+".CategorySpecifics")) {
@@ -100,6 +107,7 @@ public class downloadFile extends ApiCall {
         //System.out.println(result.getError());
 				
         chunkcount = 0;
+        sb = null;
         sb = new StringBuilder();
 			}
       
@@ -114,7 +122,7 @@ public class downloadFile extends ApiCall {
         + xml
         + "</Root>";
       
-      System.out.println("nodecount:"+nodecount+" chunkcount:"+chunkcount);
+      log("nodecount:"+nodecount+" chunkcount:"+chunkcount);
       
       XMLSerializer xs = new XMLSerializer(); 
       net.sf.json.JSON json = xs.read(xml);

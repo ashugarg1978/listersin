@@ -10,14 +10,16 @@ public class ApiCallMonitor extends ApiCall {
 	}
 	
 	public String call() throws Exception {
-		
-		log("ApiCallMonitor start.");
-		
+    
 		String logstr = "";
 		String logstrprev = "";
+    
+		String memstr = "";
+		String memstrprev = "";
 		
 		while (true) {
-			
+      
+      /* Log */
 			logstr = pool18.getActiveCount()
 				+ " : "+pool18.getCompletedTaskCount()
 				+ " : "+pool18.getTaskCount()
@@ -30,9 +32,21 @@ public class ApiCallMonitor extends ApiCall {
 			if (!logstr.equals(logstrprev)) {
 				log(logstr);
 			}
-			
 			logstrprev = logstr;
-			
+      
+      /* Memory usage */
+      long free  = Runtime.getRuntime().freeMemory()  / 1024 / 1024;
+      long total = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+      long max   = Runtime.getRuntime().maxMemory()   / 1024 / 1024;
+      
+      memstr = "memory " + free + " " + total + " " + max;
+      
+			if (!memstr.equals(memstrprev)) {
+				//log(memstr);
+			}
+			memstrprev = memstr;
+      
+      /* Sleep 1 second */
 			Thread.sleep(1000);
 			
 			if (pool18.isTerminated()) {

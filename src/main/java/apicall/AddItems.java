@@ -2,18 +2,24 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import com.mongodb.util.*;
+
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import javax.xml.XMLConstants;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
+
 import org.bson.types.ObjectId;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -131,15 +137,21 @@ public class AddItems extends ApiCall {
           for (Object tmpidx : litems) {
             
             BasicDBObject mod = (BasicDBObject) ((DBObject) tmpidx).get("mod");
-            String tmpdesc = mod.getString("Description");
-						
+            
+            /* Add banner */
             // todo: avoid duplicate link
 						String banner = readfile(basedir + "/data/banner.html");
+            mod.put("Description", mod.getString("Description") + banner);
 						
-            tmpdesc += banner;
-            
-            mod.put("Description", tmpdesc);
-            
+						/* ScheduleTime */
+						if (mod.containsField("ScheduleTime")) {
+							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:00.000");
+							Date scheduletime = (Date) mod.get("ScheduleTime");
+							String scheduletimestr = sdf.format(scheduletime);
+							scheduletimestr = scheduletimestr.replace(" ", "T") + "Z";
+							mod.put("ScheduleTime", scheduletimestr);
+						}
+						
             itemids[messageid] = ((BasicDBObject) tmpidx).get("_id").toString();
             
             String id = ((BasicDBObject) tmpidx).get("_id").toString();
@@ -268,7 +280,7 @@ public class AddItems extends ApiCall {
           log("Class Error:"+errorclass);
           continue;
         }
-        upditem.put("errors", errors);
+        upditem.put("err", errors);
       }
       
       BasicDBObject query = new BasicDBObject();
@@ -340,6 +352,7 @@ public class AddItems extends ApiCall {
     return;
   }
   
+  /*
   private int getSiteID(String site) throws Exception {
     
     Integer siteid = null;
@@ -356,6 +369,7 @@ public class AddItems extends ApiCall {
     
     return siteid;
   }
+  */
   
   private void expandElements(JSONObject item) throws Exception {
     

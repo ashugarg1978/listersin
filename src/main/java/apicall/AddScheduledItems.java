@@ -26,6 +26,11 @@ public class AddScheduledItems extends ApiCall implements Callable {
 	public String call() throws Exception {
     
     // todo: check running thread.
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    sdf.setLenient(false);
+    
+    Date datefrom = sdf.parse(from);
+    Date dateto   = sdf.parse(to);
     
     DBCollection users = db.getCollection("users");
     DBCursor cursor = users.find().snapshot();
@@ -35,22 +40,20 @@ public class AddScheduledItems extends ApiCall implements Callable {
       DBCollection items = db.getCollection("items."+user.getString("_id"));
       
       BasicDBObject query = new BasicDBObject();
-      query.put("setting.schedule", new BasicDBObject("$gte", from).append("$lte", to));
+      query.put("opt.ScheduleType", "listersin");
+      query.put("opt.ScheduleTime", new BasicDBObject("$gte", datefrom).append("$lte", dateto));
       
-      DBCursor cur = items.find(query).sort(new BasicDBObject("setting.schedule", 1));
-			if (cur.count() == 0) {
-        continue;
-      }
+      DBCursor cur = items.find(query).sort(new BasicDBObject("opt.ScheduleTime", 1));
+			if (cur.count() == 0) continue;
       
-      System.out.println("email:"+user.getString("email"));
+      log("email:" + user.getString("email"));
       while (cur.hasNext()) {
         BasicDBObject item = (BasicDBObject) cur.next();
-        BasicDBObject setting = (BasicDBObject) item.get("setting");
-        System.out.println("schedule: "+setting.getString("schedule")
-                           +" ("+item.getString("UserID")+")");
+        BasicDBObject opt = (BasicDBObject) item.get("opt");
+        log("schedule: "+opt.getString("ScheduleTime")+" ("+item.getString("UserID")+")");
       }
       
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
+      sdf = new SimpleDateFormat("yyyy-MM-dd_hh-mm-ss");
       Date now = new Date();
       String timestamp = sdf.format(now);
       
@@ -61,7 +64,8 @@ public class AddScheduledItems extends ApiCall implements Callable {
       set.put("status", taskid);
       
       BasicDBObject unset = new BasicDBObject();
-      unset.put("setting.schedule", 1);
+      unset.put("opt.ScheduleType", 1);
+      unset.put("opt.ScheduleTime", 1);
       
       BasicDBObject update = new BasicDBObject();
       update.put("$set", set);

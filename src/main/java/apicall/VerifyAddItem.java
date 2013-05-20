@@ -2,18 +2,24 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import com.mongodb.util.*;
+
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import javax.xml.XMLConstants;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
+
 import org.bson.types.ObjectId;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -21,8 +27,8 @@ import org.xml.sax.SAXException;
 public class VerifyAddItem extends ApiCall {
 	
 	private String email;
-	private String userid;
-	private String requestxml;
+	//private String userid;
+	//private String requestxml;
 	private String taskid;
 	
 	public VerifyAddItem() throws Exception {
@@ -56,7 +62,7 @@ public class VerifyAddItem extends ApiCall {
 		/* re-query */
 		query.put("status", taskid+"_processing");
 		
-		List<Future<String>> futures = new ArrayList<Future<String>>();
+		//List<Future<String>> futures = new ArrayList<Future<String>>();
 		
 		/* each item */
 		DBCursor cursor = coll.find(query);
@@ -70,6 +76,18 @@ public class VerifyAddItem extends ApiCall {
 			DBObject item = cursor.next();
 			DBObject mod = (DBObject) item.get("mod");
 			DBObject org = (DBObject) item.get("org");
+			
+			/* ScheduleTime */
+			if (mod.containsField("ScheduleTime")) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:00.000");
+				Date scheduletime = (Date) mod.get("ScheduleTime");
+				String scheduletimestr = sdf.format(scheduletime);
+				scheduletimestr = scheduletimestr.replace(" ", "T") + "Z";
+				mod.put("ScheduleTime", scheduletimestr);
+				
+				log("mod:" + scheduletime);
+				log("mod:" + scheduletimestr);
+			}
 			
 			String userid = item.get("UserID").toString();
 			String site   = mod.get("Site").toString();
@@ -106,7 +124,7 @@ public class VerifyAddItem extends ApiCall {
 			
 			Future<String> future = pool18.submit
 				(new ApiCallTask(userid, getSiteID(site), requestxml, "VerifyAddItem"));
-			future.get();
+			future.get(); // wait
 			
 			//futures.add(future);
 		}
@@ -166,7 +184,7 @@ public class VerifyAddItem extends ApiCall {
 		}
 		
 		WriteResult result = coll.update(new BasicDBObject("_id", new ObjectId(id)),
-										 new BasicDBObject("$set", upditem));
+																		 new BasicDBObject("$set", upditem));
 		
 		return "";
 	}
@@ -198,6 +216,7 @@ public class VerifyAddItem extends ApiCall {
 	}
 
 	// todo: move to super class?
+  /*
 	private int getSiteID(String site) throws Exception {
 
 		Integer siteid = null;
@@ -214,4 +233,5 @@ public class VerifyAddItem extends ApiCall {
 		
 		return siteid;
 	}
+  */
 }

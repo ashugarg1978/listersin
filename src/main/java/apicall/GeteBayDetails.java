@@ -24,9 +24,8 @@ public class GeteBayDetails extends ApiCall {
 		String requestxml = convertDBObject2XML(reqdbo, "GeteBayDetails");
 		Future<String> future = pool18.submit(new ApiCallTask(0, requestxml, "GeteBayDetails"));
 		String responsexml = future.get();
-		
-		DBObject row = db.getCollection("US.eBayDetails")
-            .findOne(null, new BasicDBObject("SiteDetails", 1));
+    
+		DBObject row = db.getCollection("US.eBayDetails").findOne();
 		BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
 		for (Object sitedbo : sitedetails) {
 			

@@ -2,18 +2,24 @@ package ebaytool.apicall;
 
 import com.mongodb.*;
 import com.mongodb.util.*;
+
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
+
 import javax.xml.parsers.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
 import javax.xml.XMLConstants;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
+
 import org.bson.types.ObjectId;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -69,13 +75,21 @@ public class ReviseItem extends ApiCall {
 			String userid = item.get("UserID").toString();
 			String site   = mod.get("Site").toString();
 			
+			/* ScheduleTime */
+			if (mod.containsField("ScheduleTime")) {
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:00.000");
+				Date scheduletime = (Date) mod.get("ScheduleTime");
+				String scheduletimestr = sdf.format(scheduletime);
+				scheduletimestr = scheduletimestr.replace(" ", "T") + "Z";
+				mod.put("ScheduleTime", scheduletimestr);
+			}
+			
 			// todo: don't use user _id for prefix.
 			String uuid = uuidprefix + item.get("_id").toString();
 			uuid = uuid.toUpperCase();
 			mod.put("UUID", uuid);
 			mod.put("ItemID", org.get("ItemID").toString());
-			
-			
+						
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("ErrorLanguage", "en_US");
 			reqdbo.append("WarningLevel", "High");
@@ -154,12 +168,12 @@ public class ReviseItem extends ApiCall {
 				log("Class Error:"+errorclass);
 			}
 			
-			upditem.put("errors", errors);
+			upditem.put("err", errors);
 			
 		} else {
 			
 			/* No error! verified. */
-			upditem.put("errors", null);
+			upditem.put("err", null);
 			
 		}
 		
@@ -196,6 +210,7 @@ public class ReviseItem extends ApiCall {
 	}
 	
 	// todo: move to super class?
+  /*
 	private int getSiteID(String site) throws Exception {
 
 		Integer siteid = null;
@@ -212,4 +227,5 @@ public class ReviseItem extends ApiCall {
 		
 		return siteid;
 	}
+  */
 }

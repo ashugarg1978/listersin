@@ -42,6 +42,7 @@ public class Daemon {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date now = new Date();
 		System.out.println("-------------------------------------------------");
+		System.out.println("timezone:"+TimeZone.getDefault().getDisplayName());
 		System.out.println(sdf.format(now).toString()+" ebaytoold started.");
 		System.out.println(sdf.format(now).toString()+" basedir: "+basedir);
 		System.out.println(sdf.format(now).toString()+" port: "+port);
@@ -70,7 +71,7 @@ public class Daemon {
       
       String[] messages = new String[als.size()];
       messages = (String[]) als.toArray(messages);
-			
+      
       if (!callclass.equals("AddScheduledItems")) {
         System.out.println(sdf.format(new Date()).toString()
                            +" "+callclass+" ("+als.size()+" args)");

@@ -3,6 +3,8 @@ package ebaytool.apicall;
 import com.mongodb.*;
 import java.io.*;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import javax.net.ssl.HttpsURLConnection;
@@ -143,7 +145,13 @@ public class GetItem extends ApiCall implements Callable {
 			convertint(mod, fieldname.toString());
 			convertint(org, fieldname.toString());
 		}
-    
+		
+		BasicDBList datefields = (BasicDBList) configdbo.get("datefield");
+		for (Object fieldname : datefields) {
+			convertdate(mod, fieldname.toString());
+			convertdate(org, fieldname.toString());
+		}
+		
 		/* Remove banner from description */
 		String description = mod.getString("Description");
 		if (description != null) {
@@ -163,10 +171,10 @@ public class GetItem extends ApiCall implements Callable {
 		BasicDBObject update = new BasicDBObject();
 		
 		BasicDBObject set = new BasicDBObject();
+		set.put("UserID", userid);
 		set.put("org", org);
 		set.put("mod", mod);
-		set.put("UserID", userid);
-		set.put("errors", null);
+		set.put("err", null); // to clear past errors.
 		
 		update.put("$set", set);
 		update.put("$push", new BasicDBObject("log", new BasicDBObject(timestamp, "Import from eBay")));
@@ -192,18 +200,6 @@ public class GetItem extends ApiCall implements Callable {
 		/* leaf */
 		if (path.length == 1) {
 			dbo.removeField(path[0]);
-      
-      /* test for int cast (price) */
-      /*
-      log(path[0] + " cast ?");
-      if (path[0].equals("#text")) {
-        String value = dbo.get(path[0]).toString();
-        Float floatval = Float.parseFloat(value);
-        dbo.put(path[0], floatval);
-        log(path[0] + ":" + value);
-      }
-      */
-      
 			return;
 		}
 		
@@ -271,6 +267,43 @@ public class GetItem extends ApiCall implements Callable {
 			}
 		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
 			convertint((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+  
+	private void convertdate(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+    
+		/* leaf */
+		if (path.length == 1) {
+			
+			String value = dbo.get(path[0]).toString();
+			value = value.replace("T", " ").replace(".000Z", "");
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			sdf.setLenient(false);
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Date date = sdf.parse(value);
+			
+      dbo.put(path[0], date);
+			
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertdate((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertdate((DBObject) dbo.get(path[0]), path[1]);
 		}
     
 		return;

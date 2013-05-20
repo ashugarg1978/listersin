@@ -132,6 +132,8 @@ public class ApiCall implements Callable {
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date now = new Date();
+		sdf.setTimeZone(TimeZone.getTimeZone("JST"));
+		
 		System.out.println(sdf.format(now).toString() + " " + message);
     
 		return;
@@ -217,5 +219,21 @@ public class ApiCall implements Callable {
     
     return email;
   }
+  
+  public int getSiteID(String site) throws Exception {
     
+    Integer siteid = null;
+    
+    DBObject row = db.getCollection("US.eBayDetails")
+      .findOne(null, new BasicDBObject("SiteDetails", 1));
+    BasicDBList sitedetails = (BasicDBList) row.get("SiteDetails");
+    for (Object sitedbo : sitedetails) {
+      if (site.equals(((BasicDBObject) sitedbo).getString("Site"))) {
+        siteid = Integer.parseInt(((BasicDBObject) sitedbo).getString("SiteID"));
+        break;
+      }
+    }
+    
+    return siteid;
+  }
 }

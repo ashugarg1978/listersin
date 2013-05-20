@@ -33,6 +33,14 @@ public class GetCategorySpecifics extends ApiCall {
       
 			log("GetCategorySpecifics:"+site);
       
+      String savedir = basedir+"/logs/apicall/downloadFile";
+      if ((new File(savedir+"/"+site+".xml")).exists()) {
+        log("call downloadFile.callback(" + site + ")");
+        downloadFile dlf = new downloadFile();
+        dlf.callback(site);
+        continue;
+      }
+      
 			BasicDBObject reqdbo = new BasicDBObject();
 			reqdbo.append("RequesterCredentials", new BasicDBObject("eBayAuthToken", admintoken));
 			reqdbo.append("WarningLevel", "High");

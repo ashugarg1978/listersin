@@ -164,6 +164,7 @@ public class AddFixedPriceItem extends ApiCall {
 	}
 	
 	// todo: move to super class?
+  /*
 	private int getSiteID(String site) throws Exception {
 
 		Integer siteid = null;
@@ -180,6 +181,7 @@ public class AddFixedPriceItem extends ApiCall {
 		
 		return siteid;
 	}
+  */
 
 	// todo: not copy from AddItems
 	private void expandElements(JSONObject item) throws Exception {

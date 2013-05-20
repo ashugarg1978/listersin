@@ -7,6 +7,7 @@ import java.util.concurrent.*;
 
 public class FindProducts extends ApiCall {
 	
+	private String site;
 	private String findtype;
 	private String keyword;
 	
@@ -14,8 +15,9 @@ public class FindProducts extends ApiCall {
 	}
 	
 	public FindProducts(String[] args) throws Exception {
-		this.findtype = args[0];
-		this.keyword  = args[1];
+		this.site     = args[0];
+		this.findtype = args[1];
+		this.keyword  = args[2];
 	}
 	
 	public String call() throws Exception {
@@ -23,9 +25,8 @@ public class FindProducts extends ApiCall {
 		/* Read from cache file */
 		if (findtype.equals("QueryKeywords")) {
 			String cachefile = basedir + "/logs/apicall/FindProducts";
-			cachefile += "/" + findtype + "." + keyword + ".xml";
+			cachefile += "/" + site + "." + findtype + "." + keyword + ".xml";
 			if ((new File(cachefile)).exists()) {
-				log("read from cache");
 				String responsexml = readfile(cachefile);
 				return responsexml;
 			}
@@ -36,8 +37,8 @@ public class FindProducts extends ApiCall {
 		//reqdbo.append("WarningLevel", "High");
 		//reqdbo.append("DetailLevel",  "ReturnAll");
 		reqdbo.append("IncludeSelector", "DomainHistogram");
-		reqdbo.append("MaxEntries",   "20");
-		reqdbo.append("MessageID",    findtype+"."+keyword);
+		reqdbo.append("MaxEntries", "20");
+		reqdbo.append("MessageID", site + "." + findtype + "." + keyword);
 		
 		if (findtype.equals("QueryKeywords")) {
 			
@@ -53,8 +54,10 @@ public class FindProducts extends ApiCall {
 			reqdbo.append("ProductID", productid);
 		}
 		
+		int siteid = getSiteID(site);
+		
 		String requestxml = convertDBObject2XML(reqdbo, "FindProducts");
-		Future<String> future = pool18.submit(new ApiCallTask3(0, requestxml, "FindProducts"));
+		Future<String> future = pool18.submit(new ApiCallTask3(siteid, requestxml, "FindProducts"));
 		String result = future.get();
 		
 		writelog("FindProducts/req.xml", requestxml);
