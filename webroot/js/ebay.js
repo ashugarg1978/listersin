@@ -39,7 +39,7 @@ $(function() {
   }
 	
 	$('select[name=sortfield]', '#hiddenforms').val('org.ListingDetails.EndTime');
-	$('td.EndTime span.arrow', '#items > thead').html('<img src="/icon/03/10/34.png" />');
+	$('div.EndTime span.arrow', '#items > thead').html('<img src="/icon/03/10/34.png" />');
 	$('input[name=limit]', '#toolbar').val(30);
 	
 	resizediv();
@@ -155,8 +155,9 @@ function bindevents()
 		event.stopPropagation();
 	});
 	
-	$('#items').on('change', 'select[name="mod.Site"]', changeSite);
-	$('#items').on('change', 'select.category', changeCategory);
+	$('#items').on('change', 'select[name="mod.Site"]',  changeSite);
+	$('#items').on('change', 'select.primarycategory',   changeCategory);
+	$('#items').on('change', 'select.secondarycategory', changeCategory);
 	
 	$('#items').on('click', 'div.editbuttons button.edit',   clickEdit);
 	$('#items').on('click', 'div.editbuttons button.save',   save);
@@ -563,9 +564,8 @@ function bindevents()
 			 dump(data);
 			 hash[site].Categories = data.json.gc2.Categories;
 			 
-			 //var tmppath = categorypath.split(',');
-			 var tmppds = getcategorypulldowns(site, tmppath);
-			 $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
+			 var pds = getcategorypulldowns(site, tmppath);
+			 $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).parent().html(pds);
 			 
 			 var item_modifing =
 				 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -770,6 +770,7 @@ function bindevents()
 			 hash[site].eBayDetails      = data.json.eBayDetails;
 			 hash[site].Categories       = data.json.Categories;
 			 hash[site].CategoryFeatures = data.json.CategoryFeatures;
+			 hash[site].SecondaryCategories = $.extend({}, data.json.Categories);
 			 
 			 var item_modifing =
 				 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -789,7 +790,7 @@ function bindevents()
 			 $('input[name="mod.Quantity"]',         '#'+id).val('1');
 			 $('select[name="mod.Country"]',         '#'+id).val('US');
 			 
-			 $('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
+			 $('input[name="mod.ScheduleTime"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
 			 
 			 return;
 		 });
@@ -977,7 +978,7 @@ function bindevents()
 		items(true);
   });
 	
-	$('#items').on('click', 'thead td', function() {
+	$('#items').on('click', 'thead td > div', function() {
 		
 		var sortfield = $(this).attr('data-field');
 		if (sortfield == undefined) return;
@@ -993,7 +994,7 @@ function bindevents()
 			$('select[name=sortfield]', '#hiddenforms').val(sortfield);
 			$('select[name=sortorder]', '#hiddenforms').val(1);
 		}
-
+		
 		if ($('select[name=sortorder]', '#hiddenforms').val() == 1) {
 			$('span.arrow', $(this)).html('<img src="/icon/03/10/34.png" />');
 		} else if ($('select[name=sortorder]', '#hiddenforms').val() == -1) {
@@ -1164,6 +1165,8 @@ var findproducts = function() {
 	$('li.suggestedcategory-template', td).nextAll().remove();
 	$('li.product-template',    td).nextAll().remove();
   
+	var site = $('select[name="mod.Site"]', '#'+id).val();
+  
 	var keyword = $('input[name="ProductSearch.QueryKeywords"]', td).val();
   if (keyword == '') {
     $('div.productsearchmessage', td).html('Please input keyword.');
@@ -1173,7 +1176,7 @@ var findproducts = function() {
   $('div.productsearchmessage', td).html('<img src="/img/indicator.gif"/> Searching...');
 	
 	$.post('/json/findproducts',
-		     'findtype=QueryKeywords&keyword=' + encodeURIComponent(keyword),
+		     'site=' + site + '&findtype=QueryKeywords&keyword=' + encodeURIComponent(keyword),
 		     function(data) {
            
            if (data.json.result.Ack == 'Failure') {
@@ -1504,36 +1507,39 @@ function getrow(idx, row)
 	  $('td.Title', dom).html('(empty title)');
   }
 	
+	$('td.Quantity', dom).html(row.mod.Quantity);
+	
+	if (row.schedule_local) {
+		$('div.StartTime', dom).html('<img src="/icon/02/10/37.png"/> ' + row.schedule_local);
+	}
 	if (row.org) {
-		$('a.ItemID', dom)
-			.attr('href', row.org.ListingDetails.ViewItemURL)
-			.html(row.org.ItemID);
 		
-		$('td.EndTime',    dom).html(row.endtime);
+		$('a.ItemID', dom).attr('href', row.org.ListingDetails.ViewItemURL).html(row.org.ItemID);
+		$('div.EndTime', dom).html(row.endtime);
+		
 		if (row.org.WatchCount != undefined) {
-			$('td.WatchCount', dom).html(row.org.WatchCount);
-		} else {
-			$('td.WatchCount', dom).html('-');
+			$('div.WatchCount', dom).html(row.org.WatchCount);
 		}
 		if (row.org.HitCount != undefined) {
-			$('td.HitCount', dom).html(row.org.HitCount);
-		} else {
-			$('td.HitCount', dom).html('-');
+			$('div.HitCount', dom).html(row.org.HitCount);
 		}
 		if (row.org.SellingStatus.BidCount != undefined) {
-			$('td.BidCount', dom).html(row.org.SellingStatus.BidCount);
-		} else {
-			$('td.BidCount', dom).html('-');
+			$('div.BidCount', dom).html(row.org.SellingStatus.BidCount);
 		}
+		if (row.org.SellingStatus.QuantitySold > 0) {
+			$('div.SoldCount', dom).html(row.org.SellingStatus.QuantitySold);
+		}
+		
 	} else {
-		$('a.ItemID',      dom).replaceWith('-');
-		$('td.EndTime',    dom).html('-');
-    $('td.WatchCount', dom).html('-');
-    $('td.HitCount',   dom).html('-');
-    $('td.BidCount',   dom).html('-');
+		
+		$('a.ItemID', dom).replaceWith('-');
+		
 	}
   
-	$('td.price', dom).html(row.price);
+	$('div.StartPrice', dom).html(row.price);
+	if (row.price != row.currentprice) {
+		$('div.CurrentPrice', dom).html(row.currentprice);
+	}
 	
 	/* status(loading icon) */
 	if (typeof(row.status) == 'string' && row.status != '') {
@@ -1578,12 +1584,14 @@ function getrow(idx, row)
 	$('input:checkbox', dom).val(id);
 	*/
 	
-	$('td.UserID', dom).html(row.UserID);
+	$('div.UserID', dom).html(row.UserID);
 	
 	/* status icon */
 	var src = '/icon/04/10/10.png';
 	if (row.org) {
-		if (row.org.SellingStatus.ListingStatus == 'Active') {
+		if (row.schedule_local) {
+			src = '/icon/02/10/37.png';
+		} else if (row.org.SellingStatus.ListingStatus == 'Active') {
 			src = '/icon/04/10/02.png';
 		} else if (row.org.SellingStatus.ListingStatus == 'Completed') {
 			src = '/icon/04/10/10.png';
@@ -1594,8 +1602,8 @@ function getrow(idx, row)
 	if (row.status) {
 		$('td.Title', dom).append('<br/><span class="status">'+row.status+'</span>');
 	}
-	if (row.errors) {
-		$.each(row.errors, function(k, v) {
+	if (row.err) {
+		$.each(row.err, function(k, v) {
 			if (v != '') {
 				if (v.SeverityCode == 'Warning') {
 					//$('td.Title', dom).append('<br/>');
@@ -1615,73 +1623,17 @@ function getrow(idx, row)
 		$('td.Title', dom).append(row.message);
 	}
   
-  /* MemberMessages (AskSellerQuestion)*/
-	/*
-  if (row.membermessages) {
-    $.each(row.membermessages, function(idx, mme) {
-      if (mme.MessageStatus != 'Unanswered') return;
-      
-      var div = $('<div/>')
-        .css('color', '#a33')
-        .html('[' + mme.Question.SenderID + '] ' + mme.Question.Body);
-      
-			$('td.Title', dom).append(div);
-    });
-  }
-  */
-	
-  /* Org */
-	if (row.org) {
-		if (row.org.SellingStatus.QuantitySold > 0) {
-			var soldtag = $('<div/>')
-        .addClass('soldlabel')
-				.html(row.org.SellingStatus.QuantitySold+' sold!');
-			$('td.Title', dom).append(soldtag);
-		}
-    /*
-		if (row.org.ListingDetails.HasUnansweredQuestions == 'true') {
-			var huqtag = $('<div/>')
-        .addClass('questionlabel')
-				.html('Unanswered');
-			$('td.Title', dom).append(huqtag);
-		}
-    */
-	}
-	
-  /*
-  if (row.scheduled) {
-	  if (row.scheduled) {
-		  $('td.EndTime', dom).html('<img src="/icon/02/10/03.png"> '+row.scheduled);
-    }
-	}
-  */
-  
-  if (row.setting) {
-
-    /* Schedule */
-    if (row.setting.schedule_local) {
-	    var label = $('<div/>')
-        .addClass('normallabel')
-				.html('Schedule ' + row.setting.schedule_local);
+	/* Opt */
+  if (row.opt) {
+    /* Auto Relist Label */
+    if (row.opt.AutoRelist) {
+		  if (row.opt.AutoRelistAddBestOffer) {
+	      var label = $('<div/>').addClass('normallabel').html('Auto Relist With Best Offer');
+      } else {
+	      var label = $('<div/>').addClass('normallabel').html('Auto Relist');
+      }
 			$('td.Title', dom).append(label);
     }
-    
-    /* Auto Relist Label */
-    if (row.setting.autorelist) {
-      if (row.setting.autorelist.enabled == 'on') {
-		    if (row.setting.autorelist.addbestoffer) {
-	        var label = $('<div/>')
-            .addClass('normallabel')
-				    .html('Auto Relist With Best Offer');
-        } else {
-	        var label = $('<div/>')
-            .addClass('normallabel')
-				    .html('Auto Relist');
-        }
-			  $('td.Title', dom).append(label);
-      }
-    }
-    
   }
 	
 	return dom;
@@ -1715,7 +1667,7 @@ var clickTitle = function() {
      
      item = extract_shippingtype(item);
      
-		 //dump(item);
+		 dump(item);
 		 //return;
 		 
 		 /* Remove unsafe javascript in description */
@@ -1741,6 +1693,7 @@ var clickTitle = function() {
 		 hash[site].CategoryFeatures    = data.json.CategoryFeatures;
 		 hash[site].ThemeGroup          = data.json.ThemeGroup;
 		 hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+		 hash[site].SecondaryCategories = data.json.SecondaryCategories;
 		 
      //setmembermessageform(item);
      
@@ -1806,24 +1759,33 @@ function setformelements(item)
 	//$('input[name$="@currencyID"]', '#'+id).val(tmpcurval);
 	
 	/* Categories */
-	var tmppc = hash[site].Categories;
-	
 	if (item.categorypath) {
-		
 	} else {
 		item.categorypath = [];
 	}
-	if (item.categorypath) {
+	
+	var tmppath = item.categorypath.slice(0); // just copy?
+	tmppath.unshift(0);
+	
+	var pds = getcategorypulldowns(site, tmppath);
+	$('td.primarycategory', '#'+id).html(pds);
+	
+	/* Secondary Category */
+	if (item.secondarycategorypath) {
 		
-		var tmppath = item.categorypath.slice(0); // just copy?
-		tmppath.unshift(0);
-		
-		var tmppds = getcategorypulldowns(site, tmppath);
-		$('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).parent().html(tmppds);
-		
-		if (item.categorypath.length >= 2) {
-			tmppc = tmppc['c'+item.categorypath[item.categorypath.length-2]];
-		}
+	} else {
+		item.secondarycategorypath = [];
+	}
+	
+	var tmppath = item.secondarycategorypath.slice(0); // just copy?
+	tmppath.unshift(0);
+	
+	var pds = getsecondarycategorypulldowns(site, tmppath);
+	$('td.secondarycategory', '#'+id).html(pds);
+	
+	var tmppc = hash[site].Categories;
+	if (item.categorypath.length >= 2) {
+		tmppc = tmppc['c'+item.categorypath[item.categorypath.length-2]];
 	}
 	
 	$('select[name="mod.ConditionID"]', '#'+id).empty();
@@ -1879,7 +1841,7 @@ function setformelements(item)
 		$('select[name="mod.ConditionID"]', '#'+id).append(optiontag);
 		
 	}
-
+	
 	/* Variations */
 	setformelements_variations(item);
 	
@@ -2035,6 +1997,9 @@ function setformelements(item)
 
 function setformelements_variations(item)
 {
+	// reset form elements
+	//$('table.Variations tbody tr:gt(0)', '#'+item.id).remove();
+	
 	// todo: hide forms
 	if (item.mod.PrimaryCategory == undefined) {
 		return;
@@ -2049,6 +2014,7 @@ function setformelements_variations(item)
   if (category.CategorySpecifics && category.CategorySpecifics.NameRecommendation) {
 		
 		var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
+    
 		var recommkey = new Array();
 		for (i in recomm) {
 			recommkey[recomm[i].Name] = i;
@@ -2620,28 +2586,52 @@ var changeCategory = function() {
 	
 	var id = $(this).closest('tbody.itemrow').attr('id');
 	var site = $('select[name="mod.Site"]', '#'+id).val();
+  var td = $(this).closest('td');
+	var tdclass = $(td).attr('class');
 	
 	$(this).nextAll().remove();
-	$('select.category:last', '#'+id).attr('name', 'mod.PrimaryCategory.CategoryID');
+	if (tdclass == 'secondarycategory') {
+		$('select:last', td).attr('name', 'mod.SecondaryCategory.CategoryID');
+	} else {
+		$('select:last', td).attr('name', 'mod.PrimaryCategory.CategoryID');
+	}
 	
-	var categorypulldowns = $('select.category', '#'+id).get();
-	var categorypath = new Array();
-	for (node in categorypulldowns) {
-		categorypath.push(categorypulldowns[node].value);
+	var primarycategorypulldowns = $('td.primarycategory select', '#'+id).get();
+	var primarycategorypath = new Array();
+	for (node in primarycategorypulldowns) {
+		primarycategorypath.push(primarycategorypulldowns[node].value);
+	}
+	
+	var secondarycategorypulldowns = $('td.secondarycategory select', '#'+id).get();
+	var secondarycategorypath = new Array();
+	for (node in secondarycategorypulldowns) {
+		secondarycategorypath.push(secondarycategorypulldowns[node].value);
+	}
+	
+	var joined;
+	if (tdclass == 'secondarycategory') {
+		joined = secondarycategorypath.join('.');
+	} else {
+		joined = primarycategorypath.join('.');
 	}
 	
 	$.getJSON
-	('/json/gc2?site='+site+'&path=0.'+categorypath.join('.'),
+	('/json/gc2?site='+site+'&path=0.'+joined,
 	 function(data) {
 		 
-		 hash[site].Categories = data.json.gc2.Categories;
+		 if (tdclass == 'secondarycategory') {
+			 hash[site].SecondaryCategories = data.json.gc2.Categories;
+		 } else {
+			 hash[site].Categories = data.json.gc2.Categories;
+		 }
 		 
 		 var item_modifing =
 			 $('input[type="text"][name^="mod"], input:checked, input[type="hidden"], select[name^="mod"], textarea', '#'+id)
 			 .extractObject();
 		 
 		 item_modifing.id = id;
-		 item_modifing.categorypath = categorypath;
+		 item_modifing.categorypath = primarycategorypath;
+		 item_modifing.secondarycategorypath = secondarycategorypath;
 		 
 		 setformelements(item_modifing);
 		 fillformvalues(item_modifing);
@@ -2680,6 +2670,9 @@ var clickEdit = function() {
 		convertDivs: false,
 		convertLinks: false
 	});
+	
+	//$('input[name="mod.ScheduleTime"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
+	$('input[name="mod.ScheduleTime"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
 	
 	showbuttons(dom, 'save,cancel');
 	
@@ -2770,7 +2763,7 @@ var save = function() {
 		if (fvalue == '') $(o).remove();
 	});
   
-	var postdata = $('input[type=text], input:checked, input[type=hidden], input[type=datetime-local], select, textarea', '#'+id).extractObject();
+	var postdata = $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id).extractObject();
   
   // merge shippingtype domestic and international
   var dmsttype = '';
@@ -2893,6 +2886,7 @@ var save = function() {
 			     hash[site].CategoryFeatures    = data.json.CategoryFeatures;
 			     hash[site].ThemeGroup          = data.json.ThemeGroup;
 			     hash[site].DescriptionTemplate = data.json.DescriptionTemplate;
+					 hash[site].SecondaryCategories = $.extend({}, data.json.Categories);
 			     
            
 					 var detail = $('div.detail', 'div#detailtemplate').clone();
@@ -2993,6 +2987,7 @@ var changeSite = function() {
 		 hash[site].eBayDetails      = data.json.eBayDetails;
 		 hash[site].Categories       = data.json.Categories;
 		 hash[site].CategoryFeatures = data.json.CategoryFeatures;
+		 hash[site].SecondaryCategories = $.extend({}, data.json.Categories);
 		 
 		 var item_modifing =
 			 $('input[type=text], input:checked, input[type=hidden], select, textarea', '#'+id)
@@ -3045,24 +3040,6 @@ function setmembermessageform(id, item)
   return;
 }
 
-function getcategorypulldown(site, categoryid)
-{
-	var sel = $('<select class="category"/>');
-	var opt = $('<option/>').val('').text('');
-	sel.append(opt);
-  
-	$.each(hash[site]['category']['children'][categoryid], function(i, childid) {
-    
-		var str = hash[site]['category']['name'][childid];
-		str += '('+childid+')';
-		if (hash[site]['category']['children'][childid] != 'leaf') str += ' &gt;';
-		opt = $('<option/>').val(childid).html('old|'+str);
-		sel.append(opt);
-	});
-	
-	return sel;
-}
-
 function getcategorypulldowns(site, path)
 {
 	var wrapper = $('<div/>');
@@ -3072,7 +3049,7 @@ function getcategorypulldowns(site, path)
 		var categoryid = path[i];
 		if (hash[site].Categories['c'+categoryid] == undefined) break;
 		
-		var selecttag = $('<select class="category"/>').attr('name', 'categorypath.'+i);
+		var selecttag = $('<select class="primarycategory"/>').attr('name', 'categorypath.'+i);
 		var optiontag = $('<option/>').val('').text('');
 		selecttag.append(optiontag);		
 		
@@ -3092,10 +3069,47 @@ function getcategorypulldowns(site, path)
 		$(form).val(path[i+1]);
 	});
 	
-	$('select.category:last', wrapper).attr('name', 'mod.PrimaryCategory.CategoryID');
+	$('select:last', wrapper).attr('name', 'mod.PrimaryCategory.CategoryID');
 	
 	return wrapper.children();
 }
+
+function getsecondarycategorypulldowns(site, path)
+{
+	var wrapper = $('<div/>');
+	
+	for (i in path) {
+		
+		var categoryid = path[i];
+		if (hash[site].SecondaryCategories['c'+categoryid] == undefined) break;
+		
+		var selecttag = $('<select class="secondarycategory"/>')
+			.attr('name', 'secondarycategorypath.'+i);
+		var optiontag = $('<option/>').val('').text('');
+		selecttag.append(optiontag);		
+		
+		for (childid in hash[site]['SecondaryCategories']['c'+categoryid]) {
+			var child = hash[site]['SecondaryCategories']['c'+categoryid][childid];
+			var value = childid.replace(/^c/, '');
+			var label = child.name;
+			if (child.children > 0) label += ' &gt;';
+			optiontag = $('<option/>').val(value).html(label);
+			selecttag.append(optiontag);		
+		}
+		
+		wrapper.append(selecttag);
+	}
+	
+	$.each($('select', wrapper), function(i, form) {
+		$(form).val(path[i+1]);
+	});
+	
+	$('select:last', wrapper).attr('name', 'mod.SecondaryCategory.CategoryID');
+	
+	return wrapper.children();
+}
+
+
 
 function refresh()
 {
@@ -3267,12 +3281,6 @@ function msg(o)
 function dump(o)
 {
 	var htmlencoded = $('<div/>').text($.dump(o)).html();
-	$('div#debug').html('<pre>'+htmlencoded+'</pre>');
-}
-
-function dumpvalue(value)
-{
-	var htmlencoded = $('<div/>').text(value).html();
 	$('div#debug').html('<pre>'+htmlencoded+'</pre>');
 }
 
@@ -3584,7 +3592,7 @@ function fillformvalues(item)
 	}
 	
 	// input, text, textarea
-	$.each($('input[type="text"][name^="mod"], input[type="hidden"][name^="mod"], input[type=datetime-local], select, textarea[name^="mod"]', '#'+id), function(i, form) {
+	$.each($('input[type="text"][name^="mod"], input[type="hidden"][name^="mod"], select, textarea[name^="mod"]', '#'+id), function(i, form) {
 		var formname = $(form).attr('name');
 		formname = "['" + formname.replace(/\./g, "']['") + "']";
 		
@@ -3648,8 +3656,7 @@ function fillformvalues(item)
 	
 	/* Pictures (duplicate code with showformvalues().) */
 	if (item.mod.PictureDetails && item.mod.PictureDetails.PictureURL) {
-		item.mod.PictureDetails.PictureURL
-			= arrayize(item.mod.PictureDetails.PictureURL);
+		item.mod.PictureDetails.PictureURL = arrayize(item.mod.PictureDetails.PictureURL);
 		
 		$.each($(item.mod.PictureDetails.PictureURL), function (i, url) {
 			var lidiv = $('ul.pictures li:first', '#'+id).clone();
@@ -3688,7 +3695,7 @@ function fillformvalues(item)
 		$('ul.variationpictures', '#'+id).sortable({items: 'li.pictureli'});
   }
 	
-  $('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
+  //$('input[name="setting.schedule_local"]', '#'+id).datetimepicker({dateFormat: 'yy-mm-dd'});
 	
 	return;
 }
@@ -3718,6 +3725,8 @@ function setformelements_itemspecifics(item)
 	}
 	
   if (category.CategorySpecifics == undefined) return;
+  if (category.CategorySpecifics.NameRecommendation == undefined) return;
+  
 	var recomm = arrayize(category.CategorySpecifics.NameRecommendation);
 	
 	var specificskey = new Array();

@@ -348,7 +348,6 @@ public class JsonAction extends BaseAction {
 		return SUCCESS;
 	}
 	
-	
 	@Action(value="/json/items")
 	public String items() throws Exception {
 		
@@ -386,27 +385,31 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject field = new BasicDBObject();
 		
-		field.put("status",                          1);
-		field.put("setting",                         1);
-		field.put("errors",                          1);
-		field.put("message",                         1);
+		field.put("err",                             1);
 		field.put("membermessages",                  1);
+		field.put("message",                         1);
+		field.put("opt",                             1);
+		field.put("status",                          1);
 		field.put("UserID",                          1);
 		
-		field.put("mod.Title",                       1);
 		field.put("mod.ListingType",                 1);
-		field.put("mod.Site",                        1);
-		field.put("mod.StartPrice",                  1);
 		field.put("mod.PictureDetails.GalleryURL",   1);
 		field.put("mod.PictureDetails.PictureURL",   1);
-    
+		field.put("mod.Quantity",                    1);
+		field.put("mod.ScheduleTime",                1);
+		field.put("mod.Site",                        1);
+		field.put("mod.StartPrice",                  1);
+		field.put("mod.Title",                       1);
+		
 		field.put("org.HitCount",                    1);
 		field.put("org.ItemID",                      1);
 		field.put("org.ListingDetails.EndTime",      1);
 		field.put("org.ListingDetails.HasUnansweredQuestions",  1);
+		field.put("org.ListingDetails.StartTime",    1);
 		field.put("org.ListingDetails.ViewItemURL",  1);
 		field.put("org.Seller.UserID",               1);
 		field.put("org.SellingStatus.BidCount",      1);
+		field.put("org.SellingStatus.CurrentPrice",  1);
 		field.put("org.SellingStatus.ListingStatus", 1);
 		field.put("org.SellingStatus.QuantitySold",  1);
 		field.put("org.TimeLeft",                    1);
@@ -473,7 +476,9 @@ public class JsonAction extends BaseAction {
 			
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
-			
+      
+      BasicDBObject tmp = new BasicDBObject();
+      
 			String id = item.get("_id").toString();
 			
 			/* StartPrice */
@@ -489,7 +494,7 @@ public class JsonAction extends BaseAction {
 					item.put("price", "(error)");
 				}
 			}
-      
+			
       /* scheduled time */
       if (item.containsField("setting")) {
 				if (((DBObject) item.get("setting")).containsField("schedule")) {
@@ -500,7 +505,7 @@ public class JsonAction extends BaseAction {
           sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
           
 					Date scheduletime = sdf.parse(schedule);
-          
+					
 					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
           sdf.applyPattern("yyyy-MM-dd HH:mm");
           
@@ -508,38 +513,98 @@ public class JsonAction extends BaseAction {
         }
       }
       
-			if (item.containsField("org")) {
+      /* ScheduleTime */
+      if (mod.containsField("ScheduleTime")) {
+        
+        /* Scheduled on eBay but not submitted yet */
+        Date scheduletime = (Date) mod.get("ScheduleTime");
+        
+        sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+        sdf.applyPattern("MMM d HH:mm");
+        tmp.put("ScheduleTime", sdf.format(scheduletime));
+        
+      } else if (item.containsField("org")) {
 				
 				DBObject org = (DBObject) item.get("org");
-                
-				/* endtime */
-				if (((DBObject) org.get("ListingDetails")).containsField("EndTime")) {
-          
+				BasicDBObject listingdetails = (BasicDBObject) org.get("ListingDetails");
+				
+				/* StartTime */
+				if (listingdetails.containsField("StartTime")) {
+					
 					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
           sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
           
 					formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-          
 					formatter.applyPattern("yyyy-MM-dd");
-					String endtime = ((DBObject) org.get("ListingDetails")).get("EndTime").toString();
-					Date dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+					
+					Date dfstarttime = null;
+					
+					String classname = listingdetails.get("StartTime").getClass().toString();
+					if (classname.equals("class java.util.Date")) {
+						dfstarttime = (Date) listingdetails.get("StartTime");
+					} else {
+						String starttime = listingdetails.get("StartTime").toString();
+						dfstarttime = sdf.parse(starttime.replace("T", " ").replace(".000Z", ""));
+					}
 					
 					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
 					formatter.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
 					
-					item.put("dfnow", sdf.format(now));
-					item.put("dfend", sdf.format(dfendtime));
-					if (formatter.format(now).equals(formatter.format(dfendtime))) {
-						//formatter.applyPattern("h:mm a");
-						formatter.applyPattern("MMM d HH:mm");
-					} else {
-						//formatter.applyPattern("MMM d");
-						formatter.applyPattern("MMM d HH:mm");
+					formatter.applyPattern("MMM d HH:mm");
+					
+					item.put("starttime", formatter.format(dfstarttime));
+          
+					if (dfstarttime.compareTo(now) > 0) {
+						item.put("schedule_local", formatter.format(dfstarttime));
+            tmp.put("ScheduleTime", formatter.format(dfstarttime));
 					}
+				}
+				
+				/* EndTime */
+				if (listingdetails.containsField("EndTime")) {
+					
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+          sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
+          
+					formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+					formatter.applyPattern("yyyy-MM-dd");
+					
+					Date dfendtime = null;
+					
+					String classname = 
+						((DBObject) org.get("ListingDetails")).get("EndTime").getClass().toString();
+					if (classname.equals("class java.util.Date")) {
+						dfendtime = (Date) listingdetails.get("EndTime");
+					} else {
+						String endtime = listingdetails.get("EndTime").toString();
+						dfendtime = sdf.parse(endtime.replace("T", " ").replace(".000Z", ""));
+					}
+					
+					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+					formatter.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+					
+					formatter.applyPattern("MMM d HH:mm");
+					
 					item.put("endtime", formatter.format(dfendtime));
 				}
+        
+				/* CurrentPrice */
+				BasicDBObject sellingstatus = (BasicDBObject) org.get("SellingStatus");
+				BasicDBObject currentprice = (BasicDBObject) sellingstatus.get("CurrentPrice");
+				item.put("currentprice", 
+								 currentprice.getString("@currencyID") + " " + currentprice.getString("#text"));
+				
+				if (parameters.get("bulk") != null) {
+					if (mod.containsField("PrimaryCategory")) {
+						Integer categoryid = Integer.parseInt
+							(((BasicDBObject) mod.get("PrimaryCategory")).getString("CategoryID"));
+						List path = categorypath(mod.get("Site").toString(), categoryid);
+						log.debug(path);
+					}
+				}
 			}
-			
+      
+      item.put("tmp", tmp);
 			item.removeField("_id");
 			
 			/* add */
@@ -568,6 +633,19 @@ public class JsonAction extends BaseAction {
 		/* execute query */
 		BasicDBObject item = (BasicDBObject) coll.findOne(query);
 		BasicDBObject mod  = (BasicDBObject) item.get("mod");
+		BasicDBObject org  = new BasicDBObject();
+		BasicDBObject opt  = new BasicDBObject();
+		if (item.containsField("org")) {
+			org = (BasicDBObject) item.get("org");
+		} else {
+			item.put("org", org);
+		}
+		if (item.containsField("opt")) {
+			opt = (BasicDBObject) item.get("opt");
+		} else {
+			item.put("opt", opt);
+		}
+		
 		item.put("id", item.get("_id").toString());
 		
 		String site = mod.getString("Site");
@@ -605,6 +683,42 @@ public class JsonAction extends BaseAction {
 			String[] pathstr = {"0"};
 			BasicDBObject children2 = children2(site, pathstr);
 			json.put("Categories", children2.get("Categories"));
+			
+		}
+		
+		if (mod.containsField("SecondaryCategory")) {
+			
+			/* categorypath */
+			// todo: update old categoryid to current active categoryid
+			Integer categoryid = Integer.parseInt
+				(((BasicDBObject) mod.get("SecondaryCategory")).getString("CategoryID"));
+			
+			categoryid = mapcategoryid(site, categoryid);
+			((BasicDBObject) mod.get("SecondaryCategory")).put("CategoryID", categoryid.toString());
+			
+			List path = categorypath(site, categoryid);
+			item.put("secondarycategorypath", path);
+			
+			/* grandchildren */
+			String[] pathstr = new String[path.size()+1];
+			pathstr[0] = "0";
+			for (int i = 0; i < path.size(); i++) {
+				pathstr[i+1] = path.get(i).toString();
+			}
+			
+			BasicDBObject children2 = children2(site, pathstr);
+			
+			LinkedHashMap<Integer,String> path2 = categorypath2(site, categoryid);
+			item.put("secondarycategorypath2", path2);
+			
+			json.put("SecondaryCategories", children2.get("Categories"));
+			
+		} else {
+			
+			/* grandchildren */
+			String[] pathstr = {"0"};
+			BasicDBObject children2 = children2(site, pathstr);
+			json.put("SecondaryCategories", children2.get("Categories"));
 			
 		}
 		
@@ -666,31 +780,48 @@ public class JsonAction extends BaseAction {
       }
     }
     */
-    
-    /* scheduled time */
-    if (item.containsField("setting")) {
-      BasicDBObject setting = (BasicDBObject) item.get("setting");
-      
-      if (setting.containsField("schedule")) {
-        
-        String schedule = setting.getString("schedule");
-        
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
-        
-        Date schedule_local = sdf.parse(schedule);
-        
-        sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
-        sdf.applyPattern("yyyy-MM-dd HH:mm");
-        
-        setting.put("schedule_local", sdf.format(schedule_local));
-      }
-    }
-    
-		/* remove fields */
+		
+		/* ScheduleTime */
+		if (mod.containsField("ScheduleTime")) {
+			
+			/* Scheduled on eBay but not submitted yet */
+			Date scheduletime = (Date) mod.get("ScheduleTime");
+			
+			sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+			sdf.applyPattern("yyyy-MM-dd HH:mm");
+			mod.put("ScheduleTime", sdf.format(scheduletime));
+			
+		} else if (org.containsField("ListingDetails")) {
+			
+			/* Imported scheduled item from ebay */
+			BasicDBObject listingdetails = (BasicDBObject) org.get("ListingDetails");
+			
+			if (listingdetails.containsField("StartTime")) {
+				Date starttime = (Date) listingdetails.get("StartTime");
+				Date now = new Date();
+				if (starttime.compareTo(now) > 0) {
+					sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+					sdf.applyPattern("yyyy-MM-dd HH:mm");
+					mod.put("ScheduleTime", sdf.format(starttime));
+					opt.put("ScheduleType", "ebay");
+				}
+			}
+			
+		} else if (opt.containsField("ScheduleTime")) {
+			
+			/* Scheduled on ListersIn */
+			Date scheduletime = (Date) opt.get("ScheduleTime");
+			
+			sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
+			sdf.applyPattern("yyyy-MM-dd HH:mm");
+			mod.put("ScheduleTime", sdf.format(scheduletime));
+			
+		}
+		
+		/* Remove fields */
 		item.removeField("_id");
 		
-		BasicDBObject ebaydetails =
+		BasicDBObject ebaydetails = 
 			(BasicDBObject) db.getCollection(site+".eBayDetails").findOne();
 		
 		BasicDBObject categoryfeatures =
@@ -712,37 +843,60 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject item            = (BasicDBObject) com.mongodb.util.JSON.parse(form);
 		BasicDBObject mod             = (BasicDBObject) item.get("mod");
-		BasicDBObject org             = (BasicDBObject) item.get("org");
+		BasicDBObject opt             = (BasicDBObject) item.get("opt");
 		BasicDBObject setting         = (BasicDBObject) item.get("setting");
-		BasicDBObject scheduletime    = (BasicDBObject) item.get("ScheduleTime");
 		BasicDBObject shippingdetails = (BasicDBObject) item.get("ShippingDetails");
-    
-		/* schedule */
-		if (setting.containsField("schedule_local")) {
-			String schedule = setting.getString("schedule_local");
-      
+		
+		/* ScheduleTime */
+		if (mod.containsField("ScheduleTime")) {
+			
+			String scheduletimestr = mod.getString("ScheduleTime");
+			
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-      
 			sdf.setLenient(false);
 			sdf.setTimeZone(TimeZone.getTimeZone(user.getString("timezone")));
-      
-			Date scheduledate = sdf.parse(schedule);
+			
+			Date scheduletime = sdf.parse(scheduletimestr);
       
 			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
       sdf.applyPattern("yyyy-MM-dd HH:mm:ss");
-      
-			setting.put("schedule", sdf.format(scheduledate));
+			
+			String scheduletype = opt.getString("ScheduleType");
+			if (scheduletype.equals("ebay")) {
+				mod.put("ScheduleTime", scheduletime);
+				opt.removeField("ScheduleTime");
+			} else if (scheduletype.equals("listersin")) {
+				mod.removeField("ScheduleTime");
+				opt.put("ScheduleTime", scheduletime);
+			} else {
+				mod.removeField("ScheduleTime");
+				opt.removeField("ScheduleTime");
+				opt.removeField("ScheduleType");
+			}
+		} else {
+			mod.removeField("ScheduleTime");
+			opt.removeField("ScheduleTime");
+			opt.removeField("ScheduleType");
 		}
 		
-    /* cast StartPrice to float */
-		if (mod.containsField("StartPrice")) {
-			BasicDBObject spdbo = (BasicDBObject) mod.get("StartPrice");
-			String spval = spdbo.getString("#text");
-			
-			Double floatval = new Double(spval);
-			spdbo.put("#text", floatval);
+		/* Copied from GetItem.java */
+		BasicDBList doublefields = (BasicDBList) configdbo.get("doublefield");
+		for (Object fieldname : doublefields) {
+			convertfield(mod, fieldname.toString());
 		}
     
+		BasicDBList intfields = (BasicDBList) configdbo.get("intfield");
+		for (Object fieldname : intfields) {
+			convertint(mod, fieldname.toString());
+		}
+		
+		/*
+		BasicDBList datefields = (BasicDBList) configdbo.get("datefield");
+		for (Object fieldname : datefields) {
+			convertdate(mod, fieldname.toString());
+		}
+		*/
+		
 		/* ShippingType */
     // todo: check through here
     /*
@@ -760,7 +914,7 @@ public class JsonAction extends BaseAction {
 		*/
     
     boolean orgexists = false;
-    
+		
 		/* items collection */
 		DBCollection coll = db.getCollection("items."+user.getString("_id"));
 		
@@ -775,7 +929,7 @@ public class JsonAction extends BaseAction {
 			BasicDBObject newitem = new BasicDBObject();
 			newitem.put("_id", newid);
 			newitem.put("mod", mod);
-			newitem.put("setting", setting);
+			newitem.put("opt", opt);
 			newitem.put("UserID", item.getString("UserID"));
 			
 			BasicDBList logdbl = new BasicDBList();
@@ -798,13 +952,13 @@ public class JsonAction extends BaseAction {
 			
 			BasicDBObject set = new BasicDBObject();
 			set.put("mod", mod);
-			set.put("setting", setting);
+			set.put("opt", opt);
 			set.put("UserID", item.getString("UserID"));
 			
 			BasicDBObject update = new BasicDBObject();
 			update.put("$set", set);
 			update.append("$push", new BasicDBObject
-						  ("log", new BasicDBObject(basetimestamp, "Saved by user")));
+										("log", new BasicDBObject(basetimestamp, "Saved by user")));
 			
 			coll.update(query, update);
 			
@@ -1089,10 +1243,12 @@ public class JsonAction extends BaseAction {
 	
 	@Action(value="/json/findproducts")
 	public String findproducts() throws Exception {
-		
+    
+		String site = "";
 		String findtype = "";
 		String keyword = "";
-		
+    
+		site = ((String[]) parameters.get("site"))[0];
 		findtype = ((String[]) parameters.get("findtype"))[0];
 		
 		if (parameters.containsKey("keyword")) {
@@ -1102,11 +1258,11 @@ public class JsonAction extends BaseAction {
 		}
 		
     /* GetSuggestedCategories */
-    String[] args = {"GetSuggestedCategories", keyword};
+    String[] args = {"GetSuggestedCategories", site, keyword};
     String categoryresult = writesocket(args);
     
 		/* FindProducts */
-    String[] args2 = {"FindProducts", findtype, keyword};
+    String[] args2 = {"FindProducts", site, findtype, keyword};
     String result = writesocket(args2);
     
 		XMLSerializer xmlSerializer = new XMLSerializer(); 
@@ -1245,11 +1401,16 @@ public class JsonAction extends BaseAction {
 		BasicDBObject unanswered = new BasicDBObject();
 		BasicDBObject saved      = new BasicDBObject();
     
-		scheduled.put("org.ItemID", new BasicDBObject("$exists", 0));
-		scheduled.put("setting.schedule", new BasicDBObject("$exists", 1));
-    
+		Date now = new Date();
+		ArrayList<BasicDBObject> or = new ArrayList<BasicDBObject>();
+		or.add(new BasicDBObject("mod.ScheduleTime", new BasicDBObject("$gt", now)));
+		or.add(new BasicDBObject("opt.ScheduleTime", new BasicDBObject("$gt", now)));
+		or.add(new BasicDBObject("org.ListingDetails.StartTime", new BasicDBObject("$gt", now)));
+		scheduled.put("$or", or);
+		
 		active.put("org.ItemID", new BasicDBObject("$exists", 1));
 		active.put("org.SellingStatus.ListingStatus", "Active");
+		active.put("org.ListingDetails.StartTime", new BasicDBObject("$lt", now));
 		
 		sold.put("org.ItemID", new BasicDBObject("$exists", 1));
 		sold.put("org.SellingStatus.QuantitySold", new BasicDBObject("$gte", 1));
@@ -1263,7 +1424,7 @@ public class JsonAction extends BaseAction {
 		//unanswered.put("org.ListingDetails.HasUnansweredQuestions", "true");
 		
 		saved.put("org.ItemID", new BasicDBObject("$exists", 0));
-		saved.put("setting.schedule", new BasicDBObject("$exists", 0));
+		//saved.put("setting.schedule", new BasicDBObject("$exists", 0));
     
 		LinkedHashMap<String,BasicDBObject> selling = new LinkedHashMap<String,BasicDBObject>();
 		selling.put("allitems",  allitems);
@@ -1464,7 +1625,6 @@ public class JsonAction extends BaseAction {
 		DBCollection collft  = db.getCollection(site+".CategoryFeatures");
 		DBCollection collftc = db.getCollection(site+".CategoryFeatures.Category");
 		DBCollection collspc = db.getCollection(site+".CategorySpecifics");
-		//DBCollection coll2cs = db.getCollection(site+".Category2CS.Category");
 		
 		DBObject dbo = collft.findOne(null, new BasicDBObject("SiteDefaults", true));
 		BasicDBObject features = (BasicDBObject) dbo.get("SiteDefaults");
@@ -1521,16 +1681,6 @@ public class JsonAction extends BaseAction {
 						dbospc.removeField("_id");
 						childinfo.put("CategorySpecifics", dbospc);
 					}
-					
-					/* Category2CS : no longer recommended */
-					/*
-					DBObject dbo2cs = coll2cs.findOne
-						(new BasicDBObject("CategoryID", row.getString("CategoryID")));
-					if (dbo2cs != null) {
-						dbo2cs.removeField("_id");
-						childinfo.put("Category2CS", dbo2cs);
-					}
-					*/
 				}
 				
 				tmpchildren.put("c"+row.getString("CategoryID"), childinfo);
@@ -1892,4 +2042,101 @@ public class JsonAction extends BaseAction {
 		
 		return query;
 	}
+	
+	/**
+	 * Copied from GetItem.java
+	 */
+	private void convertfield(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+		
+		/* leaf */
+		if (path.length == 1) {
+      Double doubleval = new Double(dbo.get(path[0]).toString());
+      dbo.put(path[0], doubleval);
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertfield((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertfield((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+  
+	private void convertint(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+    
+		/* leaf */
+		if (path.length == 1) {
+      Integer intval = new Integer(dbo.get(path[0]).toString());
+      dbo.put(path[0], intval);
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertint((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertint((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+  
+	private void convertdate(DBObject dbo, String field) throws Exception {
+		
+		String[] path = field.split("\\.", 2);
+		
+		if (!dbo.containsField(path[0])) return;
+		
+		String classname = dbo.get(path[0]).getClass().toString();
+    
+		/* leaf */
+		if (path.length == 1) {
+			
+			String value = dbo.get(path[0]).toString();
+			value = value.replace("T", " ").replace(".000Z", "");
+			
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			sdf.setLenient(false);
+			sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+			Date date = sdf.parse(value);
+			
+      dbo.put(path[0], date);
+			
+			return;
+		}
+    
+		/* not leaf */
+		if (classname.equals("class com.mongodb.BasicDBList")) {
+			BasicDBList orgdbl = (BasicDBList) dbo.get(path[0]);
+			for (int i = 0; i < orgdbl.size(); i++) {
+				convertdate((DBObject) orgdbl.get(i), path[1]);
+			}
+		} else if (classname.equals("class com.mongodb.BasicDBObject")) {
+			convertdate((DBObject) dbo.get(path[0]), path[1]);
+		}
+    
+		return;
+	}
+	
 }

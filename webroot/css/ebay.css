@@ -229,22 +229,22 @@ table.items tr.row1 > td {
 }
 
 table.items tr.row1 img.PictureURL {
-  max-height: 40px;
-  max-width: 40px;
+  max-height: 45px;
+  max-width: 45px;
   margin: 0px;
   padding: 0px;
 }
 
 table.items tr.row1 td.PictureURL {
-  height: 40px;
-  width: 40px;
+  height: 45px;
+  width: 45px;
   text-align: center;
   vertical-align: middle;
 }
 
 table.items tr.row1 td.PictureURL div {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   display: table-cell;
   text-align: center;
   vertical-align: middle;
@@ -511,18 +511,16 @@ ul.accountaction {
   */
 }
 
-td.price {
-  white-space: nowrap;
-}
-
-td.price,
-td.WatchCount,
-td.HitCount,
-td.BidCount {
-  text-align: right;
-}
-
-td.EndTime {
+td.Quantity,
+div.Quantity,
+div.StartPrice,
+div.CurrentPrice,
+div.WatchCount,
+div.HitCount,
+div.SoldCount,
+div.BidCount,
+div.StartTime,
+div.EndTime {
   text-align: right;
   white-space: nowrap;
 }
@@ -649,13 +647,10 @@ div.Dimensions {
 
 #debug {
   display: none;
+  margin: 10px;
   padding: 10px;
   background-color: #333;
 	color: #fff;
-}
-
-#debug pre {
-  word-break: break-all;
 }
 
 iframe[name=posttarget] {
@@ -1205,11 +1200,11 @@ label[for=checkall] {
   margin: 6px 0 0;
 }
 
-#items > thead td {
+#items > thead td > div {
   white-space: nowrap;
 }
 
-#items > thead td:hover {
+#items > thead td > div:hover {
   text-decoration: underline;
 	cursor: pointer;
 }
