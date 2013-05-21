@@ -6,9 +6,41 @@ var strprev  = '';
 var timeout  = null;
 var foundproducts = new Array();
 
+var sitecur = new Array();
+sitecur['US']             = ['USD'];
+sitecur['Canada']         = ['CAD', 'USD'];
+sitecur['UK']             = ['GBP'];
+sitecur['Germany']        = ['EUR'];
+sitecur['Australia']      = ['AUD'];
+sitecur['France']         = ['EUR'];
+sitecur['eBayMotors']     = ['USD'];
+sitecur['Italy']          = ['EUR'];
+sitecur['Netherlands']    = ['EUR'];
+sitecur['Spain']          = ['EUR'];
+sitecur['India']          = ['INR'];
+sitecur['HongKong']       = ['HKD'];
+sitecur['Singapore']      = ['SGD'];
+sitecur['Malaysia']       = ['MYR'];
+sitecur['Philippines']    = ['PHP'];
+sitecur['CanadaFrench']   = ['CAD', 'USD'];
+sitecur['Poland']         = ['PLN'];
+sitecur['Belgium_Dutch']  = ['EUR'];
+sitecur['Belgium_French'] = ['EUR'];
+sitecur['Austria']        = ['EUR'];
+sitecur['Switzerland']    = ['CHF'];
+sitecur['Ireland']        = ['EUR'];
+
 /* global hook */
 $(document).ajaxComplete(function(event, xhr, settings) {
 	
+	if (xhr.responseText.match(/<html>/)) {
+		showmessage('Server error.');
+		$('div#debug').html(xhr.responseText);
+		return;
+	}
+	
+  // todo: global hook for basic hash data.
+  
 	var data = $.parseJSON(xhr.responseText);
 	
 	if (data.json.message == null
@@ -1726,29 +1758,6 @@ function setformelements(item)
 	});
 	
 	/* Currency */
-	var sitecur = new Array();
-	sitecur['US']             = ['USD'];
-	sitecur['Canada']         = ['CAD', 'USD'];
-	sitecur['UK']             = ['GBP'];
-	sitecur['Germany']        = ['EUR'];
-	sitecur['Australia']      = ['AUD'];
-	sitecur['France']         = ['EUR'];
-	sitecur['eBayMotors']     = ['USD'];
-	sitecur['Italy']          = ['EUR'];
-	sitecur['Netherlands']    = ['EUR'];
-	sitecur['Spain']          = ['EUR'];
-	sitecur['India']          = ['INR'];
-	sitecur['HongKong']       = ['HKD'];
-	sitecur['Singapore']      = ['SGD'];
-	sitecur['Malaysia']       = ['MYR'];
-	sitecur['Philippines']    = ['PHP'];
-	sitecur['CanadaFrench']   = ['CAD', 'USD'];
-	sitecur['Poland']         = ['PLN'];
-	sitecur['Belgium_Dutch']  = ['EUR'];
-	sitecur['Belgium_French'] = ['EUR'];
-	sitecur['Austria']        = ['EUR'];
-	sitecur['Switzerland']    = ['CHF'];
-	sitecur['Ireland']        = ['EUR'];
 	$('select[name="mod.Currency"]', '#'+id).empty();
 	$.each(hash[site].eBayDetails.CurrencyDetails, function(k, v) {
 		if ($.inArray(v.Currency, sitecur[site]) == -1) return;
