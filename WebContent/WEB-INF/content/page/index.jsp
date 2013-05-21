@@ -54,7 +54,12 @@
 		    <h1>ListersIn - <s:text name="eBayListingSoftware"/></h1>
 	    </div>
       
-			<img src="/img/topimage.jpg" width="500" />
+	    <a href="/img/screenshot.png" target="_blank">
+				<img id="topimg" src="/img/screenshot.png" width="500" />
+			</a>
+	    <div>
+		    <a href="/img/screenshot.png" target="_blank">Click to enlarge screenshot</a>
+	    </div>
 			
       <h2><s:text name="Features"/></h2>
 	    <ul class="features">
@@ -113,13 +118,6 @@
         </s:else>
       </ul>
 	    
-	    <h2><s:text name="Screenshot"/></h2>
-	    <a href="/img/screenshot.png" target="_blank">
-		    <img id="screenshot" src="/img/screenshot.png" />
-	    </a>
-	    <div>
-		    <a href="/img/screenshot.png" target="_blank">Click to enlarge</a>
-	    </div>
 	    <h2><s:text name="Blog"/></h2>
 	    <ul class="blog">
 		    <s:iterator value="blogfeed.channel.item">
