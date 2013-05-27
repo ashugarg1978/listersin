@@ -204,7 +204,7 @@ public class EndItems extends ApiCall {
 					log("Class Error:"+errorclass);
 					continue;
 				}
-				upditem.put("err", errors);
+				upditem.put("error", errors);
 			}
 			
 			BasicDBObject query = new BasicDBObject();

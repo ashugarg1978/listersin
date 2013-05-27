@@ -154,12 +154,12 @@ public class RelistItem extends ApiCall {
 				log("Class Error:"+errorclass);
 			}
 			
-			upditem.put("err", errors);
+			upditem.put("error", errors);
 			
 		} else {
 			
 			/* No error! */
-			upditem.put("err", null);
+			upditem.put("error", null);
 			
 		}
 		

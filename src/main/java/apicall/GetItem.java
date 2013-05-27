@@ -134,6 +134,23 @@ public class GetItem extends ApiCall implements Callable {
 			movefield(mod, fieldname.toString());
 		}
     
+    /* Delete mod.ShippingPackageDetails */
+    if (mod.containsField("ShippingPackageDetails")) {
+      BasicDBObject spd = (BasicDBObject) mod.get("ShippingPackageDetails");
+      if (spd == null) {
+        log("spd:null");
+      } else {
+        String weightmajor = ((BasicDBObject) spd.get("WeightMajor")).getString("#text");
+        String weightminor = ((BasicDBObject) spd.get("WeightMinor")).getString("#text");
+        log("major["+weightmajor+"]minor["+weightminor+"]");
+        
+        if (weightmajor.equals("0") && weightminor.equals("0")) {
+          mod.removeField("ShippingPackageDetails");
+          log("remove ShippingPackageDetails");
+        }
+      }
+    }
+    
 		BasicDBList doublefields = (BasicDBList) configdbo.get("doublefield");
 		for (Object fieldname : doublefields) {
 			convertfield(mod, fieldname.toString());
@@ -174,7 +191,7 @@ public class GetItem extends ApiCall implements Callable {
 		set.put("UserID", userid);
 		set.put("org", org);
 		set.put("mod", mod);
-		set.put("err", null); // to clear past errors.
+		set.put("error", null); // to clear past errors.
 		
 		update.put("$set", set);
 		update.put("$push", new BasicDBObject("log", new BasicDBObject(timestamp, "Import from eBay")));
@@ -249,7 +266,8 @@ public class GetItem extends ApiCall implements Callable {
 		String[] path = field.split("\\.", 2);
 		
 		if (!dbo.containsField(path[0])) return;
-		
+    if (dbo.get(path[0]) == null) return;
+    
 		String classname = dbo.get(path[0]).getClass().toString();
     
 		/* leaf */

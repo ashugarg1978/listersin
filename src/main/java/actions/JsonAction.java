@@ -385,7 +385,7 @@ public class JsonAction extends BaseAction {
 		
 		BasicDBObject field = new BasicDBObject();
 		
-		field.put("err",                             1);
+		field.put("error",                           1);
 		field.put("membermessages",                  1);
 		field.put("message",                         1);
 		field.put("opt",                             1);
