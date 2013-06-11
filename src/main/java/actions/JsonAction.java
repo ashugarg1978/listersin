@@ -368,7 +368,8 @@ public class JsonAction extends BaseAction {
 		
 		LinkedHashMap<String,Object> itemjson = new LinkedHashMap<String,Object>();
 		
-		LinkedHashMap<String,Object> items = new LinkedHashMap<String,Object>();
+		//LinkedHashMap<String,Object> items = new LinkedHashMap<String,Object>();
+    ArrayList<BasicDBObject> items = new ArrayList<BasicDBObject>();
 		
 		LinkedHashMap<String,BasicDBObject> sellingquery = getsellingquery();
 		
@@ -415,6 +416,10 @@ public class JsonAction extends BaseAction {
 		field.put("org.TimeLeft",                    1);
 		field.put("org.WatchCount",                  1);
     
+		if (parameters.get("bulk") != null) {
+			field = null;
+		}
+		
 		BasicDBObject sort = new BasicDBObject();
 		
 		if (parameters.get("sortfield") != null) {
@@ -469,11 +474,15 @@ public class JsonAction extends BaseAction {
 		
 		sdf.setLenient(false);
 		formatter.setLenient(false);
-		
+    
+		BasicDBObject paths = new BasicDBObject();
+		BasicDBObject bulksites = new BasicDBObject();
+    
+		/* each items */
 		DBCursor cur = coll.find(query, field).limit(limit).skip(offset).sort(sort);
 		itemjson.put("cnt", cur.count());
 		while (cur.hasNext()) {
-			
+      
 			DBObject item = cur.next();
 			DBObject mod = (DBObject) item.get("mod");
       
@@ -605,16 +614,20 @@ public class JsonAction extends BaseAction {
 						log.debug(path);
 					}
 				}
+        
 			}
       
       item.put("tmp", tmp);
 			item.removeField("_id");
 			
-			/* add */
-			items.put(id, item);
+			//items.put(id, item);
+			items.add((BasicDBObject) item);
+      
 		}
+    
 		itemjson.put("items", items);
-		
+		itemjson.put("paths", paths);
+    
 		return itemjson;
 	}
 	
