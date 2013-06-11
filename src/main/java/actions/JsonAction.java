@@ -479,7 +479,10 @@ public class JsonAction extends BaseAction {
       
       BasicDBObject tmp = new BasicDBObject();
       
+      item.put("id", item.get("_id").toString());
+      
 			String id = item.get("_id").toString();
+			String site = mod.get("Site").toString();
 			
 			/* StartPrice */
 			if (mod.containsField("StartPrice")) {
