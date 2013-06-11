@@ -1523,12 +1523,8 @@ function items(clearitems)
 			 
 			 $('#items').append(dom);
        
-			 //$('tr.row2 td', '#'+row.id).append('hoge');
        setmembermessageform(row.id, row);
-			 //$('tr.row2 td', '#'+row.id).css('border', '2px solid red');
-			 
 		 });
-		 
 	 },
 	 'json');
 	
