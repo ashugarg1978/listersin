@@ -376,11 +376,23 @@ function bindevents()
     return;
   });
   
+  /* ListingType -> update duration set */
 	$('#items').on('change', 'select[name="mod.ListingType"]', function() {
+    
 		var id = $(this).closest('tbody.itemrow').attr('id');
-		updateduration(id);
+    
+		var item_modifing =
+			$('input[type="text"], input:checked, input[type="hidden"], select, textarea', '#'+id)
+			.extractObject();
+    
+		item_modifing.id = id;
+    
+		setformelements_listingduration(item_modifing);
+    
+    return;
 	});
 	
+  /* Tab */
 	$('#items').on('click', 'ul.tabNav li', function() {
 		var id = $(this).closest('tbody').attr('id');
 		var curIdx = $(this).prevAll().length + 1;
@@ -401,7 +413,6 @@ function bindevents()
     
 		return false;
 	});
-	
 	
 	/* Editor */
 	$('#items').on('click', 'a.wysiwyg', function() {
@@ -1146,6 +1157,12 @@ function bindevents()
 		event.stopPropagation();
 	});
 	
+  $('#items').on('keyup', 'input[name="mod.Title"]', function() {
+	  var id = $(this).closest('tbody.itemrow').attr('id');
+    console.log('keyup:' + id);
+    $('span.title-character-count', '#'+id).html('(' + $(this).val().length + ' characters)');
+  });
+  
 } // end of bindevents
 
 function togglebulkbuttons() {
@@ -1215,7 +1232,10 @@ var findproducts = function() {
              $('div.productsearchmessage', td).html('No product found for "'+keyword+'".');
              return;
            }
-			     
+           
+           data.json.categories.SuggestedCategoryArray.SuggestedCategory
+             = arrayize(data.json.categories.SuggestedCategoryArray.SuggestedCategory);
+           
 					 $.each(data.json.categories.SuggestedCategoryArray.SuggestedCategory, function(i, o) {
 						 
 						 var category = o.Category;
@@ -1497,15 +1517,15 @@ function items(clearitems)
 		 
 		 $.each(data.json.items, function(idx, row) {
        
-			 rowsdata[idx] = row;
+			 rowsdata[row.id] = row;
        
-			 var dom = getrow(idx, row);
+			 var dom = getrow(row.id, row);
 			 
 			 $('#items').append(dom);
        
-			 //$('tr.row2 td', '#'+idx).append('hoge');
-       setmembermessageform(idx, row);
-			 //$('tr.row2 td', '#'+idx).css('border', '2px solid red');
+			 //$('tr.row2 td', '#'+row.id).append('hoge');
+       setmembermessageform(row.id, row);
+			 //$('tr.row2 td', '#'+row.id).css('border', '2px solid red');
 			 
 		 });
 		 
@@ -1634,8 +1654,8 @@ function getrow(idx, row)
 	if (row.status) {
 		$('td.Title', dom).append('<br/><span class="status">'+row.status+'</span>');
 	}
-	if (row.err) {
-		$.each(row.err, function(k, v) {
+	if (row.error) {
+		$.each(row.error, function(k, v) {
 			if (v != '') {
 				if (v.SeverityCode == 'Warning') {
 					//$('td.Title', dom).append('<br/>');
@@ -1857,35 +1877,8 @@ function setformelements(item)
 	/* ItemSpecifics */
 	setformelements_itemspecifics(item);
 	
-	/* ListingDuration */
-	$('select[name="mod.ListingDuration"]', '#'+id).empty();
-	if ($('select[name="mod.ListingType"]').val() == 'Chinese') {
-		var optiontag = $('<option/>').val('Days_1').html('1 day');
-		$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
-	}
-	var durationsetid = null;
-	if (item.mod.PrimaryCategory) {
-		if (category.CategoryFeatures) {
-			for (i in category.CategoryFeatures.ListingDuration) {
-				if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
-					durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
-					break;
-				}
-			}
-		}
-	}
-	var listingdurations =
-		hash[site].CategoryFeatures.FeatureDefinitions.ListingDurations.ListingDuration;
-	for (i in listingdurations) {
-		if (listingdurations[i]['@durationSetID'] == durationsetid) {
-			for (j in listingdurations[i].Duration) {
-				var value = listingdurations[i].Duration[j];
-				var optiontag = $('<option/>').val(value).html(value);
-				$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
-			}
-			break;
-		}
-	}
+	/* ListingDuration (depends on Site, PrimaryCategory, ListingType) */
+  setformelements_listingduration(item);
 	
 	/* ShippingPackage */
 	var _sdcsr = 'ShippingDetails.CalculatedShippingRate';
@@ -2002,6 +1995,81 @@ function setformelements(item)
 	});
 	
 	return;
+}
+
+function setformelements_listingduration(item)
+{
+	var id = item.id;
+	var site = item.mod.Site;
+  
+	if (item.mod.PrimaryCategory == undefined) {
+	  $('select[name="mod.ListingDuration"]', '#'+id).empty();
+		var optiontag = $('<option/>').val('').html('(Please select category)');
+		$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
+    return;
+  }
+  
+  var categoryid = item.mod.PrimaryCategory.CategoryID;
+  
+  var parentid = $('select[name^="categorypath."]:last', '#'+id).val();
+  
+  if (item.categorypath[item.categorypath.length-1] != categoryid) {
+    item.categorypath.push(categoryid);
+  }
+  
+	var tmppc = hash[site].Categories;
+	if (item.categorypath.length >= 2) {
+		tmppc = tmppc['c'+item.categorypath[item.categorypath.length-2]];
+    console.log('A:' + item.categorypath[item.categorypath.length-2]);
+	} else if (parentid) {
+		tmppc = tmppc['c'+parentid];
+    console.log('B:' + parentid);
+  }
+  
+	var category = tmppc['c' + categoryid];
+  
+	if (category == undefined) return;
+  
+  /* Empty */
+	$('select[name="mod.ListingDuration"]', '#'+id).empty();
+  
+  /* 1 day */
+	if ($('select[name="mod.ListingType"]').val() == 'Chinese') {
+		var optiontag = $('<option/>').val('Days_1').html('1 day');
+		$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
+	}
+  
+  /* durationSetID */
+	var durationsetid = null;
+	if (category.CategoryFeatures) {
+		for (i in category.CategoryFeatures.ListingDuration) {
+			if (category.CategoryFeatures.ListingDuration[i]['@type'] == item.mod.ListingType) {
+				durationsetid = category.CategoryFeatures.ListingDuration[i]['#text'];
+				break;
+			}
+		}
+	}
+  
+  /* ListingDurations */
+	var listingdurations =
+    hash[site].CategoryFeatures.FeatureDefinitions.ListingDurations.ListingDuration;
+	for (i in listingdurations) {
+		if (listingdurations[i]['@durationSetID'] == durationsetid) {
+      console.log('durationsetid: ' + durationsetid);
+      
+			for (j in listingdurations[i].Duration) {
+        
+				var value = listingdurations[i].Duration[j];
+        
+				var optiontag = $('<option/>').val(value).html(getListingDurationLabel(value));
+        
+				$('select[name="mod.ListingDuration"]', '#'+id).append(optiontag);
+			}
+			break;
+		}
+	}
+  
+  return;
 }
 
 function setformelements_variations(item)
@@ -2628,6 +2696,8 @@ var changeCategory = function() {
 	('/json/gc2?site='+site+'&path=0.'+joined,
 	 function(data) {
 		 
+     //dump(data);
+     
 		 if (tdclass == 'secondarycategory') {
 			 hash[site].SecondaryCategories = data.json.gc2.Categories;
 		 } else {
@@ -3208,27 +3278,6 @@ function refresh()
 	 'json');
 	
 	return;
-	
-	// todo: check firefox pseudo class .... warning
-	
-	$.post('/json/items',
-		   loadings.serialize(),
-		   function(data) {
-			   dump(data.json);
-			   $.each(data.json.items, function(idx, row) {
-				   dom = getrow(idx, row);
-				   if (row.status == '') {
-					   //$('input:checkbox', dom).css('visibility', '').attr('checked', '');
-					   $('input:checkbox', dom).css('visibility', '').removeAttr('checked');
-					   $('input:checkbox', dom).parent().removeClass('loading');
-					   $('tbody#'+idx).replaceWith(dom);
-				   }
-				   rowsdata[idx] = row;
-			   });
-		   },
-		   'json');
-	
-	return;
 }
 
 function showmessage(message)
@@ -3313,6 +3362,7 @@ function updateduration(id)
 {
 	var site = $('select[name="mod.Site"]', '#'+id).val();
 	var listingtype = $('select[name="mod.ListingType"]', '#'+id).val();
+  var categoryid = $('select[name="mod.PrimaryCategory.CategoryID"]', '#'+id).val();
 	var tmpo = hash[site]['category']['features'][categoryid]['ListingDuration'];
 	
 	var sel = $('<select/>').attr('name', 'ListingDuration');
@@ -3429,7 +3479,6 @@ function showformvalues(item)
 	
 	/* Description (before replacing textarea)*/
 	//$('textarea[name="mod.Description"]', detail).wysiwyg('clear');
-	/*
 	var iframe = $('<iframe/>')
 		.attr('id', 'iframe'+item.id)
 		.attr('class', 'description')
@@ -3444,7 +3493,6 @@ function showformvalues(item)
         .css('height', ($('#iframe'+item.id).contents().find('body').height()+20) + 'px');
     }, 2000);
 	});
-	*/
 	/*
 	$('textarea[name="mod.Description"]', detail)
 		.before($('<div/>').attr('id', 'isize'+item.id).html('CLICK'));
@@ -3454,7 +3502,7 @@ function showformvalues(item)
 		$('#iframe'+id).css('height', ($('#iframe'+id).contents().find('body').height()+16)+'px');
 	});
 	*/
-	//$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
+	$('textarea[name="mod.Description"]', detail).replaceWith(iframe);
 	
 	/* textarea */
 	$.each($('textarea', detail), function(i, form) {
@@ -3776,7 +3824,8 @@ function setformelements_itemspecifics(item)
 	}
 	
 	return;
-}
+  
+} // function setformelements_itemspecifics()
 
 function setformelements_itemspecifics_values(id, i, recomm, specific)
 {
@@ -3949,7 +3998,8 @@ function setformelements_itemspecifics_values(id, i, recomm, specific)
 	$(trtag).append(tdtag);
 	
 	return trtag;
-}
+  
+} // function setformelements_itemspecifics_values()
 
 function addimage(id, divclass, files) {
   
