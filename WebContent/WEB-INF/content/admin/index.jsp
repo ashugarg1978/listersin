@@ -14,7 +14,6 @@
 	<ul>
 		<li><a href="https://listers.in/admin/">Production</a></li>
 		<li><a href="http://sandbox.listers.in/admin/">Sandbox</a></li>
-		<li><a href="/admin/updatesummary">Update summary</a></li>
     <li><a href="http://forum.listers.in/" target="_blank">Forum</a></li>
     <li><a href="http://listers.in/blog/wp-admin/" target="_blank">Blog</a></li>
     <li><a href="http://zabbix.devweb.in/" target="_blank">Zabbix</a></li>
@@ -28,12 +27,12 @@
         <th>Email</th>
         <th>Created</th>
         <th>Last used</th>
-        <th>Action</th>
+        <th></th>
         <th>eBay ID</th>
         <th>P</th>
-        <th>Actv</th>
-        <th>Cmpltd</th>
-        <th>Saved</th>
+        <th>A</th>
+        <th>C</th>
+        <th>S</th>
       </tr>
     </thead>
     <tbody>
@@ -49,7 +48,7 @@
 						<td>${created_local}</td>
 						<td>${lastused_local}</td>
 						<td>
-							<a class="delete" href="#" data-id="${_id}">delete</a>
+							<a class="delete" href="#" data-id="${_id}">x</a>
 						</td>
 						<td>-</td>
 						<td align="right">-</td>
@@ -72,7 +71,7 @@
 								<td rowspan="${userids2.size()}">${created_local}</td>
 								<td rowspan="${userids2.size()}">${lastused_local}</td>
 								<td rowspan="${userids2.size()}">
-							    <a class="delete" href="#" data-id="${_id}">delete</a>
+							    <a class="delete" href="#" data-id="${_id}">x</a>
 								</td>
 							</s:if>
 							
