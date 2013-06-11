@@ -22,7 +22,7 @@
 <script type="text/javascript" src="/js/jquery-ui-1.10.1.custom/js/jquery-ui-1.10.1.custom.min.js"></script>
 <script type="text/javascript" src="/js/jquery-ui-timepicker-addon/jquery-ui-timepicker-addon.js"></script>
 
-<script type="text/javascript" src="/js/ebay.js"></script>
+<script type="text/javascript" src="/js/ebay.js?13"></script>
 <script type="text/javascript">
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-32099440-1']);
@@ -886,7 +886,9 @@ _gaq.push(['_trackPageview']);
           <tr>
             <th><s:text name="Title"/></th>
             <td>
-              <input name="mod.Title" type="text" size="80"/><br/>
+              <input name="mod.Title" type="text" size="80"/>
+              <span class="title-character-count"></span>
+              <br/>
               <input type="checkbox" value="BoldTitle"
                      name="mod.ListingEnhancement"
                       id="_id.ListingEnhancement"/>
