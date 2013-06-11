@@ -148,7 +148,7 @@ public class AddFixedPriceItem extends ApiCall {
 			} else {
 				log("Class Error:"+errorclass);
 			}
-			upditem.put("errors", errors);
+			upditem.put("error", errors);
 		}
 		
 		BasicDBObject query = new BasicDBObject();

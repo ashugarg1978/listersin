@@ -138,15 +138,13 @@ public class GetItem extends ApiCall implements Callable {
     if (mod.containsField("ShippingPackageDetails")) {
       BasicDBObject spd = (BasicDBObject) mod.get("ShippingPackageDetails");
       if (spd == null) {
-        log("spd:null");
+        
       } else {
         String weightmajor = ((BasicDBObject) spd.get("WeightMajor")).getString("#text");
         String weightminor = ((BasicDBObject) spd.get("WeightMinor")).getString("#text");
-        log("major["+weightmajor+"]minor["+weightminor+"]");
         
         if (weightmajor.equals("0") && weightminor.equals("0")) {
           mod.removeField("ShippingPackageDetails");
-          log("remove ShippingPackageDetails");
         }
       }
     }
